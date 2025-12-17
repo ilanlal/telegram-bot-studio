@@ -1,6 +1,8 @@
-const { EventHandler } = require('./EventHandler');
-const { CardHandler } = require('./core/CardHandler');
+const { EventHandler } = require('./core/EventHandler');
+const { NavigationHandler } = require('./core/NavigationHandler');
+const { SpreadsheetHandler } = require('./SpreadsheetHandler');
 
-// Expose handlers globally for testing and local Apps Script runtime
-global.CardHandler = CardHandler;
+// Export handlers to global scope for Apps Script
 global.EventHandler = EventHandler;
+global.NavigationHandler = NavigationHandler;
+global.SpreadsheetHandler = SpreadsheetHandler;

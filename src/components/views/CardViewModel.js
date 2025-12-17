@@ -1,16 +1,16 @@
 class CardViewModel {
     static create({
         cardService = CardService,
-        documentProperties = PropertiesService.getDocumentProperties() } = {}
-    ) {
+        documentProperties = PropertiesService.getDocumentProperties(),
+        userProperties = PropertiesService.getUserProperties(),
+        scriptProperties = PropertiesService.getScriptProperties()
+    } = {}) {
         return new CardViewModel({
-            cardWrapper: CardViewModel.CardServiceWrapper.create(cardService, documentProperties)
+            cardWrapper: CardViewModel.CardServiceWrapper.create(cardService, documentProperties, userProperties, scriptProperties)
         });
     }
 
     constructor({ cardWrapper } = {}) {
-        // Use the global CardService in Apps Script environment
-        /** @type {CardViewModel.CardServiceWrapper} */
         this._cardWrapper = cardWrapper;
     }
 
@@ -21,14 +21,21 @@ class CardViewModel {
 };
 
 CardViewModel.CardServiceWrapper = class {
-    static create(cardService = CardService, documentProperties = PropertiesService.getDocumentProperties()) {
-        return new CardViewModel.CardServiceWrapper(cardService, documentProperties);
+    static create(
+        cardService = CardService,
+        documentProperties = PropertiesService.getDocumentProperties(),
+        userProperties = PropertiesService.getUserProperties(),
+        scriptProperties = PropertiesService.getScriptProperties()
+    ) {
+        return new CardViewModel.CardServiceWrapper(cardService, documentProperties, userProperties, scriptProperties);
     }
 
-    constructor(cardService, documentProperties) {
+    constructor(cardService, documentProperties, userProperties, scriptProperties) {
         // Use the global CardService in Apps Script environment
         this._cardService = cardService;
         this._documentProperties = documentProperties;
+        this._userProperties = userProperties;
+        this._scriptProperties = scriptProperties;
     }
 
     newCardBuilder(cardMeta = {}) {

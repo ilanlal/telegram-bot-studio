@@ -23,7 +23,8 @@ class AppModel {
                 userTimezone: Session.getScriptTimeZone()
             },
             appInfo: {
-            }
+            },
+            sampleTextInputValue: 'Hello, world!'
         }
     }
 }

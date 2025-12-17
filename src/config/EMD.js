@@ -24,7 +24,7 @@ EMD.KISS_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/basic-telegram-bot
 EMD.CHEERS_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/basic-telegram-bot-remastered/main/assets/bitmoji-20190109115847.webp';
 EMD.BLINK_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/basic-telegram-bot-remastered/main/assets/bitmoji-20190109115905.webp';
 EMD.LOGO_PNG_URL = 'https://raw.githubusercontent.com/ilanlal/basic-telegram-bot-remastered/main/assets/logo480.png';
-EMD.GIT_REPO_URL = 'https://github.com/ilanlal/basic-telegram-bot-remastered';
+EMD.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-gas-addon';
 
 EMD.Home = {
     entityName: 'Home',
@@ -33,136 +33,64 @@ EMD.Home = {
             name: 'homeCard',
             header:
             {
-                title: '🏠 Home',
-                subTitle: 'Welcome to your home',
+                title: '🤖 Home',
+                subTitle: 'Telegram Bot Studio',
                 imageUrl: EMD.DEFAULT_IMAGE_URL,
                 imageStyle: CardService.ImageStyle.SQUARE,
-                imageAltText: 'Home Image'
+                imageAltText: 'Telegram Bot Studio Home Image'
             },
             sections: [
-                {  // Environment variables section
-                    //header: 'Environment Variables',
+                {   // Welcome section
+                    // header: 'Welcome to your home',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {  // Welcome TextParagraph widget
+                            id: 'welcome_widget',
+                            TextParagraph: {
+                                maxLines: 4,
+                                text: 'Welcome to Telegram Bot Studio! 🎉\n\n'
+                                    + 'Enjoy building your Telegram bots with ease and efficiency!\n\n'
+                                    + 'For more information, visit our [GitHub Repository](' + EMD.GIT_REPO_URL + ').'
+                                    + '\n\nHappy Bot Building! 🤖🚀'
+                            }
+                        }
+                    ]
+                },
+                {   // Basic operations section
+                    header: 'Basic Operations',
                     collapsible: true,
                     numUncollapsibleWidgets: 1,
                     widgets: [
-                        {   // Environment variables widget
-                            id: 'environment_variables_widget',
+                        { // Basic bot operation widget
+                            id: 'basic_bot_operation_widget',
+                            TextParagraph: {
+                                maxLines: 6,
+                                text: 'To get started, create a new bot by clicking on the "Create Bot" button in the sidebar. '
+                                    + 'Follow the prompts to set up your bot and connect it to your Telegram account. '
+                                    + 'Once your bot is set up, you can start adding features and customizing its behavior using our intuitive interface.'
+                            }
+                        },
+                        {  // DecoratedText with TextButton to push card
+                            id: 'basic_bot_operation_button',
                             DecoratedText: {
-                                text: data?.environmentTraffic || 'Configure your environment variables to get started',
-                                topLabel: 'Step #1: Environment Variables',
-                                bottomLabel: 'Click 🔩 to manage your environment variables',
+                                text: 'Need help with basic bot operations?',
+                                bottomLabel: 'Click the button to insert sample data into your spreadsheet.',
                                 wrapText: false,
                                 textButton: {
                                     disabled: false,
-                                    text: '🔩',
+                                    text: '💻',
                                     onClick: {
-                                        functionName: 'CardHandler.Addon.onOpenCardClick',
-                                        parameters: {
-                                            card: 'EMD.Cards.EnvironmentVariables'
-                                        }
+                                        functionName: 'CardHandler.Controller.onPushCardClick',
+                                        parameters: { card: 'EMD.Cards.BasicBotOperation' }
                                     }
                                 }
                             }
                         }
                     ]
+
                 },
-                {   // Bot Setup Section
-                    // header: 'Telegram Bot Setup',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 1,
-                    widgets: [
-                        {   // Bot setup widget
-                            id: 'bot_setup_widget',
-                            DecoratedText: {
-                                text: 'Step #2: Setup Your Bot',
-                                topLabel: '📡 Bot Setup',
-                                bottomLabel: 'Click on 🤖 to setup your bot API token, set bot info & webhook',
-                                wrapText: false,
-                                textButton: {
-                                    disabled: false,
-                                    text: '🤖',
-                                    onClick: {
-                                        functionName: 'CardHandler.Addon.onOpenCardClick',
-                                        parameters: { card: 'EMD.Cards.BotSetup' }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                },
-                {   // Automation Section
-                    // header: 'Automation',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 1,
-                    widgets: [
-                        {   // Automation management widget
-                            id: 'automation_management_widget',
-                            DecoratedText: {
-                                text: 'Automation - Workflow Management',
-                                topLabel: `Total: ${data?.totalAutomations || 0} workflows`,
-                                bottomLabel: 'Click ⚡ to manage your automations',
-                                wrapText: false,
-                                textButton: {
-                                    disabled: false,
-                                    text: '⚡',
-                                    onClick: {
-                                        functionName: 'CardHandler.Addon.onOpenCardClick',
-                                        parameters: { card: 'EMD.Cards.Automation' }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                },
-                {   // Channel Management Section
-                    // header: 'Channel Management',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 1,
-                    widgets: [
-                        {  // Channel management widget
-                            id: 'channel_management_widget',
-                            DecoratedText: {
-                                text: 'Channels: Manage Your Bot Channels',
-                                topLabel: `Total: ${data?.totalChannels || 0} channels`,
-                                bottomLabel: 'Click 📢 to manage your bot channels',
-                                wrapText: false,
-                                textButton: {
-                                    disabled: false,
-                                    text: '📢',
-                                    onClick: {
-                                        functionName: 'CardHandler.Addon.onOpenCardClick',
-                                        parameters: { card: 'EMD.Cards.Channels' }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                },
-                { // Customer Management Section
-                    // header: 'Customer Management',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 1,
-                    widgets: [
-                        {  // Customer management widget
-                            id: 'customer_management_widget',
-                            DecoratedText: {
-                                text: 'CRM: Manage Your Customers',
-                                topLabel: `Total: ${data?.totalCustomer || 0} customers`,
-                                bottomLabel: 'Click 👥 to manage your customers (telegram users)',
-                                wrapText: false,
-                                textButton: {
-                                    disabled: false,
-                                    text: '👥',
-                                    onClick: {
-                                        functionName: 'CardHandler.Addon.onOpenCardClick',
-                                        parameters: { card: 'EMD.Cards.Customer' }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                },
-                { // Data view
+                {   // Data view
                     header: 'Data View',
                     collapsible: true,
                     numUncollapsibleWidgets: 0,
@@ -170,7 +98,7 @@ EMD.Home = {
                         {   // Data View widget
                             id: 'data_view_widget',
                             TextParagraph: {
-                                text: `Data: ${JSON.stringify(data, null, 2)}`,
+                                text: `${JSON.stringify(data, null, 2)}`,
                                 maxLines: 35
                             }
                         }
@@ -337,17 +265,116 @@ EMD.TerminalOutput = {
     entityName: 'TerminalOutput',
     sheet: (data = {}) => {
         return {
-            name: '💻 Terminal Output'
+            name: '💻 Terminal Output',
+            columns: ['Timestamp', 'Source', 'Message', 'Details', 'More Info'],
+            sample_data: [
+                [new Date().toISOString(), 'server', 'Hi there! This is your terminal output log.', 'No details', 'N/A']
+            ]
         };
     }
 }
 
+EMD.CardSample = {
+    entityName: 'CardSample',
+    card: (data = {}) => {
+        return {
+            name: `${data.cardName || 'rootCard'}`,
+            header: {
+                title: `${data.cardName || 'Sample'} Card`,
+                subTitle: `Time: ${new Date().toLocaleString()}`,
+                imageUrl: EMD.MATH_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Sample Image'
+            },
+            sections: [
+                {
+                    // header: 'Sample Card Section',
+                    widgets: [
+                        {
+                            id: 'sample_card_text_paragraph',
+                            TextParagraph: {
+                                text: 'This is a sample card that has been pushed onto the card stack. You can navigate back to the previous card using the back button.'
+                            }
+                        }
+                    ]
+                },
+                {   // Card operations section
+                    header: 'Card Operations',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 2,
+                    widgets: [
+                        {   // TextParagraph widget
+                            id: 'card_operations_text_paragraph',
+                            TextParagraph: {
+                                text: 'Use the buttons below to demonstrate card operations like popping to root or opening a new card.'
+                            }
+                        },
+                        {   // TextButton to open a new card
+                            id: 'open_new_card_button',
+                            TextButton: {
+                                text: '🆕 Open New Card',
+                                onClick: {
+                                    functionName: 'NavigationHandler.Controller.onPushCardClick',
+                                    parameters: { template: 'EMD.Cards.CardSample', cardName: 'cardB' }
+                                }
+                            }
+                        },
+                        {   // TextButton to pop to root card
+                            id: 'pop_to_root_card_button',
+                            TextButton: {
+                                text: '⬆️ Pop to Root Card',
+                                onClick: {
+                                    functionName: 'NavigationHandler.Controller.onPopToRootCardClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to update current card
+                            id: 'update_current_card_button',
+                            TextButton: {
+                                text: '♻️ Update Current Card',
+                                onClick: {
+                                    functionName: 'NavigationHandler.Controller.onUpdateCardClick',
+                                    parameters: { card: 'EMD.Cards.CardSample' }
+                                }
+                            }
+                        },
+                        {   // TextButton to pop to named card
+                            id: 'pop_to_named_card_button',
+                            TextButton: {
+                                text: '🔙 Pop to Named Card (Home)',
+                                onClick: {
+                                    functionName: 'NavigationHandler.Controller.onPopToNamedCardClick',
+                                    parameters: { cardName: 'EMD.Cards.Home' }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {   // Data view
+                    header: 'Data View',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // Data View widget
+                            id: 'data_view_widget',
+                            TextParagraph: {
+                                text: `Data: ${JSON.stringify(data, null, 2)}`,
+                                maxLines: 35
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+}
 
 EMD.Cards = {
     Home: EMD.Home.card,
     Account: EMD.Account.card,
     Help: EMD.Help.card,
-    About: EMD.About.card
+    About: EMD.About.card,
+    CardSample: EMD.CardSample.card
 }
 
 EMD.Spreadsheet = {
