@@ -1,0 +1,14 @@
+.idea/
+.vscode
+.DS_store
+*.iml
+*.log
+.*.swp
+package-lock.json
+.clasp.json
+*.clasp.json
+node_modules/
+coverage/
+dist/
+.npmrc
+.env
