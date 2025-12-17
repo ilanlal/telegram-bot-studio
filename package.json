@@ -21,8 +21,7 @@
   "homepage": "https://github.com/ilanlal/addon4gas#readme",
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watch",
-    "start": "webpack-dev-server --mode development"
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
