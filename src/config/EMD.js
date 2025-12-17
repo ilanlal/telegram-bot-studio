@@ -278,7 +278,7 @@ EMD.CardSample = {
             header: {
                 title: `${data.cardName || 'Sample'} Card`,
                 subTitle: `Time: ${new Date().toLocaleString()}`,
-                imageUrl: EMD.THANK_YOU_IMG_URL,
+                imageUrl: EMD.MATH_IMG_URL,
                 imageStyle: CardService.ImageStyle.SQUARE,
                 imageAltText: 'Sample Image'
             },
@@ -330,7 +330,7 @@ EMD.CardSample = {
                                 text: '♻️ Update Current Card',
                                 onClick: {
                                     functionName: 'NavigationHandler.Controller.onUpdateCardClick',
-                                    parameters: { card: 'EMD.Cards.CardSample' }
+                                    parameters: { template: 'EMD.Cards.CardSample', cardName: 'updatedCard' }
                                 }
                             }
                         },
@@ -345,6 +345,144 @@ EMD.CardSample = {
                             }
                         }
                     ]
+                },
+                {   // TextButton to show terminal output sheet with welcome message
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {  // Welcome widget
+                            id: 'welcome_text_paragraph',
+                            TextParagraph: {
+                                text: 'Welcome to the Addon! Use the menu to navigate through different sections.'
+                            }
+                        },
+                        {  // DecoratedText with TextButton to show terminal output sheet
+                            id: 'show_terminal_output_button',
+                            DecoratedText: {
+                                text: '💻 Terminal Output',
+                                bottomLabel: 'View the terminal output log sheet',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: false,
+                                    text: '💻',
+                                    onClick: {
+                                        functionName: 'SpreadsheetHandler.Addon.onInsertSampleDataClick',
+                                        parameters: { card: 'EMD.Spreadsheet.TerminalOutput' }
+                                    }
+                                }
+                            }
+                        },
+                        {  // DecoratedText with TextButton to push 'Help' card
+                            id: 'basic_bot_operation_button',
+                            DecoratedText: {
+                                text: '❓ Need Help?',
+                                bottomLabel: 'Click \'❓\' to open the Help card',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: false,
+                                    text: '❓',
+                                    onClick: {
+                                        functionName: 'NavigationHandler.Controller.onPushCardClick',
+                                        parameters: { template: 'EMD.Cards.Help', cardName: 'Help' }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {   // Demonstration navigation features section
+                    header: 'EMD.Cards Demonstration',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // TextParagraph widget
+                            id: 'card_handler_demo_text_paragraph',
+                            TextParagraph: {
+                                text: 'This section demonstrates various features including input widgets and data views.'
+                            }
+                        },
+                        {   // DecoratedText with TextButton to push 'Sample' card
+                            id: 'about_card_button',
+                            DecoratedText: {
+                                text: 'Push Card',
+                                bottomLabel: 'Click \'➡️\' to push Sample card onto the stack',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: false,
+                                    text: '➡️',
+                                    onClick: {
+                                        functionName: 'NavigationHandler.Controller.onPushCardClick',
+                                        parameters: { template: 'EMD.Cards.Sample', cardName: 'Sample' }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {   // Demonstration collapsible section with various input widgets
+                    header: 'Text Input Samples',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 2,
+                    widgets: [
+                        {
+                            id: 'demo_text_paragraph',
+                            TextParagraph: {
+                                text: 'This is a demonstration collapsible section to showcase how to structure cards and sections in your Addon.'
+                            }
+                        },
+                        {   // TextInput sample with rich text input mode and text validation
+                            id: 'sample_text_input_widget',
+                            TextInput: {
+                                title: 'Sample Text Input with RICH_TEXT Mode and Validation on Text',
+                                fieldName: 'sample_text_input',
+                                hint: 'Enter some text here',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.RICH_TEXT,
+                                validation: {
+                                    characterLimit: '150',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                                value: data.sampleTextInputValue || ''
+                            }
+                        },
+                        {   // TextInput sample with plain text input mode and INTEGER validation, character limit 3
+                            id: 'sample_integer_input_widget',
+                            TextInput: {
+                                title: 'Sample Integer Input with PLAIN_TEXT Mode and Validation on Integer, Character Limit 3',
+                                fieldName: 'sample_integer_input',
+                                hint: 'Enter an integer value here',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '3',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.INTEGER
+                                },
+                                value: data.sampleIntegerInputValue || ''
+                            }
+                        },
+                        {   // TextInput sample with plain text input mode and FLOAT validation, character limit 7
+                            id: 'sample_float_input_widget',
+                            TextInput: {
+                                title: 'Sample Float Input with PLAIN_TEXT Mode and Validation on Float, Character Limit 7',
+                                fieldName: 'sample_float_input',
+                                hint: 'Enter a float value here',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '7',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.FLOAT
+                                },
+                                value: data.sampleFloatInputValue || ''
+                            }
+                        }
+                    ]
+
                 },
                 {   // Data view
                     header: 'Data View',
