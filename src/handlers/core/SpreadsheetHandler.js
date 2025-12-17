@@ -77,12 +77,8 @@ SpreadsheetHandler.AddonWrapper = class {
             if (!emd_sheet) {
                 throw new Error(`Sheet configuration for '${sheet}' not found in EMD.`);
             }
-           
-            const rs = SpreadsheetController
-                .create(
-                    SpreadsheetApp.getActiveSpreadsheet(),
-                    this._documentProperties)
-                .bindSheetSampleData(emd_sheet({}));
+            const sheetModel = SheetModel.create(this.activeSpreadsheet);
+            const rs = sheetModel.bindSheetSampleData(sheetMeta);
 
             return this.handleOperationSuccess(`👍 Data inserted into sheet '${sheet}' successfully.`)
                 .build();
