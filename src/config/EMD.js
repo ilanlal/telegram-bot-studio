@@ -53,38 +53,65 @@ EMD.Home = {
                         }
                     ]
                 },
-                {   // Basic operations section
-                    header: 'Basic Operations',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 1,
+                {   // Common Actions section
+                    header: 'Common Actions',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
                     widgets: [
-                        { // Basic bot operation widget
-                            id: 'basic_bot_operation_widget',
+                        {   // Common Bot Operations TextParagraph widget
+                            id: 'common_bot_operations_widget',
                             TextParagraph: {
                                 maxLines: 6,
-                                text: 'To get started, create a new bot by clicking on the "Create Bot" button in the sidebar. '
-                                    + 'Follow the prompts to set up your bot and connect it to your Telegram account. '
-                                    + 'Once your bot is set up, you can start adding features and customizing its behavior using our intuitive interface.'
+                                text: 'Perform common bot operations using the button below.'
                             }
                         },
-                        {  // DecoratedText with TextButton to push card
-                            id: 'basic_bot_operation_button',
+                        {  // DecoratedText with TextButton to push 'CommonBotOperations' card
+                            id: 'common_bot_operations_button',
                             DecoratedText: {
-                                text: 'Need help with basic bot operations?',
+                                text: 'Need help with common bot operations?',
                                 bottomLabel: 'Click the button to insert sample data into your spreadsheet.',
                                 wrapText: false,
                                 textButton: {
                                     disabled: false,
                                     text: '💻',
                                     onClick: {
-                                        functionName: 'CardHandler.Controller.onPushCardClick',
-                                        parameters: { card: 'EMD.Cards.BasicBotOperation' }
+                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                                        parameters: { template: 'EMD.Cards.CommonBotOperations' }
                                     }
                                 }
                             }
                         }
                     ]
-
+                },
+                {   // Webhook and Automation Setup section
+                    header: 'Webhook and Automation Setup',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // Webhook Setup widget
+                            id: 'webhook_setup_widget',
+                            TextParagraph: {
+                                maxLines: 6,
+                                text: 'Set up your bot webhook and basic automation using the buttons below.'
+                            }
+                        },
+                        {  // DecoratedText with TextButton to push 'WebhookSetup' card
+                            id: 'webhook_setup_button',
+                            DecoratedText: {
+                                text: 'Set up your bot webhook?',
+                                bottomLabel: 'Click the button to open the webhook setup card.',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: false,
+                                    text: '🌐',
+                                    onClick: {
+                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                                        parameters: { template: 'EMD.Cards.WebhookSetup' }
+                                    }
+                                }
+                            }
+                        }
+                    ]
                 },
                 {   // Data view
                     header: 'Data View',
@@ -270,6 +297,137 @@ EMD.TerminalOutput = {
     }
 }
 
+EMD.CommonBotOperations = {
+    entityName: 'BasicBotOperation',
+    card: (data = {}) => {
+        return {
+            name: 'basic_bot_operation_card',
+            header: {
+                title: 'Basic Bot Operation',
+                subTitle: 'Perform basic bot operations and manage settings.',
+                imageUrl: EMD.YOU_GOT_IT_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Basic Bot Operation Image'
+            },
+            sections: [
+                {   // Bot Configuration section
+                    header: '#1. Bot Configuration',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // TextParagraph widget
+                            id: 'basic_bot_operation_text_paragraph',
+                            TextParagraph: {
+                                text: 'Use the input fields below to configure your basic bot settings.'
+                            }
+                        },
+                        {   // TextInput for bot token
+                            id: 'bot_token_input_widget',
+                            TextInput: {
+                                title: 'Enter your Bot Token, get it from @BotFather',
+                                fieldName: 'bot_token_input',
+                                hint: 'Bot Token',
+                                multiline: false,
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                value: data.botToken || ''
+                            }
+                        },
+                        {   // TextButton to call getMe API
+                            id: 'get_me_button',
+                            TextButton: {
+                                text: '🔍 Get Me',
+                                onClick: {
+                                    functionName: 'BotHandler.ViewModel.onGetMeClick'
+                                }
+                            }
+                        }
+                    ]
+                },
+                {   // Chat ID Configuration section
+                    header: '#2. Chat ID Configuration',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // TextInput for chat ID
+                            id: 'chat_id_input_widget',
+                            TextInput: {
+                                title: 'Enter Chat ID, for channels use @channelusername',
+                                fieldName: 'chat_id_input',
+                                hint: 'Chat ID',
+                                multiline: false,
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                value: data.chatId || ''
+                            }
+                        },
+                        {   // TextButton to call getChat API
+                            id: 'get_chat_button',
+                            TextButton: {
+                                text: '🔍 Get Chat',
+                                onClick: {
+                                    functionName: 'BotHandler.ViewModel.onGetChatClick'
+                                }
+                            }
+                        }
+                    ]
+
+                },
+                {   // Common Operations section
+                    header: '#3. Common Operations',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 3,
+                    widgets: [
+                        {   // TextParagraph widget
+                            id: 'common_operations_text_paragraph',
+                            TextParagraph: {
+                                text: 'Use the buttons below to perform common bot operations.'
+                            }
+                        }
+                    ]
+                }
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    text: 'Save Settings',
+                    onClick: {
+                        functionName: 'BotHandler.ViewModel.onSaveSettingsClick'
+                    }
+                }
+            }
+        };
+    }
+}
+
+EMD.WebhookSetup = {
+    entityName: 'WebhookSetup',
+    card: (data = {}) => {
+        return {
+            name: 'webhook_setup_card',
+            header: {
+                title: 'Webhook Setup',
+                subTitle: 'Configure your bot webhook settings.',
+                imageUrl: EMD.WAIT_FOR_IT_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Webhook Setup Image'
+            },
+            sections: [
+                {   // Webhook Configuration section
+                    header: 'Webhook Configuration',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // TextParagraph widget
+                            id: 'webhook_setup_text_paragraph',
+                            TextParagraph: {
+                                text: 'Use the input fields below to configure your webhook settings.'
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+}
+
 EMD.CardSample = {
     entityName: 'CardSample',
     card: (data = {}) => {
@@ -367,7 +525,7 @@ EMD.CardSample = {
                                     text: '💻',
                                     onClick: {
                                         functionName: 'SpreadsheetHandler.Addon.onInsertSampleDataClick',
-                                        parameters: { card: 'EMD.Spreadsheet.TerminalOutput' }
+                                        parameters: { sheet: 'EMD.Spreadsheet.TerminalOutput' }
                                     }
                                 }
                             }
@@ -508,7 +666,9 @@ EMD.Cards = {
     Account: EMD.Account.card,
     Help: EMD.Help.card,
     About: EMD.About.card,
-    CardSample: EMD.CardSample.card
+    CardSample: EMD.CardSample.card,
+    CommonBotOperations: EMD.CommonBotOperations.card,
+    WebhookSetup: EMD.WebhookSetup.card
 }
 
 EMD.Spreadsheet = {
