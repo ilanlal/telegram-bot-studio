@@ -1,14 +1,11 @@
 {
-  "name": "@ilanlal/addon4gas",
+  "name": "@ilanlal/template-bot-studio",
   "version": "1.0.0",
-  "description": "Good starter template for building Google Workspace Add-ons using Google Apps Script.",
+  "description": "Telegram Bot Studio addons using Google Apps Script.",
   "keywords": [
     "addons",
-    "google",
-    "apps script",
-    "google workspace",
-    "template",
-    "gas",
+    "telegram bot",
+    "apps script",    
     "spreadsheet"
   ],
   "license": "MIT",
@@ -16,9 +13,9 @@
   "type": "commonjs",
   "main": "index.js",
   "bugs": {
-    "url": "https://github.com/ilanlal/addon4gas/issues"
+    "url": "https://github.com/ilanlal/template-bot-studio/issues"
   },
-  "homepage": "https://github.com/ilanlal/addon4gas#readme",
+  "homepage": "https://github.com/ilanlal/template-bot-studio#readme",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch"
