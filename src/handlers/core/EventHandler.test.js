@@ -10,7 +10,7 @@ describe('EventHandler', () => {
 
     it('should onOpenHomeCard', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.Controller.onOpenHomeCard(event);
+        const actionResponse = EventHandler.ViewModel.onOpenHomeCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -24,7 +24,7 @@ describe('EventHandler', () => {
 
     it('should handle onAccountCardOpen', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.Controller.onOpenAccountCard(event);
+        const actionResponse = EventHandler.ViewModel.onOpenAccountCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -39,7 +39,7 @@ describe('EventHandler', () => {
 
     it('should handle onAboutCardOpen', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.Controller.onOpenAboutCard(event);
+        const actionResponse = EventHandler.ViewModel.onOpenAboutCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
