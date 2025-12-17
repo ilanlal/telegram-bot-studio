@@ -39,7 +39,7 @@ class SpreadsheetHandler {
 SpreadsheetHandler.Addon = {
     onActivateSheetClick: (e) => {
         return new SpreadsheetHandler
-            .AddonWrapper(
+            .ControllerWrapper(
                 SpreadsheetHandler.prototype.activeSpreadsheet,
                 SpreadsheetHandler.prototype.documentProperties,
                 SpreadsheetHandler.prototype.userProperties,
@@ -49,7 +49,7 @@ SpreadsheetHandler.Addon = {
     },
     onInsertSampleDataClick: (e) => {
         return new SpreadsheetHandler
-            .AddonWrapper(
+            .ControllerWrapper(
                 SpreadsheetHandler.prototype.activeSpreadsheet,
                 SpreadsheetHandler.prototype.documentProperties,
                 SpreadsheetHandler.prototype.userProperties,
@@ -59,7 +59,7 @@ SpreadsheetHandler.Addon = {
     }
 }
 
-SpreadsheetHandler.AddonWrapper = class {
+SpreadsheetHandler.ControllerWrapper = class {
     constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
         this._activeSpreadsheet = activeSpreadsheet;
         this._documentProperties = documentProperties;
@@ -123,7 +123,6 @@ SpreadsheetHandler.AddonWrapper = class {
                         error.toString()));
     }
 };
-
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
