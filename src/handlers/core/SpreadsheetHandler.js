@@ -1,4 +1,5 @@
 class SpreadsheetHandler {
+
     get documentProperties() {
         if (!this._documentProperties) {
             this._documentProperties = PropertiesService.getDocumentProperties();
@@ -20,10 +21,18 @@ class SpreadsheetHandler {
         return this._scriptProperties;
     }
 
+    get activeSpreadsheet() {
+        if (!this._activeSpreadsheet) {
+            this._activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        }
+        return this._activeSpreadsheet;
+    }
+
     constructor() {
         this._documentProperties = null;
         this._userProperties = null;
         this._scriptProperties = null;
+        this._activeSpreadsheet = null;
     }
 }
 
@@ -31,19 +40,28 @@ SpreadsheetHandler.Addon = {
     onActivateSheetClick: (e) => {
         return new SpreadsheetHandler
             .AddonWrapper(
-                SpreadsheetHandler.prototype.documentProperties)
+                SpreadsheetHandler.prototype.activeSpreadsheet,
+                SpreadsheetHandler.prototype.documentProperties,
+                SpreadsheetHandler.prototype.userProperties,
+                SpreadsheetHandler.prototype.scriptProperties
+            )
             .handleActivateSheet(e);
     },
     onInsertSampleDataClick: (e) => {
         return new SpreadsheetHandler
             .AddonWrapper(
-                SpreadsheetHandler.prototype.documentProperties)
+                SpreadsheetHandler.prototype.activeSpreadsheet,
+                SpreadsheetHandler.prototype.documentProperties,
+                SpreadsheetHandler.prototype.userProperties,
+                SpreadsheetHandler.prototype.scriptProperties
+            )
             .handleInsertSampleData(e);
     }
 }
 
 SpreadsheetHandler.AddonWrapper = class {
-    constructor(documentProperties, userProperties, scriptProperties) {
+    constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
+        this._activeSpreadsheet = activeSpreadsheet;
         this._documentProperties = documentProperties;
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
