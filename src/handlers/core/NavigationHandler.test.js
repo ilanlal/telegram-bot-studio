@@ -19,7 +19,7 @@ describe('NavigationHandler', () => {
                 cardName: 'cardA'
             }
         }; // Mock event object
-        const actionResponse = NavigationHandler.Controller.onPushCardClick(event);
+        const actionResponse = NavigationHandler.ViewModel.onPushCardClick(event);
         expect(actionResponse).toBeDefined();
 
         const data = actionResponse.getData();
@@ -34,7 +34,7 @@ describe('NavigationHandler', () => {
     // onPopCardClick
     it('should handle onPopCardClick', () => {
         const event = {}; // Mock event object
-        const actionResponse = NavigationHandler.Controller.onPopCardClick(event);
+        const actionResponse = NavigationHandler.ViewModel.onPopCardClick(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -51,7 +51,7 @@ describe('NavigationHandler', () => {
                 cardName: 'cardA'
             }
         }; // Mock event object
-        const actionResponse = NavigationHandler.Controller.onUpdateCardClick(event);
+        const actionResponse = NavigationHandler.ViewModel.onUpdateCardClick(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -66,7 +66,7 @@ describe('NavigationHandler', () => {
                 cardName: 'EMD.Cards.Home'
             }
         }; // Mock event object
-        const actionResponse = NavigationHandler.Controller.onPopToNamedCardClick(event);
+        const actionResponse = NavigationHandler.ViewModel.onPopToNamedCardClick(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -77,7 +77,7 @@ describe('NavigationHandler', () => {
     // onPopToRootCardClick
     it('should handle onPopToRootCardClick', () => {
         const event = {}; // Mock event object
-        const actionResponse = NavigationHandler.Controller.onPopToRootCardClick(event);
+        const actionResponse = NavigationHandler.ViewModel.onPopToRootCardClick(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

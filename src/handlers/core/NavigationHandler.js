@@ -35,7 +35,7 @@ class NavigationHandler {
     }
 };
 
-NavigationHandler.Controller = {
+NavigationHandler.ViewModel = {
     onPushCardClick: (e) => {
         return new NavigationHandler
             .ControllerWrapper(

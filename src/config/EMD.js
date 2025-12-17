@@ -310,7 +310,7 @@ EMD.CardSample = {
                             TextButton: {
                                 text: '🆕 Open New Card',
                                 onClick: {
-                                    functionName: 'NavigationHandler.Controller.onPushCardClick',
+                                    functionName: 'NavigationHandler.ViewModel.onPushCardClick',
                                     parameters: { template: 'EMD.Cards.CardSample', cardName: 'cardB' }
                                 }
                             }
@@ -320,7 +320,7 @@ EMD.CardSample = {
                             TextButton: {
                                 text: '⬆️ Pop to Root Card',
                                 onClick: {
-                                    functionName: 'NavigationHandler.Controller.onPopToRootCardClick'
+                                    functionName: 'NavigationHandler.ViewModel.onPopToRootCardClick'
                                 }
                             }
                         },
@@ -329,7 +329,7 @@ EMD.CardSample = {
                             TextButton: {
                                 text: '♻️ Update Current Card',
                                 onClick: {
-                                    functionName: 'NavigationHandler.Controller.onUpdateCardClick',
+                                    functionName: 'NavigationHandler.ViewModel.onUpdateCardClick',
                                     parameters: { template: 'EMD.Cards.CardSample', cardName: 'updatedCard' }
                                 }
                             }
@@ -339,7 +339,7 @@ EMD.CardSample = {
                             TextButton: {
                                 text: '🔙 Pop to Named Card (Home)',
                                 onClick: {
-                                    functionName: 'NavigationHandler.Controller.onPopToNamedCardClick',
+                                    functionName: 'NavigationHandler.ViewModel.onPopToNamedCardClick',
                                     parameters: { cardName: 'EMD.Cards.Home' }
                                 }
                             }
@@ -382,7 +382,7 @@ EMD.CardSample = {
                                     disabled: false,
                                     text: '❓',
                                     onClick: {
-                                        functionName: 'NavigationHandler.Controller.onPushCardClick',
+                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
                                         parameters: { template: 'EMD.Cards.Help', cardName: 'Help' }
                                     }
                                 }
@@ -411,7 +411,7 @@ EMD.CardSample = {
                                     disabled: false,
                                     text: '➡️',
                                     onClick: {
-                                        functionName: 'NavigationHandler.Controller.onPushCardClick',
+                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
                                         parameters: { template: 'EMD.Cards.Sample', cardName: 'Sample' }
                                     }
                                 }

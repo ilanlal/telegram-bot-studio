@@ -76,17 +76,17 @@ EventHandler.Wrapper = class {
     }
 
     handleOpenHomeCard(e) {
-        return NavigationHandler.Controller
+        return NavigationHandler.ViewModel
                 .onPushCardClick({ parameters: { template: 'EMD.Cards.Home' } });
     }
 
     handleOpenAccountCard(e) {
-        return NavigationHandler.Controller
+        return NavigationHandler.ViewModel
                 .onPushCardClick({ parameters: { template: 'EMD.Cards.Account' } });
     }
 
     handleOpenAboutCard(e) {
-        return NavigationHandler.Controller
+        return NavigationHandler.ViewModel
                 .onPushCardClick({ parameters: { template: 'EMD.Cards.About' } });
     }
 
