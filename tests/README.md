@@ -1,6 +1,6 @@
 # Tests for the Addon Template
 
-This directory contains test files for the Basic Telegram Bot Remastered project. The tests are written using the Jest framework and utilize the `@ilanlal/gasmocks` library to mock Google Apps Script services.
+This directory contains test files for the Basic Telegram Bot Studio project. The tests are written using the Jest framework and utilize the `@ilanlal/gasmocks` library to mock Google Apps Script services.
 
 ## Strategy
 
