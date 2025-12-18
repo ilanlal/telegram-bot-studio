@@ -10,7 +10,9 @@ describe('CardViewModel', () => {
         [EMD.Cards.Help, { isActive: true }],
         [EMD.Cards.About, { isActive: true }],
         [EMD.Cards.CommonBotOperations, { isActive: true }],
-        [EMD.Cards.WebhookSetup, { isActive: true }]
+        [EMD.Cards.WebhookSetup, { isActive: true }],
+        [EMD.Cards.CardSample, { isActive: true }],
+        [EMD.Cards.BotSetup, { isActive: true }]
     ];
 
     it('should create an view model instance.', () => {
