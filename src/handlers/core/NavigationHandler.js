@@ -78,7 +78,7 @@ NavigationHandler.ControllerWrapper = class {
 
     handlePushCard(e) {
         try {
-
+            // extract parameters from event
             const template = e.parameters?.template || null;
             const cardName = e.parameters?.cardName || null;
 

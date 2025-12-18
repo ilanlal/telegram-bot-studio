@@ -5,6 +5,7 @@ const { WidgetModel } = require('./WidgetModel');
 const { BotModel } = require('./BotModel');
 const { BotSheetModel } = require('./BotSheetModel');
 const { EnvironmentModel } = require('./EnvironmentModel');
+const { ChannelsModel } = require('./ChannelsModel');
 
 // Export all models
 global.AppModel = AppModel;
@@ -14,3 +15,4 @@ global.WidgetModel = WidgetModel;
 global.BotModel = BotModel;
 global.BotSheetModel = BotSheetModel;
 global.EnvironmentModel = EnvironmentModel;
+global.ChannelsModel = ChannelsModel;
