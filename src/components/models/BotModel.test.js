@@ -47,6 +47,17 @@ describe('BotModel', () => {
     });
 
     describe('set bot info', () => {
+        // getMe
+        test('should get bot info', () => {
+            const apiUrl = `https://api.telegram.org/bot${sampleToken}/getMe`;
+            UrlFetchAppStubConfiguration.when(apiUrl)
+                .return(new HttpResponse()
+                    .setContentText(JSON.stringify({ result: true })));
+            const result = model.getMe(sampleToken);
+            expect(result).toBe(true);
+        });
+
+        // setMyName
         test('should set bot name', () => {
             const apiUrl = `https://api.telegram.org/bot${sampleToken}/setMyName`;
             UrlFetchAppStubConfiguration.when(apiUrl)

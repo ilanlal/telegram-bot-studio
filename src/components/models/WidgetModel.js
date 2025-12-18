@@ -11,7 +11,7 @@ class WidgetModel {
     }
 
     static create(widgetMeta = {}, documentProperties = PropertiesService.getDocumentProperties()) {
-        const { id, value = null, tabIndex = WidgetModel.tabIndex(), propertyName = null } = widgetMeta;
+        const { id, value = null, tabIndex = WidgetModel.tabIndex() } = widgetMeta;
 
         if (!id) {
             throw new Error(WidgetModel.INVALID_ID_ERROR);
@@ -24,13 +24,6 @@ class WidgetModel {
             widgetInstance.setValue(value);
         }
 
-        if (propertyName) {
-            widgetInstance.setPropertyName(propertyName);
-            const value = documentProperties.getProperty(propertyName);
-            if (value !== null) {
-                widgetInstance.setValue(value);
-            }
-        }
         return widgetInstance;
     }
 
@@ -38,8 +31,7 @@ class WidgetModel {
         this._id = id;
         this._documentProperties = documentProperties;
         this._value = null;
-        this._tabIndex = 0;
-        this._propertyName = null;
+        this._tabIndex = 0;        
     }
 
     /// Setters
@@ -50,11 +42,6 @@ class WidgetModel {
 
     setTabIndex(tabIndex) {
         this._tabIndex = tabIndex;
-        return this;
-    }
-
-    setPropertyName(name) {
-        this._propertyName = name;
         return this;
     }
 
@@ -69,10 +56,6 @@ class WidgetModel {
 
     get tabIndex() {
         return this._tabIndex;
-    }
-
-    get propertyName() {
-        return this._propertyName;
     }
 }
 

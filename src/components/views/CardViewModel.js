@@ -115,9 +115,7 @@ CardViewModel.CardServiceWrapper = class {
     }
 
     newWidget(widgetMeta = {}) {
-        const _widgetInstance = WidgetModel.create(widgetMeta, this._documentProperties);
-        // Bind value from 'propertyName' property if specified
-        const value = _widgetInstance.value || '';
+        const value = widgetMeta.value;
 
         if (widgetMeta.DecoratedText) {
             return this.newDecoratedText(widgetMeta.DecoratedText, value);
@@ -159,7 +157,7 @@ CardViewModel.CardServiceWrapper = class {
 
         if (dtMeta.textButton || dtMeta.TextButton) {
             decoratedText.setButton(
-                this.newTextButton(dtMeta.textButton || dtMeta.TextButton, !!value));
+                this.newTextButton(dtMeta.textButton || dtMeta.TextButton));
         }
 
         return decoratedText;
@@ -208,7 +206,7 @@ CardViewModel.CardServiceWrapper = class {
 
     newTextParagraph(tpMeta = {}, value = '') {
         const newTextParagraph = CardService.newTextParagraph()
-            .setText(tpMeta.text || value || '');
+            .setText(tpMeta.text || '');
         if (tpMeta.maxLines) {
             newTextParagraph.setMaxLines(tpMeta.maxLines);
         }

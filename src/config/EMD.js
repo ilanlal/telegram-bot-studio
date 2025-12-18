@@ -876,7 +876,7 @@ EMD.CommonBotOperations = {
             },
             sections: [
                 {   // Bot Configuration section
-                    header: '#1. Bot Configuration',
+                    header: 'Step 1. Bot Configuration',
                     collapsible: false,
                     numUncollapsibleWidgets: 0,
                     widgets: [
@@ -902,14 +902,14 @@ EMD.CommonBotOperations = {
                             TextButton: {
                                 text: '🔍 Get Me',
                                 onClick: {
-                                    functionName: 'BotHandler.ViewModel.onGetMeClick'
+                                    functionName: 'BotHandler.View.onGetMeClick'
                                 }
                             }
                         }
                     ]
                 },
                 {   // Chat ID Configuration section
-                    header: '#2. Chat ID Configuration',
+                    header: 'Step 2. Chat ID Configuration',
                     collapsible: true,
                     numUncollapsibleWidgets: 0,
                     widgets: [
@@ -929,35 +929,41 @@ EMD.CommonBotOperations = {
                             TextButton: {
                                 text: '🔍 Get Chat',
                                 onClick: {
-                                    functionName: 'BotHandler.ViewModel.onGetChatClick'
+                                    functionName: 'ChannelsHandler.View.onGetChatClick'
                                 }
                             }
                         }
                     ]
-
                 },
-                {   // Common Operations section
-                    header: '#3. Common Operations',
+                {   // Send Test Message section
+                    header: 'Send Test Message',
                     collapsible: true,
                     numUncollapsibleWidgets: 3,
                     widgets: [
                         {   // TextParagraph widget
-                            id: 'common_operations_text_paragraph',
+                            id: 'send_test_message_text_paragraph',
                             TextParagraph: {
-                                text: 'Use the buttons below to perform common bot operations.'
+                                text: 'Use the buttons below to send a test message to the specified chat ID.'
+                            }
+                        },
+                        {   // decorated text for sending test message
+                            id: 'send_test_message_decorated_text',
+                            DecoratedText: {
+                                text: 'Send Test Message',
+                                topLabel: '📨 Send a test message to the specified chat ID',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: (data.botToken && data.chatId) ? false : true,
+                                    text: '📨 Send Message',
+                                    onClick: {
+                                        functionName: 'BotHandler.View.onSendTestMessageClick'
+                                    }
+                                }
                             }
                         }
                     ]
                 }
-            ],
-            fixedFooter: {
-                primaryButton: {
-                    text: 'Save Settings',
-                    onClick: {
-                        functionName: 'BotHandler.ViewModel.onSaveSettingsClick'
-                    }
-                }
-            }
+            ]
         };
     }
 }

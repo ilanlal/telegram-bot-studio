@@ -36,6 +36,12 @@ class BotHandler {
 };
 
 BotHandler.View = {
+    onGetMeClick: (e) => {
+        return new BotHandler
+            .ControllerWrapper(
+                BotHandler.prototype.activeSpreadsheet, BotHandler.prototype.documentProperties, BotHandler.prototype.userProperties, BotHandler.prototype.scriptProperties)
+            .handleGetMeClick(e);
+    },
     onSetMyNameClick: (e) => {
         // Not implemented yet
         return new BotHandler
@@ -74,6 +80,33 @@ BotHandler.ControllerWrapper = class {
         this._activeSpreadsheet = activeSpreadsheet;
     }
 
+    handleGetMeClick(e) {
+        try {
+            // extract chat_id from event object
+            const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
+                ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
+                : null;
+            const botModel = BotModel.create(this._activeSpreadsheet, this._documentProperties);
+
+            const result = botModel.getMe(token);
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Call getMe('${token}')`,
+                    JSON.stringify(result)
+                ]);
+            return this.handleOperationSuccess("👍 Bot info retrieved successfully.")
+                .build();
+        } catch (error) {
+            return this.handleError(error)
+                .build();
+        }
+    }
+
     handleSetMyNameClick(e) {
         try {
             // extract chat_id from event object
@@ -92,7 +125,17 @@ BotHandler.ControllerWrapper = class {
 
             const botModel = BotModel.create(this._activeSpreadsheet, this._documentProperties);
 
-            const response = botModel.setMyName(token, name, languageCode);
+            const result = botModel.setMyName(token, name, languageCode);
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Call setMyName('${token}', '${name}', '${languageCode}')`,
+                    JSON.stringify(result)
+                ]);
 
             return this.handleOperationSuccess("👍 Bot name set successfully.")
                 .build();
@@ -120,7 +163,17 @@ BotHandler.ControllerWrapper = class {
 
             const botModel = BotModel.create(this._activeSpreadsheet, this._documentProperties);
 
-            const response = botModel.setMyDescription(token, description, languageCode);
+            const result = botModel.setMyDescription(token, description, languageCode);
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Call setMyDescription('${token}', '${description}', '${languageCode}')`,
+                    JSON.stringify(result)
+                ]);
 
             return this.handleOperationSuccess("👍 Bot description set successfully.")
                 .build();
@@ -148,7 +201,17 @@ BotHandler.ControllerWrapper = class {
 
             const botModel = BotModel.create(this._activeSpreadsheet, this._documentProperties);
 
-            const response = botModel.setMyShortDescription(token, shortDescription, languageCode);
+            const result = botModel.setMyShortDescription(token, shortDescription, languageCode);
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Call setMyShortDescription('${token}', '${shortDescription}', '${languageCode}')`,
+                    JSON.stringify(result)
+                ]);
 
             return this.handleOperationSuccess("👍 Bot short description set successfully.")
                 .build();
@@ -176,7 +239,17 @@ BotHandler.ControllerWrapper = class {
 
             const botModel = BotModel.create(this._activeSpreadsheet, this._documentProperties);
 
-            const response = botModel.setMyCommands(token, commands, languageCode);
+            const result = botModel.setMyCommands(token, commands, languageCode);
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Call setMyCommands('${token}', '${commands}', '${languageCode}')`,
+                    JSON.stringify(result)
+                ]);
 
             return this.handleOperationSuccess("👍 Bot commands set successfully.")
                 .build();
