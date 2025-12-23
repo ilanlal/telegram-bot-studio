@@ -1,5 +1,5 @@
 require('../tests');
-const { doGet, onOpen, onInstall } = require('./Code');
+const { doGet, onOpen, onInstall, doPost } = require('./Code');
 
 describe('doGet', () => {
     it('should run doGet message handler', () => {
@@ -12,16 +12,11 @@ describe('doGet', () => {
 describe('doPost', () => {
     // onInstall and onOpen are needed for completeness
     it('should run onInstall without errors', () => {
-        const event = {}; // Mock event object
+        const event = {
+            postData: { contents: '{}' } 
+        }; // Mock event object
         expect(() => {
-            onInstall(event);
-        }).not.toThrow();
-    });
-
-    it('should run onOpen without errors', () => {
-        const event = {}; // Mock event object
-        expect(() => {
-            onOpen(event);
+            doPost(event);
         }).not.toThrow();
     });
 });

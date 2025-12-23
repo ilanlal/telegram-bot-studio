@@ -1,0 +1,58 @@
+{
+  "timeZone": "America/New_York",
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE_ANONYMOUS"
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.locale",
+    "https://www.googleapis.com/auth/spreadsheets.currentonly",
+    "https://www.googleapis.com/auth/script.external_request"
+  ],
+  "addOns": {
+    "common": {
+      "name": "Telegram Bot Studio - Basic Bot Addon",
+      "logoUrl": "https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/logo24.png",
+      "layoutProperties": {
+        "primaryColor": "#2772ed",
+        "secondaryColor": "#1010ff"
+      },
+      "openLinkUrlPrefixes": [
+        "https://raw.githubusercontent.com/ilanlal/",
+        "https://www.github.com/ilanlal/",
+        "https://github.com/ilanlal/",
+        "https://www.easyadm.com",
+        "https://easyadm.com"
+      ],
+      "homepageTrigger": {
+        "runFunction": "EventHandler.ViewModel.onOpenHomeCard"
+      },
+      "useLocaleFromApp": true,
+      "universalActions": [
+        {
+          "label": "Account",
+          "runFunction": "EventHandler.ViewModel.onOpenAccountCard"
+        },
+        {
+          "label": "About",
+          "runFunction": "EventHandler.ViewModel.onOpenAboutCard"
+        },
+        {
+          "label": "Help & Support",
+          "openLink": "https://github.com/ilanlal/telegram-bot-studio#readme"
+        }
+      ]
+    },
+    "sheets": {}
+  },
+  "urlFetchWhitelist": [
+    "https://api.telegram.org/",
+    "https://raw.githubusercontent.com/ilanlal/",
+    "https://www.github.com/ilanlal/",
+    "https://github.com/ilanlal/",
+    "https://www.easyadm.com/",
+    "https://easyadm.com/"
+  ]
+}
