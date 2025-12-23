@@ -352,7 +352,7 @@ EMD.BotSetup = {
                                 TextButton: {
                                     text: '🆔 Identify Token',
                                     onClick: {
-                                        functionName: 'BotHandler.Addon.onIdentifyTokenClick'
+                                        functionName: 'BotApiHandler.Addon.onIdentifyTokenClick'
                                     }
                                 }
                             }
@@ -427,7 +427,7 @@ EMD.BotSetup = {
                                         disabled: (data.environmentVariables?.deploymentIdSet ? false : true) || (data.environmentVariables?.botTokenSet ? false : true),
                                         text: `${data.setupFlow?.webhookSet ? '🗑️ Delete Webhook' : '📡 Set Webhook'}`,
                                         onClick: {
-                                            functionName: 'BotHandler.Addon.onWebhookToggleClick',
+                                            functionName: 'BotApiHandler.Addon.onWebhookToggleClick',
                                             parameters: {
                                                 action: data.setupFlow?.webhookSet ? 'deleteWebhook' : 'setWebhook',
                                                 environment: 'exec'
@@ -447,7 +447,7 @@ EMD.BotSetup = {
                                         disabled: data.setupFlow?.webhookSet ? true : (data.environmentVariables?.testDeploymentIdSet ? false : true) || (data.environmentVariables?.botTokenSet ? false : true),
                                         text: `${data.setupFlow?.webhookSet ? '🗑️ Delete Webhook' : '📡 Set Webhook'}`,
                                         onClick: {
-                                            functionName: 'BotHandler.Addon.onWebhookToggleClick',
+                                            functionName: 'BotApiHandler.Addon.onWebhookToggleClick',
                                             parameters: {
                                                 action: data.setupFlow?.webhookSet ? 'deleteWebhook' : 'setWebhook',
                                                 environment: 'test'
@@ -485,7 +485,7 @@ EMD.BotSetup = {
                                 TextButton: {
                                     text: '🌐 api/setMyName',
                                     onClick: {
-                                        functionName: 'BotHandler.Addon.onSetMyNameClick',
+                                        functionName: 'BotApiHandler.Addon.onSetMyNameClick',
                                         parameters: {}
                                     }
                                 }
@@ -495,7 +495,7 @@ EMD.BotSetup = {
                                 TextButton: {
                                     text: '🌐 api/setMyDescription',
                                     onClick: {
-                                        functionName: 'BotHandler.Addon.onSetMyDescriptionClick',
+                                        functionName: 'BotApiHandler.Addon.onSetMyDescriptionClick',
                                         parameters: {}
                                     }
                                 }
@@ -505,7 +505,7 @@ EMD.BotSetup = {
                                 TextButton: {
                                     text: '🌐 api/setMyShortDescription',
                                     onClick: {
-                                        functionName: 'BotHandler.Addon.onSetMyShortDescriptionClick',
+                                        functionName: 'BotApiHandler.Addon.onSetMyShortDescriptionClick',
                                         parameters: {}
                                     }
                                 }
@@ -515,7 +515,7 @@ EMD.BotSetup = {
                                 TextButton: {
                                     text: '🌐 api/setMyCommands',
                                     onClick: {
-                                        functionName: 'BotHandler.Addon.onSetMyCommandsClick',
+                                        functionName: 'BotApiHandler.Addon.onSetMyCommandsClick',
                                         parameters: {}
                                     }
                                 }
@@ -915,7 +915,7 @@ EMD.CommonBotOperations = {
                             TextButton: {
                                 text: '🔍 Get Me',
                                 onClick: {
-                                    functionName: 'BotHandler.View.onGetMeClick'
+                                    functionName: 'BotApiHandler.View.onGetMeClick'
                                 }
                             }
                         }
@@ -969,40 +969,9 @@ EMD.CommonBotOperations = {
                                     disabled: (data.botToken && data.chatId) ? false : true,
                                     text: '📨 Send Message',
                                     onClick: {
-                                        functionName: 'BotHandler.View.onSendTestMessageClick'
+                                        functionName: 'BotApiHandler.View.onSendTestMessageClick'
                                     }
                                 }
-                            }
-                        }
-                    ]
-                }
-            ]
-        };
-    }
-}
-
-EMD.WebhookSetup = {
-    entityName: 'WebhookSetup',
-    card: (data = {}) => {
-        return {
-            name: 'webhook_setup_card',
-            header: {
-                title: 'Webhook Setup',
-                subTitle: 'Configure your bot webhook settings.',
-                imageUrl: EMD.WAIT_FOR_IT_IMG_URL,
-                imageStyle: CardService.ImageStyle.SQUARE,
-                imageAltText: 'Webhook Setup Image'
-            },
-            sections: [
-                {   // Webhook Configuration section
-                    header: 'Webhook Configuration',
-                    collapsible: false,
-                    numUncollapsibleWidgets: 0,
-                    widgets: [
-                        {   // TextParagraph widget
-                            id: 'webhook_setup_text_paragraph',
-                            TextParagraph: {
-                                text: 'Use the input fields below to configure your webhook settings.'
                             }
                         }
                     ]
@@ -9458,7 +9427,6 @@ EMD.Cards = {
     About: EMD.About.card,
     CardSample: EMD.CardSample.card,
     CommonBotOperations: EMD.CommonBotOperations.card,
-    WebhookSetup: EMD.WebhookSetup.card,
     BotSetup: EMD.BotSetup.card,
     Automation: EMD.Automation.card
 }

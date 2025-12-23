@@ -1,21 +1,21 @@
 require('../../../tests');
 
-const { BotHandler } = require('./BotHandler');
+const { BotApiHandler } = require('./BotApiHandler');
 
-describe('BotHandler', () => {
+describe('BotApiHandler', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
     });
 
-    it('should create an instance of BotHandler', () => {
-        const handler = new BotHandler();
-        expect(handler).toBeInstanceOf(BotHandler);
+    it('should create an instance of BotApiHandler', () => {
+        const handler = new BotApiHandler();
+        expect(handler).toBeInstanceOf(BotApiHandler);
     });
 
     // getMe
     test('should handle getMeClick', () => {
-        const handler = new BotHandler();
+        const handler = new BotApiHandler();
         const event = {
             commonEventObject: {
                 formInputs: {
@@ -28,7 +28,7 @@ describe('BotHandler', () => {
         UrlFetchAppStubConfiguration.when(getMeUrl)
             .return(new HttpResponse()
                 .setContentText(JSON.stringify({ result: true })));
-        const actionResponse = BotHandler.View.onGetMeClick(event);
+        const actionResponse = BotApiHandler.View.onGetMeClick(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -37,7 +37,7 @@ describe('BotHandler', () => {
     describe('set bot info', () => {
         // setMyName
         test('should handle setMyNameClick', () => {
-            const handler = new BotHandler();
+            const handler = new BotApiHandler();
             const event = {
                 commonEventObject: {
                     formInputs: {
@@ -53,7 +53,7 @@ describe('BotHandler', () => {
             UrlFetchAppStubConfiguration.when(setMyNameUrl)
                 .return(new HttpResponse()
                     .setContentText(JSON.stringify({ result: true })));
-            const actionResponse = BotHandler.View.onSetMyNameClick(event);
+            const actionResponse = BotApiHandler.View.onSetMyNameClick(event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -61,7 +61,7 @@ describe('BotHandler', () => {
 
         // setMyDescription
         test('should handle setMyDescriptionClick', () => {
-            const handler = new BotHandler();
+            const handler = new BotApiHandler();
             const event = {
                 commonEventObject: {
                     formInputs: {
@@ -75,7 +75,7 @@ describe('BotHandler', () => {
             UrlFetchAppStubConfiguration.when(setMyDescriptionUrl)
                 .return(new HttpResponse()
                     .setContentText(JSON.stringify({ result: true })));
-            const actionResponse = BotHandler.View.onSetMyDescriptionClick(event);
+            const actionResponse = BotApiHandler.View.onSetMyDescriptionClick(event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -83,7 +83,7 @@ describe('BotHandler', () => {
 
         // setMyShortDescription
         test('should handle setMyShortDescriptionClick', () => {
-            const handler = new BotHandler();
+            const handler = new BotApiHandler();
             const event = {
                 commonEventObject: {
                     formInputs: {
@@ -97,7 +97,7 @@ describe('BotHandler', () => {
             UrlFetchAppStubConfiguration.when(setMyShortDescriptionUrl)
                 .return(new HttpResponse()
                     .setContentText(JSON.stringify({ result: true })));
-            const actionResponse = BotHandler.View.onSetMyShortDescriptionClick(event);
+            const actionResponse = BotApiHandler.View.onSetMyShortDescriptionClick(event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -105,7 +105,7 @@ describe('BotHandler', () => {
 
         // setMyCommands
         test('should handle setMyCommandsClick', () => {
-            const handler = new BotHandler();
+            const handler = new BotApiHandler();
             const event = {
                 commonEventObject: {
                     formInputs: {
@@ -119,7 +119,7 @@ describe('BotHandler', () => {
             UrlFetchAppStubConfiguration.when(setMyCommandsUrl)
                 .return(new HttpResponse()
                     .setContentText(JSON.stringify({ result: true })));
-            const actionResponse = BotHandler.View.onSetMyCommandsClick(event);
+            const actionResponse = BotApiHandler.View.onSetMyCommandsClick(event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();

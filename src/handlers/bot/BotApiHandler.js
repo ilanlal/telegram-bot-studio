@@ -1,4 +1,4 @@
-class BotHandler {
+class BotApiHandler {
     get documentProperties() {
         if (!this._documentProperties) {
             this._documentProperties = PropertiesService.getDocumentProperties();
@@ -35,44 +35,44 @@ class BotHandler {
     }
 };
 
-BotHandler.View = {
+BotApiHandler.View = {
     onGetMeClick: (e) => {
-        return new BotHandler
+        return new BotApiHandler
             .ControllerWrapper(
-                BotHandler.prototype.activeSpreadsheet, BotHandler.prototype.documentProperties, BotHandler.prototype.userProperties, BotHandler.prototype.scriptProperties)
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleGetMeClick(e);
     },
     onSetMyNameClick: (e) => {
         // Not implemented yet
-        return new BotHandler
+        return new BotApiHandler
             .ControllerWrapper(
-                BotHandler.prototype.activeSpreadsheet, BotHandler.prototype.documentProperties, BotHandler.prototype.userProperties, BotHandler.prototype.scriptProperties)
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleSetMyNameClick(e);
     },
     onSetMyDescriptionClick: (e) => {
         // Not implemented yet
-        return new BotHandler
+        return new BotApiHandler
             .ControllerWrapper(
-                BotHandler.prototype.activeSpreadsheet, BotHandler.prototype.documentProperties, BotHandler.prototype.userProperties, BotHandler.prototype.scriptProperties)
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleSetMyDescriptionClick(e);
     },
     onSetMyShortDescriptionClick: (e) => {
         // Not implemented yet
-        return new BotHandler
+        return new BotApiHandler
             .ControllerWrapper(
-                BotHandler.prototype.activeSpreadsheet, BotHandler.prototype.documentProperties, BotHandler.prototype.userProperties, BotHandler.prototype.scriptProperties)
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleSetMyShortDescriptionClick(e);
     },
     onSetMyCommandsClick: (e) => {
         // Not implemented yet
-        return new BotHandler
+        return new BotApiHandler
             .ControllerWrapper(
-                BotHandler.prototype.activeSpreadsheet, BotHandler.prototype.documentProperties, BotHandler.prototype.userProperties, BotHandler.prototype.scriptProperties)
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleSetMyCommandsClick(e);
     }
 }
 
-BotHandler.ControllerWrapper = class {
+BotApiHandler.ControllerWrapper = class {
     constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
         this._documentProperties = documentProperties;
         this._userProperties = userProperties;
@@ -279,6 +279,6 @@ BotHandler.ControllerWrapper = class {
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        BotHandler
+        BotApiHandler
     };
 }
