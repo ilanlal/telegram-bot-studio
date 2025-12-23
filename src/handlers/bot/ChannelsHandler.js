@@ -36,13 +36,13 @@ class ChannelsHandler {
 };
 
 ChannelsHandler.View = {
-    onGetChatlClick: (e) => {
+    onGetChatClick: (e) => {
         return new ChannelsHandler.ControllerWrapper(
             ChannelsHandler.prototype.activeSpreadsheet,
             ChannelsHandler.prototype.documentProperties,
             ChannelsHandler.prototype.userProperties,
             ChannelsHandler.prototype.scriptProperties
-        ).handleGetChatlInfo(e);
+        ).handleGetChatClick(e);
     }
 };
 
@@ -55,7 +55,7 @@ ChannelsHandler.ControllerWrapper = class extends ChannelsHandler {
         this._activeSpreadsheet = activeSpreadsheet;
     }
 
-    handleGetChatlInfo(e) {
+    handleGetChatClick(e) {
         try {
             // extract chat_id from event object
             const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['chat_id'])

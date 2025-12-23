@@ -51,7 +51,7 @@ describe('Channels Handler', () => {
                     }
                 })));
 
-        const actionResponse = ChannelsHandler.View.onGetChatlClick(event);
+        const actionResponse = ChannelsHandler.View.onGetChatClick(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

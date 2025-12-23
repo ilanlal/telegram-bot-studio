@@ -881,8 +881,8 @@ EMD.CommonBotOperations = {
         return {
             name: 'basic_bot_operation_card',
             header: {
-                title: 'Basic Bot Operation',
-                subTitle: 'Perform basic bot operations and manage settings.',
+                title: 'Basic API Operation',
+                subTitle: 'Perform basic bot operations like getting bot info and sending test messages.',
                 imageUrl: EMD.YOU_GOT_IT_IMG_URL,
                 imageStyle: CardService.ImageStyle.SQUARE,
                 imageAltText: 'Basic Bot Operation Image'
@@ -890,15 +890,9 @@ EMD.CommonBotOperations = {
             sections: [
                 {   // Bot Configuration section
                     header: 'Step 1. Bot Configuration',
-                    collapsible: false,
-                    numUncollapsibleWidgets: 0,
+                    collapsible: true,
+                    numUncollapsibleWidgets: 1,
                     widgets: [
-                        {   // TextParagraph widget
-                            id: 'basic_bot_operation_text_paragraph',
-                            TextParagraph: {
-                                text: 'Use the input fields below to configure your basic bot settings.'
-                            }
-                        },
                         {   // TextInput for bot token
                             id: 'bot_token_input_widget',
                             TextInput: {
@@ -908,6 +902,12 @@ EMD.CommonBotOperations = {
                                 multiline: false,
                                 inputMode: CardService.TextInputMode.PLAIN_TEXT,
                                 value: data.botToken || ''
+                            }
+                        },
+                        {   // TextParagraph widget
+                            id: 'basic_bot_operation_text_paragraph',
+                            TextParagraph: {
+                                text: 'Use the input fields below to configure your basic bot settings.'
                             }
                         },
                         {   // TextButton to call getMe API
@@ -924,7 +924,7 @@ EMD.CommonBotOperations = {
                 {   // Chat ID Configuration section
                     header: 'Step 2. Chat ID Configuration',
                     collapsible: true,
-                    numUncollapsibleWidgets: 0,
+                    numUncollapsibleWidgets: 2,
                     widgets: [
                         {   // TextInput for chat ID
                             id: 'chat_id_input_widget',
@@ -944,19 +944,6 @@ EMD.CommonBotOperations = {
                                 onClick: {
                                     functionName: 'ChannelsHandler.View.onGetChatClick'
                                 }
-                            }
-                        }
-                    ]
-                },
-                {   // Send Test Message section
-                    header: 'Send Test Message',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 3,
-                    widgets: [
-                        {   // TextParagraph widget
-                            id: 'send_test_message_text_paragraph',
-                            TextParagraph: {
-                                text: 'Use the buttons below to send a test message to the specified chat ID.'
                             }
                         },
                         {   // decorated text for sending test message

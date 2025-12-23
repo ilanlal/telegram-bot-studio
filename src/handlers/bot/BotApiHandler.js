@@ -42,6 +42,19 @@ BotApiHandler.View = {
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleGetMeClick(e);
     },
+    onGetChatClick: (e) => {
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleGetChatClick(e);
+    },
+    onSendTestMessageClick: (e) => {
+        // Not implemented yet
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleSendTestMessageClick(e);
+    },
     onSetMyNameClick: (e) => {
         // Not implemented yet
         return new BotApiHandler
@@ -105,6 +118,19 @@ BotApiHandler.ControllerWrapper = class {
             return this.handleError(error)
                 .build();
         }
+    }
+
+    handleGetChatClick(e) {
+        return ChannelsHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleGetChatClick(e);
+    }
+
+    handleSendTestMessageClick(e) {
+        // Not implemented yet
+        return this.handleOperationSuccess("👍 Test message sent successfully.")
+            .build();
     }
 
     handleSetMyNameClick(e) {
