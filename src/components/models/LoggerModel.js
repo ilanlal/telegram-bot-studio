@@ -1,34 +1,40 @@
 class LoggerModel {
-    static create(scriptProperties = PropertiesService.getScriptProperties(), activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet()) {
-        return new LoggerModel(scriptProperties, activeSpreadsheet);
+    static create(
+        activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(),
+        documentProperties = PropertiesService.getDocumentProperties(),
+        userProperties = PropertiesService.getUserProperties(),
+        scriptProperties = PropertiesService.getScriptProperties()) {
+        return new LoggerModel(activeSpreadsheet, documentProperties, userProperties, scriptProperties);
     }
 
-    constructor(scriptProperties, activeSpreadsheet) {
-        this.debugMode = scriptProperties
-            .getProperty('ENABLE_EVENT_LOGGING') || 'false';
-        this.archiveSize = parseInt(
-            scriptProperties
-                .getProperty('LOG_ARCHIVE_SIZE'), 10) || 1000;
-        this.sheetModel = SheetModel.create(activeSpreadsheet);
-        this.sheet = this.sheetModel.initializeSheet(EMD.Spreadsheet.Logger({}));
-        // cause runtime error when archiveSize is invalid
-        // this.archiveLog();
+    constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
+        this.debugMode = scriptProperties.getProperty('ENABLE_EVENT_LOGGING') || 'false';
+        this.archiveSize = parseInt(scriptProperties.getProperty('LOG_ARCHIVE_SIZE'), 10) || 1000;
+        this._activeSpreadsheet = activeSpreadsheet;
+        this._documentProperties = documentProperties;
+        this._userProperties = userProperties;
+        this._scriptProperties = scriptProperties;
     }
 
     logEvent({ dc, action, chat_id, content, event, note = '' }) {
         if (this.debugMode !== 'true' && this.debugMode !== 'all') {
             return;
         }
+        const sheetModel = SheetModel.create(this._activeSpreadsheet)
+            .initializeSheet(EMD.Spreadsheet.Logger({}));
+
         const datestring = new Date().toISOString();
-        this.sheet.appendRow([datestring, dc, action, chat_id, content, event, note]);
+        sheetModel.appendRow([datestring, dc, action, chat_id, content, event, note]);
     }
 
     logError({ dc, action, chat_id, content, event, note = '' }) {
         if (this.debugMode !== 'true' && this.debugMode !== 'all' && this.debugMode !== 'errors' && this.debugMode !== 'error') {
             return;
         }
+        const sheetModel = SheetModel.create(this._activeSpreadsheet)
+            .initializeSheet(EMD.Spreadsheet.Logger({}));
         const datestring = new Date().toISOString();
-        this.sheet.appendRow([datestring, dc, action, chat_id, content, event, note]);
+        sheetModel.appendRow([datestring, dc, action, chat_id, content, event, note]);
     }
 
     archiveLog() {

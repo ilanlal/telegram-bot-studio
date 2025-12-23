@@ -88,13 +88,6 @@ EMD.Home = {
                     collapsible: false,
                     numUncollapsibleWidgets: 0,
                     widgets: [
-                        {   // Webhook Setup widget
-                            id: 'webhook_setup_widget',
-                            TextParagraph: {
-                                maxLines: 6,
-                                text: 'Set up your bot webhook and basic automation using the buttons below.'
-                            }
-                        },
                         {  // DecoratedText with TextButton to push 'WebhookSetup' card
                             id: 'webhook_setup_button',
                             DecoratedText: {
@@ -107,6 +100,22 @@ EMD.Home = {
                                     onClick: {
                                         functionName: 'NavigationHandler.ViewModel.onPushCardClick',
                                         parameters: { template: 'EMD.Cards.WebhookSetup' }
+                                    }
+                                }
+                            }
+                        },
+                        {   // DecoratedText with TextButton to push 'AutomationSetup' card
+                            id: 'automation_setup_button',
+                            DecoratedText: {
+                                text: 'Set up your automation workflows?',
+                                bottomLabel: 'Click the button to open the automation setup card.',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: false,
+                                    text: '🤖',
+                                    onClick: {
+                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                                        parameters: { template: 'EMD.Cards.Automation' }
                                     }
                                 }
                             }
