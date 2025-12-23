@@ -38,7 +38,7 @@ describe('BotSheetModel', () => {
         test('should find value by key', () => {
             // reply is array of actions like {method: 'sendMessage', payload: {...}}
             const text = model.getValue('name', 'es');
-            expect(text).toBe(EMD.Spreadsheet.BotSetup({}).sample_data[0][3]); // Spanish name
+            expect(text).toBe(EMD.Spreadsheet.BotSetup({}).sample_data[1][3]); // Spanish name
         });
 
         test('should return null for non-existing key', () => {

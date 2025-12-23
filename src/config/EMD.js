@@ -99,7 +99,7 @@ EMD.Home = {
                                     text: '🌐',
                                     onClick: {
                                         functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                                        parameters: { template: 'EMD.Cards.WebhookSetup' }
+                                        parameters: { template: 'EMD.Cards.BotSetup' }
                                     }
                                 }
                             }
@@ -547,6 +547,7 @@ EMD.BotSetup = {
             columns: ['key', 'default', 'en', 'es', 'fr', 'ar', 'de', 'it', 'pt', 'ru', 'zh', 'ja', 'ko', 'he'],
             // Sample data for the Bot settings (setMyName, setMyDescription, setMyShortDescription, setMyCommands), in multiple languages;
             sample_data: [
+                ['-------------------------- Bot Information ---------------------'],
                 // setMyName; 0-64 characters.
                 ['name',
                     // default (en)
@@ -865,7 +866,10 @@ EMD.BotSetup = {
                             description: 'מידע על הבוט'
                         }
                     ])
-                ]
+                ],
+                ['-------------------------- Environment Variables ---------------------'],
+                ['bot_api_token', '[YOUR_BOT_API_TOKEN]'],
+                ['deployment_id', '[YOUR_PRODUCTION_DEPLOYMENT_ID]']
             ]
         }
     }
@@ -4792,6 +4796,4425 @@ EMD.BasicAutomation = {
                     ]
                 ]
         }
+    }
+}
+
+EMD.SurveyAutomation = {
+    entityName: 'SurveyAutomation',
+    sheet: (data = {}) => {
+        return {
+            name: EMD.Automation.sheet(data).name,
+            columns: EMD.Automation.sheet(data).columns,
+            sample_data:
+                [
+                    ['---- 📋 SURVEY AUTOMATION SAMPLE DATA START ----',],
+                    ['/surveys',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_welcome_to_survey_center" },
+                            { "next": "#append_survey_options_keyboard" }
+                        ])
+                    ],
+                    ['#append_survey_options_keyboard',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'editMessageReplyMarkup',
+                            payload: {
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [
+                                            { text: "Random Color", callback_data: "#sendPoll01" },
+                                            { text: "Horoscope Signs", callback_data: "#sendPoll02" }
+                                        ],
+                                        [
+                                            { text: "Religion", callback_data: "#sendPoll03" },
+                                            { text: "Geo Location", callback_data: "#sendPoll04" }
+                                        ],
+                                        [
+                                            { text: "Group of Age", callback_data: "#sendQuiz01" },
+                                            { text: "Gender", callback_data: "#sendQuiz02" }
+                                        ],
+                                        [
+                                            { text: "Education", callback_data: "#sendQuiz03" },
+                                            { text: "Employment", callback_data: "#sendQuiz04" }
+                                        ]
+                                    ]
+                                }
+                            }
+                        }])
+                    ],
+                    ['#send_welcome_to_survey_center',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Welcome to the <b>Poll Center!</b> \n\n'
+                                    + 'Here you can participate in various polls and quizzes to share your opinions and test your knowledge.',
+                                parse_mode: 'HTML'
+                            }
+                        }])
+                    ],
+                    // Random Color Poll
+                    ['#sendPoll01',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Select random color from the list:',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    '🟥 Red',
+                                    '🟩 Green',
+                                    '🟦 Blue'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: true,
+                                explanation: 'We appreciate your participation in our poll! \n\n Your feedback helps us improve the bot and add more exciting features!',
+                                explanation_parse_mode: 'HTML'
+                            }
+                        }])
+                    ],
+                    // Horoscope Signs Poll
+                    ['#sendPoll02',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Select your Horoscope Sign:',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    '♈ Aries', '♉ Taurus', '♊ Gemini',
+                                    '♋ Cancer', '♌ Leo', '♍ Virgo',
+                                    '♎ Libra', '♏ Scorpio', '♐ Sagittarius',
+                                    '♑ Capricorn', '♒ Aquarius', '♓ Pisces'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                explanation: 'Your feedback helps us improve the bot and add more exciting features!',
+                                explanation_parse_mode: 'HTML'
+                            }
+                        }])
+                    ],
+                    ['#sendPoll03',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'How often do you use this bot?',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Daily',
+                                    'Weekly',
+                                    'Monthly',
+                                    'Rarely'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                explanation: 'Your feedback helps us improve the bot and add more exciting features!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Start", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }])
+                    ],
+                    ['#sendPoll04',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'What type of content do you prefer?',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Educational',
+                                    'Entertainment',
+                                    'News',
+                                    'Other'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                explanation: 'Your feedback helps us improve the bot and add more exciting features!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Start", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }])
+                    ],
+                    ['#sendQuiz01',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'What is the <b>main</b> advantage of using Interactive Inline Keyboards in Telegram bots? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'They allow sending larger files',
+                                    'They enable real-time user interaction',
+                                    'They improve message delivery speed',
+                                    'They support multimedia content'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Interactive Inline Keyboards allow users to engage directly with the bot, making the experience more dynamic and user-friendly!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Start", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // es
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: '¿Cuál es la <b>principal</b> ventaja de usar teclados en línea interactivos en los bots de Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Permiten enviar archivos más grandes',
+                                    'Permiten la interacción en tiempo real con el usuario',
+                                    'Mejoran la velocidad de entrega de mensajes',
+                                    'Soportan contenido multimedia'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: '¡Los teclados en línea interactivos permiten a los usuarios interactuar directamente con el bot, haciendo la experiencia más dinámica y amigable!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Inicio", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // fr
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Quel est le <b>principal</b> avantage d\'utiliser des claviers en ligne interactifs dans les bots Telegram ? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Ils permettent d\'envoyer des fichiers plus volumineux',
+                                    'Ils permettent une interaction en temps réel avec l\'utilisateur',
+                                    'Ils améliorent la vitesse de livraison des messages',
+                                    'Ils prennent en charge le contenu multimédia'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Les claviers en ligne interactifs permettent aux utilisateurs d\'interagir directement avec le bot, rendant l\'expérience plus dynamique et conviviale !',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Accueil", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ar
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'ما هي <b>الميزة الرئيسية</b> لاستخدام لوحات المفاتيح التفاعلية في بوتات تيليجرام؟ ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'تسمح بإرسال ملفات أكبر',
+                                    'تمكن من التفاعل في الوقت الحقيقي مع المستخدم',
+                                    'تحسن سرعة تسليم الرسائل',
+                                    'تدعم المحتوى متعدد الوسائط'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'لوحات المفاتيح التفاعلية تتيح للمستخدمين التفاعل مباشرة مع البوت، مما يجعل التجربة أكثر ديناميكية وودية!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 الرئيسية", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // de
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Was ist der <b>Haupt</b>vorteil der Verwendung von interaktiven Inline-Tastaturen in Telegram-Bots? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Sie ermöglichen das Senden größerer Dateien',
+                                    'Sie ermöglichen die Echtzeit-Interaktion mit dem Benutzer',
+                                    'Sie verbessern die Nachrichtenzustellungsgeschwindigkeit',
+                                    'Sie unterstützen Multimedia-Inhalte'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Interaktive Inline-Tastaturen ermöglichen es den Benutzern, direkt mit dem Bot zu interagieren, was das Erlebnis dynamischer und benutzerfreundlicher macht!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Startseite", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // it
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Qual è il <b>principale</b> vantaggio di utilizzare le tastiere inline interattive nei bot di Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Consentono di inviare file più grandi',
+                                    'Consentono l\'interazione in tempo reale con l\'utente',
+                                    'Migliorano la velocità di consegna dei messaggi',
+                                    'Supportano contenuti multimediali'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Le tastiere inline interattive consentono agli utenti di interagire direttamente con il bot, rendendo l\'esperienza più dinamica e user-friendly!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Home", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // pt
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Qual é a <b>principal</b> vantagem de usar teclados inline interativos em bots do Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Eles permitem o envio de arquivos maiores',
+                                    'Eles possibilitam a interação em tempo real com o usuário',
+                                    'Eles melhoram a velocidade de entrega de mensagens',
+                                    'Eles suportam conteúdo multimídia'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'As teclas inline interativas permitem que os usuários interajam diretamente com o bot, tornando a experiência mais dinâmica e amigável!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Início", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ru
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Какое <b>основное</b> преимущество использования интерактивных встроенных клавиатур в ботах Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Они позволяют отправлять большие файлы',
+                                    'Они обеспечивают взаимодействие с пользователем в реальном времени',
+                                    'Они улучшают скорость доставки сообщений',
+                                    'Они поддерживают мультимедийный контент'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Интерактивные встроенные клавиатуры позволяют пользователям напрямую взаимодействовать с ботом, делая опыт более динамичным и удобным!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Главная", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // zh
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: '在Telegram机器人中使用交互式内联键盘的<b>主要</b>优势是什么？✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    '它们允许发送更大的文件',
+                                    '它们实现了与用户的实时互动',
+                                    '它们提高了消息传递速度',
+                                    '它们支持多媒体内容'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: '交互式内联键盘允许用户直接与机器人互动，使体验更加动态和用户友好！',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 主页", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ja
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Telegramボットでインタラクティブなインラインキーボードを使用する<b>主な</b>利点は何ですか？✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'より大きなファイルの送信が可能',
+                                    'ユーザーとのリアルタイムの対話を可能にする',
+                                    'メッセージ配信速度を向上させる',
+                                    'マルチメディアコンテンツをサポートする'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'インタラクティブなインラインキーボードにより、ユーザーはボットと直接対話でき、体験がよりダイナミックでユーザーフレンドリーになります！',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 ホーム", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ko
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Telegram 봇에서 대화형 인라인 키보드를 사용하는 <b>주요</b> 이점은 무엇인가요? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    '더 큰 파일 전송이 가능하다',
+                                    '사용자와의 실시간 상호작용을 가능하게 한다',
+                                    '메시지 전달 속도를 향상시킨다',
+                                    '멀티미디어 콘텐츠를 지원한다'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: '대화형 인라인 키보드를 통해 사용자는 봇과 직접 상호작용할 수 있어 경험이 더욱 역동적이고 사용자 친화적입니다!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 홈", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // he
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'מהו היתרון ה<b>עיקרי</b> בשימוש במקלדות אינטראקטיביות מקוונות בבוטים של טלגרם? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'הן מאפשרות שליחת קבצים גדולים יותר',
+                                    'הן מאפשרות אינטראקציה בזמן אמת עם המשתמש',
+                                    'הן משפרות את מהירות מסירת ההודעות',
+                                    'הן תומכות בתוכן מולטימדיה'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'מקלדות אינטראקטיביות מקוונות מאפשרות למשתמשים אינטראקציה ישירה עם הבוט, מה שהופך את החוויה לדינמית וידידותית יותר למשתמש!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 בית", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }])
+                    ],
+                    ['#sendQuiz02',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'How can Interactive Inline Keyboards enhance user engagement in Telegram bots? 🤖',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'By providing static information',
+                                    'By enabling real-time interactions and responses',
+                                    'By sending automated messages only',
+                                    'By limiting user choices'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 1,
+                                explanation: 'Interactive Inline Keyboards allow users to engage directly with the bot, making the experience more dynamic and user-friendly!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Start", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }])
+
+                    ],
+                    ['#sendQuiz03',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'What type of content can be delivered using Interactive Inline Keyboards in Telegram bots? 📱',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Only text messages',
+                                    'Multimedia content including photos and videos',
+                                    'Only audio files',
+                                    'None of the above'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 1,
+                                explanation: 'Interactive Inline Keyboards allow users to engage directly with the bot, making the experience more dynamic and user-friendly!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Start", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }])
+                    ],
+                    ['#sendQuiz04',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'What is the <b>main</b> advantage of using Interactive Inline Keyboards in Telegram bots? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'They allow sending larger files',
+                                    'They enable real-time user interaction',
+                                    'They improve message delivery speed',
+                                    'They support multimedia content'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Interactive Inline Keyboards allow users to engage directly with the bot, making the experience more dynamic and user-friendly!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Start", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // es
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: '¿Cuál es la <b>principal</b> ventaja de usar teclados en línea interactivos en los bots de Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Permiten enviar archivos más grandes',
+                                    'Permiten la interacción en tiempo real con el usuario',
+                                    'Mejoran la velocidad de entrega de mensajes',
+                                    'Soportan contenido multimedia'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: '¡Los teclados en línea interactivos permiten a los usuarios interactuar directamente con el bot, haciendo la experiencia más dinámica y amigable!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Inicio", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // fr
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Quel est le <b>principal</b> avantage d\'utiliser des claviers en ligne interactifs dans les bots Telegram ? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Ils permettent d\'envoyer des fichiers plus volumineux',
+                                    'Ils permettent une interaction en temps réel avec l\'utilisateur',
+                                    'Ils améliorent la vitesse de livraison des messages',
+                                    'Ils prennent en charge le contenu multimédia'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Les claviers en ligne interactifs permettent aux utilisateurs d\'interagir directement avec le bot, rendant l\'expérience plus dynamique et conviviale !',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Accueil", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ar
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'ما هي <b>الميزة الرئيسية</b> لاستخدام لوحات المفاتيح التفاعلية في بوتات تيليجرام؟ ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'تسمح بإرسال ملفات أكبر',
+                                    'تمكن من التفاعل في الوقت الحقيقي مع المستخدم',
+                                    'تحسن سرعة تسليم الرسائل',
+                                    'تدعم المحتوى متعدد الوسائط'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'لوحات المفاتيح التفاعلية تتيح للمستخدمين التفاعل مباشرة مع البوت، مما يجعل التجربة أكثر ديناميكية وودية!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 الرئيسية", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // de
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Was ist der <b>Haupt</b>vorteil der Verwendung von interaktiven Inline-Tastaturen in Telegram-Bots? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Sie ermöglichen das Senden größerer Dateien',
+                                    'Sie ermöglichen die Echtzeit-Interaktion mit dem Benutzer',
+                                    'Sie verbessern die Nachrichtenzustellungsgeschwindigkeit',
+                                    'Sie unterstützen Multimedia-Inhalte'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Interaktive Inline-Tastaturen ermöglichen es den Benutzern, direkt mit dem Bot zu interagieren, was das Erlebnis dynamischer und benutzerfreundlicher macht!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Startseite", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // it
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Qual è il <b>principale</b> vantaggio di utilizzare le tastiere inline interattive nei bot di Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Consentono di inviare file più grandi',
+                                    'Consentono l\'interazione in tempo reale con l\'utente',
+                                    'Migliorano la velocità di consegna dei messaggi',
+                                    'Supportano contenuti multimediali'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Le tastiere inline interattive consentono agli utenti di interagire direttamente con il bot, rendendo l\'esperienza più dinamica e user-friendly!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Home", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // pt
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Qual é a <b>principal</b> vantagem de usar teclados inline interativos em bots do Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Eles permitem o envio de arquivos maiores',
+                                    'Eles possibilitam a interação em tempo real com o usuário',
+                                    'Eles melhoram a velocidade de entrega de mensagens',
+                                    'Eles suportam conteúdo multimídia'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'As teclas inline interativas permitem que os usuários interajam diretamente com o bot, tornando a experiência mais dinâmica e amigável!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Início", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ru
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Какое <b>основное</b> преимущество использования интерактивных встроенных клавиатур в ботах Telegram? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'Они позволяют отправлять большие файлы',
+                                    'Они обеспечивают взаимодействие с пользователем в реальном времени',
+                                    'Они улучшают скорость доставки сообщений',
+                                    'Они поддерживают мультимедийный контент'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'Интерактивные встроенные клавиатуры позволяют пользователям напрямую взаимодействовать с ботом, делая опыт более динамичным и удобным!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 Главная", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // zh
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: '在Telegram机器人中使用交互式内联键盘的<b>主要</b>优势是什么？✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    '它们允许发送更大的文件',
+                                    '它们实现了与用户的实时互动',
+                                    '它们提高了消息传递速度',
+                                    '它们支持多媒体内容'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: '交互式内联键盘允许用户直接与机器人互动，使体验更加动态和用户友好！',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 主页", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ja
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Telegramボットでインタラクティブなインラインキーボードを使用する<b>主な</b>利点は何ですか？✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'より大きなファイルの送信が可能',
+                                    'ユーザーとのリアルタイムの対話を可能にする',
+                                    'メッセージ配信速度を向上させる',
+                                    'マルチメディアコンテンツをサポートする'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'インタラクティブなインラインキーボードにより、ユーザーはボットと直接対話でき、体験がよりダイナミックでユーザーフレンドリーになります！',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 ホーム", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // ko
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'Telegram 봇에서 대화형 인라인 키보드를 사용하는 <b>주요</b> 이점은 무엇인가요? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    '더 큰 파일 전송이 가능하다',
+                                    '사용자와의 실시간 상호작용을 가능하게 한다',
+                                    '메시지 전달 속도를 향상시킨다',
+                                    '멀티미디어 콘텐츠를 지원한다'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: '대화형 인라인 키보드를 통해 사용자는 봇과 직접 상호작용할 수 있어 경험이 더욱 역동적이고 사용자 친화적입니다!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 홈", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }]),
+                        // he
+                        JSON.stringify([{
+                            method: 'sendPoll',
+                            payload: {
+                                question: 'מהו היתרון ה<b>עיקרי</b> בשימוש במקלדות אינטראקטיביות מקוונות בבוטים של טלגרם? ✨',
+                                question_parse_mode: 'HTML',
+                                options: JSON.stringify([
+                                    'הן מאפשרות שליחת קבצים גדולים יותר',
+                                    'הן מאפשרות אינטראקציה בזמן אמת עם המשתמש',
+                                    'הן משפרות את מהירות מסירת ההודעות',
+                                    'הן תומכות בתוכן מולטימדיה'
+                                ]),
+                                protect_content: true,
+                                open_period: 300,
+                                is_anonymous: false,
+                                type: 'quiz',
+                                correct_option_id: 3,
+                                explanation: 'מקלדות אינטראקטיביות מקוונות מאפשרות למשתמשים אינטראקציה ישירה עם הבוט, מה שהופך את החוויה לדינמית וידידותית יותר למשתמש!',
+                                explanation_parse_mode: 'HTML',
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "🏠 בית", callback_data: "/start" }]
+                                    ]
+                                }
+                            }
+                        }])
+                    ]
+                ]
+        }
+    }
+}
+
+EMD.StoreAutomation = {
+    entityName: 'StoreAutomation',
+    sheet: (data = {}) => {
+        return {
+            name: EMD.Automation.sheet(data).name,
+            columns: EMD.Automation.sheet(data).columns,
+            sample_data:
+                [
+                    ['---- ✨ STORE AUTOMATION SAMPLE DATA START ----'],
+                    ['/store',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "/cats" }
+                        ])
+
+                    ],
+                    ['#categoryA',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Welcome to Category A! Here you can find a variety of products and services tailored to your needs.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #1',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/1.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_123', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 550 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            }, {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #2',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n'
+                                        + 'Available in multiple colors and sizes.',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/2.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_124', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 980 } // Amount in smallest units (e.g., cents)
+
+                                    ]),
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #3',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n'
+                                        + 'Shipping included.',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/3.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_125', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 1200 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            }, { "next": "/store" }
+                        ])
+                    ],
+                    ['#categoryB',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Welcome to Category B! Here you can find a variety of products and services tailored to your needs.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #10',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/1.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_130', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 450 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            }, {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #20',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/2.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_124', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 45 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #30',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/3.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_125', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 300 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            }
+                        ])
+                    ],
+                    ['#categoryC',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Welcome to Category C! Here you can find a variety of products and services tailored to your needs.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product # 100',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/1.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_130', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 1250 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product # 122',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/2.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_124', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 5580 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product # 33',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/3.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_125', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 1200 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            }
+                        ])
+                    ],
+                    ['#categoryD',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Welcome to Category D! Here you can find a variety of products and services tailored to your needs.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #11',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/1.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_130', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 123 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #12',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/2.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_124', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 550 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            },
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Product #13',
+                                    description: 'An amazing product that you will love! \n\n'
+                                        + 'This product is made from high-quality materials and offers great value for money.\n\n',
+                                    photo_url: "https://www.gstatic.com/webp/gallery/3.jpg",
+                                    photo_width: 240,
+                                    currency: 'XTR',
+                                    payload: 'custom_payload_125', // Custom payload for your reference
+                                    prices: JSON.stringify([
+                                        { label: 'Total', amount: 1200 } // Amount in smallest units (e.g., cents)
+                                    ]),
+                                }
+                            }
+                        ])
+                    ],
+                    ['#categoryE',
+                        // default (en)
+                        JSON.stringify([
+                            {   // send welcome message
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Welcome to Category E! Here you can find a variety of products and services tailored to your needs.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                // send paid media as sample after invoice
+                                method: 'sendPaidMedia',
+                                payload: {
+                                    protect_content: true,
+                                    star_count: 1000,
+                                    media: [
+                                        {
+                                            type: 'photo',
+                                            media: 'https://www.gstatic.com/webp/gallery/1.jpg',
+                                            caption: 'Thank you for your purchase! Here is your paid media content.'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                // send paid media as sample after invoice
+                                method: 'sendPaidMedia',
+                                payload: {
+                                    protect_content: true,
+                                    star_count: 2400,
+                                    media: [
+                                        {
+                                            type: 'photo',
+                                            media: 'https://www.gstatic.com/webp/gallery/3.jpg',
+                                            caption: 'Thank you for your purchase! Here is your paid media content.'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                // send paid media as sample after invoice
+                                method: 'sendPaidMedia',
+                                payload: {
+                                    protect_content: true,
+                                    star_count: 1400,
+                                    media: [
+                                        {
+                                            type: 'photo',
+                                            media: 'https://www.gstatic.com/webp/gallery/2.jpg',
+                                            caption: 'Thank you for your purchase! Here is your paid media content.'
+                                        }
+                                    ]
+                                }
+                            }
+                        ])
+                    ],
+                    ['#send_paid_media_sample',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                // send paid media as sample after invoice
+                                method: 'sendPaidMedia',
+                                payload: {
+                                    protect_content: true,
+                                    star_count: 1000,
+                                    caption: 'Thank you for your purchase! Here is your paid media content.',
+                                    parse_mode: 'HTML',
+                                    disable_notification: false,
+                                    show_caption_above_media: false,
+                                    // A JSON-serialized array describing the media to be sent; up to 10 items
+                                    media: [
+                                        {
+                                            type: 'photo',
+                                            media: EMD.CHEERS_IMG_URL
+                                        }
+                                    ]
+                                }
+                            }
+                        ])
+                    ],
+                    ['#send_invoice_sample',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendInvoice',
+                            payload: {
+                                title: 'Sample Product',
+                                description: 'This is a sample product used to demonstrate the Send Invoice API feature.',
+                                photo_url: EMD.PEACH_IMG_URL,
+                                photo_width: 240,
+                                currency: 'XTR',
+                                payload: 'sample_payload_001', // Custom payload for your reference
+                                prices: JSON.stringify([{ label: 'Total', amount: 1999 }]), // Amount in smallest units (e.g., cents)
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [{ text: "Pay 1299 XTR", pay: true }]
+                                    ]
+                                }
+                            }
+                        }])
+                    ]
+                    ['---- 🛍️ STORE AUTOMATION SAMPLE DATA END ----']
+                ]
+        }
+    }
+}
+
+EMD.DonationCampaign = {
+    entityName: 'DonationCampaign',
+    sheet: (data = {}) => {
+        return {
+            name: EMD.Automation.sheet(data).name,
+            columns: EMD.Automation.sheet(data).columns,
+            sample_data:
+                [
+                    ['---- 🐱❤️ Support Our Feline Friends! ❤️🐱 ----'],
+                    ['_invoice_link_result_',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Success! 🥳 Your dedicated donation link is ready. Share it widely to help us find Cat Guardians globally and fund critical care for stray cats. Every share is a life saved! 🐾\n\n'
+                                        + 'Invoice Link: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // es
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '¡Éxito! 🥳 Tu enlace de donación dedicado está listo. Compártelo ampliamente para ayudarnos a encontrar Guardianes Felinos a nivel mundial y financiar la atención crítica para gatos callejeros. ¡Cada vez que compartes, es una vida salvada! 🐾\n\n'
+                                        + 'Enlace de Factura: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // fr
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Succès ! 🥳 Votre lien de don dédié est prêt. Partagez-le largement pour nous aider à trouver des Gardiens de Chats dans le monde entier et à financer les soins essentiels pour les chats errants. Chaque partage est une vie sauvée ! 🐾\n\n'
+                                        + 'Lien de Facture: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // ar
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'نجاح! 🥳 رابط التبرع المخصص لك جاهز. شاركه على نطاق واسع لمساعدتنا في العثور على حراس القطط عالميًا وتمويل الرعاية الحرجة للقطط الضالة. كل مشاركة هي حياة تم إنقاذها! 🐾\n\n'
+                                        + 'رابط الفاتورة: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // de
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Erfolg! 🥳 Ihr dedizierter Spenden-Link ist bereit. Teilen Sie ihn weitläufig, um uns zu helfen, weltweit Katzenwächter zu finden und kritische Versorgung für streunende Katzen zu finanzieren. Jede Teilung ist ein gerettetes Leben! 🐾\n\n'
+                                        + 'Rechnungslink: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // it
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Successo! 🥳 Il tuo link di donazione dedicato è pronto. Condividilo ampiamente per aiutarci a trovare Guardiani dei Gatti a livello globale e finanziare le cure critiche per i gatti randagi. Ogni condivisione è una vita salvata! 🐾\n\n'
+                                        + 'Link Fattura: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // pt
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Sucesso! 🥳 Seu link de doação dedicado está pronto. Compartilhe-o amplamente para nos ajudar a encontrar Guardiões de Gatos globalmente e financiar cuidados críticos para gatos de rua. Cada compartilhamento é uma vida salva! 🐾\n\n'
+                                        + 'Link da Fatura: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // ru
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'Успех! 🥳 Ваша специальная ссылка для пожертвований готова. Поделитесь ею, чтобы помочь нам найти Хранителей Кошек по всему миру и профинансировать жизненно важный уход за бездомными кошками. Каждый репост — это спасенная жизнь! 🐾\n\n'
+                                        + 'Ссылка на счет: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // zh
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '成功！🥳 您的专属捐款链接已准备就绪。广泛分享它，帮助我们在全球寻找猫咪守护者，并为流浪猫提供关键护理。每一次分享都是拯救一个生命！🐾\n\n'
+                                        + '发票链接: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // ja
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '成功です！🥳 あなた専用の寄付リンクが準備できました。広く共有して、世界中で猫の守護者を見つけ、野良猫に重要なケアを提供する資金を調達するのを助けてください。シェアするたびに命が救われます！🐾\n\n'
+                                        + '請求書リンク: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // ko
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '성공! 🥳 당신의 전용 기부 링크가 준비되었습니다. 널리 공유하여 전 세계적으로 고양이 수호자를 찾고 길고양이들에게 중요한 관리를 제공할 수 있도록 도와주세요. 공유할 때마다 생명을 구할 수 있습니다! 🐾\n\n'
+                                        + '인보이스 링크: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ]),
+                        // he
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'הצלחה! 🥳 קישור התרומה הייעודי שלך מוכן. שתף אותו באופן נרחב כדי לעזור לנו למצוא שומרי חתולים גלובליים ולממן טיפול קריטי לחתולי רחוב. כל שיתוף הוא חיים שניצלו! 🐾\n\n'
+                                        + 'קישור חשבונית: {{invoice_link}}\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ])
+                    ],
+                    ['/cats',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "/1st_engagement" }
+                        ])
+                    ],
+                    ['/1st_engagement',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_1st_engagement_sample" }
+                        ])
+                    ],
+                    ['#send_1st_engagement_sample',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 URGENT CALL for Cat Lovers! 🐾❤️\n\n'
+                                        + 'Look at these sweet faces! Thousands of stray and abandoned cats are waiting for a hero like you to step in. They need food, medical care, and a safe, warm place to nap.\n\n'
+                                        + 'Your small act of kindness can change a life today. Every donation helps us rescue, treat, and find forever homes for these deserving feline friends.\n\n'
+                                        + 'Will you be their light? Choose how you want to make a difference: Donate, Volunteer, or simply Learn More about our mission!\n\n'
+                                        + 'Thank you for your purr-fect compassion! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ Learn More", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // es
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 LLAMADA URGENTE para Amantes de los Gatos! 🐾❤️\n\n'
+                                        + '¡Mira estas caritas dulces! Miles de gatos callejeros y abandonados están esperando que un héroe como tú intervenga. Necesitan comida, atención médica y un lugar seguro y cálido para echar una siesta.\n\n'
+                                        + 'Tu pequeño acto de bondad puede cambiar una vida hoy. Cada donación nos ayuda a rescatar, tratar y encontrar hogares permanentes para estos merecedores amigos felinos.\n\n'
+                                        + '¿Serás su luz? Elige cómo quieres marcar la diferencia: ¡Dona, Colabora (Voluntario), o simplemente Aprende Más sobre nuestra misión!\n\n'
+                                        + '¡Gracias por tu perfecta compasión felina! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ Aprender Más", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // fr
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 APPEL URGENT aux Amoureux des Chats! 🐾❤️\n\n'
+                                        + 'Regardez ces doux visages! Des milliers de chats errants et abandonnés attendent un héros comme vous. Ils ont besoin de nourriture, de soins médicaux et d\'un endroit sûr et chaud pour faire la sieste.\n\n'
+                                        + 'Votre petit acte de gentillesse peut changer une vie aujourd\'hui. Chaque don nous aide à sauver, soigner et trouver des foyers éternels pour ces amis félins méritants.\n\n'
+                                        + 'Serez-vous leur lumière? Choisissez comment vous voulez faire la différence: Faites un Don, Collaborez (Volontariat), ou simplement Apprenez-en Davantage sur notre mission!\n\n'
+                                        + 'Merci pour votre compassion ronronnante! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ En savoir plus", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ar
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 نداء عاجل لمحبي القطط! 🐾❤️\n\n'
+                                        + 'انظر إلى هذه الوجوه الجميلة! الآلاف من القطط الضالة والمهجورة تنتظر بطلاً مثلك للتدخل. إنهم بحاجة إلى طعام، رعاية طبية، ومكان آمن ودافئ للقيلولة.\n\n'
+                                        + 'عملك الصغير من اللطف يمكن أن يغير حياة اليوم. كل تبرع يساعدنا على إنقاذ وعلاج وإيجاد منازل أبدية لهؤلاء الأصدقاء القطط المستحقين.\n\n'
+                                        + 'هل ستكون نورهم؟ اختر كيف تريد أن تحدث فرقًا: تبرع، تطوع، أو ببساطة تعرّف على المزيد حول مهمتنا!\n\n'
+                                        + 'شكراً لتعاطفك الرائع! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ تعرّف على المزيد", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // de
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 DRINGENDER AUFRUF an Katzenliebhaber! 🐾❤️\n\n'
+                                        + 'Sehen Sie diese süßen Gesichter! Tausende streunende und ausgesetzte Katzen warten auf einen Helden wie Sie. Sie brauchen Futter, medizinische Versorgung und einen sicheren, warmen Ort zum Nickerchen.\n\n'
+                                        + 'Ihre kleine Geste der Freundlichkeit kann heute ein Leben verändern. Jede Spende hilft uns, diese verdienten Samtpfoten zu retten, zu behandeln und ein Zuhause für immer zu finden.\n\n'
+                                        + 'Werden Sie ihr Licht sein? Wählen Sie, wie Sie etwas bewirken möchten: Spenden, Zusammenarbeiten (als Freiwilliger) oder einfach mehr über unsere Mission erfahren!\n\n'
+                                        + 'Vielen Dank für Ihr schnurriges Mitgefühl! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ Mehr erfahren", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // it
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 APPELLO URGENTE per Amanti dei Gatti! 🐾❤️\n\n'
+                                        + 'Guarda questi dolci musi! Migliaia di gatti randagi e abbandonati stanno aspettando un eroe come te. Hanno bisogno di cibo, cure mediche e un posto sicuro e caldo per fare un pisolino.\n\n'
+                                        + 'Il tuo piccolo atto di gentilezza può cambiare una vita oggi. Ogni donazione ci aiuta a salvare, curare e trovare case per sempre per questi meritevoli amici felini.\n\n'
+                                        + 'Sarai la loro luce? Scegli come vuoi fare la differenza: Dona, Collabora (Volontariato), o semplicemente Scopri di più sulla nostra missione!\n\n'
+                                        + 'Grazie per la tua perfetta compassione felina! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ Scopri di più", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // pt
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 CHAMADA URGENTE para Amantes de Gatos! 🐾❤️\n\n'
+                                        + 'Olhe para estes rostinhos doces! Milhares de gatos vadios e abandonados estão esperando por um herói como você para intervir. Eles precisam de comida, cuidados médicos e um lugar seguro e quente para tirar uma soneca.\n\n'
+                                        + 'Seu pequeno ato de bondade pode mudar uma vida hoje. Cada doação nos ajuda a resgatar, tratar e encontrar lares permanentes para estes merecedores amigos felinos.\n\n'
+                                        + 'Você será a luz deles? Escolha como você quer fazer a diferença: Doe, Colabore (Voluntariado) ou simplesmente Saiba Mais sobre nossa missão!\n\n'
+                                        + 'Obrigado pela sua compaixão ronronante! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ Saiba Mais", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ru
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 СРОЧНЫЙ ПРИЗЫВ для любителей кошек! 🐾❤️\n\n'
+                                        + 'Посмотрите на эти милые мордашки! Тысячи бездомных и брошенных кошек ждут такого героя, как вы. Им нужна еда, медицинская помощь и безопасное, теплое место для сна.\n\n'
+                                        + 'Ваш небольшой акт доброты может изменить жизнь сегодня. Каждое пожертвование помогает нам спасать, лечить и находить постоянные дома для этих достойных пушистых друзей.\n\n'
+                                        + 'Станете ли вы их светом? Выберите, как вы хотите помочь: Сделайте пожертвование, Станьте волонтером (Сотрудничайте) или просто Узнайте больше о нашей миссии!\n\n'
+                                        + 'Спасибо за ваше идеальное кошачье сострадание! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ Узнать больше", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // zh
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 猫咪爱好者的紧急呼吁! 🐾❤️\n\n'
+                                        + '看看这些甜美的面孔！成千上万的流浪猫和被遗弃的猫正在等待像您这样的英雄伸出援手。它们需要食物、医疗护理和一个安全、温暖的小憩之所。\n\n'
+                                        + '您的小小善举可以改变今天的生活。每一笔捐款都帮助我们拯救、治疗并为这些值得的猫科动物朋友找到永久的家。\n\n'
+                                        + '您愿意成为它们的光芒吗？选择您想如何发挥作用：捐款、合作（志愿服务），或只是了解更多关于我们的使命！\n\n'
+                                        + '感谢您的完美猫式同情心！🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ 了解更多", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ja
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 猫好きへの緊急呼びかけ！ 🐾❤️\n\n'
+                                        + 'この愛らしい顔を見てください！何千匹もの野良猫や捨てられた猫が、あなたのようなヒーローが介入するのを待っています。彼らは食べ物、医療、そして安全で暖かい昼寝場所を必要としています。\n\n'
+                                        + 'あなたの小さな親切な行動が今日、命を変えることができます。すべての寄付は、これらの価値ある猫の友を救助し、治療し、永遠の家を見つけるのに役立ちます。\n\n'
+                                        + 'あなたは彼らの光になりますか？どのように貢献したいかを選択してください：寄付する、協力する（ボランティア）、または単に私たちの使命について詳しく知る！\n\n'
+                                        + 'あなたの完璧な猫への思いやりに感謝します！ 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ 詳細はこちら", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ko
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 고양이 애호가를 위한 긴급 요청! 🐾❤️\n\n'
+                                        + '이 사랑스러운 얼굴들을 보세요! 수천 마리의 길 잃은 고양이와 버려진 고양이들이 당신과 같은 영웅이 나서기를 기다리고 있습니다. 그들은 음식, 의료 지원, 그리고 안전하고 따뜻한 낮잠 장소가 필요합니다.\n\n'
+                                        + '당신의 작은 친절이 오늘 한 생명을 바꿀 수 있습니다. 모든 기부는 이 소중한 고양이 친구들을 구조하고 치료하며 영원한 집을 찾는 데 도움이 됩니다.\n\n'
+                                        + '당신은 그들의 빛이 되어줄 수 있나요? 기부, 협력(자원 봉사), 또는 단순히 우리의 임무에 대해 자세히 알아보는 등 어떻게 기여하고 싶은지 선택하세요!\n\n'
+                                        + '당신의 완벽한 고양이 애정에 감사드립니다! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ 자세히 알아보기", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // he
+                        JSON.stringify([
+                            {
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: '🚨 קריאה דחופה לאוהבי חתולים! 🐾❤️\n\n'
+                                        + 'תסתכלו על הפרצופים המתוקים האלה! אלפי חתולי רחוב וחתולים נטושים מחכים לגיבור כמוך שיכנס לתמונה. הם זקוקים למזון, טיפול רפואי ומקום בטוח וחם לנמנם בו.\n\n'
+                                        + 'מעשה החסד הקטן שלך יכול לשנות חיים היום. כל תרומה עוזרת לנו להציל, לטפל ולמצוא בתים לנצח לחברים החתוליים הראויים האלה.\n\n'
+                                        + 'האם תהיה האור שלהם? בחר כיצד תרצה לעשות שינוי: תרום, שתף פעולה (התנדב), או פשוט למד עוד על המשימה שלנו!\n\n'
+                                        + 'תודה על החמלה המושלמת שלך! 🐱🌟',
+                                    photo: EMD.YOU_GOT_IT_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🎖️ למידע נוסף", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ])
+                    ],
+                    ['/2nd_engagement',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_2nd_engagement_sample" }
+                        ])
+                    ],
+                    ['#send_2nd_engagement_sample',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 The Cat Guardian Pledge: Why We Need You 🐾\n\n'
+                                        + 'We believe every cat deserves a safe, loving life. Our mission is to rescue, rehabilitate, and rehome the most vulnerable felines in need, turning fear into purrs.\n\n'
+                                        + 'Your support directly powers three core pillars of our life-saving work:\n'
+                                        + '1. 🏥 <b>Emergency Care:</b> Funding critical surgeries, vaccinations, and essential spay/neuter programs.\n'
+                                        + '2. 🍲 <b>Nourishment & Shelter:</b> Providing high-quality food, cozy temporary homes, and safety.\n'
+                                        + '3. 🤝 <b>Adoption & Collaboration:</b> Matching cats with their forever homes and mobilizing local volunteers.\n\n'
+                                        + 'We are committed to a global impact, touching the lives of stray cats wherever they need a hand.\n\n'
+                                        + 'Ready to be a Cat Guardian? Choose your role below: Donate to fund a rescue, or Join our Community to collaborate! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 Donate Now", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 Join Our Community", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // es
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 El Compromiso del Guardián Felino: Por Qué Te Necesitamos 🐾\n\n'
+                                        + 'Creemos que cada gato merece una vida segura y amorosa. Nuestra misión es rescatar, rehabilitar y reubicar a los felinos más vulnerables que lo necesiten, transformando el miedo en ronroneos.\n\n'
+                                        + 'Tu apoyo impulsa directamente tres pilares fundamentales de nuestro trabajo para salvar vidas:\n'
+                                        + '1. 🏥 <b>Atención de Emergencia:</b> Financiando cirugías críticas, vacunas y programas esenciales de esterilización/castración.\n'
+                                        + '2. 🍲 <b>Nutrición y Refugio:</b> Proporcionando alimentos de alta calidad, hogares temporales acogedores y seguridad.\n'
+                                        + '3. 🤝 <b>Adopción y Colaboración:</b> Encontrando el hogar perfecto para los gatos y movilizando voluntarios locales.\n\n'
+                                        + 'Estamos comprometidos con un impacto global, ayudando a los gatos callejeros dondequiera que necesiten una mano.\n\n'
+                                        + '¿Listo para ser un Guardián Felino? Elige tu rol a continuación: Dona para financiar un rescate, o Únete a nuestra Comunidad para colaborar! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 Donar Ahora", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 Únete a Nuestra Comunidad", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // fr
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 L\'Engagement du Gardien de Chat : Pourquoi Nous Avons Besoin de Vous 🐾\n\n'
+                                        + 'Nous croyons que chaque chat mérite une vie sûre et aimante. Notre mission est de secourir, réhabiliter et reloger les félins les plus vulnérables dans le besoin, transformant la peur en ronronnements.\n\n'
+                                        + 'Votre soutien alimente directement trois piliers essentiels de notre travail pour sauver des vies:\n'
+                                        + '1. 🏥 <b>Soins d\'Urgence :</b> Financement des chirurgies critiques, des vaccinations et des programmes essentiels de stérilisation/castration.\n'
+                                        + '2. 🍲 <b>Nourriture & Abri :</b> Fournir des aliments de haute qualité, des foyers temporaires douillets et la sécurité.\n'
+                                        + '3. 🤝 <b>Adoption & Collaboration :</b> Trouver le foyer parfait pour les chats et mobiliser les bénévoles locaux.\n\n'
+                                        + 'Nous nous engageons à avoir un impact mondial, aidant les chats errants partout où ils ont besoin d\'aide.\n\n'
+                                        + 'Prêt à être un Gardien de Chat ? Choisissez votre rôle ci-dessous : Faites un don pour financer un sauvetage, ou Rejoignez notre Communauté pour collaborer ! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 Faire un Don Maintenant", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 Rejoindre Notre Communauté", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ar
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 تعهد حارس القطط: لماذا نحتاج إليك 🐾\n\n'
+                                        + 'نؤمن بأن كل قطة تستحق حياة آمنة ومحبة. مهمتنا هي إنقاذ، تأهيل، وإعادة توطين القطط الأكثر ضعفاً التي تحتاج للمساعدة، وتحويل الخوف إلى مواءات مريحة.\n\n'
+                                        + 'دعمك يغذي مباشرة ثلاثة أعمدة أساسية لعملنا المنقذ للحياة:\n'
+                                        + '1. 🏥 <b>رعاية طارئة:</b> تمويل العمليات الجراحية الحيوية، اللقاحات، وبرامج التعقيم/الخصي الأساسية.\n'
+                                        + '2. 🍲 <b>تغذية ومأوى:</b> توفير طعام عالي الجودة، ومنازل مؤقتة دافئة وآمنة.\n'
+                                        + '3. 🤝 <b>تبني وتعاون:</b> مطابقة القطط مع منازلها الأبدية وتعبئة المتطوعين المحليين.\n\n'
+                                        + 'نحن ملتزمون بتأثير عالمي، نلامس حياة القطط الضالة أينما احتاجت إلى مساعدة.\n\n'
+                                        + 'هل أنت مستعد لتكون حارس قطط؟ اختر دورك أدناه: تبرع لتمويل عملية إنقاذ، أو انضم إلى مجتمعنا للتعاون! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 تبرع الآن", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 انضم إلى مجتمعنا", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // de
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Das Katzenwächter-Versprechen: Warum wir Sie brauchen 🐾\n\n'
+                                        + 'Wir glauben, dass jede Katze ein sicheres, liebevolles Leben verdient. Unsere Mission ist es, die schutzbedürftigsten Katzen in Not zu retten, zu rehabilitieren und neu zu vermitteln, um Angst in Schnurren zu verwandeln.\n\n'
+                                        + 'Ihre Unterstützung treibt direkt drei Kernpfeiler unserer lebensrettenden Arbeit an:\n'
+                                        + '1. 🏥 <b>Notfallversorgung:</b> Finanzierung kritischer Operationen, Impfungen und essentieller Kastrations-/Sterilisationsprogramme.\n'
+                                        + '2. 🍲 <b>Nahrung & Unterkunft:</b> Bereitstellung von hochwertigem Futter, gemütlichen Übergangsheimen und Sicherheit.\n'
+                                        + '3. 🤝 <b>Adoption & Zusammenarbeit:</b> Vermittlung von Katzen in ihr endgültiges Zuhause und Mobilisierung lokaler Freiwilliger.\n\n'
+                                        + 'Wir engagieren uns für eine globale Wirkung und helfen streunenden Katzen, wo immer sie eine helfende Hand brauchen.\n\n'
+                                        + 'Bereit, ein Katzenwächter zu sein? Wählen Sie Ihre Rolle unten: Spenden Sie, um eine Rettung zu finanzieren, oder treten Sie unserer Community bei, um zusammenzuarbeiten! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 Jetzt spenden", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 Treten Sie unserer Gemeinschaft bei", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // it
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 L\'Impegno del Guardiano dei Gatti: Perché Abbiamo Bisogno di Te 🐾\n\n'
+                                        + 'Crediamo che ogni gatto meriti una vita sicura e amorevole. La nostra missione è salvare, riabilitare e trovare casa ai felini più vulnerabili, trasformando la paura in fusa.\n\n'
+                                        + 'Il tuo supporto alimenta direttamente tre pilastri fondamentali del nostro lavoro per salvare vite:\n'
+                                        + '1. 🏥 <b>Cure d\'Emergenza:</b> Finanziamento di interventi chirurgici critici, vaccinazioni e programmi essenziali di sterilizzazione/castrazione.\n'
+                                        + '2. 🍲 <b>Nutrimento e Rifugio:</b> Fornitura di cibo di alta qualità, case temporanee accoglienti e sicurezza.\n'
+                                        + '3. 🤝 <b>Adozione e Collaborazione:</b> Abbinamento dei gatti con le loro case per sempre e mobilitazione dei volontari locali.\n\n'
+                                        + 'Ci impegniamo per un impatto globale, toccando le vite dei gatti randagi ovunque abbiano bisogno di aiuto.\n\n'
+                                        + 'Pronto a essere un Guardiano dei Gatti? Scegli il tuo ruolo qui sotto: Dona per finanziare un salvataggio, o Unisciti alla nostra Comunità per collaborare! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 Dona Ora", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 Unisciti alla Nostra Comunità", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // pt
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 O Compromisso do Guardião de Gatos: Por Que Precisamos de Você 🐾\n\n'
+                                        + 'Acreditamos que todo gato merece uma vida segura e amorosa. Nossa missão é resgatar, reabilitar e realojar os felinos mais vulneráveis em necessidade, transformando o medo em ronronos.\n\n'
+                                        + 'Seu apoio impulsiona diretamente três pilares essenciais do nosso trabalho de salvar vidas:\n'
+                                        + '1. 🏥 <b>Cuidados de Emergência:</b> Financiamento de cirurgias críticas, vacinação e programas essenciais de esterilização/castração.\n'
+                                        + '2. 🍲 <b>Nutrição e Abrigo:</b> Fornecimento de alimentos de alta qualidade, lares temporários aconchegantes e segurança.\n'
+                                        + '3. 🤝 <b>Adoção e Colaboração:</b> Encontrar o lar permanente perfeito para os gatos e mobilizar voluntários locais.\n\n'
+                                        + 'Estamos comprometidos com um impacto global, alcançando a vida de gatos de rua onde quer que precisem de uma mão.\n\n'
+                                        + 'Pronto para ser um Guardião de Gatos? Escolha seu papel abaixo: Doe para financiar um resgate, ou Junte-se à nossa Comunidade para colaborar! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 Doe Agora", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 Junte-se à Nossa Comunidade", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ru
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Обещание Хранителя Кошек: Почему мы нуждаемся в Вас 🐾\n\n'
+                                        + 'Мы верим, что каждая кошка заслуживает безопасной и любящей жизни. Наша миссия — спасать, реабилитировать и пристраивать самых уязвимых кошек, превращая страх в мурлыканье.\n\n'
+                                        + 'Ваша поддержка напрямую питает три ключевых столпа нашей спасательной работы:\n'
+                                        + '1. 🏥 <b>Экстренная помощь:</b> Финансирование критических операций, вакцинации и основных программ стерилизации/кастрации.\n'
+                                        + '2. 🍲 <b>Питание и приют:</b> Предоставление высококачественного корма, уютных временных домов и безопасности.\n'
+                                        + '3. 🤝 <b>Усыновление и сотрудничество:</b> Поиск идеальной семьи для кошек и мобилизация местных волонтеров.\n\n'
+                                        + 'Мы стремимся к глобальному воздействию, помогая бездомным кошкам везде, где нужна помощь.\n\n'
+                                        + 'Готовы стать Хранителем Кошек? Выберите свою роль ниже: Сделайте пожертвование для финансирования спасения или Присоединяйтесь к нашему Сообществу для сотрудничества! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 Пожертвовать сейчас", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 Присоединиться к нашему сообществу", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // zh
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 猫咪守护者承诺：为什么我们需要您 🐾\n\n'
+                                        + '我们相信每只猫都值得拥有一个安全、充满爱的生活。我们的使命是拯救、康复和重新安置社区内外最弱势的猫科动物，将恐惧转化为咕噜声。\n\n'
+                                        + '您的支持直接驱动我们救生工作的三个核心支柱:\n'
+                                        + '1. 🏥 <b>紧急护理：</b> 资助关键手术、疫苗接种和必要的绝育/阉割计划。\n'
+                                        + '2. 🍲 <b>营养与住所：</b> 提供高质量的食物、舒适的临时住所和安全保障。\n'
+                                        + '3. 🤝 <b>领养与协作：</b> 为猫咪找到它们永远的家，并动员本地志愿者。\n\n'
+                                        + '我们致力于产生全球影响，在流浪猫最需要帮助的地方伸出援手。\n\n'
+                                        + '准备好成为一名猫咪守护者了吗？请在下方选择您的角色：捐款以资助一次救援，或加入我们的社区进行协作！🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 立即捐款", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 加入我们的社区", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ja
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 猫の守護者の誓い：なぜあなたが必要なのか 🐾\n\n'
+                                        + '私たちはすべての猫が安全で愛情ある生活を送る価値があると信じています。私たちの使命は、最も弱い立場の猫を救助し、リハビリし、新しい家に迎えることです。恐怖を喉を鳴らす音に変えましょう。\n\n'
+                                        + 'あなたの支援は、私たちの命を救う活動の3つの核となる柱を直接支えます:\n'
+                                        + '1. 🏥 <b>緊急医療：</b> 重要な手術、予防接種、必須の不妊・去勢プログラムに資金を提供します。\n'
+                                        + '2. 🍲 <b>栄養とシェルター：</b> 高品質の食事、居心地の良い一時的な家、そして安全を提供します。\n'
+                                        + '3. 🤝 <b>里親探しと協力：</b> 猫と永遠の家族を結びつけ、地元のボランティアを動員します。\n\n'
+                                        + '私たちはグローバルな影響を与えることにコミットし、助けが必要な場所ならどこでも野良猫の命に触れています。\n\n'
+                                        + '猫の守護者になる準備はできましたか？以下からあなたの役割を選んでください：寄付で救助を支援するか、私たちのコミュニティに参加して協力しましょう！🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 今すぐ寄付", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 コミュニティに参加", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ko
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 고양이 수호자의 서약: 왜 당신이 필요한가요 🐾\n\n'
+                                        + '우리는 모든 고양이가 안전하고 사랑받는 삶을 누릴 자격이 있다고 믿습니다. 우리의 임무는 가장 취약한 고양이를 구조하고, 재활시키고, 입양시키는 것입니다. 두려움을 골골송으로 바꿔주세요.\n\n'
+                                        + '당신의 지원은 우리의 생명을 구하는 작업의 세 가지 핵심 기둥을 직접적으로 지원합니다:\n'
+                                        + '1. 🏥 <b>응급 치료:</b> 중요한 수술, 예방 접종, 필수적인 중성화/불임 수술 프로그램에 자금을 지원합니다.\n'
+                                        + '2. 🍲 <b>영양 및 쉼터:</b> 고품질 사료, 아늑한 임시 보호소 및 안전을 제공합니다.\n'
+                                        + '3. 🤝 <b>입양 및 협력:</b> 고양이와 평생 가족을 연결하고 지역 자원 봉사자를 동원합니다.\n\n'
+                                        + '우리는 도움이 필요한 길고양이들의 삶에 영향을 미치기 위해 전 세계적인 영향력을 발휘하기 위해 노력하고 있습니다.\n\n'
+                                        + '고양이 수호자가 될 준비가 되셨나요? 아래에서 역할을 선택하세요: 구조 자금을 기부하거나 커뮤니티에 참여하여 협력하세요! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 지금 기부하기", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 우리 커뮤니티에 참여", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // he
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 הבטחת שומר החתולים: למה אנחנו זקוקים לך 🐾\n\n'
+                                        + 'אנו מאמינים שלכל חתול מגיע חיים בטוחים ואוהבים. המשימה שלנו היא להציל, לשקם ולמצוא בית לחתולים הפגיעים ביותר הזקוקים לעזרה, ולהפוך פחד לגרגורים.\n\n'
+                                        + 'התמיכה שלך מניעה ישירות שלושה עמודי ליבה של עבודתנו להצלת חיים:\n'
+                                        + '1. 🏥 <b>טיפול רפואי דחוף:</b> מימון ניתוחים קריטיים, חיסונים ותוכניות עיקור/סירוס חיוניות.\n'
+                                        + '2. 🍲 <b>תזונה ומחסה:</b> אספקת מזון איכותי, בתים זמניים נעימים וביטחון.\n'
+                                        + '3. 🤝 <b>אימוץ ושיתוף פעולה:</b> מציאת ההתאמה האנושית המושלמת לחתולים וגיוס מתנדבים מקומיים.\n\n'
+                                        + 'אנו מחויבים להשפעה גלובלית, נוגעים בחייהם של חתולי רחוב בכל מקום שהם זקוקים ליד עוזרת.\n\n'
+                                        + 'מוכנים להיות שומר חתולים? בחר את תפקידך למטה: תרום כדי לממן הצלה, או הצטרף לקהילה שלנו כדי לשתף פעולה! 🌟',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [{ text: "💝 תרום עכשיו", callback_data: "/3rd_engagement" }],
+                                            [{ text: "👥 הצטרף לקהילה שלנו", callback_data: "/join_our_community" }]
+                                        ]
+                                    }
+                                }
+                            }
+                        ])
+                    ],
+                    ['/3rd_engagement',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_3rd_engagement_sample" }
+                        ])
+                    ],
+                    ['#send_3rd_engagement_sample',
+                        // default (en)
+                        JSON.stringify([
+                            {   // send ask for donation message
+                                method: 'sendInvoice',
+                                payload: {
+                                    // Product name, 1-32 characters
+                                    title: 'Save a Stray Cat\'s Life Today 🐾',
+                                    // Product description, 1-255 characters
+                                    description: 'You are a Cat Hero! Your XTR donation will provide emergency medical care, food, and safe shelter for a vulnerable cat. Every coin counts towards a \'purr-fect\' happy ending. Thank you for your kindness! 🐱❤️',
+                                    payload: 'bronze_supporter', // Custom payload for your reference
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Donate XTR to Save a Cat', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 Join Our Community", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ Learn More", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // es
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Salva la Vida de un Gato Callejero Hoy 🐾',
+                                    description: '¡Eres un Héroe Felino! Tu donación en XTR proporcionará atención médica de emergencia, comida y refugio seguro a un gato vulnerable. Cada moneda cuenta para un final feliz "perfecto". ¡Gracias por tu bondad! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Donar XTR para Salvar un Gato', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 Únete a Nuestra Comunidad", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ Aprender Más", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // fr
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Sauvez la Vie d\'un Chat Errant Aujourd\'hui 🐾',
+                                    description: 'Vous êtes un Héros Félin! Votre don en XTR fournira des soins médicaux d\'urgence, de la nourriture et un abri sûr à un chat vulnérable. Chaque pièce compte pour une fin heureuse "ronronnante". Merci pour votre gentillesse! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Donner XTR pour Sauver un Chat', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 Rejoignez Notre Communauté", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ En savoir plus", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ar
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'أنقذ حياة قطة ضالة اليوم 🐾',
+                                    description: 'أنت بطل القطط! تبرعك بـ XTR سيوفر رعاية طبية طارئة، طعامًا، ومأوى آمنًا لقطة ضعيفة. كل عملة مهمة لتحقيق نهاية سعيدة "مُرضية". شكراً لك على لطفك! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'تبرع بـ XTR لإنقاذ قطة', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 انضم إلى مجتمعنا", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ تعرّف على المزيد", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // de
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Retten Sie heute ein streunendes Katzenleben 🐾',
+                                    description: 'Sie sind ein Katzenheld! Ihre XTR-Spende bietet Notfallversorgung, Futter und sicheren Unterschlupf für eine schutzbedürftige Katze. Jede Münze zählt für ein "schnurr-fekt" glückliches Ende. Vielen Dank für Ihre Freundlichkeit! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Spenden Sie XTR, um eine Katze zu retten', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 Treten Sie unserer Gemeinschaft bei", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ Mehr erfahren", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // it
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Salva la Vita di un Gatto Randagio Oggi 🐾',
+                                    description: 'Sei un Eroe Felino! La tua donazione in XTR fornirà cure mediche d\'emergenza, cibo e un rifugio sicuro a un gatto vulnerabile. Ogni moneta conta per un lieto fine "perfetto". Grazie per la tua gentilezza! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Dona XTR per Salvare un Gatto', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 Unisciti alla Nostra Comunità", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ Scopri di più", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // pt
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Salve a Vida de um Gato de Rua Hoje 🐾',
+                                    description: 'Você é um Herói Felino! Sua doação em XTR fornecerá cuidados médicos de emergência, comida e abrigo seguro para um gato vulnerável. Cada moeda conta para um final feliz "perfeito". Obrigado pela sua bondade! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Doar XTR para Salvar um Gato', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 Junte-se à Nossa Comunidade", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ Saiba Mais", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ru
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'Спасите жизнь бездомной кошки сегодня 🐾',
+                                    description: 'Вы - Кошачий Герой! Ваше пожертвование в XTR обеспечит неотложную медицинскую помощь, еду и безопасное убежище для уязвимой кошки. Каждая монета важна для "мур-фектного" счастливого конца. Спасибо за вашу доброту! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Пожертвовать XTR, чтобы спасти кошку', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 Присоединяйтесь к нашему сообществу", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ Узнать больше", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // zh
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: '今天就拯救流浪猫的生命吧 🐾',
+                                    description: '您是猫咪英雄！您的 XTR 捐款将为一只脆弱的猫咪提供紧急医疗护理、食物和安全的住所。每一分钱都为实现一个"喵"不可言的幸福结局而努力。感谢您的善良！ 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: '捐赠 XTR 以拯救一只猫', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 加入我们的社区", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ 了解更多", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ja
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: '今日、野良猫の命を救おう 🐾',
+                                    description: 'あなたは猫のヒーローです！あなたのXTR寄付は、弱い立場の猫に緊急医療、食べ物、そして安全なシェルターを提供します。すべてのお金が「完璧」なハッピーエンドにつながります。あなたの優しさに感謝します！ 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: '猫を救うためにXTRを寄付', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 コミュニティに参加", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ 詳細はこちら", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ko
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: '오늘 길고양이의 생명을 구하세요 🐾',
+                                    description: '당신은 고양이 영웅입니다! 당신의 XTR 기부는 취약한 고양이에게 긴급 의료, 음식 및 안전한 쉼터를 제공할 것입니다. 모든 동전은 "완벽한" 해피 엔딩을 위해 중요합니다. 당신의 친절에 감사드립니다! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: '고양이 구호를 위해 XTR 기부', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 우리 커뮤니티에 참여하세요", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ 자세히 알아보기", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // he
+                        JSON.stringify([
+                            {
+                                method: 'sendInvoice',
+                                payload: {
+                                    title: 'הצל חיים של חתול רחוב היום 🐾',
+                                    description: 'אתה גיבור חתולים! תרומת ה-XTR שלך תספק טיפול רפואי חירום, מזון ומחסה בטוח לחתול פגיע. כל מטבע חשוב עבור סוף טוב "מושלם". תודה על טוב לבך! 🐱❤️',
+                                    payload: 'bronze_supporter',
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'תרום XTR להצלת חתול', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "👥 הצטרף לקהילה שלנו", callback_data: "/join_our_community" }
+                                            ],
+                                            [
+                                                { text: "🎖️ למידע נוסף", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ])
+                    ],
+                    ['/join_our_community',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_join_community_sample" }
+                        ])
+                    ],
+                    ['#send_join_community_sample',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Welcome to the Cat Guardian Movement! 🐾\n\n'
+                                        + 'This is more than a community; it’s a global network of dedicated cat lovers working together to save lives.\n\n'
+                                        + '**How to Collaborate & Connect:**\n'
+                                        + '1. 🗣️ **Join our Group** to discuss cat care, share rescue stories, and find local collaboration opportunities.\n'
+                                        + '2. 📢 **Join our Channel** for official updates, success stories, and donation impact reports.\n'
+                                        + '3. 🤝 **Volunteer:** Ask in the group how you can help with fostering, transport, or fundraising!\n\n'
+                                        + 'Click below to jump in and start making a difference! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ Join our Group", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 Join our Channel", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "Report an Issue", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "Social Media", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 Support Us (Donate)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // es
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 ¡Bienvenido al Movimiento Guardián Felino! 🐾\n\n'
+                                        + 'Esto es más que una comunidad; es una red global de amantes de los gatos dedicados que trabajan juntos para salvar vidas.\n\n'
+                                        + '**Cómo Colaborar y Conectar:**\n'
+                                        + '1. 🗣️ **Únete a nuestro Grupo** para discutir el cuidado de los gatos, compartir historias de rescate y encontrar oportunidades de colaboración local.\n'
+                                        + '2. 📢 **Únete a nuestro Canal** para recibir actualizaciones oficiales, historias de éxito e informes de impacto de las donaciones.\n'
+                                        + '3. 🤝 **Voluntariado:** ¡Pregunta en el grupo cómo puedes ayudar con el acogimiento temporal, el transporte o la recaudación de fondos!\n\n'
+                                        + '¡Haz clic abajo para unirte y comenzar a marcar la diferencia! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ Únete a nuestro Grupo", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 Únete a nuestro Canal", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "Reportar un Problema", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "Redes Sociales", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 Apóyanos (Donar)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // fr
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Bienvenue dans le Mouvement des Gardiens de Chats ! 🐾\n\n'
+                                        + 'C\'est plus qu\'une communauté; c\'est un réseau mondial d\'amoureux des chats dévoués qui travaillent ensemble pour sauver des vies.\n\n'
+                                        + '**Comment Collaborer et Se Connecter :**\n'
+                                        + '1. 🗣️ **Rejoignez notre Groupe** pour discuter des soins aux chats, partager des histoires de sauvetage et trouver des opportunités de collaboration locale.\n'
+                                        + '2. 📢 **Rejoignez notre Chaîne** pour des mises à jour officielles, des histoires de succès et des rapports d\'impact des dons.\n'
+                                        + '3. 🤝 **Bénévolat :** Demandez dans le groupe comment vous pouvez aider avec l\'accueil temporaire, le transport ou la collecte de fonds !\n\n'
+                                        + 'Cliquez ci-dessous pour vous joindre à nous et commencer à faire la différence ! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ Rejoindre notre Groupe", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 Rejoindre notre Chaîne", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "Signaler un Problème", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "Médias Sociaux", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 Soutenez-nous (Donner)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ar
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 مرحبًا بك في حركة حراس القطط! 🐾\n\n'
+                                        + 'هذا أكثر من مجرد مجتمع؛ إنها شبكة عالمية من محبي القطط المتفانين يعملون معًا لإنقاذ الأرواح.\n\n'
+                                        + '**كيف تتعاون وتتواصل:**\n'
+                                        + '1. 🗣️ **انضم إلى مجموعتنا** لمناقشة رعاية القطط، ومشاركة قصص الإنقاذ، والعثور على فرص تعاون محلية.\n'
+                                        + '2. 📢 **انضم إلى قناتنا** للحصول على التحديثات الرسمية، قصص النجاح، وتقارير تأثير التبرعات.\n'
+                                        + '3. 🤝 **تطوع:** اسأل في المجموعة كيف يمكنك المساعدة في الاحتضان المؤقت، النقل، أو جمع التبرعات!\n\n'
+                                        + 'انقر أدناه للانضمام والبدء في إحداث فرق! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ انضم إلى مجموعتنا", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 انضم إلى قناتنا", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "الإبلاغ عن مشكلة", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "وسائل التواصل الاجتماعي", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 ادعمنا (تبرع)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // de
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Willkommen bei der Katzenwächter-Bewegung! 🐾\n\n'
+                                        + 'Dies ist mehr als eine Gemeinschaft; es ist ein globales Netzwerk engagierter Katzenliebhaber, die zusammenarbeiten, um Leben zu retten.\n\n'
+                                        + '**Wie Sie Zusammenarbeiten & Sich Verbinden:**\n'
+                                        + '1. 🗣️ **Treten Sie unserer Gruppe bei**, um über Katzenpflege zu diskutieren, Rettungsgeschichten zu teilen und lokale Kooperationsmöglichkeiten zu finden.\n'
+                                        + '2. 📢 **Abonnieren Sie unseren Kanal** für offizielle Updates, Erfolgsgeschichten und Berichte über die Wirkung von Spenden.\n'
+                                        + '3. 🤝 **Ehrenamtliche Hilfe:** Fragen Sie in der Gruppe, wie Sie bei der Pflege, dem Transport oder der Spendensammlung helfen können!\n\n'
+                                        + 'Klicken Sie unten, um einzusteigen und einen Unterschied zu machen! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ Treten Sie unserer Gruppe bei", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 Abonnieren Sie unseren Kanal", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "Ein Problem melden", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "Soziale Medien", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 Unterstützen Sie uns (Spenden)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // it
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Benvenuti nel Movimento dei Guardiani dei Gatti! 🐾\n\n'
+                                        + 'Questa è più di una comunità; è una rete globale di amanti dei gatti dedicati che lavorano insieme per salvare vite.\n\n'
+                                        + '**Come Collaborare e Connettersi:**\n'
+                                        + '1. 🗣️ **Unisciti al nostro Gruppo** per discutere di cura dei gatti, condividere storie di salvataggio e trovare opportunità di collaborazione locale.\n'
+                                        + '2. 📢 **Unisciti al nostro Canale** per aggiornamenti ufficiali, storie di successo e rapporti sull\'impatto delle donazioni.\n'
+                                        + '3. 🤝 **Volontariato:** Chiedi nel gruppo come puoi aiutare con l\'affido temporaneo, il trasporto o la raccolta fondi!\n\n'
+                                        + 'Clicca qui sotto per unirti e iniziare a fare la differenza! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ Unisciti al nostro Gruppo", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 Unisciti al nostro Canale", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "Segnala un Problema", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "Social Media", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 Sostienici (Dona)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // pt
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Bem-vindo ao Movimento Guardião de Gatos! 🐾\n\n'
+                                        + 'Isto é mais do que uma comunidade; é uma rede global de amantes de gatos dedicados que trabalham juntos para salvar vidas.\n\n'
+                                        + '**Como Colaborar e Conectar:**\n'
+                                        + '1. 🗣️ **Junte-se ao nosso Grupo** para discutir cuidados com gatos, compartilhar histórias de resgate e encontrar oportunidades de colaboração local.\n'
+                                        + '2. 📢 **Junte-se ao nosso Canal** para atualizações oficiais, histórias de sucesso e relatórios de impacto de doações.\n'
+                                        + '3. 🤝 **Voluntariado:** Pergunte no grupo como você pode ajudar com acolhimento temporário, transporte ou angariação de fundos!\n\n'
+                                        + 'Clique abaixo para entrar e começar a fazer a diferença! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ Junte-se ao nosso Grupo", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 Junte-se ao nosso Canal", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "Reportar um Problema", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "Redes Sociais", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 Apoie-nos (Doar)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ru
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 Добро пожаловать в Движение Хранителей Кошек! 🐾\n\n'
+                                        + 'Это больше, чем просто сообщество; это глобальная сеть преданных любителей кошек, работающих вместе, чтобы спасать жизни.\n\n'
+                                        + '**Как сотрудничать и подключаться:**\n'
+                                        + '1. 🗣️ **Присоединяйтесь к нашей Группе**, чтобы обсуждать уход за кошками, делиться историями спасения и находить возможности для местного сотрудничества.\n'
+                                        + '2. 📢 **Присоединяйтесь к нашему Каналу** для получения официальных обновлений, историй успеха и отчетов о влиянии пожертвований.\n'
+                                        + '3. 🤝 **Волонтерство:** Спросите в группе, как вы можете помочь с временным приютом, транспортировкой или сбором средств!\n\n'
+                                        + 'Нажмите ниже, чтобы присоединиться и начать менять ситуацию к лучшему! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ Присоединиться к нашей Группе", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 Присоединиться к нашему Каналу", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "Сообщить о проблеме", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "Социальные сети", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 Поддержите нас (Пожертвовать)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // zh
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 欢迎加入猫咪守护者行动！🐾\n\n'
+                                        + '这不仅仅是一个社区；它是一个由热心的猫咪爱好者组成的全球网络，共同努力拯救生命。\n\n'
+                                        + '**如何合作和联系：**\n'
+                                        + '1. 🗣️ **加入我们的群组**，讨论猫咪护理，分享救援故事，并寻找本地合作机会。\n'
+                                        + '2. 📢 **加入我们的频道**，获取官方更新、成功案例和捐款影响报告。\n'
+                                        + '3. 🤝 **志愿服务：** 在群组中询问如何帮助寄养、运输或筹款！\n\n'
+                                        + '点击下方加入我们，开始做出改变！ 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ 加入我们的群组", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 加入我们的频道", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "报告问题", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "社交媒体", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 支持我们 (捐款)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ja
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 猫の守護者運動へようこそ！🐾\n\n'
+                                        + 'これは単なるコミュニティではありません。命を救うために協力する献身的な猫愛好家のグローバルネットワークです。\n\n'
+                                        + '**協力と接続の方法：**\n'
+                                        + '1. 🗣️ **私たちのグループに参加**して、猫の世話について話し合ったり、救助の話を共有したり、地元の協力の機会を見つけたりしましょう。\n'
+                                        + '2. 📢 **私たちのチャンネルに参加**して、公式の最新情報、成功事例、寄付の影響レポートを入手してください。\n'
+                                        + '3. 🤝 **ボランティア：** 一時預かり、輸送、資金調達でどのように支援できるかグループで尋ねてください！\n\n'
+                                        + '下のボタンをクリックして参加し、変化をもたらし始めましょう！ 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ グループに参加", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 チャンネルに参加", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "問題を報告", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "ソーシャルメディア", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 私たちを支援 (寄付)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // ko
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 고양이 수호자 운동에 오신 것을 환영합니다! 🐾\n\n'
+                                        + '이것은 단순한 커뮤니티 이상입니다. 생명을 구하기 위해 함께 노력하는 헌신적인 고양이 애호가들의 글로벌 네트워크입니다.\n\n'
+                                        + '**협력하고 연결하는 방법:**\n'
+                                        + '1. 🗣️ **저희 그룹에 가입**하여 고양이 돌보기에 대해 토론하고, 구조 이야기를 공유하고, 지역 협력 기회를 찾아보세요.\n'
+                                        + '2. 📢 **저희 채널에 가입**하여 공식 업데이트, 성공 사례 및 기부 영향 보고서를 확인하세요.\n'
+                                        + '3. 🤝 **자원 봉사:** 그룹에서 임시 보호, 운송 또는 모금 활동에 어떻게 도움을 줄 수 있는지 문의하세요!\n\n'
+                                        + '아래를 클릭하여 참여하고 변화를 만들기 시작하세요! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ 저희 그룹에 가입하세요", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 저희 채널에 가입하세요", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "문제 보고", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "소셜 미디어", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 저희를 지원하세요 (기부)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ]),
+                        // he
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: '🐈 ברוכים הבאים לתנועת שומרי החתולים! 🐾\n\n'
+                                        + 'זה יותר מקהילה; זו רשת גלובלית של אוהבי חתולים מסורים הפועלים יחד להציל חיים.\n\n'
+                                        + '**כיצד לשתף פעולה ולהתחבר:**\n'
+                                        + '1. 🗣️ **הצטרף לקבוצה שלנו** כדי לדון בטיפול בחתולים, לשתף סיפורי הצלה ולמצוא הזדמנויות לשיתוף פעולה מקומי.\n'
+                                        + '2. 📢 **הצטרף לערוץ שלנו** לקבלת עדכונים רשמיים, סיפורי הצלחה ודוחות השפעה של תרומות.\n'
+                                        + '3. 🤝 **התנדבות:** שאל בקבוצה כיצד תוכל לעזור עם אומנה, הובלה או גיוס כספים!\n\n'
+                                        + 'לחץ למטה כדי להצטרף ולהתחיל לעשות שינוי! 🐱❤️',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "⛱️ הצטרף לקבוצה שלנו", url: "https://t.me/easyadm_cats_community" },
+                                                { text: "📢 הצטרף לערוץ שלנו", url: "https://t.me/easyadm_cats_channel" }
+                                            ],
+                                            [
+                                                { text: "דווח על בעיה", url: "https://t.me/easyadm_support_bot" },
+                                                { text: "מדיה חברתית", url: "https://easyadm.com/socials" }
+                                            ],
+                                            [
+                                                { text: "💝 תמכו בנו (תרומה)", callback_data: "/2nd_engagement" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ])
+                    ],
+                    ['/send_invoice_donation_sample',
+                        // default (en)
+                        JSON.stringify([
+                            {   // send donation invoice sample
+                                method: 'sendInvoice',
+                                payload: {
+                                    // Product name, 1-32 characters
+                                    title: 'Donate to Support Stray Cats',
+                                    // Product description, 1-255 characters
+                                    description: '🙏 Thank you for considering a Donation! 🙏\n\n'
+                                        + 'Your generosity will directly impact the lives of stray and abandoned cats, providing them with the care and support they need to thrive.\n\n',
+                                    payload: 'bronze_supporter', // Custom payload for your reference
+                                    currency: 'XTR',
+                                    prices: JSON.stringify([
+                                        { label: 'Donate 10000 XTR', amount: 10000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. 
+                                    // The relevant Stars will be withdrawn from the bot's balance.
+                                    allow_paid_broadcast: false
+                                }
+                            }
+                        ])
+                    ],
+                    ['/create_invoice_link',
+                        // default (en)
+                        JSON.stringify([
+                            {   // create invoice link for 30 day bronze cat care subscription
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    // Product name, 1-32 characters
+                                    title: '30-Day Cat Care Subscription 😻',
+                                    // Product description, 1-255 characters
+                                    description: 'Become a monthly \'Cat Guardian\' and ensure a stray cat receives 30 days of continuous, life-saving support! Your recurring XTR subscription covers daily meals, vet check-ups, and a warm place to rest. Join the cause! 🐾',
+                                    currency: 'XTR',
+                                    // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'Subscribe to Care (1000 XTR/Month)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    // The number of seconds the subscription will be active for before the next payment. 
+                                    // The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified.
+                                    subscription_periods: 2592000 // 30 days in seconds
+                                }
+                            }
+                        ]),
+                        // es
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: 'Suscripción de Cuidado Felino 30 Días 😻',
+                                    description: '¡Conviértete en un \'Guardián Felino\' mensual y asegura 30 días de apoyo continuo y vital a un gato callejero! Tu suscripción recurrente en XTR cubre comidas diarias, chequeos veterinarios y un lugar cálido para descansar. ¡Únete a la causa! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'Suscribirse para Cuidar (1000 XTR/Mes)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // fr
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: 'Abonnement Soins Chat 30 Jours 😻',
+                                    description: 'Devenez un \'Gardien de Chat\' mensuel et assurez 30 jours de soutien continu et vital à un chat errant! Votre abonnement XTR récurrent couvre les repas quotidiens, les visites vétérinaires et un endroit chaud pour se reposer. Rejoignez la cause ! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'S\'abonner aux Soins (1000 XTR/Mois)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // ar
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: 'اشتراك رعاية القطط 30 يومًا 😻',
+                                    description: 'كن \'حارس قطط\' شهريًا واضمن لقطة ضالة 30 يومًا من الدعم المستمر والمنقذ للحياة! يغطي اشتراك XTR المتكرر وجبات يومية وفحوصات بيطرية ومكانًا دافئًا للراحة. انضم للقضية! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'الاشتراك في الرعاية (1000 XTR/شهر)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // de
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: '30-Tage Katzenpflege-Abo 😻',
+                                    description: 'Werden Sie ein monatlicher \'Katzenwächter\' und sichern Sie einer streunenden Katze 30 Tage lang kontinuierliche, lebensrettende Unterstützung! Ihr wiederkehrendes XTR-Abo deckt tägliche Mahlzeiten, Tierarztchecks und einen warmen Ruheplatz ab. Machen Sie mit! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'Abonnieren Sie die Pflege (1000 XTR/Monat)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // it
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: 'Abbonamento Cura Gatto 30 Giorni 😻',
+                                    description: 'Diventa un \'Guardiano dei Gatti\' mensile e assicurati 30 giorni di supporto continuo e vitale per un gatto randagio! Il tuo abbonamento XTR ricorrente copre pasti giornalieri, controlli veterinari e un posto caldo dove riposare. Unisciti alla causa! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'Abbonati alla Cura (1000 XTR/Mese)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // pt
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: 'Assinatura Cuidado Gato 30 Dias 😻',
+                                    description: 'Torne-se um \'Guardião de Gatos\' mensal e garanta 30 dias de apoio contínuo e vital a um gato de rua! Sua assinatura XTR recorrente cobre refeições diárias, check-ups veterinários e um lugar quente para descansar. Junte-se à causa! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'Assinar para Cuidar (1000 XTR/Mês)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // ru
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: 'Подписка на 30 дней ухода за кошкой 😻',
+                                    description: 'Станьте ежемесячным «Хранителем кошек» и обеспечьте бездомной кошке 30 дней непрерывной, жизненно важной поддержки! Ваша регулярная подписка XTR покрывает ежедневное питание, ветеринарные осмотры и теплое место для отдыха. Присоединяйтесь к делу! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'Подписаться на Уход (1000 XTR/Месяц)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // zh
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: '30天猫咪护理订阅 😻',
+                                    description: '成为每月的“猫咪守护者”，确保一只流浪猫获得30天持续、救命的支持！您的定期 XTR 订阅涵盖每日餐食、兽医检查和温暖的休息场所。加入我们吧！🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: '订阅护理 (1000 XTR/月)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // ja
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: '30日間の猫ケア定期購読 😻',
+                                    description: '毎月の「猫の守護者」になり、野良猫に30日間の継続的な救命支援を保証してください！定期的なXTR購読は、毎日の食事、獣医の診察、暖かい休息場所をカバーします。この活動に参加しましょう！🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'ケアを購読 (1000 XTR/月)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // ko
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: '30일 고양이 관리 구독 😻',
+                                    description: '매월 \'고양이 수호자\'가 되어 길고양이에게 30일 동안 지속적이고 생명을 구하는 지원을 보장하세요! 귀하의 정기적인 XTR 구독은 매일 식사, 수의사 검진, 따뜻한 쉴 곳을 제공합니다. 캠페인에 참여하세요! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: '관리를 구독 (1000 XTR/월)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ]),
+                        // he
+                        JSON.stringify([
+                            {
+                                method: 'createInvoiceLink',
+                                payload: {
+                                    title: 'מנוי לטיפול בחתול 30 יום 😻',
+                                    description: 'הפוך ל\'שומר חתולים\' חודשי והבטח לחתול רחוב 30 ימי תמיכה מתמשכת ומצילת חיים! מנוי XTR החוזר שלך מכסה ארוחות יומיות, בדיקות וטרינר ומקום חם למנוחה. הצטרף למטרה! 🐾',
+                                    currency: 'XTR',
+                                    payload: '30day_bronze_cat_care_subscription',
+                                    prices: JSON.stringify([
+                                        { label: 'הירשם לטיפול (1000 XTR/חודש)', amount: 1000 }
+                                    ]),
+                                    photo_url: EMD.LOGO_PNG_URL,
+                                    photo_width: 240,
+                                    protect_content: false,
+                                    allow_paid_broadcast: false,
+                                    subscription_periods: 2592000
+                                }
+                            }
+                        ])
+                    ]
+                ]
+        }
+    }
+}
+
+EMD.ApiFeaturesAutomation = {
+    entityName: 'ApiFeatures',
+    displayName: 'API Features',
+    sheet: (data = {}) => {
+        return {
+            name: EMD.Automation.sheet(data).name,
+            columns: EMD.Automation.sheet(data).columns,
+            sample_data:
+                [
+                    ['---- 🤖 API FEATURES SAMPLE DATA ----'],
+                    ['/api_features',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_api_features_message" },
+                            { "next": "#append_api_features_keyboard" }
+                        ])
+                    ],
+                    ['#send_api_features_message',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendPhoto',
+                            payload: {
+                                caption: 'Welcome to the API Features Showcase! \n\n'
+                                    + 'Discover how to integrate and utilize various API features to enhance your Telegram Bot experience.',
+                                photo: EMD.MATH_IMG_URL,
+                                protect_content: true,
+                                has_spoiler: false,
+                                parse_mode: 'HTML',
+                                disable_notification: false
+                            }
+                        }])
+                    ],
+                    ['#append_api_features_keyboard',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'editMessageReplyMarkup',
+                            payload: {
+                                reply_markup: {
+                                    inline_keyboard: [
+                                        [
+                                            { text: "💬 Messages", callback_data: "/sendMessage" },
+                                            { text: "🖼️ Photos", callback_data: "/sendPhoto" },
+                                            { text: "🖼️ Media Groups", callback_data: "/sendMediaGroup" }
+                                        ],
+                                        [
+                                            { text: "🎛️ Reply Markup (Keyboard, Keypad)", callback_data: "/sendReplyMarkup" }
+                                        ],
+                                        // Open youTube as web app
+                                        [
+                                            {
+                                                text: "▶️ EasyADM YouTube Channel",
+                                                web_app: {
+                                                    url: "https://youtube.com/@easyadm6040"
+                                                }
+                                            }
+                                        ],
+                                        [
+                                            {
+                                                text: "🌐 EasyADM Website",
+                                                web_app: {
+                                                    url: "https://easyadm.com"
+                                                }
+                                            }
+                                        ],
+                                        [
+                                            { text: "🏠 Start", callback_data: "/start" }
+                                        ]
+                                    ]
+                                }
+                            }
+                        }])
+                    ],
+                    ['/sendMessage',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_sample_message" },
+                            { "next": "#append_api_features_keyboard" },
+                        ])
+                    ],
+                    ['/sendPhoto',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_sample_photo" },
+                            { "next": "#append_api_features_keyboard" },
+                        ])
+                    ],
+                    ['/sendMediaGroup',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_sample_media_group" },
+                            { "next": "#send_end_of_session_message" },
+                            { "next": "#append_api_features_keyboard" },
+                        ])
+                    ],
+                    ['/sendReplyMarkup',
+                        // default (en)
+                        JSON.stringify([
+                            { "next": "#remove_keyboard" },
+                            { "next": "#send_sample_reply_markup" },
+                            { "next": "#send_end_of_session_message" },
+                            { "next": "#append_api_features_keyboard" }
+                        ])
+                    ],
+                    ['#send_sample_message',
+                        // default (en)
+                        JSON.stringify([
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'This is a sample message sent using the Send Message API feature.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'This is another sample message to demonstrate the Send Message API feature.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'I can customize the content and format of any the messages as needed.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 3000,
+                                method: 'editMessageText',
+                                payload: {
+                                    text: 'I can customize the content and format of any the messages as needed.\n\n'
+                                        + 'This message has been edited using the Edit Message Text API feature.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'I can use delay between actions to control the flow of messages.\n\n',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 3000,
+                                method: 'editMessageText',
+                                payload: {
+                                    text: 'I can use delay between actions to control the flow of messages.\n\n'
+                                        + 'This message has been edited after a delay (3000 ms) to demonstrate timing control.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 3000,
+                                method: 'editMessageText',
+                                payload: {
+                                    text: 'I can use delay between actions to control the flow of messages.\n\n'
+                                        + 'This message has been edited after a delay (3000 ms) to demonstrate timing control. \n\n'
+                                        + 'This is the final edited message in this sample sequence.\n\n'
+                                        + 'Thank you for exploring the Send Message API feature!',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 1000,
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'This concludes the sample messages demonstrating the Send Message API feature.',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 1000,
+                                method: 'editMessageText',
+                                payload: {
+                                    text: 'This concludes the sample messages demonstrating the Send Message API feature. \n\n'
+                                        + '1. I can send multiple messages in sequence.\n',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 1000,
+                                method: 'editMessageText',
+                                payload: {
+                                    text: 'This concludes the sample messages demonstrating the Send Message API feature. \n\n'
+                                        + '1. I can send multiple messages in sequence.\n'
+                                        + '2. I can edit messages after sending them.\n',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 1000,
+                                method: 'editMessageText',
+                                payload: {
+                                    text: 'This concludes the sample messages demonstrating the Send Message API feature. \n\n'
+                                        + '1. I can send multiple messages in sequence.\n'
+                                        + '2. I can edit messages after sending them.\n'
+                                        + '3. I can introduce delays between actions.\n',
+                                    parse_mode: 'HTML'
+                                }
+                            },
+                            {
+                                delay_ms: 1000,
+                                method: 'editMessageText',
+                                payload: {
+                                    text: 'This concludes the sample messages demonstrating the Send Message API feature. \n\n'
+                                        + '1. I can send multiple messages in sequence.\n'
+                                        + '2. I can edit messages after sending them.\n'
+                                        + '3. I can introduce delays between actions.\n'
+                                        + 'Thank you for exploring this feature with me!',
+                                    parse_mode: 'HTML'
+                                }
+                            }
+                        ])
+                    ],
+                    ['#send_sample_photo',
+                        // default (en)
+                        JSON.stringify([
+                            {   // sendPhoto
+                                method: 'sendPhoto',
+                                payload: {
+                                    caption: 'Welcome to the sample photo demonstration! \n\n'
+                                        + 'This is a sample photo sent using the Send Photo API feature. \n\n'
+                                        + 'In about 3 seconds, I will edit the caption to demonstrate the Edit Message Caption API feature.\n\n',
+                                    photo: EMD.PEACH_IMG_URL,
+                                    parse_mode: 'HTML',
+                                    has_spoiler: false,
+                                    protect_content: true,
+                                    disable_notification: true
+                                }
+                            },
+                            {  // editMessageMedia after delay
+                                delay_ms: 3000,
+                                method: 'editMessageMedia',
+                                payload: {
+                                    media: {
+                                        type: "photo",
+                                        media: EMD.PAY_ATTENTION_IMG_URL,
+                                        caption: 'This is a sample photo sent using the Send Photo API feature. \n\n'
+                                            + 'The caption has been edited after a 3 second delay to demonstrate the Edit Message Caption API feature.\n\n'
+                                            + 'Now, In about 3 seconds, I will edit the photo to demonstrate the Edit Message Media API feature.',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: false,
+                                        protect_content: true,
+                                        disable_notification: true
+                                    }
+                                }
+                            },
+                            {   // editMessageMedia after delay
+                                delay_ms: 3000,
+                                method: 'editMessageMedia',
+                                payload: {
+                                    media: {
+                                        type: 'photo',
+                                        media: EMD.YOU_GOT_IT_IMG_URL,
+                                        caption: 'This is a sample photo sent using the Send Photo API feature. \n\n'
+                                            + 'The caption has been edited after a 3 second delay to demonstrate the Edit Message Caption API feature.\n\n'
+                                            + 'The photo has also been edited after a 3 second delay to demonstrate the Edit Message Media API feature.',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: true,
+                                        protect_content: true,
+                                        disable_notification: true
+                                    }
+                                }
+                            }
+                        ])
+                    ],
+                    ['#send_sample_media_group',
+                        // default (en)
+                        JSON.stringify([{
+                            method: 'sendMediaGroup',
+                            payload: {
+                                media: [
+                                    {
+                                        type: 'photo',
+                                        media: EMD.I_AM_THINKING_IMG_URL,
+                                        caption: 'I Am Thinking Photo 1',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: false,
+                                        show_caption_above_media: false
+                                    },
+                                    {
+                                        type: 'photo',
+                                        media: EMD.HAVE_A_NICE_DAY_IMG_URL,
+                                        caption: 'Have a Nice Day Photo 2',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: false,
+                                        show_caption_above_media: false
+                                    },
+                                    {
+                                        type: 'photo',
+                                        media: EMD.BIG_TIME_IMG_URL,
+                                        caption: 'Big Time Photo 3',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: false,
+                                        show_caption_above_media: false
+                                    },
+                                    {
+                                        type: 'photo',
+                                        media: EMD.YOU_GOT_IT_IMG_URL,
+                                        caption: 'You Got It Photo 4',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: false,
+                                        show_caption_above_media: false
+                                    },
+                                    {
+                                        type: 'photo',
+                                        media: EMD.BLINK_IMG_URL,
+                                        caption: 'Blink Photo 5',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: false,
+                                        show_caption_above_media: false
+                                    },
+                                    {
+                                        type: 'photo',
+                                        media: EMD.CHEERS_IMG_URL,
+                                        caption: 'Cheers Photo 6',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: true,
+                                        show_caption_above_media: false
+                                    },
+                                    {
+                                        type: 'photo',
+                                        media: EMD.PAY_ATTENTION_IMG_URL,
+                                        caption: 'Pay Attention Photo 7',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: true,
+                                        show_caption_above_media: false
+                                    },
+                                    {
+                                        type: 'photo',
+                                        media: EMD.THANK_YOU_IMG_URL,
+                                        caption: 'Thank You Photo 8',
+                                        parse_mode: 'HTML',
+                                        has_spoiler: true,
+                                        show_caption_above_media: false
+                                    }
+                                ],
+                                protect_content: true,
+                                disable_notification: true
+                            }
+                        }])
+                    ],
+                    ['#send_sample_reply_markup',
+                        // default (en)
+                        JSON.stringify([
+                            {   // sendMessage
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'This is a sample message with custom reply markup (keyboard). \n\n'
+                                        + 'You can interact with the buttons below to see how reply markups work in Telegram Bots.\n\n'
+                                        + '<blockquote expandable>About InlineKeyboardMarkup:\n\n'
+                                        + 'This object represents an inline keyboard that appears right next to the message it belongs to.\n\n</blockquote>\n\n'
+                                        + '1. In this example, I have added an inline keyboard with various color combination buttons.\n'
+                                        + '2. You can explore different combinations by clicking the buttons below.\n',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🔴🟢🔵", callback_data: "/echo 🔴🟢🔵" }
+                                            ],
+                                            [
+                                                { text: "🔴", callback_data: "/echo 🔴" },
+                                                { text: "🟢", callback_data: "/echo 🟢" },
+                                                { text: "🔵", callback_data: "/echo 🔵" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            },
+                            {   // sendMessage
+                                delay_ms: 3000,
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'This is another message with custom reply markup (keyboard). \n\n'
+                                        + 'You can interact with the buttons below to see how reply markups work in Telegram Bots.\n\n'
+                                        + '1. In this example, I have added an inline keyboard with various color combination buttons.\n'
+                                        + '2. In about 3 seconds, I will send a new message to add even more keys to the keyboard below.\n',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "🟥🟦", callback_data: "/echo 🟥🟦" },
+                                                { text: "🟦🟩", callback_data: "/echo 🟦🟩" },
+                                                { text: "🟩🟨", callback_data: "/echo 🟩🟨" },
+                                            ],
+                                            [
+                                                { text: "🟥🟩🟦🟨", callback_data: "/echo 🟥🟩🟦🟨" },
+                                                { text: "🟨🟦🟩🟥", callback_data: "/echo 🟨🟦🟩🟥" }
+                                            ],
+                                            [
+                                                { text: "🟨🟥", callback_data: "/echo 🟨🟥" },
+                                                { text: "🟥🟩", callback_data: "/echo 🟥🟩" }
+                                            ],
+                                            [
+                                                { text: "🟦🟥🟨🟩", callback_data: "/echo 🟦🟥🟨🟩" }
+                                            ],
+                                            [
+                                                { text: "☢️", callback_data: "/echo ☢️" },
+                                                { text: "☣️", callback_data: "/echo ☣️" },
+                                                { text: "⚛️", callback_data: "/echo ⚛️" },
+                                                { text: "🛑", callback_data: "/echo 🛑" },
+                                                { text: "🚷", callback_data: "/echo 🚷" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            },
+                            {   // sendMessage
+                                delay_ms: 3000,
+                                method: 'sendMessage',
+                                payload: {
+                                    text: 'This is new sample message with custom reply markup (keyboard). \n\n'
+                                        + 'You can interact with the buttons below to see how reply markups work in Telegram Bots.\n\n'
+                                        + '1. In this example, I have added an inline keyboard with various types of buttons.\n'
+                                        + '2. You can explore different button functionalities by clicking the buttons below.\n',
+                                    parse_mode: 'HTML',
+                                    reply_markup: {
+                                        inline_keyboard: [
+                                            [
+                                                { text: "Copy to clipboard", copy_text: { text: "This text has been copied to clipboard!" } }
+                                            ],
+                                            [
+
+                                                { text: "Web app", web_app: { url: "https://easyadm.com" } },
+                                                { text: "Url", url: "https://telegram.org" }
+                                            ]
+                                        ]
+                                    }
+                                }
+                            }
+                        ])
+                    ]
+                ]
+        };
+    }
+}
+
+EMD.SecurityChecksAutomation = {
+    entityName: 'SecurityChecks',
+    displayName: 'Security Checks',
+    sheet: (data = {}) => {
+        return {
+            name: EMD.Automation.sheet(data).name,
+            columns: EMD.Automation.sheet(data).columns,
+            sample_data: [
+                ['---- 🔐 SECURITY CHECKS SAMPLE AUTOMATION DATA BELOW ----'],
+                ['/security_checks',
+                    // default (en)
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        { "next": "#send_welcome_to_security_checks_message" },
+                        { "next": "#send_malware_protection_message" },
+                        { "next": "#send_check_your_device_now_message" },
+                        { "next": "#append_top_security_checks_keyboard" },
+                        { "next": "#answer_completed" }
+                    ])
+                ],
+                ['#send_welcome_to_security_checks_message',
+                    // default (en)
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Welcome to Security Checks! \n\n'
+                                + 'Here you can find recommendations to enhance the security of your device, account and data.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // es
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '¡Bienvenido a las Verificaciones de Seguridad! \n\n'
+                                + 'Aquí puedes encontrar recomendaciones para mejorar la seguridad de tu dispositivo, cuenta y datos.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // fr
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Bienvenue dans les Vérifications de Sécurité ! \n\n'
+                                + 'Ici, vous pouvez trouver des recommandations pour améliorer la sécurité de votre appareil, compte et données.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ar
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'مرحبًا بك في فحوصات الأمان! \n\n'
+                                + 'هنا يمكنك العثور على توصيات لتعزيز أمان جهازك وحسابك وبياناتك.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // de
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Willkommen bei den Sicherheitsprüfungen! \n\n'
+                                + 'Hier finden Sie Empfehlungen zur Verbesserung der Sicherheit Ihres Geräts, Kontos und Ihrer Daten.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // it
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Benvenuto in Controlli di Sicurezza! \n\n'
+                                + 'Qui puoi trovare raccomandazioni per migliorare la sicurezza del tuo dispositivo, account e dati.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // pt
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Bem-vindo às Verificações de Segurança! \n\n'
+                                + 'Aqui você pode encontrar recomendações para melhorar a segurança do seu dispositivo, conta e dados.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ru
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Добро пожаловать в Проверки безопасности! \n\n'
+                                + 'Здесь вы можете найти рекомендации по повышению безопасности вашего устройства, аккаунта и данных.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // zh
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '欢迎使用安全检查！ \n\n'
+                                + '在这里，您可以找到增强设备、帐户和数据安全性的建议。',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ja
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'セキュリティチェックへようこそ！ \n\n'
+                                + 'ここでは、デバイス、アカウント、データのセキュリティを強化するための推奨事項を見つけることができます。',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ko
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '보안 검사에 오신 것을 환영합니다! \n\n'
+                                + '여기에서 장치, 계정 및 데이터의 보안을 강화하기 위한 권장 사항을 찾을 수 있습니다.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // he
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'ברוכים הבאים לבדיקות אבטחה! \n\n'
+                                + 'כאן תוכלו למצוא המלצות לשיפור האבטחה של המכשיר, החשבון והנתונים שלכם.',
+                            parse_mode: 'HTML'
+                        }
+                    }])
+                ],
+                ['#send_malware_protection_message',
+                    // default (en)
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Malware Protection: \n\n'
+                                + 'Ensure your device has up-to-date antivirus software installed to protect against malware threats.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // es
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Protección contra malware: \n\n'
+                                + 'Asegúrate de que tu dispositivo tenga instalado un software antivirus actualizado para protegerte contra amenazas de malware.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // fr
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Protection contre les logiciels malveillants : \n\n'
+                                + 'Assurez-vous que votre appareil dispose d\'un logiciel antivirus à jour pour vous protéger contre les menaces de logiciels malveillants.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ar
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'حماية من البرامج الضارة: \n\n'
+                                + 'تأكد من أن جهازك يحتوي على برنامج مضاد فيروسات محدث لحمايتك من تهديدات البرامج الضارة.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // de
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Malware-Schutz: \n\n'
+                                + 'Stellen Sie sicher, dass auf Ihrem Gerät eine aktuelle Antivirensoftware installiert ist, um sich vor Malware-Bedrohungen zu schützen.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // it
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Protezione da malware: \n\n'
+                                + 'Assicurati che il tuo dispositivo abbia un software antivirus aggiornato per proteggerti dalle minacce di malware.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // pt
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Proteção contra malware: \n\n'
+                                + 'Certifique-se de que seu dispositivo tenha um software antivírus atualizado para protegê-lo contra ameaças de malware.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ru
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Защита от вредоносных программ: \n\n'
+                                + 'Убедитесь, что на вашем устройстве установлено обновленное антивирусное программное обеспечение для защиты от угроз вредоносных программ.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // zh
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '恶意软件保护： \n\n'
+                                + '确保您的设备安装了最新的防病毒软件，以保护您免受恶意软件的威胁。',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ja
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'マルウェア対策： \n\n'
+                                + 'お使いのデバイスに最新のアンチウイルスソフトウェアがインストールされていることを確認して、マルウェアの脅威から保護してください。',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ko
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '맬웨어 보호: \n\n'
+                                + '장치에 최신 안티바이러스 소프트웨어가 설치되어 있어 맬웨어 위협으로부터 보호받을 수 있도록 하십시오.',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // he
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'הגנה מפני תוכנות זדוניות: \n\n'
+                                + 'ודא שהמכשיר שלך מותקן עם תוכנת אנטי-וירוס מעודכנת כדי להגן מפני איומי תוכנות זדוניות.',
+                            parse_mode: 'HTML'
+                        }
+                    }])
+                ],
+                ['#send_check_your_device_now_message',
+                    // default (en)
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Check Your Device Now! \n\n'
+                                + 'Ensure your device is secure by following these steps:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // es
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '¡Revisa tu dispositivo ahora! \n\n'
+                                + 'Asegúrate de que tu dispositivo esté seguro siguiendo estos pasos:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // fr
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Vérifiez votre appareil maintenant ! \n\n'
+                                + 'Assurez-vous que votre appareil est sécurisé en suivant ces étapes :\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ar
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'تحقق من جهازك الآن! \n\n'
+                                + 'تأكد من أن جهازك آمن باتباع هذه الخطوات:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // de
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Überprüfen Sie jetzt Ihr Gerät! \n\n'
+                                + 'Stellen Sie sicher, dass Ihr Gerät sicher ist, indem Sie diese Schritte befolgen:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // it
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Controlla il tuo dispositivo ora! \n\n'
+                                + 'Assicurati che il tuo dispositivo sia sicuro seguendo questi passaggi:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // pt
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Verifique seu dispositivo agora! \n\n'
+                                + 'Certifique-se de que seu dispositivo está seguro seguindo estas etapas:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ru
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Проверьте свое устройство сейчас! \n\n'
+                                + 'Убедитесь, что ваше устройство защищено, выполнив следующие шаги:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // zh
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '立即检查您的设备！ \n\n'
+                                + '按照以下步骤确保您的设备安全：\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ja
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '今すぐデバイスを確認してください！ \n\n'
+                                + '次の手順に従って、デバイスが安全であることを確認してください：\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ko
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: '지금 장치를 확인하세요! \n\n'
+                                + '다음 단계를 따라 장치가 안전한지 확인하십시오:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // he
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'בדוק את המכשיר שלך עכשיו! \n\n'
+                                + 'ודא שהמכשיר שלך מאובטח על ידי ביצוע השלבים הבאים:\n',
+                            parse_mode: 'HTML'
+                        }
+                    }])
+                ],
+                ['#append_top_security_checks_keyboard',
+                    // default (en)
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Android Security Checks", callback_data: "/android_security_checks" }],
+                                    [{ text: "iOS Security Checks", callback_data: "/ios_security_checks" }],
+                                    [{ text: "Privacy Checks", callback_data: "/privacy_checks" }],
+                                    [{ text: "About 🛈", callback_data: "/about" }, { text: "❓ Help", callback_data: "/help" }],
+                                    [{ text: "🏠 Start", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // es
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Verificaciones de seguridad de Android", callback_data: "/android_security_checks" }],
+                                    [{ text: "Verificaciones de seguridad de iOS", callback_data: "/ios_security_checks" }],
+                                    [{ text: "Verificaciones de privacidad", callback_data: "/privacy_checks" }],
+                                    [{ text: "Acerca de 🛈", callback_data: "/about" }, { text: "❓ Ayuda", callback_data: "/help" }],
+                                    [{ text: "🏠 Inicio", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // fr
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Vérifications de sécurité Android", callback_data: "/android_security_checks" }],
+                                    [{ text: "Vérifications de sécurité iOS", callback_data: "/ios_security_checks" }],
+                                    [{ text: "Vérifications de confidentialité", callback_data: "/privacy_checks" }],
+                                    [{ text: "À propos 🛈", callback_data: "/about" }, { text: "❓ Aide", callback_data: "/help" }],
+                                    [{ text: "🏠 Accueil", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // ar
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "فحوصات أمان Android", callback_data: "/android_security_checks" }],
+                                    [{ text: "فحوصات أمان iOS", callback_data: "/ios_security_checks" }],
+                                    [{ text: "فحوصات الخصوصية", callback_data: "/privacy_checks" }],
+                                    [{ text: "حول 🛈", callback_data: "/about" }, { text: "❓ مساعدة", callback_data: "/help" }],
+                                    [{ text: "🏠 البداية", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // de
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Android-Sicherheitsprüfungen", callback_data: "/android_security_checks" }],
+                                    [{ text: "iOS-Sicherheitsprüfungen", callback_data: "/ios_security_checks" }],
+                                    [{ text: "Datenschutzprüfungen", callback_data: "/privacy_checks" }],
+                                    [{ text: "Über 🛈", callback_data: "/about" }, { text: "❓ Hilfe", callback_data: "/help" }],
+                                    [{ text: "🏠 Startseite", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // it
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Controlli di sicurezza Android", callback_data: "/android_security_checks" }],
+                                    [{ text: "Controlli di sicurezza iOS", callback_data: "/ios_security_checks" }],
+                                    [{ text: "Controlli sulla privacy", callback_data: "/privacy_checks" }],
+                                    [{ text: "Informazioni 🛈", callback_data: "/about" }, { text: "❓ Aiuto", callback_data: "/help" }],
+                                    [{ text: "🏠 Home", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // pt
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Verificações de segurança do Android", callback_data: "/android_security_checks" }],
+                                    [{ text: "Verificações de segurança do iOS", callback_data: "/ios_security_checks" }],
+                                    [{ text: "Verificações de privacidade", callback_data: "/privacy_checks" }],
+                                    [{ text: "Sobre 🛈", callback_data: "/about" }, { text: "❓ Ajuda", callback_data: "/help" }],
+                                    [{ text: "🏠 Início", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // ru
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Проверки безопасности Android", callback_data: "/android_security_checks" }],
+                                    [{ text: "Проверки безопасности iOS", callback_data: "/ios_security_checks" }],
+                                    [{ text: "Проверки конфиденциальности", callback_data: "/privacy_checks" }],
+                                    [{ text: "О программе 🛈", callback_data: "/about" }, { text: "❓ Помощь", callback_data: "/help" }],
+                                    [{ text: "🏠 Главная", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // zh
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Android 安全检查", callback_data: "/android_security_checks" }],
+                                    [{ text: "iOS 安全检查", callback_data: "/ios_security_checks" }],
+                                    [{ text: "隐私检查", callback_data: "/privacy_checks" }],
+                                    [{ text: "关于 🛈", callback_data: "/about" }, { text: "❓ 帮助", callback_data: "/help" }],
+                                    [{ text: "🏠 主页", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // ja
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Android セキュリティチェック", callback_data: "/android_security_checks" }],
+                                    [{ text: "iOS セキュリティチェック", callback_data: "/ios_security_checks" }],
+                                    [{ text: "プライバシーチェック", callback_data: "/privacy_checks" }],
+                                    [{ text: "について 🛈", callback_data: "/about" }, { text: "❓ ヘルプ", callback_data: "/help" }],
+                                    [{ text: "🏠 ホーム", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // ko
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "Android 보안 검사", callback_data: "/android_security_checks" }],
+                                    [{ text: "iOS 보안 검사", callback_data: "/ios_security_checks" }],
+                                    [{ text: "개인정보 보호 검사", callback_data: "/privacy_checks" }],
+                                    [{ text: "정보 🛈", callback_data: "/about" }, { text: "❓ 도움말", callback_data: "/help" }],
+                                    [{ text: "🏠 홈", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }]),
+                    // he
+                    JSON.stringify([{
+                        method: 'editMessageReplyMarkup',
+                        payload: {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: "בדיקות אבטחת Android", callback_data: "/android_security_checks" }],
+                                    [{ text: "בדיקות אבטחת iOS", callback_data: "/ios_security_checks" }],
+                                    [{ text: "בדיקות פרטיות", callback_data: "/privacy_checks" }],
+                                    [{ text: "אודות 🛈", callback_data: "/about" }, { text: "❓ עזרה", callback_data: "/help" }],
+                                    [{ text: "🏠 בית", callback_data: "/start" }]
+                                ]
+                            }
+                        }
+                    }])
+                ],
+                ['/android_security_checks',
+                    // default (en)
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        { "next": '#send_android_security_checks' },
+                        { "next": '#append_top_security_checks_keyboard' }
+                    ])
+                ],
+                ['/ios_security_checks',
+                    // default (en)
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        { next: '#send_ios_security_checks' },
+                        { next: '#append_top_security_checks_keyboard' }
+                    ])
+                ],
+                ['/privacy_checks',
+                    // default (en)
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        { next: '#send_privacy_checks' },
+                        { next: '#append_top_security_checks_keyboard' }
+                    ])
+                ],
+                ['#send_android_security_checks',
+                    // default (en)
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Android Security Checks: \n\n'
+                                + '1. Keep your device updated with the latest security patches.\n'
+                                + '2. Only install apps from trusted sources like Google Play Store.\n'
+                                + '3. Use a strong screen lock and enable biometric authentication.\n'
+                                + '4. Regularly back up your data to a secure location.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // es
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Verificaciones de seguridad de Android: \n\n'
+                                + '1. Mantén tu dispositivo actualizado con los últimos parches de seguridad.\n'
+                                + '2. Solo instala aplicaciones de fuentes confiables como Google Play Store.\n'
+                                + '3. Usa un bloqueo de pantalla fuerte y habilita la autenticación biométrica.\n'
+                                + '4. Realiza copias de seguridad de tus datos regularmente en una ubicación segura.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // fr
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Vérifications de sécurité Android : \n\n'
+                                + '1. Gardez votre appareil à jour avec les derniers correctifs de sécurité.\n'
+                                + '2. N\'installez des applications que depuis des sources fiables comme le Google Play Store.\n'
+                                + '3. Utilisez un verrouillage d\'écran fort et activez l\'authentification biométrique.\n'
+                                + '4. Sauvegardez régulièrement vos données dans un endroit sécurisé.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ar
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'فحوصات أمان Android: \n\n'
+                                + '1. حافظ على تحديث جهازك بأحدث تصحيحات الأمان.\n'
+                                + '2. قم بتثبيت التطبيقات فقط من مصادر موثوقة مثل متجر Google Play.\n'
+                                + '3. استخدم قفل شاشة قوي وقم بتمكين المصادقة البيومترية.\n'
+                                + '4. قم بعمل نسخ احتياطية لبياناتك بانتظام إلى موقع آمن.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // de
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Android-Sicherheitsprüfungen: \n\n'
+                                + '1. Halten Sie Ihr Gerät mit den neuesten Sicherheitspatches auf dem neuesten Stand.\n'
+                                + '2. Installieren Sie Apps nur aus vertrauenswürdigen Quellen wie dem Google Play Store.\n'
+                                + '3. Verwenden Sie eine starke Bildschirmsperre und aktivieren Sie die biometrische Authentifizierung.\n'
+                                + '4. Sichern Sie Ihre Daten regelmäßig an einem sicheren Ort.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // it
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Controlli di sicurezza Android: \n\n'
+                                + '1. Mantieni il tuo dispositivo aggiornato con le ultime patch di sicurezza.\n'
+                                + '2. Installa app solo da fonti affidabili come il Google Play Store.\n'
+                                + '3. Usa un blocco schermo forte e abilita l\'autenticazione biometrica.\n'
+                                + '4. Esegui regolarmente il backup dei tuoi dati in una posizione sicura.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // pt
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Verificações de segurança do Android: \n\n'
+                                + '1. Mantenha seu dispositivo atualizado com os patches de segurança mais recentes.\n'
+                                + '2. Instale aplicativos apenas de fontes confiáveis, como a Google Play Store.\n'
+                                + '3. Use um bloqueio de tela forte e ative a autenticação biométrica.\n'
+                                + '4. Faça backup dos seus dados regularmente em um local seguro.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ru
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Проверки безопасности Android: \n\n'
+                                + '1. Держите ваше устройство обновленным с последними патчами безопасности.\n'
+                                + '2. Устанавливайте приложения только из надежных источников, таких как Google Play Store.\n'
+                                + '3. Используйте надежную блокировку экрана и включайте биометрическую аутентификацию.\n'
+                                + '4. Регулярно делайте резервные копии ваших данных в безопасном месте.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // zh
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Android 安全检查：\n\n'
+                                + '1. 保持您的设备更新最新的安全补丁。\n'
+                                + '2. 仅从可信来源（如 Google Play 商店）安装应用程序。\n'
+                                + '3. 使用强屏幕锁定并启用生物识别认证。\n'
+                                + '4. 定期备份您的数据到安全位置。\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ja
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Androidのセキュリティチェック：\n\n'
+                                + '1. デバイスを最新のセキュリティパッチで更新してください。\n'
+                                + '2. Google Playストアなどの信頼できるソースからのみアプリをインストールしてください。\n'
+                                + '3. 強力な画面ロックを使用し、生体認証を有効にしてください。\n'
+                                + '4. 定期的にデータを安全な場所にバックアップしてください。\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ko
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Android 보안 점검: \n\n'
+                                + '1. 최신 보안 패치로 기기를 업데이트하세요.\n'
+                                + '2. Google Play 스토어와 같은 신뢰할 수 있는 출처에서만 앱을 설치하세요.\n'
+                                + '3. 강력한 화면 잠금과 생체 인증을 사용하세요.\n'
+                                + '4. 데이터를 정기적으로 안전한 장소에 백업하세요.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // he
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'בדיקות אבטחה של Android: \n\n'
+                                + '1. שמור על המכשיר שלך מעודכן עם תיקוני האבטחה האחרונים.\n'
+                                + '2. התקן אפליקציות רק ממקורות מהימנים, כמו Google Play Store.\n'
+                                + '3. השתמש בנעילת מסך חזקה והפעל אימות ביומטרי.\n'
+                                + '4. גבה את הנתונים שלך באופן קבוע במקום בטוח.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }])
+                ],
+                ['#send_ios_security_checks',
+                    // default (en)
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'iOS Security Checks: \n\n'
+                                + '1. Keep your iOS device updated with the latest software updates.\n'
+                                + '2. Only download apps from the official App Store.\n'
+                                + '3. Use a strong passcode and enable Face ID or Touch ID.\n'
+                                + '4. Regularly back up your data using iCloud or iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // es
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Controles de seguridad de iOS: \n\n'
+                                + '1. Mantenga su dispositivo iOS actualizado con las últimas actualizaciones de software.\n'
+                                + '2. Descargue aplicaciones solo desde la App Store oficial.\n'
+                                + '3. Use un código de acceso fuerte y habilite Face ID o Touch ID.\n'
+                                + '4. Realice copias de seguridad de sus datos regularmente usando iCloud o iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // fr
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Vérifications de sécurité iOS : \n\n'
+                                + '1. Maintenez votre appareil iOS à jour avec les dernières mises à jour logicielles.\n'
+                                + '2. Téléchargez uniquement des applications depuis l\'App Store officiel.\n'
+                                + '3. Utilisez un code d\'accès fort et activez Face ID ou Touch ID.\n'
+                                + '4. Sauvegardez régulièrement vos données en utilisant iCloud ou iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ar
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'فحوصات أمان iOS: \n\n'
+                                + '1. حافظ على تحديث جهاز iOS الخاص بك بأحدث تحديثات البرامج.\n'
+                                + '2. قم بتنزيل التطبيقات فقط من متجر التطبيقات الرسمي.\n'
+                                + '3. استخدم رمز مرور قوي وقم بتمكين Face ID أو Touch ID.\n'
+                                + '4. قم بعمل نسخ احتياطية لبياناتك بانتظام باستخدام iCloud أو iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // de
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'iOS-Sicherheitsprüfungen: \n\n'
+                                + '1. Halten Sie Ihr iOS-Gerät mit den neuesten Software-Updates auf dem neuesten Stand.\n'
+                                + '2. Laden Sie Apps nur aus dem offiziellen App Store herunter.\n'
+                                + '3. Verwenden Sie einen starken Passcode und aktivieren Sie Face ID oder Touch ID.\n'
+                                + '4. Sichern Sie Ihre Daten regelmäßig mit iCloud oder iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // it
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Controlli di sicurezza iOS: \n\n'
+                                + '1. Mantieni il tuo dispositivo iOS aggiornato con gli ultimi aggiornamenti software.\n'
+                                + '2. Scarica le app solo dall\'App Store ufficiale.\n'
+                                + '3. Usa un codice di accesso forte e abilita Face ID o Touch ID.\n'
+                                + '4. Esegui regolarmente il backup dei tuoi dati utilizzando iCloud o iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // pt
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Verificações de segurança do iOS: \n\n'
+                                + '1. Mantenha seu dispositivo iOS atualizado com as últimas atualizações de software.\n'
+                                + '2. Baixe aplicativos apenas da App Store oficial.\n'
+                                + '3. Use um código de acesso forte e ative o Face ID ou Touch ID.\n'
+                                + '4. Faça backup regularmente dos seus dados usando o iCloud ou iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ru
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'Проверки безопасности iOS: \n\n'
+                                + '1. Держите ваше устройство iOS обновленным с последними обновлениями программного обеспечения.\n'
+                                + '2. Загружайте приложения только из официального App Store.\n'
+                                + '3. Используйте надежный пароль и включайте Face ID или Touch ID.\n'
+                                + '4. Регулярно делайте резервные копии ваших данных с помощью iCloud или iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // zh
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'iOS安全检查：\n\n'
+                                + '1. 保持您的iOS设备更新到最新的软件版本。\n'
+                                + '2. 仅从官方App Store下载应用程序。\n'
+                                + '3. 使用强密码并启用Face ID或Touch ID。\n'
+                                + '4. 定期使用iCloud或iTunes备份您的数据。\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ja
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'iOSのセキュリティチェック：\n\n'
+                                + '1. iOSデバイスを最新のソフトウェアアップデートで常に最新の状態に保ちます。\n'
+                                + '2. 公式のApp Storeからのみアプリをダウンロードします。\n'
+                                + '3. 強力なパスコードを使用し、Face IDまたはTouch IDを有効にします。\n'
+                                + '4. iCloudまたはiTunesを使用して定期的にデータをバックアップします。\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // ko
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'iOS 보안 점검: \n\n'
+                                + '1. iOS 기기를 최신 소프트웨어 업데이트로 유지하세요.\n'
+                                + '2. 공식 App Store에서만 앱을 다운로드하세요.\n'
+                                + '3. 강력한 암호를 사용하고 Face ID 또는 Touch ID를 활성화하세요.\n'
+                                + '4. iCloud 또는 iTunes를 사용하여 데이터를 정기적으로 백업하세요.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }]),
+                    // he
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'בדיקות אבטחה של iOS: \n\n'
+                                + '1. שמור על מכשיר ה-iOS שלך מעודכן עם עדכוני התוכנה האחרונים.\n'
+                                + '2. הורד אפליקציות רק מחנות האפליקציות הרשמית.\n'
+                                + '3. השתמש בקוד גישה חזק והפעל Face ID או Touch ID.\n'
+                                + '4. גבה את הנתונים שלך באופן קבוע באמצעות iCloud או iTunes.\n',
+                            parse_mode: 'HTML'
+                        }
+                    }])
+                ],
+                ['#send_privacy_checks',
+                    // default (en)
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Privacy Checks: \n\n'
+                                    + '1. Review app permissions and revoke any unnecessary access.\n'
+                                    + '2. Use strong, unique passwords for your accounts.\n'
+                                    + '3. Enable two-factor authentication (2FA) wherever possible.\n'
+                                    + '4. Be cautious about sharing personal information online.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // es
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Comprobaciones de privacidad: \n\n'
+                                    + '1. Revisa los permisos de las aplicaciones y revoca cualquier acceso innecesario.\n'
+                                    + '2. Utiliza contraseñas fuertes y únicas para tus cuentas.\n'
+                                    + '3. Habilita la autenticación de dos factores (2FA) siempre que sea posible.\n'
+                                    + '4. Ten cuidado al compartir información personal en línea.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // fr
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Contrôles de confidentialité : \n\n'
+                                    + '1. Examinez les autorisations des applications et révoquez tout accès inutile.\n'
+                                    + '2. Utilisez des mots de passe forts et uniques pour vos comptes.\n'
+                                    + '3. Activez l\'authentification à deux facteurs (2FA) dans la mesure du possible.\n'
+                                    + '4. Soyez prudent lorsque vous partagez des informations personnelles en ligne.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // ar
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'فحوصات الخصوصية: \n\n'
+                                    + '1. راجع أذونات التطبيق وقم بإلغاء أي وصول غير ضروري.\n'
+                                    + '2. استخدم كلمات مرور قوية وفريدة لحساباتك.\n'
+                                    + '3. قم بتمكين المصادقة الثنائية (2FA) حيثما أمكن ذلك.\n'
+                                    + '4. كن حذرًا عند مشاركة المعلومات الشخصية عبر الإنترنت.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // de
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Datenschutzkontrollen: \n\n'
+                                    + '1. Überprüfen Sie App-Berechtigungen und widerrufen Sie unnötige Zugriffe.\n'
+                                    + '2. Verwenden Sie starke, eindeutige Passwörter für Ihre Konten.\n'
+                                    + '3. Aktivieren Sie die Zwei-Faktor-Authentifizierung (2FA), wo immer möglich.\n'
+                                    + '4. Seien Sie vorsichtig beim Teilen persönlicher Informationen online.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // it
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Controlli sulla privacy: \n\n'
+                                    + '1. Rivedi i permessi delle app e revoca l\'accesso non necessario.\n'
+                                    + '2. Usa password forti e uniche per i tuoi account.\n'
+                                    + '3. Abilita l\'autenticazione a due fattori (2FA) ovunque sia possibile.\n'
+                                    + '4. Sii cauto nel condividere informazioni personali online.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // pt
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Verificações de privacidade: \n\n'
+                                    + '1. Revise as permissões de aplicativos e revogue qualquer acesso desnecessário.\n'
+                                    + '2. Use senhas fortes e exclusivas para suas contas.\n'
+                                    + '3. Ative a autenticação de dois fatores (2FA) sempre que possível.\n'
+                                    + '4. Tenha cuidado ao compartilhar informações pessoais online.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // ru
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'Проверки конфиденциальности: \n\n'
+                                    + '1. Проверяйте разрешения приложений и отзывайте ненужный доступ.\n'
+                                    + '2. Используйте надежные, уникальные пароли для своих учетных записей.\n'
+                                    + '3. Включите двухфакторную аутентификацию (2FA) везде, где это возможно.\n'
+                                    + '4. Будьте осторожны при обмене личной информацией в Интернете.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // zh
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: '隐私检查： \n\n'
+                                    + '1. 审查应用程序权限并撤销任何不必要的访问权限。\n'
+                                    + '2. 为您的帐户使用强大、独特的密码。\n'
+                                    + '3. 尽可能启用两步验证（2FA）。\n'
+                                    + '4. 在线共享个人信息时要谨慎。\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // ja
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'プライバシーチェック： \n\n'
+                                    + '1. アプリの権限を確認し、不要なアクセスをすべて取り消します。\n'
+                                    + '2. アカウントには強力でユニークなパスワードを使用してください。\n'
+                                    + '3. 可能な限り二要素認証（2FA）を有効にしてください。\n'
+                                    + '4. オンラインで個人情報を共有する際には注意してください。\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // ko
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: '개인정보 보호 확인: \n\n'
+                                    + '1. 앱 권한을 검토하고 불필요한 접근을 모두 취소하세요.\n'
+                                    + '2. 계정에 강력하고 고유한 비밀번호를 사용하세요.\n'
+                                    + '3. 가능하면 2단계 인증(2FA)을 활성화하세요.\n'
+                                    + '4. 온라인에서 개인 정보를 공유할 때 주의하세요.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ]),
+                    // he
+                    JSON.stringify([
+                        { "next": "#remove_keyboard" },
+                        {
+                            method: 'sendMessage',
+                            payload: {
+                                text: 'בדיקות פרטיות: \n\n'
+                                    + '1. סקור את הרשאות האפליקציה ובטל כל גישה מיותרת.\n'
+                                    + '2. השתמש בסיסמאות חזקות וייחודיות עבור החשבונות שלך.\n'
+                                    + '3. הפעל אימות דו-שלבי (2FA) בכל מקום אפשרי.\n'
+                                    + '4. היזהר משיתוף מידע אישי באינטרנט.\n',
+                                parse_mode: 'HTML'
+                            }
+                        },
+                        { "next": "#append_top_security_checks_keyboard" }
+                    ])
+                ],
+                ['#send_call_to_security_action_message',
+                    // default (en)
+                    JSON.stringify([{
+                        method: 'sendMessage',
+                        payload: {
+                            text: 'For more security actions, visit our website or contact support.',
+                            parse_mode: 'HTML'
+                        }
+                    }])
+                ]
+            ]
+        };
     }
 }
 
