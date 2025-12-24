@@ -344,10 +344,7 @@ EMD.TerminalOutput = {
     sheet: (data = {}) => {
         return {
             name: '💻 Terminal Output',
-            columns: ['Timestamp', 'Source', 'Message', 'Details', 'More Info'],
-            sample_data: [
-                [new Date().toISOString(), 'server', 'Hi there! This is your terminal output log.', 'No details', 'N/A']
-            ]
+            columns: ['Timestamp', 'Source', 'Message', 'Event Object', 'More Info']
         };
     }
 }
