@@ -934,7 +934,7 @@ EMD.CommonBotOperations = {
                             id: 'bot_token_input_widget',
                             TextInput: {
                                 title: 'Enter your Bot Token, get it from @BotFather',
-                                fieldName: 'bot_token_input',
+                                fieldName: 'txt_bot_api_token',
                                 hint: 'Bot Token',
                                 multiline: false,
                                 inputMode: CardService.TextInputMode.PLAIN_TEXT,

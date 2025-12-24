@@ -105,9 +105,15 @@ BotApiHandler.ControllerWrapper = class {
             const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
                 ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
                 : null;
-            const botModel = BotModel.create(this._activeSpreadsheet, this._documentProperties);
-
-            const result = botModel.getMe(token);
+            if (!token) {
+                throw new Error("Bot API token is required.");
+            }
+            const telegramBotClient = new TelegramBotClient(token);
+            const response = telegramBotClient.getMe();
+            if (response.getResponseCode() !== 200) {
+                throw new Error("Failed to get bot info");
+            }
+            const result = JSON.parse(response.getContentText()).result;
 
             SheetModel.create(this._activeSpreadsheet)
                 .getSheet(EMD.Spreadsheet.TerminalOutput({}))

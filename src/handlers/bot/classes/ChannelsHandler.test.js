@@ -24,7 +24,7 @@ describe('Channels Handler', () => {
             commonEventObject: {
                 formInputs: {
                     'txt_bot_api_token': { stringInputs: { value: [dummyToken] } },
-                    'chat_id': { stringInputs: { value: [dummyChatId] } }
+                    'chat_id_input': { stringInputs: { value: [dummyChatId] } }
                 }
             }
         }; // Mock event object

@@ -19,8 +19,8 @@ class AppModel {
     get state() {
         return {
             userInfo: {
-                userEmail: Session.getActiveUser().getEmail(),
-                userTimezone: Session.getScriptTimeZone()
+                userEmail: 'unknown',
+                userTimezone: 'UTC'
             },
             appInfo: {
             },

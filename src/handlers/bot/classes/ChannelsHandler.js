@@ -66,8 +66,8 @@ ChannelsHandler.ControllerWrapper = class extends ChannelsHandler {
                 throw new Error('Bot API token is required.');
             }
 
-            const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['chat_id'])
-                ? e.commonEventObject.formInputs['chat_id']?.stringInputs?.value?.[0]
+            const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['chat_id_input'])
+                ? e.commonEventObject.formInputs['chat_id_input']?.stringInputs?.value?.[0]
                 : null;
 
             if (!chatId) {
@@ -77,19 +77,24 @@ ChannelsHandler.ControllerWrapper = class extends ChannelsHandler {
             const telegramBotClient = new TelegramBotClient(token);
 
             // 1. using the bot token and chat id, get chat info from Telegram API`
-            const chatInfoResult = telegramBotClient.getChat(chatId);
+            const response = telegramBotClient.getChat(chatId);
+            if (response.getResponseCode() !== 200) {
+                throw new Error("Failed to get bot info");
+            }
+            const result = JSON.parse(response.getContentText()).result;
+            // 2. add result to Terminal Output sheet
+            SheetModel
+                .create(this._activeSpreadsheet)
+                .setActiveSheet(EMD.Spreadsheet.TerminalOutput({}));
 
-
-            // 2. add result to sheet. (for user)
-            const sheetModel = SheetModel.create(this._activeSpreadsheet);
-
-            sheetModel.getSheet(EMD.Spreadsheet.TerminalOutput({}))
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
                 .appendRow([
                     // Created On as iso string
                     new Date().toISOString(),
                     'server', // chat side
                     `Retrieved info for chat ID: ${chatId}`,
-                    JSON.stringify(chatInfoResult)
+                    JSON.stringify(result)
                 ]);
 
             // For demonstration, we just return the chat ID back

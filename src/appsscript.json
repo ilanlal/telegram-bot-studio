@@ -9,12 +9,12 @@
   "oauthScopes": [
     "https://www.googleapis.com/auth/script.locale",
     "https://www.googleapis.com/auth/spreadsheets.currentonly",
-    "https://www.googleapis.com/auth/script.external_request"
+    "https://www.googleapis.com/auth/script.external_request"    
   ],
   "addOns": {
     "common": {
       "name": "Telegram Bot Studio - Basic Bot Addon",
-      "logoUrl": "https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/logo24.png",
+      "logoUrl": "https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png",
       "layoutProperties": {
         "primaryColor": "#2772ed",
         "secondaryColor": "#1010ff"
