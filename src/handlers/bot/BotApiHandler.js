@@ -55,6 +55,12 @@ BotApiHandler.View = {
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleSendTestMessageClick(e);
     },
+    onCreateInvoiceLinkClick: (e) => {
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleCreateInvoiceLinkClick(e);
+    },
     onSetMyNameClick: (e) => {
         // Not implemented yet
         return new BotApiHandler
@@ -131,6 +137,13 @@ BotApiHandler.ControllerWrapper = class {
         // Not implemented yet
         return this.handleOperationSuccess("👍 Test message sent successfully.")
             .build();
+    }
+
+    handleCreateInvoiceLinkClick(e) {
+        return PaymentHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleCreateInvoiceLinkClick(e);
     }
 
     handleSetMyNameClick(e) {

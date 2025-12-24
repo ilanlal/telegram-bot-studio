@@ -22,7 +22,7 @@ describe('WebhookHandler', () => {
             }
         };
 
-        const response = WebhookHandler.handlePostUpdateRequest(event);
+        const response = WebhookHandler.handlePostUpdateRequest(event.postData);
         expect(response).toBeDefined();
     });
 
@@ -52,12 +52,12 @@ describe('WebhookHandler', () => {
                     }
                 })));
 
-        const response = WebhookHandler.handlePostUpdateRequest(event);
+        const response = WebhookHandler.handlePostUpdateRequest(event.postData);
         expect(response).toBeDefined();
     });
 
     it('should throw error for invalid message format', () => {
         const content = { message: {} };
-        expect(() => WebhookHandler.handlePostUpdateRequest(content)).toThrow('Invalid message format');
+        expect(() => WebhookHandler.handlePostUpdateRequest(content.postData)).toThrow('Invalid message format');
     });
 });

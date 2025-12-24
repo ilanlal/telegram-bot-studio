@@ -1,20 +1,21 @@
 class WebhookHandler {
-    static handlePostUpdateRequest(contents) {
+    static handlePostUpdateRequest(postData = '{}') {
+        const contents = JSON.parse(postData).contents || {};
         const documentProperties = PropertiesService.getDocumentProperties();
         const userProperties = PropertiesService.getUserProperties();
         const scriptProperties = PropertiesService.getScriptProperties();
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
-            const chatId = contents.message?.chat?.id || contents.callback_query?.message?.chat?.id || '0000';
-            const action = contents.message?.text || contents.callback_query?.data || 'unknown_action';
-            const eventType = contents.message ? 'message' : contents.callback_query ? 'callback_query' : contents.poll_answer ? 'poll_answer' : contents.poll ? 'poll' : 'unknown event';
+            const chatId = contents?.message?.chat?.id || contents?.callback_query?.message?.chat?.id || '0000';
+            const action = contents?.message?.text || contents?.callback_query?.data || 'unknown_action';
+            const eventType = contents?.message ? 'message' : contents?.callback_query ? 'callback_query' : contents?.poll_answer ? 'poll_answer' : contents?.poll ? 'poll' : 'unknown event';
 
             LoggerModel.create(activeSpreadsheet, documentProperties, userProperties, scriptProperties)
                 .logEvent({
                     dc: '@webhook_handler',
                     action: action,
                     chat_id: chatId,
-                    content: JSON.stringify(contents),
+                    content: JSON.stringify(postData),
                     event: eventType
                 });
 
@@ -31,6 +32,9 @@ class WebhookHandler {
             }
             else if (contents.poll) {
                 // Handle polls if needed
+            }
+            else {
+                throw new Error('Invalid message format');
             }
 
             return JSON.stringify({ status: 'not_handled' });

@@ -11,9 +11,18 @@ describe('doGet', () => {
 
 describe('doPost', () => {
     // onInstall and onOpen are needed for completeness
-    it('should run onInstall without errors', () => {
+    it('should run doPost without errors', () => {
         const event = {
-            postData: { contents: '{}' } 
+            postData: JSON.stringify({
+                contents: {
+                    message: {
+                        from: { id: 5678, is_bot: false, first_name: 'Test User' },
+                        chat: { id: 5678, first_name: 'Test User', type: 'private' },
+                        date: 1700000000,
+                        text: '/start'
+                    }
+                }
+            })
         }; // Mock event object
         expect(() => {
             doPost(event);

@@ -82,8 +82,8 @@ EMD.Home = {
             },
             sections: [
                 {   // Welcome section
-                    // header: 'Welcome to your home',
-                    collapsible: false,
+                    header: 'Welcome to your home',
+                    collapsible: true,
                     numUncollapsibleWidgets: 0,
                     widgets: [
                         {  // Welcome TextParagraph widget
@@ -98,8 +98,8 @@ EMD.Home = {
                         }
                     ]
                 },
-                {   // Common Actions section
-                    header: 'Common Actions',
+                {   // Common Bot Operations card Link section
+                    header: 'Common Bot Operations',
                     collapsible: false,
                     numUncollapsibleWidgets: 0,
                     widgets: [
@@ -128,39 +128,39 @@ EMD.Home = {
                         }
                     ]
                 },
-                {   // Webhook and Automation Setup section
-                    header: 'Webhook and Automation Setup',
+                {   // Help & Support section
+                    header: 'Help & Support',
                     collapsible: false,
                     numUncollapsibleWidgets: 0,
                     widgets: [
-                        {  // DecoratedText with TextButton to push 'BotSetup' card
-                            id: 'webhook_setup_button',
+                        {  // DecoratedText with TextButton to push 'Help' card
+                            id: 'help_button',
                             DecoratedText: {
-                                text: 'Set up your bot webhook?',
-                                bottomLabel: 'Click the button to open the BotSetup card.',
+                                text: 'Need help with the addon?',
+                                bottomLabel: 'Click the button to access help and support resources.',
                                 wrapText: false,
                                 textButton: {
                                     disabled: false,
-                                    text: '🌐',
+                                    text: '❓',
                                     onClick: {
                                         functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                                        parameters: { template: 'EMD.Cards.BotSetup' }
+                                        parameters: { template: 'EMD.Cards.Help' }
                                     }
                                 }
                             }
                         },
-                        {   // DecoratedText with TextButton to push 'AutomationSetup' card
-                            id: 'automation_setup_button',
+                        {   // DecoratedText with TextButton to push 'About' card
+                            id: 'about_button',
                             DecoratedText: {
-                                text: 'Set up your automation workflows?',
-                                bottomLabel: 'Click the button to open the automation setup card.',
+                                text: 'Learn more about this addon',
+                                bottomLabel: 'Click the button to view addon information.',
                                 wrapText: false,
                                 textButton: {
                                     disabled: false,
-                                    text: '🤖',
+                                    text: 'ℹ️',
                                     onClick: {
                                         functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                                        parameters: { template: 'EMD.Cards.Automation' }
+                                        parameters: { template: 'EMD.Cards.About' }
                                     }
                                 }
                             }
