@@ -9323,23 +9323,35 @@ EMD.CreateInvoiceLink = {
                 },
                 {   // Prices Info section
                     header: 'Prices Info',
-                    collapsible: false,
-                    numUncollapsibleWidgets: 0,
+                    collapsible: true,
+                    numUncollapsibleWidgets: 1,
                     widgets: [
                         {   // Prices TextInput widget
                             id: 'prices_text_input',
                             TextInput: {
                                 title: 'Prices',
-                                value: data.prices || '',
+                                value: JSON.stringify(data.prices || [{ label: 'Kiss', amount: 500 }], null, 2),
                                 hint: 'Enter the prices for the invoice link',
                                 fieldName: 'prices',
+                                multiline: true,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.RICH_TEXT
+                            }
+                        },
+                        {   // max_tip_amount TextInput widget
+                            id: 'max_tip_amount_text_input',
+                            TextInput: {
+                                title: 'Max Tip Amount',
+                                value: data.max_tip_amount || '',
+                                hint: 'Enter the max tip amount for the invoice link',
+                                fieldName: 'max_tip_amount',
                                 multiline: false,
                                 // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
                                 inputMode: CardService.TextInputMode.PLAIN_TEXT,
                                 validation: {
-                                    characterLimit: '150',
+                                    characterLimit: '10',
                                     // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
-                                    type: CardService.InputType.TEXT
+                                    type: CardService.InputType.INTEGER
                                 },
                             }
                         }
