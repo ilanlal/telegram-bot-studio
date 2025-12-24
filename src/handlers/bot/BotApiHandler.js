@@ -97,10 +97,23 @@ BotApiHandler.ControllerWrapper = class {
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
         this._activeSpreadsheet = activeSpreadsheet;
+        // Ensure Terminal Output sheet is initialized and active
+        SheetModel.create(this._activeSpreadsheet)
+            .setActiveSheet(EMD.Spreadsheet.TerminalOutput({}));
     }
 
     handleGetMeClick(e) {
         try {
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'client', // chat side
+                    'Request to get bot info',
+                    JSON.stringify({ e }) // placeholder
+                ]);
+
             // extract chat_id from event object
             const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
                 ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
@@ -127,6 +140,15 @@ BotApiHandler.ControllerWrapper = class {
             return this.handleOperationSuccess("👍 Bot info retrieved successfully.")
                 .build();
         } catch (error) {
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Error calling getMe('${token}')`,
+                    error.toString()
+                ]);
             return this.handleError(error)
                 .build();
         }
@@ -140,12 +162,30 @@ BotApiHandler.ControllerWrapper = class {
     }
 
     handleSendTestMessageClick(e) {
+        SheetModel.create(this._activeSpreadsheet)
+            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+            .appendRow([
+                // Created On as iso string
+                new Date().toISOString(),
+                'client', // chat side
+                'Request to send test message',
+                JSON.stringify({ e }) // placeholder
+            ]);
         // Not implemented yet
         return this.handleOperationSuccess("👍 Test message sent successfully.")
             .build();
     }
 
     handleCreateInvoiceLinkClick(e) {
+        SheetModel.create(this._activeSpreadsheet)
+            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+            .appendRow([
+                // Created On as iso string
+                new Date().toISOString(),
+                'client', // chat side
+                'Request to create invoice link',
+                JSON.stringify({ e }) // placeholder
+            ]);
         return PaymentHandler
             .ControllerWrapper(
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)

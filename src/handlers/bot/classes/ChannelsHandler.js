@@ -53,10 +53,23 @@ ChannelsHandler.ControllerWrapper = class extends ChannelsHandler {
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
         this._activeSpreadsheet = activeSpreadsheet;
+        // Ensure Terminal Output sheet is initialized and active
+        SheetModel.create(this._activeSpreadsheet)
+            .setActiveSheet(EMD.Spreadsheet.TerminalOutput({}));
     }
 
     handleGetChatClick(e) {
         try {
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'client', // chat side
+                    'Request to get chat info',
+                    JSON.stringify({ e }) // placeholder
+                ]);
+                
             // extract chat_id from event object
             const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
                 ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
@@ -83,10 +96,6 @@ ChannelsHandler.ControllerWrapper = class extends ChannelsHandler {
             }
             const result = JSON.parse(response.getContentText()).result;
             // 2. add result to Terminal Output sheet
-            SheetModel
-                .create(this._activeSpreadsheet)
-                .setActiveSheet(EMD.Spreadsheet.TerminalOutput({}));
-
             SheetModel.create(this._activeSpreadsheet)
                 .getSheet(EMD.Spreadsheet.TerminalOutput({}))
                 .appendRow([
