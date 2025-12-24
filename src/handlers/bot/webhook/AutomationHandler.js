@@ -1,9 +1,9 @@
 class AutomationHandler {
     constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
         this._automationModel = AutomationModel.create(activeSpreadsheet);
-        const token = documentProperties.getProperty(EnvironmentModel.InputMeta.BOT_API_TOKEN);
+        const token = scriptProperties.getProperty(EnvironmentModel.InputMeta.BOT_API_TOKEN);
         if (!token) {
-            throw new Error('Bot token is not set in user properties');
+            throw new Error(`Bot API token is not set in script properties. Please set ${EnvironmentModel.InputMeta.BOT_API_TOKEN} property.`);
         }
         this._telegramBotProxy = TelegramBotProxy.create(token);
         this._defaultLanguageCode = documentProperties.getProperty(EnvironmentModel.InputMeta.LANGUAGE_CODE) || 'default';

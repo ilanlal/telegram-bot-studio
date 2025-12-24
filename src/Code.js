@@ -15,9 +15,9 @@ function doGet(e) {
 
 function doPost(e) {
     try {
-        const postData = JSON.parse(e.postData);
+        //const postData = JSON.parse(e.postData);
         // Handle the webhook event
-        return WebhookHandler.handlePostUpdateRequest(postData);
+        return WebhookHandler.handlePostUpdateRequest(e.postData);
     } catch (error) {
 
         throw error;

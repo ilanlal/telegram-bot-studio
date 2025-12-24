@@ -1,7 +1,7 @@
 const { EventHandler } = require('./core/EventHandler');
 const { NavigationHandler } = require('./core/NavigationHandler');
 const { SpreadsheetHandler } = require('./core/SpreadsheetHandler');
-const { ChannelsHandler } = require('./bot/ChannelsHandler');
+const { ChannelsHandler } = require('./bot/classes/ChannelsHandler');
 const { BotApiHandler } = require('./bot/BotApiHandler');
 const { AutomationHandler } = require('./bot/webhook/AutomationHandler');
 const { PostMessageHandler } = require('./bot/webhook/PostMessageHandler');

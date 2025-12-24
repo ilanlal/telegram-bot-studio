@@ -58,6 +58,14 @@ ChannelsHandler.ControllerWrapper = class extends ChannelsHandler {
     handleGetChatClick(e) {
         try {
             // extract chat_id from event object
+            const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
+                ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
+                : null;
+
+            if (!token) {
+                throw new Error('Bot API token is required.');
+            }
+
             const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['chat_id'])
                 ? e.commonEventObject.formInputs['chat_id']?.stringInputs?.value?.[0]
                 : null;
@@ -66,13 +74,15 @@ ChannelsHandler.ControllerWrapper = class extends ChannelsHandler {
                 throw new Error('Chat ID is required.');
             }
 
-            const sheetModel = SheetModel.create(this._activeSpreadsheet);
-            const channelModel = ChannelsModel.create(
-                this._activeSpreadsheet, this._documentProperties, this._userProperties, this._scriptProperties);
+            const telegramBotClient = new TelegramBotClient(token);
 
-            // 1. using some mode object to call getChat API method to get full chat info;
-            const chatInfoResult = channelModel.getChat(chatId);
+            // 1. using the bot token and chat id, get chat info from Telegram API`
+            const chatInfoResult = telegramBotClient.getChat(chatId);
+
+
             // 2. add result to sheet. (for user)
+            const sheetModel = SheetModel.create(this._activeSpreadsheet);
+
             sheetModel.getSheet(EMD.Spreadsheet.TerminalOutput({}))
                 .appendRow([
                     // Created On as iso string

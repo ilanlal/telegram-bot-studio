@@ -1,20 +1,68 @@
 class PaymentHandler {
-    static create(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
-        return new PaymentHandler(activeSpreadsheet, documentProperties, userProperties, scriptProperties);
+    get documentProperties() {
+        if (!this._documentProperties) {
+            this._documentProperties = PropertiesService.getDocumentProperties();
+        }
+        return this._documentProperties;
     }
 
+    get activeSpreadsheet() {
+        if (!this._activeSpreadsheet) {
+            this._activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        }
+        return this._activeSpreadsheet;
+    }
+
+    get userProperties() {
+        if (!this._userProperties) {
+            this._userProperties = PropertiesService.getUserProperties();
+        }
+        return this._userProperties;
+    }
+
+    get scriptProperties() {
+        if (!this._scriptProperties) {
+            this._scriptProperties = PropertiesService.getScriptProperties();
+        }
+        return this._scriptProperties;
+    }
+
+    constructor() {
+        this._documentProperties = null;
+        this._userProperties = null;
+        this._scriptProperties = null;
+        this._activeSpreadsheet = null;
+    }
+}
+
+PaymentHandler.View = {
+    onCreateInvoiceLinkClick(e) {
+        return new PaymentHandler.ControllerWrapper(
+            PaymentHandler.prototype.activeSpreadsheet,
+            PaymentHandler.prototype.documentProperties,
+            PaymentHandler.prototype.userProperties,
+            PaymentHandler.prototype.scriptProperties
+        ).handleCreateInvoiceLinkClick(e);
+    }
+}
+
+PaymentHandler.ControllerWrapper = class extends PaymentHandler {
     constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
-        this.activeSpreadsheet = activeSpreadsheet;
-        this.documentProperties = documentProperties;
-        this.userProperties = userProperties;
-        this.scriptProperties = scriptProperties;
+        super();
+        this._documentProperties = documentProperties;
+        this._userProperties = userProperties;
+        this._scriptProperties = scriptProperties;
+        this._activeSpreadsheet = activeSpreadsheet;
     }
 
     handleCreateInvoiceLinkClick(e) {
         try {
             // extract invoice data from event object
             const formInputs = e.commonEventObject.formInputs || {};
-            const token = formInputs['txt_bot_api_token']?.stringInputs?.value[0] || '';
+            const token = formInputs['txt_bot_api_token']?.stringInputs?.value[0] || null;
+            if (!token) {
+                throw new Error('Bot API token is required');
+            }
             const pricesInput = formInputs['prices_text_input']?.stringInputs?.value[0] || '[]';
             const prices = JSON.parse(pricesInput);
             const createInvoiceLinkUrl = `https://api.telegram.org/bot${token}/createInvoiceLink`;
@@ -50,4 +98,10 @@ class PaymentHandler {
                 .build();
         }
     }
+};
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        PaymentHandler
+    };
 }

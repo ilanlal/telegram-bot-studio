@@ -1,4 +1,4 @@
-require('../../../tests');
+require('../../../../tests');
 
 const { ChannelsHandler } = require('./ChannelsHandler');
 
@@ -17,21 +17,20 @@ describe('Channels Handler', () => {
     });
 
     test('should handle getChatInfo', () => {
+        const dummyToken = 'DUMMY_BOT_TOKEN';
+        const dummyChatId = '-1001234567890';
         const handler = new ChannelsHandler();
         const event = {
             commonEventObject: {
                 formInputs: {
-                    'chat_id': { stringInputs: { value: ['-1001234567890'] } }
+                    'txt_bot_api_token': { stringInputs: { value: [dummyToken] } },
+                    'chat_id': { stringInputs: { value: [dummyChatId] } }
                 }
             }
         }; // Mock event object
 
-        const dummyToken = 'DUMMY_BOT_TOKEN';
-        // Set dummy bot token in script properties
-        PropertiesService.getScriptProperties().setProperty(EnvironmentModel.InputMeta.BOT_API_TOKEN, dummyToken);
-
         // Mock the sendMessage API response
-        const getChatUrl = `https://api.telegram.org/bot${dummyToken}/getChat?chat_id=-1001234567890`;
+        const getChatUrl = `https://api.telegram.org/bot${dummyToken}/getChat?chat_id=${dummyChatId}`;
         UrlFetchAppStubConfiguration.when(getChatUrl)
             .return(new HttpResponse()
                 .setContentText(JSON.stringify({
