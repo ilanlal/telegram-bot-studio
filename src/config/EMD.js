@@ -3,6 +3,51 @@ class EMD {
     constructor(model = {}) {
         this.model = model;
     }
+
+    static get Common() {
+        return {
+            entityName: 'Common',
+            card: (data = {}) => {
+                return {
+                    name: 'common_Card',
+                    header: {
+                        title: 'Common Card',
+                        subTitle: 'Common functionalities and information.',
+                        imageUrl: EMD.DEFAULT_IMAGE_URL,
+                        imageStyle: CardService.ImageStyle.SQUARE,
+                        imageAltText: 'Common Image'
+                    },
+                    sections: [
+                        {
+                            // header: 'Common Information',
+                            widgets: [
+                                {
+                                    id: 'common_text_paragraph',
+                                    TextParagraph: {
+                                        text: 'This card contains common functionalities and information.'
+                                    }
+                                }
+                            ]
+                        },
+                        {   // Data view
+                            header: 'Data View',
+                            collapsible: true,
+                            numUncollapsibleWidgets: 0,
+                            widgets: [
+                                {   // Data View widget
+                                    id: 'data_view_widget',
+                                    TextParagraph: {
+                                        text: `Data: ${JSON.stringify(data, null, 2)}`,
+                                        maxLines: 35
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                };
+            }
+        };
+    }
 }
 
 EMD.DEFAULT_IMAGE_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/logo128.png';
@@ -88,11 +133,11 @@ EMD.Home = {
                     collapsible: false,
                     numUncollapsibleWidgets: 0,
                     widgets: [
-                        {  // DecoratedText with TextButton to push 'WebhookSetup' card
+                        {  // DecoratedText with TextButton to push 'BotSetup' card
                             id: 'webhook_setup_button',
                             DecoratedText: {
                                 text: 'Set up your bot webhook?',
-                                bottomLabel: 'Click the button to open the webhook setup card.',
+                                bottomLabel: 'Click the button to open the BotSetup card.',
                                 wrapText: false,
                                 textButton: {
                                     disabled: false,
@@ -321,78 +366,58 @@ EMD.BotSetup = {
             ,
             sections:
                 [
-                    {   // identify bot api token
-                        // header: '🔑 Bot API Token',
+                    {   // Bot Configuration section
+                        header: 'Step 1. Bot Configuration',
                         collapsible: true,
                         numUncollapsibleWidgets: 1,
                         widgets: [
-                            { // Bot token set state
-                                id: 'bot_token_set_state',
-                                TextParagraph: {
-                                    text: `🔑 Bot Token currently: ${data.setupFlow?.botTokenSet ? '✅ Set' : '❌ Not Set'}`
-                                }
-                            },
-                            { // Get Me Result
-                                id: 'get_me_result',
-                                TextParagraph: {
-                                    text: JSON.stringify(data.getMeResult || {}, null, 2)
-                                }
-                            },
-                            { // Bot Token input variable
-                                id: 'bot_token_variable',
+                            {   // TextInput for bot token
+                                id: 'bot_token_input_widget',
                                 TextInput: {
-                                    title: 'Bot API Token',
-                                    fieldName: 'txt_bot_api_token',
-                                    hint: 'Enter bot API token'
-                                },
-                                propertyName: EnvironmentModel.InputMeta.BOT_API_TOKEN
+                                    title: 'Enter your Bot Token, get it from @BotFather',
+                                    fieldName: 'bot_token_input',
+                                    hint: 'Bot Token',
+                                    multiline: false,
+                                    inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                    value: data.botToken || ''
+                                }
                             },
-                            { // Identify Token Button
-                                id: 'identify_token_button',
+                            {   // TextParagraph widget
+                                id: 'basic_bot_operation_text_paragraph',
+                                TextParagraph: {
+                                    text: 'Use the input fields below to configure your basic bot settings.'
+                                }
+                            },
+                            {   // TextButton to call getMe API
+                                id: 'get_me_button',
                                 TextButton: {
-                                    text: '🆔 Identify Token',
+                                    text: '🔍 Get Me',
                                     onClick: {
-                                        functionName: 'BotApiHandler.Addon.onIdentifyTokenClick'
+                                        functionName: 'BotApiHandler.View.onGetMeClick'
                                     }
                                 }
                             }
                         ]
                     },
-                    {   // Deployment setup
+                    {   // Step 2. Deployment setup
                         // header: '🚀 Deployment Setup',
                         collapsible: true,
                         numUncollapsibleWidgets: 1,
                         widgets: [
-                            {
-                                id: 'deployment_id_info',
-                                TextParagraph: {
-                                    text: `🚀 Deployment ID is currently: ${data.environmentVariables?.deploymentIdSet ? '✅ Set' : '❌ Not Set'}`
-                                }
-                            },
-                            {   // Production Deployment ID Variable
+                            {   // TextInput for Deployment ID
                                 id: 'deployment_id_variable',
                                 TextInput: {
                                     title: 'Production Deployment ID',
                                     fieldName: 'txt_deployment_id',
                                     hint: 'Enter production deployment ID'
-                                },
-                                propertyName: EnvironmentModel.InputMeta.DEPLOYMENT_ID
+                                }
                             },
-                            {   // Test Deployment ID Variable
-                                id: 'test_deployment_id_variable',
-                                TextInput: {
-                                    title: 'Test Deployment ID',
-                                    fieldName: 'txt_test_deployment_id',
-                                    hint: 'Enter test deployment ID'
-                                },
-                                propertyName: EnvironmentModel.InputMeta.TEST_DEPLOYMENT_ID
-                            },
-                            { // Identify Deployment ID Button
-                                id: 'identify_deployment_id_button',
+                            { // getWebhookInfo Button
+                                id: 'get_webhook_info_button',
                                 TextButton: {
-                                    text: '💾 Save Deployment ID',
+                                    text: '🌐 Get Webhook Info',
                                     onClick: {
-                                        functionName: 'EnvironmentHandler.Addon.onSaveDeploymentIdClick'
+                                        functionName: 'BotApiHandler.View.onGetWebhookInfoClick'
                                     }
                                 }
                             }
@@ -431,26 +456,6 @@ EMD.BotSetup = {
                                             parameters: {
                                                 action: data.setupFlow?.webhookSet ? 'deleteWebhook' : 'setWebhook',
                                                 environment: 'exec'
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            { // DecoratedText for test webhook action (set,delete)
-                                id: 'test_webhook_action',
-                                DecoratedText: {
-                                    text: 'Test Webhook Action',
-                                    topLabel: `🔗 Test Webhook Action`,
-                                    bottomLabel: `${data.setupFlow?.webhookSet ? 'Delete or update your webhook' : 'Set up your webhook'}`,
-                                    wrapText: false,
-                                    textButton: {
-                                        disabled: data.setupFlow?.webhookSet ? true : (data.environmentVariables?.testDeploymentIdSet ? false : true) || (data.environmentVariables?.botTokenSet ? false : true),
-                                        text: `${data.setupFlow?.webhookSet ? '🗑️ Delete Webhook' : '📡 Set Webhook'}`,
-                                        onClick: {
-                                            functionName: 'BotApiHandler.Addon.onWebhookToggleClick',
-                                            parameters: {
-                                                action: data.setupFlow?.webhookSet ? 'deleteWebhook' : 'setWebhook',
-                                                environment: 'test'
                                             }
                                         }
                                     }
@@ -875,6 +880,37 @@ EMD.BotSetup = {
     }
 }
 
+EMD.WebhookSetup = {
+    entityName: 'WebhookSetup',
+    card: (data = {}) => {
+        return {
+            name: 'webhook_setup_card',
+            header: {
+                title: 'Webhook Setup',
+                subTitle: 'Configure your bot webhook settings.',
+                imageUrl: EMD.WAIT_FOR_IT_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Webhook Setup Image'
+            },
+            sections: [
+                {   // Webhook Configuration section
+                    header: 'Webhook Configuration',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // TextParagraph widget
+                            id: 'webhook_setup_text_paragraph',
+                            TextParagraph: {
+                                text: 'Use the input fields below to configure your webhook settings.'
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+}
+
 EMD.CommonBotOperations = {
     entityName: 'BasicBotOperation',
     card: (data = {}) => {
@@ -1046,8 +1082,6 @@ EMD.Customer = {
 
 EMD.Automation = {
     entityName: 'Automation',
-    displayName: 'Automation',
-    pluralDisplayName: 'Automations',
     card: (data = {}) => {
         return {
             name: 'automation_Card',
@@ -1375,8 +1409,6 @@ EMD.Automation = {
 
 EMD.BasicAutomation = {
     entityName: 'BasicAutomation',
-    displayName: 'Basic Automation',
-    pluralDisplayName: 'Basic Automations',
     sheet: (data = {}) => {
         return {
             name: EMD.Automation.sheet(data).name,
@@ -7677,7 +7709,6 @@ EMD.DonationCampaign = {
 
 EMD.ApiFeaturesAutomation = {
     entityName: 'ApiFeatures',
-    displayName: 'API Features',
     sheet: (data = {}) => {
         return {
             name: EMD.Automation.sheet(data).name,
@@ -8119,7 +8150,6 @@ EMD.ApiFeaturesAutomation = {
 
 EMD.SecurityChecksAutomation = {
     entityName: 'SecurityChecks',
-    displayName: 'Security Checks',
     sheet: (data = {}) => {
         return {
             name: EMD.Automation.sheet(data).name,
@@ -9174,6 +9204,311 @@ EMD.SecurityChecksAutomation = {
     }
 }
 
+EMD.CreateInvoiceLink = {
+    entityName: 'InvoiceLink',
+    card: (data = {}) => {
+        return {
+            name: 'invoiceLink_Card',
+            header: {
+                title: 'Invoice Links',
+                subTitle: 'Manage your invoice links here.',
+                imageUrl: EMD.DEFAULT_IMAGE_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Invoice Links Image'
+            },
+            sections: [
+                {   // Invoice Links Parameters section
+                    header: 'Invoice Links Parameters',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 3,
+                    widgets: [
+                        {  // [YOUR_BOT_API_TOKEN] TextInput widget
+                            id: 'bot_api_token_text_input',
+                            TextInput: {
+                                title: 'Bot API Token',
+                                value: data.bot_api_token || '[YOUR_BOT_API_TOKEN]',
+                                hint: 'Enter your Telegram Bot API Token here',
+                                fieldName: 'bot_api_token',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.RICH_TEXT
+                            }
+                        },
+                        {   // Title TextInput widget
+                            id: 'title_text_input',
+                            TextInput: {
+                                title: 'Title',
+                                value: data.title || 'Support the Project',
+                                hint: 'Enter the title for the invoice link. (Max 32 characters)',
+                                fieldName: 'title',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.RICH_TEXT,
+                                validation: {
+                                    characterLimit: '32',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                            }
+                        },
+                        {   // Description TextInput widget
+                            id: 'description_text_input',
+                            TextInput: {
+                                title: 'Description',
+                                value: data.description || 'Buy me a kiss to support the development of this project.',
+                                hint: 'Enter the description for the invoice link (Max 255 characters)',
+                                fieldName: 'description',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.RICH_TEXT,
+                                validation: {
+                                    characterLimit: '255',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                            }
+                        },
+                        {   // Currency TextInput widget
+                            id: 'currency_text_input',
+                            TextInput: {
+                                title: 'Currency',
+                                value: data.currency || 'XTR',
+                                hint: 'Enter the currency for the invoice link (e.g., USD, EUR, XTR)',
+                                fieldName: 'currency',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '3',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                            }
+                        },
+                        {   // Payload TextInput widget
+                            id: 'payload_text_input',
+                            TextInput: {
+                                title: 'Payload',
+                                value: data.payload || '',
+                                hint: 'Enter the payload for the invoice link',
+                                fieldName: 'payload',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '64',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                            }
+                        },
+                        {   // provider_token TextInput widget
+                            id: 'provider_token_text_input',
+                            TextInput: {
+                                title: 'Provider Token',
+                                value: data.provider_token || '',
+                                hint: 'Enter the provider token for the invoice link',
+                                fieldName: 'provider_token',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '255',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                            }
+                        }
+                    ]
+                },
+                {   // Prices Info section
+                    header: 'Prices Info',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // Prices TextInput widget
+                            id: 'prices_text_input',
+                            TextInput: {
+                                title: 'Prices',
+                                value: data.prices || '',
+                                hint: 'Enter the prices for the invoice link',
+                                fieldName: 'prices',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '150',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                            }
+                        }
+                    ]
+                },
+                {   // Photo Url and Dimensions section
+                    header: 'Photo Url and Dimensions',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // photo_url TextInput widget
+                            id: 'photo_url_text_input',
+                            TextInput: {
+                                title: 'Photo URL',
+                                value: data.photo_url || '',
+                                hint: 'Enter the photo URL for the invoice link',
+                                fieldName: 'photo_url',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '2048',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.TEXT
+                                },
+                            }
+                        },
+                        {   // photo_width TextInput widget
+                            id: 'photo_width_text_input',
+                            TextInput: {
+                                title: 'Photo Width',
+                                value: data.photo_width || '',
+                                hint: 'Enter the photo width for the invoice link',
+                                fieldName: 'photo_width',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '10',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.INTEGER
+                                },
+                            }
+                        },
+                        {   // photo_height TextInput widget
+                            id: 'photo_height_text_input',
+                            TextInput: {
+                                title: 'Photo Height',
+                                value: data.photo_height || '',
+                                hint: 'Enter the photo height for the invoice link',
+                                fieldName: 'photo_height',
+                                multiline: false,
+                                // inputMode (CardService.TextInputMode.PLAIN_TEXT || CardService.TextInputMode.RICH_TEXT)
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                validation: {
+                                    characterLimit: '10',
+                                    // InputType.INTEGER || InputType.EMAIL || InputType.FLOAT || InputType.TEXT
+                                    type: CardService.InputType.INTEGER
+                                },
+                            }
+                        }
+                    ]
+                },
+                {   // Invoice Links Operations section
+                    header: 'Invoice Links Operations',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // Create Invoice Link Button
+                            id: 'create_invoice_link_button',
+                            TextButton: {
+                                text: '➕ Create Invoice Link',
+                                onClick: {
+                                    functionName: 'BotApiHandler.View.onCreateInvoiceLinkClick'
+                                }
+                            }
+                        }
+                    ]
+                },
+                {   // Data view
+                    header: 'Data View',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // Data View widget
+                            id: 'data_view_widget',
+                            TextParagraph: {
+                                text: `Data: ${JSON.stringify(data, null, 2)}`,
+                                maxLines: 35
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    },
+    sheet: (data = {}) => {
+        return {
+            name: '🧾 Invoice Links',
+            columns: ['Title', 'Payload', 'Link', 'Created On', 'Status'],
+            sample_data: [
+                ['Show me love',
+                    // createInvoiceLink payload
+                    JSON.stringify({
+                        title: 'Support the Project',
+                        description: 'Buy me a kiss to support the development of this project.',
+                        currency: 'XTR',
+                        prices: [{ label: 'Kiss', amount: 500 }], // $5.00
+                        payload: 'support_project_001',
+                        need_name: false,
+                        need_email: false,
+                        need_phone_number: false,
+                        need_shipping_address: false,
+                        photo_url: EMD.LOGO_PNG_URL,
+                        photo_size: 512,
+                        photo_width: 512,
+                        photo_height: 512,
+                    }),
+                    '[Invoice Link Here]',
+                    '[Created On Here]',
+                    '[Status Here]'
+                ],
+                ['Subscribe to Basic',
+                    // createInvoiceLink payload
+                    JSON.stringify({
+                        title: 'Basic Subscription',
+                        description: 'Subscribe to the basic plan for essential features.',
+                        currency: 'XTR',
+                        prices: [{ label: 'Monthly Subscription', amount: 499 }], // $4.99
+                        payload: 'basic_subscription_001',
+                        need_name: false,
+                        need_email: false,
+                        need_phone_number: false,
+                        photo_url: EMD.LOGO_PNG_URL,
+                        photo_size: 512,
+                        photo_width: 512,
+                        photo_height: 512,
+                        subscription_period: 2592000 // 30 days in seconds
+                    }),
+                    '[Invoice Link Here]',
+                    '[Created On Here]',
+                    '[Status Here]'
+                ],
+                ['Subscribe to Premium',
+                    // createInvoiceLink payload
+                    JSON.stringify({
+                        title: 'Premium Subscription',
+                        description: 'Subscribe to the premium plan for additional features.',
+                        currency: 'XTR',
+                        prices: [{ label: 'Monthly Subscription', amount: 999 }], // $9.99
+                        payload: 'premium_subscription_001',
+                        need_name: false,
+                        need_email: false,
+                        need_phone_number: false,
+                        photo_url: EMD.LOGO_PNG_URL,
+                        photo_size: 512,
+                        photo_width: 512,
+                        photo_height: 512,
+                        subscription_period: 2592000 // 30 days in seconds
+                    }),
+                    '[Invoice Link Here]',
+                    '[Created On Here]',
+                    '[Status Here]'
+                ]
+            ]
+        };
+    }
+}
+
 EMD.CardSample = {
     entityName: 'CardSample',
     card: (data = {}) => {
@@ -9415,7 +9750,9 @@ EMD.Cards = {
     CardSample: EMD.CardSample.card,
     CommonBotOperations: EMD.CommonBotOperations.card,
     BotSetup: EMD.BotSetup.card,
-    Automation: EMD.Automation.card
+    Automation: EMD.Automation.card,
+    WebhookSetup: EMD.WebhookSetup.card,
+    CreateInvoiceLink: EMD.CreateInvoiceLink.card
 }
 
 EMD.Spreadsheet = {

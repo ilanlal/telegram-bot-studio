@@ -11,6 +11,7 @@ describe('CardViewModel', () => {
         [EMD.Cards.About, { isActive: true }],
         [EMD.Cards.CommonBotOperations, { isActive: true }],
         [EMD.Cards.CardSample, { isActive: true }],
+        [EMD.Cards.CreateInvoiceLink, { isActive: true }],
         [EMD.Cards.BotSetup, { isActive: true }]
     ];
 
