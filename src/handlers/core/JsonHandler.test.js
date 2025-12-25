@@ -19,7 +19,15 @@ describe('JsonHandler', () => {
 
     // onMinifyJsonClick
     it('should handle onMinifyJsonClick', () => {
-        const event = {}; // Mock event object
+        const event = {
+            commonEventObject: {
+                formInputs: {
+                    'json_indent_spaces': { stringInputs: { value: ['4'] } },
+                    'json_ignore_whitespace': { booleanInputs: { value: [true] } },
+                    'json_highlight_errors': { booleanInputs: { value: [true] } }
+                }
+            }
+        }; // Mock event object
         // stub for getCurrentCell
         SheetStubConfiguration.setCurrentCell(
             RangeStubConfiguration.setA1Notation('A1').setValue('{\n    "key": "value"\n}'));
@@ -61,7 +69,14 @@ describe('JsonHandler', () => {
 
     // on active cell missing
     it('should handle missing active cell gracefully', () => {
-        const event = {}; // Mock event object
+        const event = {
+            commonEventObject: {
+                formInputs: {
+                    'json_highlight_errors': { booleanInputs: { value: [true] } }
+                }
+            }
+        }; // Mock event object
+        
         // stub for getCurrentCell to return null
         SheetStubConfiguration.setCurrentCell(null);
         const actionResponse = JsonHandler.View.onValidateJsonClick(event);
