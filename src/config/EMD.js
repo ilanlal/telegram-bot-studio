@@ -90,7 +90,6 @@ EMD.Home = {
                         {  // Welcome TextParagraph widget
                             id: 'welcome_widget',
                             TextParagraph: {
-                                maxLines: 4,
                                 text: 'Welcome to Telegram Bot Studio! 🎉\n\n'
                                     + 'Enjoy building your Telegram bots with ease and efficiency!\n\n'
                                     + 'For more information, visit our [GitHub Repository](' + EMD.GIT_REPO_URL + ').'
@@ -992,6 +991,40 @@ EMD.CommonBotOperations = {
                                     onClick: {
                                         functionName: 'BotApiHandler.View.onSendTestMessageClick'
                                     }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {  // Minify/Beautify JSON section
+                    header: 'Step 3. Minify/Beautify JSON',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 0,
+                    widgets: [
+                        {   // TextButton to minify JSON
+                            id: 'minify_json_button',
+                            TextButton: {
+                                text: '🗜️ Minify JSON',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onMinifyJsonClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to beautify JSON
+                            id: 'beautify_json_button',
+                            TextButton: {
+                                text: '🎨 Beautify JSON',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onBeautifyJsonClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to validate JSON
+                            id: 'validate_json_button',
+                            TextButton: {
+                                text: '✅ Validate JSON',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onValidateJsonClick'
                                 }
                             }
                         }
