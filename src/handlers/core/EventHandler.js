@@ -19,10 +19,12 @@ EventHandler.ViewModel = {
             .onPushCardClick({ parameters: { template: 'EMD.Cards.Help' } });
     },
     onActivatePremiumClicked: (e) => {
-        throw new Error("Not implemented yet");
+        return MembershipHandler.ViewModel
+            .onActivatePremiumClicked(e);
     },
     onRevokeLicenseClicked: (e) => {
-        throw new Error("Not implemented yet");
+        return MembershipHandler.ViewModel
+            .onRevokeLicenseClicked(e);
     }
 }
 
