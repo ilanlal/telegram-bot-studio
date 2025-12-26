@@ -77,21 +77,30 @@ MembershipHandler.ControllerWrapper = class {
 
             // Update the card or UI as needed
             const cardsToUpdate = [
-                EMD.Card.Home,
-                EMD.Card.CommonBotOperations,
-                EMD.Card.MembershipSubscription];
+                EMD.Cards.Home,
+                EMD.Cards.CommonBotOperations,
+                EMD.Cards.MembershipSubscription];
 
             // trigger a updateCard for each card
             cardsToUpdate.forEach((emd) => {
-                const navAction = this._cardService.newNavigation()
-                    .updateCard(
-                        this._cardService.newCardBuilder()
-                            .setName(emd.name)
-                            .build()
-                    );
-                this._cardService.newActionResponseBuilder()
-                    .setNavigation(navAction)
-                    .build();
+                NavigationHandler.ViewModel.onUpdateCardClick({
+                    commonEventObject: {
+                        parameters: {
+                            // template: 'EMD.Cards.Home',
+                            template: emd,
+                            cardName: emd().name
+                        }
+                    }
+                });
+            });
+
+            // pop back to home card
+            NavigationHandler.ViewModel.onPopToNamedCardClick({
+                commonEventObject: {
+                    parameters: {
+                        cardName: EMD.Cards.Home().name
+                    }
+                }
             });
 
             return this.handleOperationSuccess('Premium membership activated successfully!');

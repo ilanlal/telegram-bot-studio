@@ -10,6 +10,8 @@ describe('CardViewModel', () => {
         EMD.Cards.Help,
         EMD.Cards.About,
         EMD.Cards.CommonBotOperations,
+        EMD.Cards.MembershipSubscription,
+        EMD.Cards.ThankYou,
         EMD.Cards.CardSample];
 
     it('should create an view model instance.', () => {

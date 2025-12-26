@@ -14,4 +14,27 @@ describe('Membership Handler', () => {
         const handler = new MembershipHandler();
         expect(handler).toBeInstanceOf(MembershipHandler);
     });
+
+    // onActivatePremiumClicked
+    it('should handle onActivatePremiumClicked', () => {
+        const event = {}; // Mock event object
+        const actionResponse = MembershipHandler.ViewModel.onActivatePremiumClicked(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+        // no 'error' string in data
+        expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
+    });
+
+    // onRevokeLicenseClicked
+    it('should handle onRevokeLicenseClicked', () => {
+        const event = {}; // Mock event object
+        const actionResponse = MembershipHandler.ViewModel.onRevokeLicenseClicked(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+        // no 'error' string in data
+        expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
+    });
+
 });
