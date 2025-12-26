@@ -226,10 +226,25 @@ CardViewModel.CardServiceWrapper = class {
             _textButton.setOpenLink(this._cardService.newOpenLink().setUrl(textButtonMeta.openLink.url || ''));
         }
         else if (textButtonMeta.onClick) {
-            _textButton.setOnClickAction(textButtonMeta.onClick.functionName ? this._cardService.newAction()
-                .setFunctionName(textButtonMeta.onClick.functionName)
-                .setParameters(textButtonMeta.onClick.parameters || {}) : null
-            );
+            const newAction = this._cardService.newAction()
+                .setFunctionName(textButtonMeta.onClick.functionName);
+
+            if (textButtonMeta.onClick.parameters) {
+                newAction.setParameters(textButtonMeta.onClick.parameters);
+            }
+
+            if (textButtonMeta.onClick.requiredWidgets) {
+                const allRequiredWidgets = Array.isArray(textButtonMeta.onClick.requiredWidgets)
+                    ? textButtonMeta.onClick.requiredWidgets
+                    : [textButtonMeta.onClick.requiredWidgets];
+
+                // Add each required fieldName to the action
+                allRequiredWidgets.forEach(
+                    fieldName => newAction.addRequiredWidget(fieldName)
+                );
+            }
+
+            _textButton.setOnClickAction(newAction);
         }
         else {
             throw new Error(CardViewModel.ErrorMessages.TEXT_BUTTON_MISSING_PROPERTIES_ERROR);

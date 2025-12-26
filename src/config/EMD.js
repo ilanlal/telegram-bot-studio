@@ -128,45 +128,6 @@ EMD.Home = {
                         }
                     ]
                 },
-                {   // Help & Support section
-                    header: 'Help & Support',
-                    collapsible: false,
-                    numUncollapsibleWidgets: 0,
-                    widgets: [
-                        {  // DecoratedText with TextButton to push 'Help' card
-                            id: 'help_button',
-                            DecoratedText: {
-                                text: 'Need help with the addon?',
-                                bottomLabel: 'Click the button to access help and support resources.',
-                                wrapText: false,
-                                textButton: {
-                                    disabled: false,
-                                    text: '❓',
-                                    onClick: {
-                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                                        parameters: { template: 'EMD.Cards.Help' }
-                                    }
-                                }
-                            }
-                        },
-                        {   // DecoratedText with TextButton to push 'About' card
-                            id: 'about_button',
-                            DecoratedText: {
-                                text: 'Learn more about this addon',
-                                bottomLabel: 'Click the button to view addon information.',
-                                wrapText: false,
-                                textButton: {
-                                    disabled: false,
-                                    text: 'ℹ️',
-                                    onClick: {
-                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                                        parameters: { template: 'EMD.Cards.About' }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                },
                 {   // Data view
                     header: 'Data View',
                     collapsible: true,
@@ -185,6 +146,7 @@ EMD.Home = {
             fixedFooter: {
                 primaryButton: {
                     textButton: {
+                        disabled: !!data.appModel?.isPremium,
                         text: '🏆 Free',
                         onClick: {
                             functionName: 'NavigationHandler.ViewModel.onPushCardClick',
@@ -274,7 +236,7 @@ EMD.About = {
                         { // Version Info widget
                             id: 'version_info_widget',
                             TextParagraph: {
-                                text: `Version: ${data.packageInfo?.version || 'N/A'} (Build: ${data.packageInfo?.build || 'N/A'})`
+                                text: `Version: ${data.appModel?.version || 'N/A'} (Build: ${data.appModel?.build || 'N/A'})`
                             }
                         }
                     ]
@@ -336,7 +298,7 @@ EMD.Account = {
                         {   // Data View widget
                             id: 'data_view_widget',
                             TextParagraph: {
-                                text: `Data: ${JSON.stringify(data, null, 2)}`,
+                                text: `${JSON.stringify(data, null, 2)}`,
                                 maxLines: 35
                             }
                         }
@@ -962,7 +924,9 @@ EMD.CommonBotOperations = {
                             TextButton: {
                                 text: '🤖 Get Me',
                                 onClick: {
-                                    functionName: 'BotApiHandler.View.onGetMeClick'
+                                    functionName: 'BotApiHandler.View.onGetMeClick',
+                                    // List of widget IDs whose values are required for this action to be executed
+                                    requiredWidgets: ['txt_bot_api_token']
                                 }
                             }
                         },
@@ -982,7 +946,9 @@ EMD.CommonBotOperations = {
                             TextButton: {
                                 text: '📢 Get Chat',
                                 onClick: {
-                                    functionName: 'ChannelsHandler.View.onGetChatClick'
+                                    functionName: 'ChannelsHandler.View.onGetChatClick',
+                                    // List of widget IDs whose values are required for this action to be executed
+                                    requiredWidgets: ['txt_bot_api_token', 'chat_id_input']
                                 }
                             }
                         }
@@ -9664,6 +9630,22 @@ EMD.ThankYou = {
                             id: 'thank_you_text_paragraph',
                             TextParagraph: {
                                 text: 'Thank you for your support! Your contribution helps us continue to improve and provide valuable features.'
+                            }
+                        },
+                        {   // DecoratedText with TextButton to push 'About' card
+                            id: 'about_button',
+                            DecoratedText: {
+                                text: 'Learn more about this addon',
+                                bottomLabel: 'Click the button to view addon information.',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: false,
+                                    text: 'ℹ️',
+                                    onClick: {
+                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                                        parameters: { template: 'EMD.Cards.About' }
+                                    }
+                                }
                             }
                         }
                     ]
