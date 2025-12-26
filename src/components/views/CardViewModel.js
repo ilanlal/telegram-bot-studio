@@ -78,13 +78,12 @@ CardViewModel.CardServiceWrapper = class {
     }
 
     newFixedFooter(fixedFooterMeta = {}) {
-        if (!fixedFooterMeta.primaryButton?.textButton) {
+        if (!fixedFooterMeta.primaryButton) {
             throw new Error(CardViewModel.ErrorMessages.FIXED_FOOTER_BUTTON_NOT_DEFINED_ERROR);
         }
         const fixedFooter = this._cardService.newFixedFooter();
-
-        const primaryButton = this.newTextButton(fixedFooterMeta.primaryButton.textButton);
-        fixedFooter.setPrimaryButton(primaryButton);
+        fixedFooter.setPrimaryButton(
+            this.newTextButton(fixedFooterMeta.primaryButton.textButton));
 
         if (fixedFooterMeta.secondaryButton) {
             fixedFooter.setSecondaryButton(
@@ -214,7 +213,7 @@ CardViewModel.CardServiceWrapper = class {
     }
 
     newTextButton(textButtonMeta = {}, disabled = false, style = CardService.TextButtonStyle.TEXT) {
-        if (!textButtonMeta.text || (!textButtonMeta.openLink && !textButtonMeta.onClick)) {
+        if (!textButtonMeta.text && !(textButtonMeta.openLink || textButtonMeta.onClick)) {
             throw new Error(CardViewModel.ErrorMessages.TEXT_BUTTON_MISSING_PROPERTIES_ERROR);
         }
 

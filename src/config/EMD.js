@@ -922,49 +922,36 @@ EMD.CommonBotOperations = {
             },
             sections: [
                 {   // Bot Configuration section
-                    header: 'Step 1. Bot Configuration',
+                    header: 'Telegram API Operations',
                     collapsible: true,
-                    numUncollapsibleWidgets: 1,
+                    numUncollapsibleWidgets: 2,
                     widgets: [
                         {   // TextInput for bot token
                             id: 'bot_token_input_widget',
                             TextInput: {
-                                title: 'Enter your Bot Token, get it from @BotFather',
+                                title: '🤖 Your Bot Token',
+                                hint: 'Enter your Bot Token, get it from @BotFather',
                                 fieldName: 'txt_bot_api_token',
-                                hint: 'Bot Token',
                                 multiline: false,
                                 inputMode: CardService.TextInputMode.PLAIN_TEXT,
-                                value: data.botToken || ''
-                            }
-                        },
-                        {   // TextParagraph widget
-                            id: 'basic_bot_operation_text_paragraph',
-                            TextParagraph: {
-                                text: 'Use the input fields below to configure your basic bot settings.'
+                                value: data.botApiToken || ''
                             }
                         },
                         {   // TextButton to call getMe API
                             id: 'get_me_button',
                             TextButton: {
-                                text: '🔍 Get Me',
+                                text: '🤖 Get Me',
                                 onClick: {
                                     functionName: 'BotApiHandler.View.onGetMeClick'
                                 }
                             }
-                        }
-                    ]
-                },
-                {   // Chat ID Configuration section
-                    header: 'Step 2. Chat ID Configuration',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 2,
-                    widgets: [
+                        },
                         {   // TextInput for chat ID
                             id: 'chat_id_input_widget',
                             TextInput: {
-                                title: 'Enter Chat ID, for channels use @channelusername',
+                                title: '📢 Chat ID',
+                                hint: 'Enter Chat ID, for channels use @channelusername',
                                 fieldName: 'chat_id_input',
-                                hint: 'Chat ID',
                                 multiline: false,
                                 inputMode: CardService.TextInputMode.PLAIN_TEXT,
                                 value: data.chatId || ''
@@ -973,56 +960,51 @@ EMD.CommonBotOperations = {
                         {   // TextButton to call getChat API
                             id: 'get_chat_button',
                             TextButton: {
-                                text: '🔍 Get Chat',
+                                text: '📢 Get Chat',
                                 onClick: {
                                     functionName: 'ChannelsHandler.View.onGetChatClick'
-                                }
-                            }
-                        },
-                        {   // decorated text for sending test message
-                            id: 'send_test_message_decorated_text',
-                            DecoratedText: {
-                                text: 'Send Test Message',
-                                topLabel: '📨 Send a test message to the specified chat ID',
-                                wrapText: false,
-                                textButton: {
-                                    disabled: (data.botToken && data.chatId) ? false : true,
-                                    text: '📨 Send Message',
-                                    onClick: {
-                                        functionName: 'BotApiHandler.View.onSendTestMessageClick'
-                                    }
                                 }
                             }
                         }
                     ]
                 },
                 {  // Minify/Beautify JSON section
-                    header: 'Step 3. Minify/Beautify JSON',
+                    header: 'Useful JSON Tools',
                     collapsible: true,
-                    numUncollapsibleWidgets: 0,
+                    numUncollapsibleWidgets: 3,
                     widgets: [
-                        {   // TextButton to minify JSON
-                            id: 'minify_json_button',
-                            TextButton: {
-                                text: '🗜️ Minify JSON',
-                                onClick: {
-                                    functionName: 'JsonHandler.View.onMinifyJsonClick'
-                                }
+                        {  // TextParagraph widget
+                            id: 'json_handler_text_paragraph',
+                            TextParagraph: {
+                                maxLines: 2,
+                                text: 'These tools help you to beautify, minify, and validate JSON data. you receive from various sources. (client/server)\n\n'
+                                    + 'Select the cell in the spreadsheet containing JSON data before using these tools.\n\n'
+                                    + 'The current cell is the cell that has focus in the Google Sheets UI, and is highlighted by a dark border.\n\n'
+                                    + 'There is never more than one current cell. If no cell is selected, there is no current cell. '
                             }
                         },
                         {   // TextButton to beautify JSON
                             id: 'beautify_json_button',
                             TextButton: {
-                                text: '🎨 Beautify JSON',
+                                text: '🎨 Beautify',
                                 onClick: {
                                     functionName: 'JsonHandler.View.onBeautifyJsonClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to minify JSON
+                            id: 'minify_json_button',
+                            TextButton: {
+                                text: '🗜️ Minify',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onMinifyJsonClick'
                                 }
                             }
                         },
                         {   // TextButton to validate JSON
                             id: 'validate_json_button',
                             TextButton: {
-                                text: '✅ Validate JSON',
+                                text: '✅ Validate',
                                 onClick: {
                                     functionName: 'JsonHandler.View.onValidateJsonClick'
                                 }
@@ -1030,7 +1012,18 @@ EMD.CommonBotOperations = {
                         }
                     ]
                 }
-            ]
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    textButton: {
+                        text: '❓ Need Help?',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Help' }
+                        }
+                    }
+                }
+            }
         };
     }
 }
@@ -9780,7 +9773,18 @@ EMD.CardSample = {
                         }
                     ]
                 }
-            ]
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    textButton: {
+                        text: '🏠 Go to Home',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPopToNamedCardClick',
+                            parameters: { cardName: 'EMD.Cards.Home' }
+                        }
+                    }
+                }
+            }
         };
     }
 }
