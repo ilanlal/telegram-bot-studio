@@ -80,7 +80,6 @@ NavigationHandler.ControllerWrapper = class {
         try {
             // extract parameters from event
             const template = e.parameters?.template || null;
-            const cardName = e.parameters?.cardName || null;
 
             if (!template) {
                 throw new Error("'template' parameter is required for handlePushCard.");
@@ -91,28 +90,20 @@ NavigationHandler.ControllerWrapper = class {
                 throw new Error(`Card configuration for '${template}' not found in EMD.`);
             }
 
-            const packageInfo = {
-                version: Config.getVersion(),
-                build: Config.getBuild(),
-                author: Config.getAuthor(),
-                license: Config.getLicense(),
-                repository: Config.getRepository()
-            };
-            const appModel = AppModel.create(
-                SpreadsheetApp.getActiveSpreadsheet(),
-                this._documentProperties,
-                this._userProperties,
-                this._scriptProperties);
+            const cardName = e.parameters?.cardName || emd_card({}).name || 'UnnamedCard';
 
-            const cardModel = CardViewModel.CardServiceWrapper
-                .create(this._cardService, this._documentProperties, this._userProperties, this._scriptProperties);
+            const appModel = AppModel.create(
+                this._documentProperties, this._userProperties, this._scriptProperties);
+
+            const cardModel = CardViewModel.CardServiceWrapper.create(
+                this._cardService, this._documentProperties, this._userProperties, this._scriptProperties);
 
             const cardBuilder = cardModel.newCardBuilder(
                 emd_card({
-                    appModel: appModel.state,
-                    packageInfo: packageInfo,
+                    appModel: appModel.toJSON(),
                     cardName: cardName
                 }));
+
             return this._cardService.newActionResponseBuilder()
                 .setNavigation(
                     this._cardService.newNavigation()
@@ -142,7 +133,6 @@ NavigationHandler.ControllerWrapper = class {
         try {
             // parameters: { template: 'EMD.Cards.Customer', cardName: 'CustomerCard' }
             const template = e.parameters?.template || null;
-            const cardName = e.parameters?.cardName || null;
 
             if (!template) {
                 throw new Error("'template' parameter is required for handlePushCard.");
@@ -152,26 +142,18 @@ NavigationHandler.ControllerWrapper = class {
                 throw new Error(`Card configuration for '${template}' not found in EMD.`);
             }
 
-            const packageInfo = {
-                version: Config.getVersion(),
-                build: Config.getBuild(),
-                author: Config.getAuthor(),
-                license: Config.getLicense(),
-                repository: Config.getRepository()
-            };
+            const cardName = e.parameters?.cardName || emd_card({}).name || 'UnnamedCard';
+
             const appModel = AppModel.create(
-                SpreadsheetApp.getActiveSpreadsheet(),
-                this._documentProperties,
-                this._userProperties,
-                this._scriptProperties);
+                this._documentProperties, this._userProperties, this._scriptProperties);
 
             const cardModel = CardViewModel.CardServiceWrapper
-                .create(this._cardService, this._documentProperties, this._userProperties, this._scriptProperties);
+                .create(
+                    this._cardService, this._documentProperties, this._userProperties, this._scriptProperties);
 
             const cardBuilder = cardModel.newCardBuilder(
                 emd_card({
-                    appModel: appModel.state,
-                    packageInfo: packageInfo,
+                    appModel: appModel.toJSON(),
                     cardName: cardName
                 }));
 

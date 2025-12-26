@@ -212,15 +212,15 @@ CardViewModel.CardServiceWrapper = class {
         return newTextParagraph;
     }
 
-    newTextButton(textButtonMeta = {}, disabled = false, style = CardService.TextButtonStyle.TEXT) {
+    newTextButton(textButtonMeta = {}) {
         if (!textButtonMeta.text && !(textButtonMeta.openLink || textButtonMeta.onClick)) {
             throw new Error(CardViewModel.ErrorMessages.TEXT_BUTTON_MISSING_PROPERTIES_ERROR);
         }
 
         const _textButton = this._cardService.newTextButton()
             .setText(textButtonMeta.text)
-            .setDisabled(typeof disabled === 'boolean' ? disabled : !!textButtonMeta.disabled)
-            .setTextButtonStyle(textButtonMeta.style || style);
+            .setDisabled(!!textButtonMeta.disabled)
+            .setTextButtonStyle(textButtonMeta.textButtonStyle || CardService.TextButtonStyle.TEXT);
 
         if (textButtonMeta.openLink) {
             _textButton.setOpenLink(this._cardService.newOpenLink().setUrl(textButtonMeta.openLink.url || ''));

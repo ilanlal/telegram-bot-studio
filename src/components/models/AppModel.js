@@ -1,31 +1,41 @@
 class AppModel {
-    constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
+    static get MEMBERSHIP_PROPERTY_KEY() {
+        return 'membership';
+    }
+
+    constructor(documentProperties, userProperties, scriptProperties) {
         this._documentProperties = documentProperties;
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
-        this._activeSpreadsheet = activeSpreadsheet;
     }
 
-    static create(
-        activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(),
-        documentProperties = PropertiesService.getDocumentProperties(),
-        userProperties = PropertiesService.getUserProperties(),
-        scriptProperties = PropertiesService.getScriptProperties()
-    ) {
-        return new AppModel(activeSpreadsheet, documentProperties, userProperties, scriptProperties);
+    static create(documentProperties = PropertiesService.getDocumentProperties(), userProperties = PropertiesService.getUserProperties(), scriptProperties = PropertiesService.getScriptProperties()) {
+        return new AppModel(documentProperties, userProperties, scriptProperties);
     }
 
-    // Getters
-    get state() {
+    toJSON() {
+        const rawData = this._userProperties.getProperty(AppModel.MEMBERSHIP_PROPERTY_KEY);
+        const membershipInfo = rawData ? JSON.parse(rawData) : {};
+        const expiresAt = membershipInfo.expiresAt ? new Date(membershipInfo.expiresAt) : null;
+        const balance = membershipInfo.balance || 0;
+        const isPremium = (expiresAt && expiresAt > new Date()) || balance > 0;
+
         return {
-            userInfo: {
-                userEmail: 'unknown',
-                userTimezone: 'UTC'
-            },
-            appInfo: {
-            },
-            sampleTextInputValue: 'Hello, world!'
+            // Membership Info
+            isPremium: isPremium,
+            balance: balance,
+            expiresAt: expiresAt,
+            // Package Info
+            version: Config.getVersion(),
+            build: Config.getBuild(),
+            author: Config.getAuthor(),
+            license: Config.getLicense(),
+            gitRepository: Config.getRepository()
         }
+    }
+
+    toString() {
+        return JSON.stringify(this.toJSON());
     }
 }
 

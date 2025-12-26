@@ -181,7 +181,27 @@ EMD.Home = {
                         }
                     ]
                 }
-            ]
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    textButton: {
+                        text: '🏆 Free',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.MembershipSubscription' }
+                        }
+                    }
+                },
+                secondaryButton: {
+                    textButton: {
+                        text: '💝 Show Thanks',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.ThankYou' }
+                        }
+                    }
+                }
+            }
         };
     }
 }
@@ -303,7 +323,7 @@ EMD.Account = {
                         { // user Info widget
                             id: 'user_info_widget',
                             TextParagraph: {
-                                text: `User is ${data.userInfo?.isPremium ? 'a Premium' : 'a Free'} user.`
+                                text: `User is ${data.appModel?.isPremium ? 'a Premium' : 'a Free'} user.`
                             }
                         }
                     ]
@@ -971,7 +991,7 @@ EMD.CommonBotOperations = {
                 {  // Minify/Beautify JSON section
                     header: 'Useful JSON Tools',
                     collapsible: true,
-                    numUncollapsibleWidgets: 3,
+                    numUncollapsibleWidgets: 2,
                     widgets: [
                         {  // TextParagraph widget
                             id: 'json_handler_text_paragraph',
@@ -1015,6 +1035,16 @@ EMD.CommonBotOperations = {
             ],
             fixedFooter: {
                 primaryButton: {
+                    textButton: {
+                        disabled: true,
+                        text: '💾 Save',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Home' }
+                        }
+                    }
+                },
+                secondaryButton: {
                     textButton: {
                         text: '❓ Need Help?',
                         onClick: {
@@ -9545,6 +9575,104 @@ EMD.CreateInvoiceLink = {
     }
 }
 
+EMD.MembershipSubscription = {
+    entityName: 'MembershipSubscription',
+    card: (data = {}) => {
+        return {
+            name: 'membershipSubscription_Card',
+            header: {
+                title: 'Membership Subscription',
+                subTitle: 'Choose your subscription plan',
+                imageUrl: EMD.YES_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Membership Subscription Image'
+            },
+            sections: [
+                {   // Subscription Plans section
+                    header: 'Subscription Plans',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 2,
+                    widgets: [
+                        {   // Basic Plan DecoratedText widget
+                            id: 'basic_plan_decorated_text',
+                            DecoratedText: {
+                                text: 'Basic Plan - $0.00/month',
+                                bottomLabel: 'Essential features for personal use.',
+                                wrapText: true
+                            }
+                        },
+                        {   // Premium Plan DecoratedText widget
+                            id: 'premium_plan_decorated_text',
+                            DecoratedText: {
+                                text: 'Premium Plan - 90 days for FREE',
+                                bottomLabel: 'Additional features for power users.',
+                                wrapText: true,
+                                textButton: {
+                                    disabled: !!data.appModel?.isPremium,
+                                    text: 'Subscribe Now',
+                                    onClick: {
+                                        functionName: 'EventHandler.ViewModel.onActivatePremiumClicked'
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    textButton: {
+                        disabled: !!data.appModel?.isPremium,
+                        text: '🏆 Activate Now',
+                        onClick: {
+                            functionName: 'EventHandler.ViewModel.onActivatePremiumClicked'
+                        }
+                    }
+                },
+                secondaryButton: {
+                    textButton: {
+                        disabled: !!!data.appModel?.isPremium,
+                        text: '🛑 Deactivate',
+                        onClick: {
+                            functionName: 'EventHandler.ViewModel.onDeactivatePremiumClicked'
+                        }
+                    }
+                }
+            }
+        };
+    }
+}
+
+EMD.ThankYou = {
+    entityName: 'ThankYou',
+    card: (data = {}) => {
+        return {
+            name: 'thankYou_Card',
+            header: {
+                title: 'Thank You!',
+                subTitle: 'We appreciate your support.',
+                imageUrl: EMD.THANK_YOU_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Thank You Image'
+            },
+            sections: [
+                {   // Thank You Message section
+                    header: 'A Heartfelt Thanks',
+                    collapsible: false,
+                    widgets: [
+                        {
+                            id: 'thank_you_text_paragraph',
+                            TextParagraph: {
+                                text: 'Thank you for your support! Your contribution helps us continue to improve and provide valuable features.'
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+}
+
 EMD.CardSample = {
     entityName: 'CardSample',
     card: (data = {}) => {
@@ -9799,7 +9927,9 @@ EMD.Cards = {
     BotSetup: EMD.BotSetup.card,
     Automation: EMD.Automation.card,
     WebhookSetup: EMD.WebhookSetup.card,
-    CreateInvoiceLink: EMD.CreateInvoiceLink.card
+    CreateInvoiceLink: EMD.CreateInvoiceLink.card,
+    MembershipSubscription: EMD.MembershipSubscription.card,
+    ThankYou: EMD.ThankYou.card,
 }
 
 EMD.Spreadsheet = {
