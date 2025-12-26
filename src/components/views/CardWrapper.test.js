@@ -121,7 +121,7 @@ describe('Model.CardWrapper', () => {
                         topLabel: 'Top Label',
                         bottomLabel: 'Bottom Label',
                     };
-                    
+
                     const decoratedText = wrapper.newDecoratedText(decoratedTextMeta, '');
                     expect(decoratedText).toBeDefined();
                     const data = decoratedText.getData();
@@ -155,6 +155,46 @@ describe('Model.CardWrapper', () => {
                     };
                     expect(() => wrapper.newDecoratedText(decoratedTextMeta))
                         .toThrowError(CardViewModel.CardServiceWrapper.DECORATED_TEXT_MISSING_CONTENT_ERROR);
+                });
+            });
+
+            // newSelectionInput
+            describe('SelectionInput', () => {
+                it('should create a newSelectionInput widget with correct title and options', () => {
+                    const selectionInputMeta = {
+                        fieldName: 'selection_input',
+                        title: 'Select an option',
+                        type: CardService.SelectionInputType.DROPDOWN,
+                        visibility: CardService.Visibility.VISIBLE,
+                        items: [
+                            { text: 'Option 1', value: 'option_1' },
+                            { text: 'Option 2', value: 'option_2' },
+                            { text: 'Option 3', value: 'option_3' },
+                        ]
+                    };
+                    const selectionInput = wrapper.newSelectionInput(selectionInputMeta);
+                    expect(selectionInput).toBeDefined();
+                    const data = selectionInput.getData();
+                    expect(data).toBeDefined();
+                    expect(data.title).toBe(selectionInputMeta.title);
+                    expect(data.type).toBe(selectionInputMeta.type);
+                    expect(data.items.length).toBe(selectionInputMeta.items.length);
+                });
+
+                it('should throw an error if SelectionInput fieldName is missing', () => {
+                    const selectionInputMeta = {
+                        // fieldName is missing
+                        title: 'Select an option',
+                        type: CardService.SelectionInputType.DROPDOWN,
+                        visibility: CardService.Visibility.VISIBLE,
+                        items: [
+                            { text: 'Option 1', value: 'option_1' },
+                            { text: 'Option 2', value: 'option_2' },
+                            { text: 'Option 3', value: 'option_3' },
+                        ]
+                    };
+                    expect(() => wrapper.newSelectionInput(selectionInputMeta))
+                        .toThrowError(CardViewModel.CardServiceWrapper.SELECTION_INPUT_MISSING_FIELD_NAME_ERROR);
                 });
             });
         });
@@ -220,7 +260,7 @@ describe('Model.CardWrapper', () => {
                 const primaryButtonData = data.primaryButton.getData();
                 expect(primaryButtonData.textButton.text).toBe(footerMeta.primaryButton.textButton.text);
                 expect(primaryButtonData.textButton.onClick.action.actionMethodName).toBe(footerMeta.primaryButton.textButton.onClick.functionName);
-                expect(primaryButtonData.textButton.onClick.action.parameters).toEqual(footerMeta.primaryButton.textButton.onClick.parameters);                
+                expect(primaryButtonData.textButton.onClick.action.parameters).toEqual(footerMeta.primaryButton.textButton.onClick.parameters);
             });
 
             it('should throw an error if primary button is not defined', () => {

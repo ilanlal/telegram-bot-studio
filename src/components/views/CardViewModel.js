@@ -129,7 +129,11 @@ CardViewModel.CardServiceWrapper = class {
         }
 
         if (widgetMeta.TextButton) {
-            return this.newTextButton(widgetMeta.TextButton, !!value);
+            return this.newTextButton(widgetMeta.TextButton);
+        }
+
+        if (widgetMeta.SelectionInput) {
+            return this.newSelectionInput(widgetMeta.SelectionInput, value);
         }
 
         throw new Error(`Unsupported widget type in widgetMeta: ${JSON.stringify(widgetMeta)}`);
@@ -250,6 +254,42 @@ CardViewModel.CardServiceWrapper = class {
             throw new Error(CardViewModel.ErrorMessages.TEXT_BUTTON_MISSING_PROPERTIES_ERROR);
         }
         return _textButton;
+    }
+
+    newSelectionInput(selectionInputMeta = {}, value = '') {
+        if (!selectionInputMeta.fieldName) {
+            throw new Error('SelectionInput widget must have a "fieldName" property.');
+        }
+
+        const selectionInput = this._cardService.newSelectionInput()
+            .setFieldName(selectionInputMeta.fieldName);
+
+        if (selectionInputMeta.title)
+            selectionInput.setTitle(selectionInputMeta.title);
+
+        if (selectionInputMeta.type)
+            selectionInput.setType(selectionInputMeta.type);
+
+        // CardService.Visibility.VISIBLE or CardService.Visibility.HIDDEN
+        if (selectionInputMeta.visibility)
+            selectionInput.setVisibility(selectionInputMeta.visibility);
+
+        if (selectionInputMeta.externalDataSource) {
+            selectionInput.setExternalDataSource(
+                CardService.newAction()
+                    // This 'Handler' function should return a SuggestionsResponse object.
+                    .setFunctionName(selectionInputMeta.externalDataSource.functionName));
+        }
+        else if (selectionInputMeta.items && Array.isArray(selectionInputMeta.items)) {
+            selectionInputMeta.items.forEach(item => {
+                selectionInput.addItem(
+                    item.text || '',
+                    item.value || '',
+                    !!item.selected
+                );
+            });
+        }
+        return selectionInput;
     }
 };
 

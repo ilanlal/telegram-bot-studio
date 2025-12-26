@@ -82,18 +82,19 @@ EMD.Home = {
                 imageAltText: 'Telegram Bot Studio Home Image'
             },
             sections: [
-                {   // Welcome section
-                    header: 'Welcome to your home',
+                {   // Connection management section
+                    header: '🛜 Bot Connection',
                     collapsible: true,
-                    numUncollapsibleWidgets: 0,
+                    numUncollapsibleWidgets: 1,
                     widgets: [
-                        {  // Welcome TextParagraph widget
-                            id: 'welcome_widget',
-                            TextParagraph: {
-                                text: 'Welcome to Telegram Bot Studio! 🎉\n\n'
-                                    + 'Enjoy building your Telegram bots with ease and efficiency!\n\n'
-                                    + 'For more information, visit our [GitHub Repository](' + EMD.GIT_REPO_URL + ').'
-                                    + '\n\nHappy Bot Building! 🤖🚀'
+                        {  // TextButton to push 'BotConnections' card
+                            id: 'bot_connections_button',
+                            TextButton: {
+                                text: '🛜 New',
+                                onClick: {
+                                    functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                                    parameters: { template: 'EMD.Cards.BotConnections' }
+                                }
                             }
                         }
                     ]
@@ -10179,15 +10180,15 @@ EMD.BotConnections = {
                                 text: 'Manage your bot connections here.'
                             }
                         },
-                        { // input text for bot token
+                        {   // TextInput for bot token
                             id: 'bot_token_input_widget',
                             TextInput: {
-                                title: 'Bot Token',
-                                fieldName: 'bot_token_input',
-                                hint: 'Bot Token',
+                                title: '🤖 Your Bot Token',
+                                hint: 'Enter your Bot Token, get it from @BotFather',
+                                fieldName: 'txt_bot_api_token',
                                 multiline: false,
                                 inputMode: CardService.TextInputMode.PLAIN_TEXT,
-                                value: data.botToken || ''
+                                value: data.botApiToken || ''
                             }
                         },
                         {   // text input for display name
@@ -10209,8 +10210,9 @@ EMD.BotConnections = {
                     textButton: {
                         text: '💾 Save',
                         onClick: {
-                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                            parameters: { template: 'EMD.Cards.Home' }
+                            functionName: 'ConnectionHandler.ViewModel.onCreateBotConnectionClicked',
+                            // List of widget IDs whose values are required for this action to be executed
+                            requiredWidgets: ['bot_token_input', 'display_name_input']
                         }
                     }
                 },
