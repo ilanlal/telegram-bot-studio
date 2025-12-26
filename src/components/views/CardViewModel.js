@@ -70,8 +70,8 @@ CardViewModel.CardServiceWrapper = class {
 
     newCardHeader(headerMeta = {}) {
         return this._cardService.newCardHeader()
-            .setTitle(`${headerMeta.title || ''}`)
-            .setSubtitle(`${headerMeta.subTitle || ''}`)
+            .setTitle(headerMeta.title || '')
+            .setSubtitle(headerMeta.subTitle || headerMeta.subtitle || '')
             .setImageStyle(headerMeta.imageStyle || CardService.ImageStyle.SQUARE)
             .setImageUrl(headerMeta.imageUrl || EMD.DEFAULT_IMAGE_URL)
             .setImageAltText(headerMeta.imageAltText || 'Card Image');

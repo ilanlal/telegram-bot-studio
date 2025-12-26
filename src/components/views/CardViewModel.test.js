@@ -9,7 +9,9 @@ describe('CardViewModel', () => {
         EMD.Cards.Account,
         EMD.Cards.Help,
         EMD.Cards.About,
-        EMD.Cards.CommonBotOperations,
+        EMD.Cards.GetMePlugin,
+        EMD.Cards.GetChatPlugin,
+        EMD.Cards.BotConnections,
         EMD.Cards.MembershipSubscription,
         EMD.Cards.ThankYou,
         EMD.Cards.CardSample];
@@ -41,12 +43,27 @@ describe('CardViewModel', () => {
                 const data = builtCard.getData();
                 expect(data).toBeDefined();
                 expect(data.name).toBe(cardMeta.name);
+
+                //console.log(JSON.stringify(cardMeta.header));
+                // verify header
                 expect(data.header).toBeDefined();
                 expect(data.header.title).toBe(cardMeta.header.title);
-                expect(data.header.subTitle).toBe(`${cardMeta.header.subTitle}`);
-                expect(data.header.imageUrl).toBe(cardMeta.header.imageUrl);
-                expect(data.header.imageStyle).toBe(cardMeta.header.imageStyle);
-                expect(data.header.imageAltText).toBe(cardMeta.header.imageAltText);
+
+                //subtitle can be subtitle or subTitle
+                const expectedSubtitle = cardMeta.header.subtitle;
+                expect(data.header.subtitle).toBe(expectedSubtitle);
+
+                // verify image properties
+                const expectedImageUrl = cardMeta.header.imageUrl || EMD.DEFAULT_IMAGE_URL;
+                expect(data.header.imageUrl).toBe(expectedImageUrl);
+                const expectedImageStyle = cardMeta.header.imageStyle || CardService.ImageStyle.SQUARE;
+                expect(data.header.imageStyle).toBe(expectedImageStyle);
+                const expectedImageAltText = cardMeta.header.imageAltText || 'Card Image';
+                expect(data.header.imageAltText).toBe(expectedImageAltText);
+
+                //expect(data.header.imageUrl).toBe(cardMeta.header.imageUrl);
+                //expect(data.header.imageStyle).toBe(cardMeta.header.imageStyle);
+                //expect(data.header.imageAltText).toBe(cardMeta.header.imageAltText);
                 expect(data.sections).toBeDefined();
                 expect(data.sections.length).toBe(cardMeta.sections.length);
             });

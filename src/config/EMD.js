@@ -98,32 +98,59 @@ EMD.Home = {
                         }
                     ]
                 },
-                {   // Common Bot Operations card Link section
-                    header: 'Common Bot Operations',
-                    collapsible: false,
-                    numUncollapsibleWidgets: 0,
+                {   // GetMe extensions section
+                    header: 'GetMe Extensions',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 1,
                     widgets: [
-                        {   // Common Bot Operations TextParagraph widget
-                            id: 'common_bot_operations_widget',
-                            TextParagraph: {
-                                maxLines: 6,
-                                text: 'Perform common bot operations using the button below.'
-                            }
-                        },
-                        {  // DecoratedText with TextButton to push 'CommonBotOperations' card
-                            id: 'common_bot_operations_button',
+                        {  // DecoratedText with TextButton to push 'GetMePlugin' card
+                            id: 'get_me_plugin_button',
                             DecoratedText: {
-                                text: 'Need help with common bot operations?',
-                                bottomLabel: 'Click the button to insert sample data into your spreadsheet.',
+                                text: '🤖 GetMe:',
+                                bottomLabel: 'Want to test the bot identity?',
                                 wrapText: false,
                                 textButton: {
-                                    disabled: false,
-                                    text: '💻',
+                                    text: '🤖',
                                     onClick: {
                                         functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                                        parameters: { template: 'EMD.Cards.CommonBotOperations' }
+                                        parameters: { template: 'EMD.Cards.GetMePlugin' }
                                     }
                                 }
+                            }
+                        },
+                        {   // GetMe Extensions TextParagraph widget
+                            id: 'get_me_extensions_widget',
+                            TextParagraph: {
+                                text: 'Explore and manage GetMe extensions using the buttons below.'
+                            }
+                        }
+                    ]
+                },
+                {   // GetChat extensions section
+                    header: 'GetChat Extensions',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 1,
+                    widgets: [
+                        {   // DecoratedText with TextButton to push 'GetChatPlugin' card
+                            id: 'get_chat_plugin_button',
+                            DecoratedText: {
+                                text: '📢 GetChat:',
+                                bottomLabel: 'Want to explore chat functionalities?',
+                                wrapText: false,
+                                textButton: {
+                                    disabled: !!!data.appModel?.isPremium,
+                                    text: '📢',
+                                    onClick: {
+                                        functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                                        parameters: { template: 'EMD.Cards.GetChatPlugin' }
+                                    }
+                                }
+                            }
+                        },
+                        {   // GetChat Extensions TextParagraph widget
+                            id: 'get_chat_extensions_widget',
+                            TextParagraph: {
+                                text: 'Explore and manage GetChat extensions using the buttons below.'
                             }
                         }
                     ]
@@ -9899,19 +9926,310 @@ EMD.CardSample = {
     }
 }
 
+EMD.GetMePlugin = {
+    entityName: 'GetMePlugin',
+    card: (data = {}) => {
+        return {
+            name: 'getMePlugin_Card',
+            header: {
+                title: '🤖 Get Me',
+                subTitle: 'Basic Bot Operation',
+                imageUrl: EMD.YOU_GOT_IT_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Basic Bot Operation Image'
+            },
+            sections: [
+                {   // Bot Configuration section
+                    header: 'Telegram API Operations',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 2,
+                    widgets: [
+                        {   // TextInput for bot token
+                            id: 'bot_token_input_widget',
+                            TextInput: {
+                                title: '🤖 Your Bot Token',
+                                hint: 'Enter your Bot Token, get it from @BotFather',
+                                fieldName: 'txt_bot_api_token',
+                                multiline: false,
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                value: data.botApiToken || ''
+                            }
+                        },
+                        {   // TextButton to call getMe API
+                            id: 'get_me_button',
+                            TextButton: {
+                                text: '🤖 Get Me',
+                                onClick: {
+                                    functionName: 'BotApiHandler.View.onGetMeClick',
+                                    // List of widget IDs whose values are required for this action to be executed
+                                    requiredWidgets: ['txt_bot_api_token']
+                                }
+                            }
+                        }
+                    ]
+                },
+                {  // Minify/Beautify JSON section
+                    header: 'Useful JSON Tools',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 2,
+                    widgets: [
+                        {  // TextParagraph widget
+                            id: 'json_handler_text_paragraph',
+                            TextParagraph: {
+                                maxLines: 2,
+                                text: 'These tools help you to beautify, minify, and validate JSON data. you receive from various sources. (client/server)\n\n'
+                                    + 'Select the cell in the spreadsheet containing JSON data before using these tools.\n\n'
+                                    + 'The current cell is the cell that has focus in the Google Sheets UI, and is highlighted by a dark border.\n\n'
+                                    + 'There is never more than one current cell. If no cell is selected, there is no current cell. '
+                            }
+                        },
+                        {   // TextButton to beautify JSON
+                            id: 'beautify_json_button',
+                            TextButton: {
+                                text: '🎨 Beautify',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onBeautifyJsonClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to minify JSON
+                            id: 'minify_json_button',
+                            TextButton: {
+                                text: '🗜️ Minify',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onMinifyJsonClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to validate JSON
+                            id: 'validate_json_button',
+                            TextButton: {
+                                text: '✅ Validate',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onValidateJsonClick'
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    textButton: {
+                        disabled: true,
+                        text: '💾 Save',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Home' }
+                        }
+                    }
+                },
+                secondaryButton: {
+                    textButton: {
+                        text: '❓ Need Help?',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Help' }
+                        }
+                    }
+                }
+            }
+        };
+    }
+}
+
+EMD.GetChatPlugin = {
+    entityName: 'GetChatPlugin',
+    card: (data = {}) => {
+        return {
+            name: 'getChatPlugin_Card',
+            header: {
+                title: '📢 Get Chat',
+                subTitle: 'Get Chat full information by Chat ID',
+                imageUrl: EMD.YOU_GOT_IT_IMG_URL,
+                imageStyle: CardService.ImageStyle.SQUARE,
+                imageAltText: 'Basic Bot Operation Image'
+            },
+            sections: [
+                {   // Bot Configuration section
+                    header: 'Telegram API Operations',
+                    collapsible: false,
+                    numUncollapsibleWidgets: 2,
+                    widgets: [
+                        {   // TextInput for bot token
+                            id: 'bot_token_input_widget',
+                            TextInput: {
+                                title: '🤖 Your Bot Token',
+                                hint: 'Enter your Bot Token, get it from @BotFather',
+                                fieldName: 'txt_bot_api_token',
+                                multiline: false,
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                value: data.botApiToken || ''
+                            }
+                        },
+                        {   // TextInput for chat ID
+                            id: 'chat_id_input_widget',
+                            TextInput: {
+                                title: '📢 Chat ID',
+                                hint: 'Enter Chat ID, for channels use @channelusername',
+                                fieldName: 'chat_id_input',
+                                multiline: false,
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                value: data.chatId || ''
+                            }
+                        },
+                        {   // TextButton to call getChat API
+                            id: 'get_chat_button',
+                            TextButton: {
+                                text: '📢 Get Chat',
+                                onClick: {
+                                    functionName: 'ChannelsHandler.View.onGetChatClick',
+                                    // List of widget IDs whose values are required for this action to be executed
+                                    requiredWidgets: ['txt_bot_api_token', 'chat_id_input']
+                                }
+                            }
+                        }
+                    ]
+                },
+                {  // Minify/Beautify JSON section
+                    header: 'Useful JSON Tools',
+                    collapsible: true,
+                    numUncollapsibleWidgets: 2,
+                    widgets: [
+                        {  // TextParagraph widget
+                            id: 'json_handler_text_paragraph',
+                            TextParagraph: {
+                                maxLines: 1,
+                                text: 'These tools help you to beautify, minify, and validate JSON data. you receive from various sources. (client/server)\n\n'
+                                    + 'Select the cell in the spreadsheet containing JSON data before using these tools.\n\n'
+                                    + 'The current cell is the cell that has focus in the Google Sheets UI, and is highlighted by a dark border.\n\n'
+                                    + 'There is never more than one current cell. If no cell is selected, there is no current cell. '
+                            }
+                        },
+                        {   // TextButton to beautify JSON
+                            id: 'beautify_json_button',
+                            TextButton: {
+                                text: '🎨 Beautify',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onBeautifyJsonClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to minify JSON
+                            id: 'minify_json_button',
+                            TextButton: {
+                                text: '🗜️ Minify',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onMinifyJsonClick'
+                                }
+                            }
+                        },
+                        {   // TextButton to validate JSON
+                            id: 'validate_json_button',
+                            TextButton: {
+                                text: '✅ Validate',
+                                onClick: {
+                                    functionName: 'JsonHandler.View.onValidateJsonClick'
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    textButton: {
+                        disabled: true,
+                        text: '💾 Save',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Home' }
+                        }
+                    }
+                },
+                secondaryButton: {
+                    textButton: {
+                        text: '❓ Need Help?',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Help' }
+                        }
+                    }
+                }
+            }
+        };
+    }
+}
+
+EMD.BotConnections = {
+    entityName: 'BotConnections',
+    card: (data = {}) => {
+        return {
+            name: 'bot_connections_Card',
+            header: {
+                title: '🔗 Bot Connections'
+            },
+            sections: [
+                {   // Bot Connections section
+                    header: 'Manage your bot connections here.',
+                    widgets: [
+                        {   // Bot Connections TextParagraph widget
+                            id: 'bot_connections_text_paragraph',
+                            TextParagraph: {
+                                text: 'Manage your bot connections here.'
+                            }
+                        },
+                        { // input text for bot token
+                            id: 'bot_token_input_widget',
+                            TextInput: {
+                                title: 'Bot Token',
+                                fieldName: 'bot_token_input',
+                                hint: 'Bot Token',
+                                multiline: false,
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                value: data.botToken || ''
+                            }
+                        },
+                        {   // text input for display name
+                            id: 'display_name_input_widget',
+                            TextInput: {
+                                title: 'Display Name',
+                                fieldName: 'display_name_input',
+                                hint: 'Display Name',
+                                multiline: false,
+                                inputMode: CardService.TextInputMode.PLAIN_TEXT,
+                                value: data.displayName || ''
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    },
+    sheet: (data = {}) => {
+        return {
+            name: '🔗 Bot Connections',
+            columns: ['YOUR_BOT_TOKEN', 'DISPLAY_NAME'],
+            sample_data: []
+        };
+    }
+}
+
 EMD.Cards = {
     Home: EMD.Home.card,
     Account: EMD.Account.card,
     Help: EMD.Help.card,
     About: EMD.About.card,
     CardSample: EMD.CardSample.card,
-    CommonBotOperations: EMD.CommonBotOperations.card,
+    BotConnections: EMD.BotConnections.card,
     BotSetup: EMD.BotSetup.card,
     Automation: EMD.Automation.card,
     WebhookSetup: EMD.WebhookSetup.card,
     CreateInvoiceLink: EMD.CreateInvoiceLink.card,
     MembershipSubscription: EMD.MembershipSubscription.card,
     ThankYou: EMD.ThankYou.card,
+    GetMePlugin: EMD.GetMePlugin.card,
+    GetChatPlugin: EMD.GetChatPlugin.card
 }
 
 EMD.Spreadsheet = {
@@ -9920,7 +10238,8 @@ EMD.Spreadsheet = {
     BotSetup: EMD.BotSetup.sheet,
     Automation: EMD.Automation.sheet,
     BasicAutomation: EMD.BasicAutomation.sheet,
-    Customer: EMD.Customer.sheet
+    Customer: EMD.Customer.sheet,
+    BotConnections: EMD.BotConnections.sheet
 }
 
 if (typeof module !== 'undefined' && module.exports) {

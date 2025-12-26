@@ -78,7 +78,6 @@ MembershipHandler.ControllerWrapper = class {
             // Update the card or UI as needed
             const cardsToUpdate = [
                 EMD.Cards.Home,
-                EMD.Cards.CommonBotOperations,
                 EMD.Cards.MembershipSubscription];
 
             // trigger a updateCard for each card
@@ -114,7 +113,32 @@ MembershipHandler.ControllerWrapper = class {
             // Simulate revocation logic
             // In a real implementation, you would interact with a licensing server here
             this._userProperties.deleteProperty('membership');
+            // Update the card or UI as needed
+            const cardsToUpdate = [
+                EMD.Cards.Home,
+                EMD.Cards.MembershipSubscription];
 
+            // trigger a updateCard for each card
+            cardsToUpdate.forEach((emd) => {
+                NavigationHandler.ViewModel.onUpdateCardClick({
+                    commonEventObject: {
+                        parameters: {
+                            // template: 'EMD.Cards.Home',
+                            template: emd,
+                            cardName: emd().name
+                        }
+                    }
+                });
+            });
+
+            // pop back to home card
+            NavigationHandler.ViewModel.onPopToNamedCardClick({
+                commonEventObject: {
+                    parameters: {
+                        cardName: EMD.Cards.Home().name
+                    }
+                }
+            });
             return this.handleOperationSuccess('License revoked successfully.');
         } catch (error) {
             return this.handleOperationError(error);
