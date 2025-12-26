@@ -10203,7 +10203,27 @@ EMD.BotConnections = {
                         }
                     ]
                 }
-            ]
+            ],
+            fixedFooter: {
+                primaryButton: {
+                    textButton: {
+                        text: '💾 Save',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Home' }
+                        }
+                    }
+                },
+                secondaryButton: {
+                    textButton: {
+                        text: '❓ Need Help?',
+                        onClick: {
+                            functionName: 'NavigationHandler.ViewModel.onPushCardClick',
+                            parameters: { template: 'EMD.Cards.Help' }
+                        }
+                    }
+                }
+            }
         };
     },
     sheet: (data = {}) => {

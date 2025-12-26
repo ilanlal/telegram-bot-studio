@@ -29,7 +29,7 @@ describe('Channels Handler', () => {
             }
         }; // Mock event object
 
-        // Mock the sendMessage API response
+        // Mock the getChat API response
         const getChatUrl = `https://api.telegram.org/bot${dummyToken}/getChat?chat_id=${dummyChatId}`;
         UrlFetchAppStubConfiguration.when(getChatUrl)
             .return(new HttpResponse()

@@ -8,6 +8,7 @@ const { PostMessageHandler } = require('./bot/webhook/PostMessageHandler');
 const { PostCallbackQueryHandler } = require('./bot/webhook/PostCallbackQueryHandler');
 const { WebhookHandler } = require('./bot/webhook/WebhookHandler');
 const { MembershipHandler } = require('./core/MembershipHandler');
+const { ConnectionHandler } = require('./bot/ConnectionHandler');
 
 // Export handlers to global scope for Apps Script
 global.EventHandler = EventHandler;
@@ -20,3 +21,4 @@ global.PostMessageHandler = PostMessageHandler;
 global.PostCallbackQueryHandler = PostCallbackQueryHandler;
 global.WebhookHandler = WebhookHandler;
 global.MembershipHandler = MembershipHandler;
+global.ConnectionHandler = ConnectionHandler;

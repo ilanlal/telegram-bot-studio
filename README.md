@@ -13,8 +13,9 @@ Phase now:
 
 Phase next:
 
-- sendTestMessage: Send a test message to verify bot functionality. (Phase 2)
-- createInvoiceLink: Generate invoice links for payments. (Phase 2)
+- businessProfile: Manage business profile information for the bot.
+- sendTestMessage: Send a test message to verify bot functionality.
+- createInvoiceLink: Generate invoice links for payments.
 
 ![Logo](https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/1376x768_Gemini_Generated_Image_30sdhg30sdhg30sd.png) 
 

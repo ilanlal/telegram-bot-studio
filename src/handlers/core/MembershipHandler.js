@@ -111,8 +111,7 @@ MembershipHandler.ControllerWrapper = class {
     handleRevokeLicense(e) {
         try {
             // Simulate revocation logic
-            // In a real implementation, you would interact with a licensing server here
-            this._userProperties.deleteProperty('membership');
+            this._userProperties.deleteProperty(AppModel.MEMBERSHIP_PROPERTY_KEY);
             // Update the card or UI as needed
             const cardsToUpdate = [
                 EMD.Cards.Home,
