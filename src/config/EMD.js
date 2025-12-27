@@ -82,23 +82,6 @@ EMD.Home = {
                 imageAltText: 'Telegram Bot Studio Home Image'
             },
             sections: [
-                {   // Connection management section
-                    header: '🛜 Bot Connection',
-                    collapsible: true,
-                    numUncollapsibleWidgets: 1,
-                    widgets: [
-                        {  // TextButton to push 'BotConnections' card
-                            id: 'bot_connections_button',
-                            TextButton: {
-                                text: '🛜 New',
-                                onClick: {
-                                    functionName: 'NavigationHandler.ViewModel.onPushCardClick',
-                                    parameters: { template: 'EMD.Cards.BotConnections' }
-                                }
-                            }
-                        }
-                    ]
-                },
                 {   // GetMe extensions section
                     header: 'GetMe Extensions',
                     collapsible: true,
