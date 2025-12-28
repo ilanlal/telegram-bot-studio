@@ -13,7 +13,7 @@ describe('Plugins Base Class', () => {
     it('should create HomeCard', () => {
         // mock event parameters
         const e = { parameters: {} };
-        const homeCard = Plugins.HomeCard(e);
+        const homeCard = Plugins.BuildHomeCard(e);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();

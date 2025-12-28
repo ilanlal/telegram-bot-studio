@@ -1,5 +1,5 @@
 // Export all controllers from this module
-// const { CardController } = require('./CardController');
+const { AppController } = require('./AppController');
 
 // Export controllers for global access in Google Apps Script environment
-// global.CardController = CardController;
+global.AppController = AppController;

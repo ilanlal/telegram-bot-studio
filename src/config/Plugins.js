@@ -6,7 +6,7 @@ class Plugins {
         return 'Telegram Bot Studio';
     }
     static get description() {
-        return 'Core App Model plugin for Telegram Bot Studio.';
+        return 'Plugins to manage Telegram Bot Studio features within Google Workspace.';
     }
     static get version() {
         return '1.0.0';
@@ -20,7 +20,7 @@ class Plugins {
         ];
     }
 
-    static HomeCard(data = {}) {
+    static BuildHomeCard(data = {}) {
         // Build the App Model plugin card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.id)
@@ -71,7 +71,7 @@ class Plugins {
         return cardBuilder.build();
     }
 
-    static AboutCard(data = {}) {
+    static BuildAboutCard(data = {}) {
         const cardBuilder = CardService.newCardBuilder()
             .setName('About ' + Plugins.name)
             .setHeader(CardService.newCardHeader()
@@ -87,7 +87,7 @@ class Plugins {
         return cardBuilder.build();
     }
 
-    static HelpCard(data = {}) {
+    static BuildHelpCard(data = {}) {
         const cardBuilder = CardService.newCardBuilder()
             .setName('Help - ' + Plugins.name)
             .setHeader(CardService.newCardHeader()
@@ -103,7 +103,7 @@ class Plugins {
         return cardBuilder.build();
     }
 
-    static UserProfileCard(data = {}) {
+    static BuildUserProfileCard(data = {}) {
         const cardBuilder = CardService.newCardBuilder()
             .setName('Profile - ' + Plugins.name)
             .setHeader(CardService.newCardHeader()
