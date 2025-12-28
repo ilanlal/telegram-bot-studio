@@ -9910,11 +9910,11 @@ EMD.CardSample = {
     }
 }
 
-EMD.GetMePlugin = {
-    entityName: 'GetMePlugin',
+EMD.GetMe = {
+    entityName: 'GetMe',
     card: (data = {}) => {
         return {
-            name: 'getMePlugin_Card',
+            name: 'getMe_Card',
             header: {
                 title: '🤖 Get Me',
                 subTitle: 'Basic Bot Operation',
@@ -10022,11 +10022,11 @@ EMD.GetMePlugin = {
     }
 }
 
-EMD.GetChatPlugin = {
-    entityName: 'GetChatPlugin',
+EMD.GetChat = {
+    entityName: 'GetChat',
     card: (data = {}) => {
         return {
-            name: 'getChatPlugin_Card',
+            name: 'getChat_Card',
             header: {
                 title: '📢 Get Chat',
                 subTitle: 'Get Chat full information by Chat ID',
@@ -10233,8 +10233,8 @@ EMD.Cards = {
     CreateInvoiceLink: EMD.CreateInvoiceLink.card,
     MembershipSubscription: EMD.MembershipSubscription.card,
     ThankYou: EMD.ThankYou.card,
-    GetMePlugin: EMD.GetMePlugin.card,
-    GetChatPlugin: EMD.GetChatPlugin.card
+    GetMe: EMD.GetMe.card,
+    GetChat: EMD.GetChat.card
 }
 
 EMD.Spreadsheet = {

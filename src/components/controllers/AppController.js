@@ -1,59 +1,41 @@
-class CardViewModel {
-    static create({
-        cardService = CardService,
-        documentProperties = PropertiesService.getDocumentProperties(),
-        userProperties = PropertiesService.getUserProperties(),
-        scriptProperties = PropertiesService.getScriptProperties()
-    } = {}) {
-        return new CardViewModel({
-            cardWrapper: CardViewModel.CardServiceWrapper.create(cardService, documentProperties, userProperties, scriptProperties)
-        });
+class AppController {
+    get cardService() {
+        if (!this._cardService) {
+            this._cardService = CardService;
+        }
+        return this._cardService;
     }
 
-    constructor({ cardWrapper } = {}) {
-        this._cardWrapper = cardWrapper;
+    get activeSpreadsheet() {
+        if (!this._activeSpreadsheet) {
+            this._activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        }
+        return this._activeSpreadsheet;
     }
 
-    /** @returns {CardViewModel.CardServiceWrapper} */
-    get cardWrapper() {
-        return this._cardWrapper;
-    }
-};
-
-CardViewModel.CardServiceWrapper = class {
-    static create(
-        cardService = CardService,
-        documentProperties = PropertiesService.getDocumentProperties(),
-        userProperties = PropertiesService.getUserProperties(),
-        scriptProperties = PropertiesService.getScriptProperties()
-    ) {
-        return new CardViewModel.CardServiceWrapper(cardService, documentProperties, userProperties, scriptProperties);
-    }
-
-    constructor(cardService, documentProperties, userProperties, scriptProperties) {
-        // Use the global CardService in Apps Script environment
-        this._cardService = cardService;
-        this._documentProperties = documentProperties;
-        this._userProperties = userProperties;
-        this._scriptProperties = scriptProperties;
+    constructor() {
+        this._cardService = null;
+        this._activeSpreadsheet = null;
     }
 
     newCardBuilder(cardMeta = {}) {
-        const cardBuilder = this._cardService.newCardBuilder();
+        const cardServiceWrapper = new AppController.CardServiceWrapper(this.cardService);
 
+        const cardBuilder = this.cardService.newCardBuilder();
         // Set card name
-        cardBuilder.setName(`${cardMeta.name || 'No Name'}`);
+        if (cardMeta.name)
+            cardBuilder.setName(cardMeta.name);
 
         // Set card header
         if (cardMeta.header) {
             cardBuilder.setHeader(
-                this.newCardHeader(cardMeta.header));
+                cardServiceWrapper.newCardHeader(cardMeta.header));
         }
 
         // Set fixed footer if provided
         if (cardMeta.fixedFooter) {
             cardBuilder.setFixedFooter(
-                this.newFixedFooter(cardMeta.fixedFooter)
+                cardServiceWrapper.newFixedFooter(cardMeta.fixedFooter)
             );
         }
 
@@ -61,11 +43,18 @@ CardViewModel.CardServiceWrapper = class {
         if (cardMeta.sections && Array.isArray(cardMeta.sections)) {
             cardMeta.sections.forEach(section => {
                 cardBuilder.addSection(
-                    this.newCardSection(section));
+                    cardServiceWrapper.newCardSection(section));
             });
         }
 
         return cardBuilder;
+    }
+}
+
+AppController.CardServiceWrapper = class {
+    constructor(cardService) {
+        // Use the global CardService in Apps Script environment
+        this._cardService = cardService;
     }
 
     newCardHeader(headerMeta = {}) {
@@ -324,15 +313,35 @@ CardViewModel.CardServiceWrapper = class {
 
         return switchWidget;
     }
+
+    newImage(imageMeta = {}) {
+        if (!imageMeta.imageUrl) {
+            throw new Error("Image widget must have an 'imageUrl' property defined.");
+        }
+        const imageWidget = this._cardService.newImage()
+            .setImageUrl(imageMeta.imageUrl)
+            .setAltText(imageMeta.altText || 'Image');
+        return imageWidget;
+    }
+
+    newImageButton(imageButtonMeta = {}) {
+        if (!imageButtonMeta.imageUrl) {
+            throw new Error("ImageButton widget must have an 'imageUrl' property defined.");
+        }
+        const imageButton = this._cardService.newImageButton()
+            .setImageUrl(imageButtonMeta.imageUrl)
+            .setAltText(imageButtonMeta.altText || 'Image Button');
+        if (imageButtonMeta.onClick) {
+            const action = this._cardService.newAction()
+                .setFunctionName(imageButtonMeta.onClick.functionName);
+            imageButton.setOnClickAction(action);
+        }
+        return imageButton;
+    }
 };
 
-CardViewModel.ErrorMessages = {
-    FIXED_FOOTER_BUTTON_NOT_DEFINED_ERROR: "Fixed footer must have a primaryButton defined.",
-    TEXT_INPUT_MISSING_FIELD_NAME_ERROR: "TextInput widget must have a 'fieldName' property.",
-    DECORATED_TEXT_MISSING_CONTENT_ERROR: "DecoratedText widget must have at least one of 'text', 'decoratedText', 'topLabel', or 'bottomLabel' properties defined.",
-    TEXT_BUTTON_MISSING_PROPERTIES_ERROR: "TextButton widget must have either 'text', and 'openLink' or 'onClick' defined."
-};
-
-if (typeof module !== "undefined" && module.exports) {
-    module.exports = CardViewModel;
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        AppController
+    };
 }

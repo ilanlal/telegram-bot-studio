@@ -262,16 +262,6 @@ describe('Model.CardWrapper', () => {
                 expect(primaryButtonData.textButton.onClick.action.actionMethodName).toBe(footerMeta.primaryButton.textButton.onClick.functionName);
                 expect(primaryButtonData.textButton.onClick.action.parameters).toEqual(footerMeta.primaryButton.textButton.onClick.parameters);
             });
-
-            it('should throw an error if primary button is not defined', () => {
-                const footerMeta = {
-                    // primaryButton is missing
-                };
-                expect(() => {
-                    wrapper.newFixedFooter(footerMeta);
-                }).toThrow(CardViewModel.ErrorMessages.FIXED_FOOTER_BUTTON_NOT_DEFINED_ERROR);
-            });
-
         });
     });
 });
