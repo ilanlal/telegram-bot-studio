@@ -1,4 +1,123 @@
 class Plugins {
+    static get id() {
+        return 'AppModelPlugin';
+    }
+    static get name() {
+        return 'Telegram Bot Studio';
+    }
+    static get description() {
+        return 'Core App Model plugin for Telegram Bot Studio.';
+    }
+    static get version() {
+        return '1.0.0';
+    }
+    static get imageUrl() {
+        return 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png';
+    }
+    static get plugins() {
+        return [
+            Plugins.GetMe
+        ];
+    }
+
+    static HomeCard(data = {}) {
+        // Build the App Model plugin card
+        const cardBuilder = CardService.newCardBuilder()
+            .setName(Plugins.id)
+            .setHeader(CardService.newCardHeader()
+                .setTitle(Plugins.name)
+                .setSubtitle(Plugins.description)
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.imageUrl)
+                .setImageAltText(Plugins.name + ' Image'));
+
+        // for each plugin, add a section
+        Plugins.plugins.forEach((plugin) => {
+            if (!plugin || !plugin.WelcomeSection) return;
+            cardBuilder.addSection(
+                plugin.WelcomeSection(data));
+        });
+
+        // Add fixed footer
+        if (data.isPremium) {
+            cardBuilder.setFixedFooter(
+                CardService.newFixedFooter()
+                    .setPrimaryButton(
+                        CardService.newTextButton()
+                            .setText('Explore More Features')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('AppModelHandler.View.onExploreMoreFeaturesClick')))
+            );
+        }
+        else {
+            cardBuilder.setFixedFooter(
+                CardService.newFixedFooter()
+                    .setPrimaryButton(
+                        CardService.newTextButton()
+                            .setText('Upgrade to Premium')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('AppModelHandler.View.onUpgradeToPremiumClick')))
+                    .setSecondaryButton(
+                        CardService.newTextButton()
+                            .setText('Learn More')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('AppModelHandler.View.onLearnMoreClick')))
+            );
+        }
+
+        return cardBuilder.build();
+    }
+
+    static AboutCard(data = {}) {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('About ' + Plugins.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('About ' + Plugins.name)
+                .setSubtitle(Plugins.description)
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.imageUrl)
+                .setImageAltText('Card Image'))
+            .addSection(CardService.newCardSection()
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(`**${Plugins.name}** v${Plugins.version}\n\n${Plugins.description}\n\nDeveloped by Telegram Bot Studio.`)));
+        return cardBuilder.build();
+    }
+
+    static HelpCard(data = {}) {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('Help - ' + Plugins.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('Help - ' + Plugins.name)
+                .setSubtitle('Help and Support')
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.imageUrl)
+                .setImageAltText('Help Image'))
+            .addSection(CardService.newCardSection()
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('This is the help section for the App Model plugin. Here you can find information and support.')));
+        return cardBuilder.build();
+    }
+
+    static UserProfileCard(data = {}) {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('Profile - ' + Plugins.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('Profile - ' + Plugins.name)
+                .setSubtitle('User Profile')
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.imageUrl)
+                .setImageAltText('Profile Image'))
+            .addSection(CardService.newCardSection()
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('This is the profile section for the App Model plugin. Here you can view and edit your profile information.')));
+        return cardBuilder.build();
+    }
 }
 
 Plugins.Navigations = {
@@ -39,7 +158,7 @@ Plugins.GetMe = {
                 .setButton(
                     CardService.newTextButton()
                         .setText('🤖')
-                        .setDisabled(!!!data.appModel?.isPremium)
+                        .setDisabled(!!!data.isPremium)
                         .setOnClickAction(
                             CardService.newAction()
                                 .setFunctionName('Plugins.Navigations.onPushCardClick')

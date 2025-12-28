@@ -9,4 +9,5 @@
 **/build/**
 **/.vscode/**
 **/*.test.js
+**/*.test.*.js
 **/index.js

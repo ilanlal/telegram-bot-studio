@@ -1,7 +1,7 @@
 require('../../tests');
 const { Plugins } = require('./Plugins');
 
-describe('Plugins Configuration', () => {
+describe('Plugins.GetMe', () => {
     const pluginsToTest = [
         Plugins.GetMe,
         //Plugins.GetChat
