@@ -2,7 +2,7 @@
 
 This add-on allows you to integrate Google Sheets with Telegram Bot API, enabling you to manage and manipulate your bot's data directly from Google Sheets.
 
-> Free and Open Source. Built with ❤️ by [Ilan Lal](https://ilanlal.com). 1st Generation (AI)
+> Free and Open Source. Built with ❤️ by [Ilan Lal](https://github.com/ilanlal). 1st Generation (AI)
 
 ## Roadmap Features
 
