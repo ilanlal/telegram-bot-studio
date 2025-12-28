@@ -1,26 +1,17 @@
 class Plugins {
-    static get id() {
-        return 'AppModelPlugin';
-    }
-    static get name() {
-        return 'Telegram Bot Studio';
-    }
-    static get description() {
-        return 'Plugins to manage Telegram Bot Studio features within Google Workspace.';
-    }
-    static get version() {
-        return '1.0.0';
-    }
-    static get imageUrl() {
-        return 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png';
-    }
-    static get plugins() {
-        return [
-            Plugins.GetMe
-        ];
-    }
+}
 
-    static BuildHomeCard(data = {}) {
+Plugins.ViewModel = {
+    id: 'AppModelPlugin',
+    name: 'Telegram Bot Studio',
+    description: 'Plugins to manage Telegram Bot Studio features within Google Workspace.',
+    version: '1.0.0',
+    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    plugins: [
+        Plugins.GetMe,
+        //Plugins.GetChat
+    ],
+    BuildHomeCard: (data = {}) => {
         // Build the App Model plugin card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.id)
@@ -69,9 +60,8 @@ class Plugins {
         }
 
         return cardBuilder.build();
-    }
-
-    static BuildAboutCard(data = {}) {
+    },
+    BuildAboutCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
             .setName('About ' + Plugins.name)
             .setHeader(CardService.newCardHeader()
@@ -85,9 +75,8 @@ class Plugins {
                     CardService.newTextParagraph()
                         .setText(`**${Plugins.name}** v${Plugins.version}\n\n${Plugins.description}\n\nDeveloped by Telegram Bot Studio.`)));
         return cardBuilder.build();
-    }
-
-    static BuildHelpCard(data = {}) {
+    },
+    BuildHelpCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
             .setName('Help - ' + Plugins.name)
             .setHeader(CardService.newCardHeader()
@@ -101,9 +90,8 @@ class Plugins {
                     CardService.newTextParagraph()
                         .setText('This is the help section for the App Model plugin. Here you can find information and support.')));
         return cardBuilder.build();
-    }
-
-    static BuildUserProfileCard(data = {}) {
+    },
+    BuildUserProfileCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
             .setName('Profile - ' + Plugins.name)
             .setHeader(CardService.newCardHeader()
@@ -118,10 +106,10 @@ class Plugins {
                         .setText('This is the profile section for the App Model plugin. Here you can view and edit your profile information.')));
         return cardBuilder.build();
     }
-}
+};
 
 Plugins.Navigations = {
-    onPushCardClick: (e) => {
+    PushCard: (e) => {
         // extract parameters from event
         const path = e.parameters?.path || null;
 

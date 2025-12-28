@@ -1,15 +1,23 @@
-# ![Logo](https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png) Telegram Bot Studio - Google Sheets Add-on
+# ![Logo](https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png) Telegram Bot API Studio
 
-This add-on allows you to integrate Google Sheets with Telegram Bot Studio, enabling you to manage and manipulate your bot's data directly from Google Sheets.
+This add-on allows you to integrate Google Sheets with Telegram Bot API, enabling you to manage and manipulate your bot's data directly from Google Sheets.
+
+> Free and Open Source. Built with ❤️ by [Ilan Lal](https://ilanlal.com). 1st Generation (AI)
 
 ## Roadmap Features
 
-The following features are currently in development and will be added in future phases:
-
 Phase now:
 
-- getMe: Retrieve basic information about the bot.
-- getChat: Get information about a specific chat.
+- Plugin Architecture: Establish a robust plugin system to facilitate easy addition and management of features.
+  - Navigation System: Implement a navigation framework to allow seamless transitions between different cards and sections within the add-on.
+  - ??Plugin View Model: Create a view model to manage the state and data flow of the add-on's plugins.
+
+Cards to implement:
+
+- Home Card: Design a home card interface for the add-on.
+- User Profile Management: Implement functionality to manage user profiles associated with add-on usage. (subscription, settings, etc.)
+- Help Card: Provide a help section with FAQs and support resources.
+- About Card: Provide detailed information about the add-on, including version and developer details.
 
 Phase next:
 
