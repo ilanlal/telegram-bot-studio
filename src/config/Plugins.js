@@ -36,7 +36,7 @@ Plugins.GetMe = {
                 .setText(Plugins.GetMe.name + ':')
                 .setBottomLabel(Plugins.GetMe.description)
                 .setWrapText(false)
-                .setTextButton(
+                .setButton(
                     CardService.newTextButton()
                         .setText('🤖')
                         .setDisabled(!!!data.appModel?.isPremium)
@@ -127,7 +127,6 @@ Plugins.GetChat = {
     name: 'GetChat Plugin',
     description: 'Plugin to get chat information using GetChat method.',
     version: '1.0.0',
-    template: 'EMD.Cards.GetChat',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
 };
 
