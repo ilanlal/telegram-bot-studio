@@ -41,7 +41,7 @@ AppHandler.ControllerWrapper = class {
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
-                        .pushCard(Plugins.BuildHomeCard({})))
+                        .pushCard(Plugins.ViewModel.BuildHomeCard({})))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);
@@ -54,7 +54,7 @@ AppHandler.ControllerWrapper = class {
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.BuildUserProfileCard({})))
+                            Plugins.ViewModel.BuildUserProfileCard({})))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);
@@ -66,7 +66,7 @@ AppHandler.ControllerWrapper = class {
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
-                        .pushCard(Plugins.BuildAboutCard({})))
+                        .pushCard(Plugins.ViewModel.BuildAboutCard({})))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);
@@ -79,7 +79,7 @@ AppHandler.ControllerWrapper = class {
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.BuildHelpCard({})
+                            Plugins.ViewModel.BuildHelpCard({})
                         )
                 ).build();
         } catch (error) {

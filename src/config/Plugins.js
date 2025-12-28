@@ -23,7 +23,7 @@ Plugins.ViewModel = {
                 .setImageAltText(Plugins.name + ' Image'));
 
         // for each plugin, add a section
-        Plugins.plugins.forEach((plugin) => {
+        Plugins.ViewModel.plugins.forEach((plugin) => {
             if (!plugin || !plugin.WelcomeSection) return;
             cardBuilder.addSection(
                 plugin.WelcomeSection(data));

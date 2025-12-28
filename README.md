@@ -25,6 +25,6 @@ Phase next:
 - sendTestMessage: Send a test message to verify bot functionality.
 - createInvoiceLink: Generate invoice links for payments.
 
-![Logo](https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/1376x768_Gemini_Generated_Image_30sdhg30sdhg30sd.png) 
+![Logo](https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/1376x768_Gemini_Generated_Image_30sdhg30sdhg30sd.png)
 
 I'm actively working on these features and will update this README as they are implemented. Stay tuned for updates!
