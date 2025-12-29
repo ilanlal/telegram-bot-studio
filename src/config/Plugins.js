@@ -293,18 +293,20 @@ Plugins.GetChat = {
             // Add section for inputs (token, chat id)
             .addSection(CardService.newCardSection()
                 .setHeader('GetChat Information')
-                .setCollapsible(true)
+                .setCollapsible(false)
                 .setNumUncollapsibleWidgets(1)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
+                        .setId('txt_bot_api_token')
                         .setFieldName('txt_bot_api_token')
                         .setTitle('🤖 Your Bot Token')
                         .setHint('Enter your Bot Token, get it from @BotFather'))
                 // Chat ID input
                 .addWidget(
                     CardService.newTextInput()
-                        .setFieldName('chat_id_input')
+                        .setId('txt_chat_id')
+                        .setFieldName('txt_chat_id')
                         .setTitle('📢 Chat ID')
                         .setHint('Enter the Chat ID to get information')))
             // Add JSON Tools Welcome Section
@@ -314,13 +316,13 @@ Plugins.GetChat = {
                 CardService.newFixedFooter()
                     .setPrimaryButton(
                         CardService.newTextButton()
-                            .setText('📢 Get Chat Info')
+                            .setText('Get Bot Info')
                             .setOnClickAction(
                                 CardService.newAction()
                                     // List of widget IDs whose values are required for this action to be executed
-                                    .addRequiredWidget(['txt_bot_api_token', 'chat_id_input'])
-                                    .setFunctionName('BotApiHandler.View.GetChat'))));
-
+                                    .addRequiredWidget(['txt_bot_api_token'])
+                                    .addRequiredWidget(['txt_chat_id'])
+                                    .setFunctionName('BotApiHandler.View.GetMe'))));
         return cardBuilder.build();
     },
     AboutCard: (data = {}) => {

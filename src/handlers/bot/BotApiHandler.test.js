@@ -42,7 +42,7 @@ describe('BotApiHandler', () => {
             commonEventObject: {
                 formInputs: {
                     'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
-                    'chat_id_input': { stringInputs: { value: [chatId] } }
+                    'txt_chat_id': { stringInputs: { value: [chatId] } }
                 }
             }
         }; // Mock event object
@@ -51,7 +51,7 @@ describe('BotApiHandler', () => {
         UrlFetchAppStubConfiguration.when(getChatUrl)
             .return(new HttpResponse()
                 .setContentText(JSON.stringify({ result: true })));
-                
+
         const actionResponse = BotApiHandler.View.GetChat(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();

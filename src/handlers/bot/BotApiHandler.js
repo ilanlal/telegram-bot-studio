@@ -175,8 +175,8 @@ BotApiHandler.ControllerWrapper = class {
                 throw new Error('Bot API token is required.');
             }
 
-            const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['chat_id_input'])
-                ? e.commonEventObject.formInputs['chat_id_input']?.stringInputs?.value?.[0]
+            const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_chat_id'])
+                ? e.commonEventObject.formInputs['txt_chat_id']?.stringInputs?.value?.[0]
                 : null;
 
             if (!chatId) {
