@@ -1,6 +1,9 @@
 class Plugins {
     get pluginList() {
-        return [Plugins.GetMe /*, Plugins.GetChat */];
+        return [
+            Plugins.GetMe,
+            Plugins.JsonTools /*, Plugins.GetChat */
+        ];
     }
 }
 
