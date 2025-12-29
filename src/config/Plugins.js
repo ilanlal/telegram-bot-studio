@@ -2,7 +2,8 @@ class Plugins {
     get pluginList() {
         return [
             Plugins.GetMe,
-            Plugins.JsonTools /*, Plugins.GetChat */
+            Plugins.GetChat,
+            Plugins.JsonTools
         ];
     }
 }
@@ -203,6 +204,9 @@ Plugins.GetMe = {
                 .addWidget(
                     CardService.newTextParagraph()
                         .setText('Explore more features with the premium membership!')))
+            // Add JSON Tools Welcome Section
+            .addSection(Plugins.JsonTools.WelcomeSection(data))
+            // Add fixed footer with Get Bot Info button
             .setFixedFooter(
                 CardService.newFixedFooter()
                     .setPrimaryButton(
@@ -250,6 +254,68 @@ Plugins.GetMe = {
     }
 }
 
+Plugins.GetChat = {
+    id: 'GetChatPlugin',
+    name: 'GetChat Plugin',
+    description: 'Plugin to get chat information using GetChat method.',
+    version: '1.0.0',
+    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    WelcomeSection: (data = {}) => {
+        return CardService.newCardSection()
+            .setHeader('GetChat Extensions')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1)
+            .addWidget(CardService.newDecoratedText()
+                .setTopLabel(Plugins.GetChat.version)
+                .setText(Plugins.GetChat.name + ':')
+                .setBottomLabel(Plugins.GetChat.description));
+    },
+    HomeCard: (data = {}) => {
+        // Build the GetChat plugin card
+        const cardBuilder = CardService.newCardBuilder()
+            .setName(Plugins.GetChat.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('GetChat Information')
+                .setSubtitle('GetChat Card')
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.GetChat.imageUrl)
+                .setImageAltText('Card Image'))
+            // Add section for inputs (token, chat id)
+            .addSection(CardService.newCardSection()
+                .setHeader('GetChat Information')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(1)
+                // Bot Token input
+                .addWidget(
+                    CardService.newTextInput()
+                        .setFieldName('txt_bot_api_token')
+                        .setTitle('🤖 Your Bot Token')
+                        .setHint('Enter your Bot Token, get it from @BotFather'))
+                // Chat ID input
+                .addWidget(
+                    CardService.newTextInput()
+                        .setFieldName('txt_chat_id')
+                        .setTitle('💬 Chat ID')
+                        .setHint('Enter the Chat ID to get information')));
+
+        return cardBuilder.build();
+    },
+    AboutCard: (data = {}) => {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('About ' + Plugins.GetChat.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('About ' + Plugins.GetChat.name));
+        return cardBuilder.build();
+    },
+    HelpCard: (data = {}) => {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('Help - ' + Plugins.GetChat.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('Help - ' + Plugins.GetChat.name));
+        return cardBuilder.build();
+    }
+};
+
 Plugins.JsonTools = {
     id: 'JsonToolsPlugin',
     name: 'JSON Tools Plugin',
@@ -286,14 +352,6 @@ Plugins.JsonTools = {
                     )));
     }
 }
-
-Plugins.GetChat = {
-    id: 'GetChatPlugin',
-    name: 'GetChat Plugin',
-    description: 'Plugin to get chat information using GetChat method.',
-    version: '1.0.0',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
-};
 
 
 if (typeof module !== 'undefined' && module.exports) {
