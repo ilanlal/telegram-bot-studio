@@ -32,6 +32,11 @@ Plugins.ViewModel = {
             );
         });
 
+        // Add data section
+        cardBuilder.addSection(
+            Plugins.ViewModel.BuildDataSection(data)
+        );
+
         // Add fixed footer
         if (data.isPremium) {
             cardBuilder.setFixedFooter(
@@ -111,7 +116,26 @@ Plugins.ViewModel = {
         // 1. membership section
         cardBuilder.addSection(
             Plugins.ViewModel.BuildMembershipSection(data))
+            // 2. Settings section
+            .addSection(CardService.newCardSection()
+                .setHeader('Settings')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(2))
+            // Debug mode toggle
+            /*.addWidget(
+                CardService.newSwitch()
+                    //.setFieldName('debugMode')
+                    .setValue(data.debugMode ? 'true' : 'false')
+                    .setSelected(data.debugMode ?? false)
+                    .setOnChangeAction(
+                        CardService.newAction()
+                            .setFunctionName('AppHandler.ViewModel.ToggleDebugMode'))
+            ))*/
 
+            // 3. data section
+            .addSection(
+                Plugins.ViewModel.BuildDataSection(data)
+            );
 
         return cardBuilder.build();
     },
@@ -126,7 +150,7 @@ Plugins.ViewModel = {
         // Add membership status widget
         newSection.addWidget(CardService.newDecoratedText()
             .setTopLabel('Membership Status')
-            .setText(isPremium ? '💎 Premium Member' : '� Free Member')
+            .setText(isPremium ? '💎 Premium Member' : '🆓 Free Member')
             .setBottomLabel(isPremium ? 'Thank you for being a premium member!' : 'Upgrade to premium for more features.')
             .setWrapText(false));
 
@@ -150,6 +174,19 @@ Plugins.ViewModel = {
             );
         }
 
+
+        return newSection;
+    },
+    BuildDataSection: (data = {}) => {
+        const newSection = CardService.newCardSection()
+            .setHeader('App Data')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(0)
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setMaxLines(35)
+                    .setText(JSON.stringify(data, null, 2))
+            );
 
         return newSection;
     }
@@ -413,29 +450,33 @@ Plugins.JsonTools = {
             .setHeader('Useful JSON Tools')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(1)
+            // Add decorated text widget
+            .addWidget(CardService.newDecoratedText()
+                .setTopLabel(Plugins.JsonTools.version)
+                .setText(Plugins.JsonTools.name + ':')
+                .setBottomLabel(Plugins.JsonTools.description)
+                .setWrapText(false))
             // Add button set for JSON Tools
-            .addWidget(CardService.newButtonSet()
-                // Add Pretty Print JSON button
-                .addButton(CardService.newTextButton()
-                    .setText('🎨 Beautify JSON')
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('JsonHandler.View.BeautifyJson')
-                    ))
-                // Add Minify JSON button
-                .addButton(CardService.newTextButton()
-                    .setText('🗜️ Minify JSON')
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('JsonHandler.View.MinifyJson')
-                    ))
-                // Add Validate JSON button
-                .addButton(CardService.newTextButton()
-                    .setText('✅ Validate JSON')
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('JsonHandler.View.ValidateJson')
-                    )));
+            .addWidget(CardService.newTextButton()
+                .setText('🎨 Beautify JSON')
+                .setOnClickAction(
+                    CardService.newAction()
+                        .setFunctionName('JsonHandler.View.BeautifyJson')
+                ))
+            // Add Minify JSON button
+            .addWidget(CardService.newTextButton()
+                .setText('🗜️ Minify JSON')
+                .setOnClickAction(
+                    CardService.newAction()
+                        .setFunctionName('JsonHandler.View.MinifyJson')
+                ))
+            // Add Validate JSON button
+            .addWidget(CardService.newTextButton()
+                .setText('✅ Validate JSON')
+                .setOnClickAction(
+                    CardService.newAction()
+                        .setFunctionName('JsonHandler.View.ValidateJson')
+                ));
     }
 }
 

@@ -38,10 +38,13 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenHomeCard(e) {
         try {
+            const data = {
+                ...AppModel.create().toJSON()
+            }
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
-                        .pushCard(Plugins.ViewModel.BuildHomeCard({})))
+                        .pushCard(Plugins.ViewModel.BuildHomeCard(data)))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);
@@ -50,7 +53,9 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenUserProfileCard(e) {
         try {
-            const data = {};
+            const data = {
+                ...AppModel.create().toJSON()
+            };
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -64,10 +69,13 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenAboutCard(e) {
         try {
+            const data = {
+                ...AppModel.create().toJSON()
+            };
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
-                        .pushCard(Plugins.ViewModel.BuildAboutCard({})))
+                        .pushCard(Plugins.ViewModel.BuildAboutCard(data)))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);
@@ -76,11 +84,14 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenHelpCard(e) {
         try {
+            const data = {
+                ...AppModel.create().toJSON()
+            };
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.ViewModel.BuildHelpCard({})
+                            Plugins.ViewModel.BuildHelpCard(data)
                         )
                 ).build();
         } catch (error) {
