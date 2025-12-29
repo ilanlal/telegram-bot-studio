@@ -15,10 +15,10 @@ describe('Membership Handler', () => {
         expect(handler).toBeInstanceOf(MembershipHandler);
     });
 
-    // onActivatePremiumClicked
-    it('should handle onActivatePremiumClicked', () => {
+    // ActivatePremium
+    it('should handle ActivatePremium', () => {
         const event = {}; // Mock event object
-        const actionResponse = MembershipHandler.ViewModel.ActivatePremiumClicked(event);
+        const actionResponse = MembershipHandler.ViewModel.ActivatePremium(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -26,10 +26,10 @@ describe('Membership Handler', () => {
         expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
     });
 
-    // onRevokeLicenseClicked
-    it('should handle onRevokeLicenseClicked', () => {
+    // RevokeLicense
+    it('should handle RevokeLicense', () => {
         const event = {}; // Mock event object
-        const actionResponse = MembershipHandler.ViewModel.RevokeLicenseClicked(event);
+        const actionResponse = MembershipHandler.ViewModel.RevokeLicense(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

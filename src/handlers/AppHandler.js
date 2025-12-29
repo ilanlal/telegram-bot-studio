@@ -22,13 +22,13 @@ AppHandler.ViewModel = {
             .ControllerWrapper()
             .handleOpenHelpCard(e);
     },
-    ActivatePremiumClicked: (e) => {
+    ActivatePremium: (e) => {
         return MembershipHandler.ViewModel
-            .ActivatePremiumClicked(e);
+            .ActivatePremium(e);
     },
-    RevokeLicenseClicked: (e) => {
+    RevokeLicense: (e) => {
         return MembershipHandler.ViewModel
-            .RevokeLicenseClicked(e);
+            .RevokeLicense(e);
     }
 }
 
@@ -50,11 +50,12 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenUserProfileCard(e) {
         try {
+            const data = {};
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.ViewModel.BuildUserProfileCard({})))
+                            Plugins.ViewModel.BuildUserProfileCard(data)))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);

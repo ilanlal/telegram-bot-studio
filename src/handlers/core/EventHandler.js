@@ -18,13 +18,13 @@ EventHandler.ViewModel = {
         return AppHandler.ViewModel
             .OpenHelpCard(e);
     },
-    ActivatePremiumClicked: (e) => {
+    ActivatePremium: (e) => {
         return MembershipHandler.ViewModel
-            .ActivatePremiumClicked(e);
+            .ActivatePremium(e);
     },
-    RevokeLicenseClicked: (e) => {
+    RevokeLicense: (e) => {
         return MembershipHandler.ViewModel
-            .RevokeLicenseClicked(e);
+            .RevokeLicense(e);
     }
 }
 

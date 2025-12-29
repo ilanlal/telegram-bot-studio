@@ -55,10 +55,10 @@ Plugins.ViewModel = {
                                     .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard')))
                     .setSecondaryButton(
                         CardService.newTextButton()
-                            .setText('Learn More')
+                            .setText('Help')
                             .setOnClickAction(
                                 CardService.newAction()
-                                    .setFunctionName('AppHandler.ViewModel.OpenAboutCard')))
+                                    .setFunctionName('AppHandler.ViewModel.OpenHelpCard')))
             );
         }
 
@@ -107,7 +107,51 @@ Plugins.ViewModel = {
                 .addWidget(
                     CardService.newTextParagraph()
                         .setText('This is the profile section for the App Model plugin. Here you can view and edit your profile information.')));
+
+        // 1. membership section
+        cardBuilder.addSection(
+            Plugins.ViewModel.BuildMembershipSection(data))
+
+
         return cardBuilder.build();
+    },
+    BuildMembershipSection: (data = {}) => {
+        const isPremium = data.isPremium ?? false;
+
+        const newSection = CardService.newCardSection()
+            .setHeader('Membership Subscription')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1);
+
+        // Add membership status widget
+        newSection.addWidget(CardService.newDecoratedText()
+            .setTopLabel('Membership Status')
+            .setText(isPremium ? '💎 Premium Member' : '� Free Member')
+            .setBottomLabel(isPremium ? 'Thank you for being a premium member!' : 'Upgrade to premium for more features.')
+            .setWrapText(false));
+
+        // Create button based on membership status
+        if (isPremium) {
+            newSection.addWidget(
+                CardService.newTextButton()
+                    .setText('❌ Cancel Subscription')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('AppHandler.ViewModel.RevokeLicense'))
+            );
+        }
+        else {
+            newSection.addWidget(
+                CardService.newTextButton()
+                    .setText('💎 Upgrade to Premium')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('AppHandler.ViewModel.ActivatePremium'))
+            );
+        }
+
+
+        return newSection;
     }
 };
 
@@ -216,7 +260,15 @@ Plugins.GetMe = {
                                 CardService.newAction()
                                     // List of widget IDs whose values are required for this action to be executed
                                     .addRequiredWidget(['txt_bot_api_token'])
-                                    .setFunctionName('BotApiHandler.View.GetMe'))));
+                                    .setFunctionName('BotApiHandler.View.GetMe')))
+                    .setSecondaryButton(
+                        CardService.newTextButton()
+                            .setText('Help')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.GetMe.HelpCard' }
+                                    ))));
 
         return cardBuilder.build();
     },
@@ -322,7 +374,16 @@ Plugins.GetChat = {
                                     // List of widget IDs whose values are required for this action to be executed
                                     .addRequiredWidget(['txt_bot_api_token'])
                                     .addRequiredWidget(['txt_chat_id'])
-                                    .setFunctionName('BotApiHandler.View.GetMe'))));
+                                    .setFunctionName('BotApiHandler.View.GetMe')))
+                    .setSecondaryButton(
+                        CardService.newTextButton()
+                            .setText('Help')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.GetChat.HelpCard' }
+                                    ))));
+
         return cardBuilder.build();
     },
     AboutCard: (data = {}) => {

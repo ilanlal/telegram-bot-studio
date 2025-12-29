@@ -52,10 +52,10 @@ describe('AppHandler', () => {
         expect(data.cardNavigations[0].pushCard).toBeDefined();
     });
 
-    // onActivatePremiumClicked
-    it('should handle onActivatePremiumClicked', () => {
+    // ActivatePremium
+    it('should handle ActivatePremium', () => {
         const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.ActivatePremiumClicked(event);
+        const actionResponse = AppHandler.ViewModel.ActivatePremium(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -63,10 +63,10 @@ describe('AppHandler', () => {
         expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
     });
 
-    // onRevokeLicenseClicked
-    it('should handle onRevokeLicenseClicked', () => {
+    // RevokeLicense
+    it('should handle RevokeLicense', () => {
         const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.RevokeLicenseClicked(event);
+        const actionResponse = AppHandler.ViewModel.RevokeLicense(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
