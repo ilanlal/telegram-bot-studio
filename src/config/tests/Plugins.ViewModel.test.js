@@ -18,6 +18,9 @@ describe('Plugins ViewModel', () => {
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
         expect(cardData.name).toBe(`${Plugins.ViewModel.id}-Home`);
+        // check if sections exist
+        expect(cardData.sections).toBeDefined();
+        expect(cardData.sections.length).toBeGreaterThan(0);
     });
 
     // AboutCard test

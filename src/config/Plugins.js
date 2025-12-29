@@ -1,4 +1,7 @@
 class Plugins {
+    get pluginList() {
+        return [Plugins.GetMe /*, Plugins.GetChat */];
+    }
 }
 
 Plugins.ViewModel = {
@@ -7,10 +10,6 @@ Plugins.ViewModel = {
     description: 'Plugins to manage Telegram Bot Studio features within Google Workspace.',
     version: '1.0.0',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
-    plugins: [
-        Plugins.GetMe,
-        //Plugins.GetChat
-    ],
     BuildHomeCard: (data = {}) => {
         // Build the App Model plugin card
         const cardBuilder = CardService.newCardBuilder()
@@ -23,10 +22,10 @@ Plugins.ViewModel = {
                 .setImageAltText(Plugins.ViewModel.name + ' Image'));
 
         // for each plugin, add a section
-        Plugins.ViewModel.plugins.forEach((plugin) => {
-            if (!plugin || !plugin.WelcomeSection) return;
+        Plugins.prototype.pluginList.forEach((plugin) => {
             cardBuilder.addSection(
-                plugin.WelcomeSection(data));
+                plugin.WelcomeSection({ isPremium: data.isPremium })
+            );
         });
 
         // Add fixed footer
@@ -112,7 +111,7 @@ Plugins.Navigations = {
     PushCard: (e) => {
         // extract parameters from event
         const path = e.parameters?.path || null;
-        if(!path) {
+        if (!path) {
             throw new Error('"path" parameter is required to navigate.');
         }
 
