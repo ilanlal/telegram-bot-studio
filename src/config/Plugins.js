@@ -116,7 +116,14 @@ Plugins.Navigations = {
         }
 
         // path = 'Plugins.GetMe.HomeCard', 'Plugins.GetChat.HomeCard', etc.
-        if (path && Plugins[path]) {
+        const splitPath = path.split('.');
+        if (splitPath.length !== 3) {
+            throw new Error(`Invalid plugin path format: "${path}". Expected format: "Plugins.PluginName.ActionName".`);
+        }
+        const plugin = splitPath[1];
+        const action = splitPath[2];
+
+        if (Plugins[plugin] && typeof Plugins[plugin][action] === 'function') {
             const appModelData = AppModel.create()
                 .toJSON();
 
@@ -124,8 +131,17 @@ Plugins.Navigations = {
                 ...appModelData
                 // You can add more data extraction logic here if needed
             };
-            return Plugins[path](data);
+
+            // Call the plugin action to get the card
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(Plugins[plugin][action](data))
+                ).build();
+
         }
+
+        throw new Error(`Plugin path "${path}" not found.`);
     }
 };
 
@@ -148,10 +164,10 @@ Plugins.GetMe = {
                 .setButton(
                     CardService.newTextButton()
                         .setText('🤖')
-                        .setDisabled(!!!data.isPremium)
+                        .setDisabled(false)
                         .setOnClickAction(
                             CardService.newAction()
-                                .setFunctionName('Plugins.Navigations.onPushCardClick')
+                                .setFunctionName('Plugins.Navigations.PushCard')
                                 .setParameters({ path: 'Plugins.GetMe.HomeCard' })
                         )));
     },
