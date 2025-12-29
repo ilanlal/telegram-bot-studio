@@ -115,27 +115,35 @@ Plugins.ViewModel = {
 
         // 1. membership section
         cardBuilder.addSection(
-            Plugins.ViewModel.BuildMembershipSection(data))
-            // 2. Settings section
-            .addSection(CardService.newCardSection()
+            Plugins.ViewModel.BuildMembershipSection(data));
+
+        // 2. Settings section
+        cardBuilder.addSection(
+            CardService.newCardSection()
                 .setHeader('Settings')
                 .setCollapsible(true)
-                .setNumUncollapsibleWidgets(2))
-            // Debug mode toggle
-            /*.addWidget(
-                CardService.newSwitch()
-                    //.setFieldName('debugMode')
-                    .setValue(data.debugMode ? 'true' : 'false')
-                    .setSelected(data.debugMode ?? false)
-                    .setOnChangeAction(
-                        CardService.newAction()
-                            .setFunctionName('AppHandler.ViewModel.ToggleDebugMode'))
-            ))*/
+                .setNumUncollapsibleWidgets(2)
+                // Debug mode toggle
+                .addWidget(
+                    CardService.newDecoratedText()
+                        .setTopLabel('Switch decorated text widget label')
+                        .setText('This is a decorated text widget with a switch on the right')
+                        .setWrapText(true)
+                        .setSwitchControl(
+                            CardService.newSwitch()
+                                .setFieldName('form_input_switch_key')
+                                .setValue('form_input_switch_value')
+                                .setOnChangeAction(
+                                    CardService.newAction().setFunctionName(
+                                        'handleSwitchChange'),
+                                )
+                        )
+                ));
 
-            // 3. data section
-            .addSection(
-                Plugins.ViewModel.BuildDataSection(data)
-            );
+        // 3. data section
+        cardBuilder.addSection(
+            Plugins.ViewModel.BuildDataSection(data)
+        );
 
         return cardBuilder.build();
     },
@@ -441,10 +449,10 @@ Plugins.GetChat = {
 
 Plugins.JsonTools = {
     id: 'JsonToolsPlugin',
-    name: 'JSON Tools Plugin',
-    description: 'Plugin to work with JSON data.',
-    version: '1.0.0',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    name: 'Tools for JSON Data',
+    description: 'A set of tools to beautify, minify, and validate JSON data.',
+    version: '1.1.0',
+    imageUrl: 'https://raw.githubusercontent.com/ilanlal/ss-json-editor/main/assets/logo120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
             .setHeader('Useful JSON Tools')
