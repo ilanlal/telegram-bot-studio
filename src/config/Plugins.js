@@ -247,6 +247,43 @@ Plugins.GetMe = {
     }
 }
 
+Plugins.JsonTools = {
+    id: 'JsonToolsPlugin',
+    name: 'JSON Tools Plugin',
+    description: 'Plugin to work with JSON data.',
+    version: '1.0.0',
+    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    WelcomeSection: (data = {}) => {
+        return CardService.newCardSection()
+            .setHeader('Useful JSON Tools')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1)
+            // Add button set for JSON Tools
+            .addWidget(CardService.newButtonSet()
+                // Add Pretty Print JSON button
+                .addButton(CardService.newTextButton()
+                    .setText('🎨 Beautify JSON')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('JsonHandler.View.BeautifyJson')
+                    ))
+                // Add Minify JSON button
+                .addButton(CardService.newTextButton()
+                    .setText('🗜️ Minify JSON')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('JsonHandler.View.MinifyJson')
+                    ))
+                // Add Validate JSON button
+                .addButton(CardService.newTextButton()
+                    .setText('✅ Validate JSON')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('JsonHandler.View.ValidateJson')
+                    )));
+    }
+}
+
 Plugins.GetChat = {
     id: 'GetChatPlugin',
     name: 'GetChat Plugin',

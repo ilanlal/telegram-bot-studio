@@ -31,7 +31,7 @@ describe('JsonHandler', () => {
         // stub for getCurrentCell
         SheetStubConfiguration.setCurrentCell(
             RangeStubConfiguration.setA1Notation('A1').setValue('{\n    "key": "value"\n}'));
-        const actionResponse = JsonHandler.View.onMinifyJsonClick(event);
+        const actionResponse = JsonHandler.View.MinifyJson(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -45,7 +45,7 @@ describe('JsonHandler', () => {
         // stub for getCurrentCell
         SheetStubConfiguration.setCurrentCell(
             RangeStubConfiguration.setA1Notation('A1').setValue('{"key":"value"}'));
-        const actionResponse = JsonHandler.View.onBeautifyJsonClick(event);
+        const actionResponse = JsonHandler.View.BeautifyJson(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -59,7 +59,7 @@ describe('JsonHandler', () => {
         // stub for getCurrentCell
         SheetStubConfiguration.setCurrentCell(
             RangeStubConfiguration.setA1Notation('A1').setValue('{"key":"value"}'));
-        const actionResponse = JsonHandler.View.onValidateJsonClick(event);
+        const actionResponse = JsonHandler.View.ValidateJson(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -79,7 +79,7 @@ describe('JsonHandler', () => {
         
         // stub for getCurrentCell to return null
         SheetStubConfiguration.setCurrentCell(null);
-        const actionResponse = JsonHandler.View.onValidateJsonClick(event);
+        const actionResponse = JsonHandler.View.ValidateJson(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

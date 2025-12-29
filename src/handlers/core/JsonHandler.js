@@ -2,15 +2,15 @@ class JsonHandler {
 }
 
 JsonHandler.View = {
-    onMinifyJsonClick(e) {
+    MinifyJson(e) {
         return new JsonHandler.Controller()
             .handleMinifyJsonRequest(e);
     },
-    onBeautifyJsonClick(e) {
+    BeautifyJson(e) {
         return new JsonHandler.Controller()
             .handleBeautifyJsonRequest(e);
     },
-    onValidateJsonClick(e) {
+    ValidateJson(e) {
         return new JsonHandler.Controller()
             .handleValidateJsonRequest(e);
     }
