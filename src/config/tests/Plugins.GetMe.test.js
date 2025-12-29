@@ -1,5 +1,5 @@
-require('../../tests');
-const { Plugins } = require('./Plugins');
+require('../../../tests');
+const { Plugins } = require('../Plugins');
 
 describe('Plugins.GetMe', () => {
     const pluginsToTest = [

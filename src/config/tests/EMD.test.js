@@ -1,5 +1,5 @@
-require('../../tests');
-const { EMD } = require('./EMD');
+require('../../../tests');
+const { EMD } = require('../EMD');
 
 describe('EMD Configuration', () => {
     it('should have Home entity defined correctly with all properties', () => {

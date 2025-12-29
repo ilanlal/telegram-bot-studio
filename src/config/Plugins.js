@@ -14,13 +14,13 @@ Plugins.ViewModel = {
     BuildHomeCard: (data = {}) => {
         // Build the App Model plugin card
         const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.id)
+            .setName(Plugins.ViewModel.id + '-Home')
             .setHeader(CardService.newCardHeader()
-                .setTitle(Plugins.name)
-                .setSubtitle(Plugins.description)
+                .setTitle(Plugins.ViewModel.name)
+                .setSubtitle(Plugins.ViewModel.description)
                 .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.imageUrl)
-                .setImageAltText(Plugins.name + ' Image'));
+                .setImageUrl(Plugins.ViewModel.imageUrl)
+                .setImageAltText(Plugins.ViewModel.name + ' Image'));
 
         // for each plugin, add a section
         Plugins.ViewModel.plugins.forEach((plugin) => {
@@ -63,27 +63,27 @@ Plugins.ViewModel = {
     },
     BuildAboutCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
-            .setName('About ' + Plugins.name)
+            .setName(Plugins.ViewModel.id + '-About')
             .setHeader(CardService.newCardHeader()
-                .setTitle('About ' + Plugins.name)
-                .setSubtitle(Plugins.description)
+                .setTitle('About ' + Plugins.ViewModel.name)
+                .setSubtitle(Plugins.ViewModel.description)
                 .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.imageUrl)
+                .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText('Card Image'))
             .addSection(CardService.newCardSection()
                 .addWidget(
                     CardService.newTextParagraph()
-                        .setText(`**${Plugins.name}** v${Plugins.version}\n\n${Plugins.description}\n\nDeveloped by Telegram Bot Studio.`)));
+                        .setText(`**${Plugins.ViewModel.name}** v${Plugins.ViewModel.version}\n\n${Plugins.ViewModel.description}\n\nDeveloped by Telegram Bot Studio.`)));
         return cardBuilder.build();
     },
     BuildHelpCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
-            .setName('Help - ' + Plugins.name)
+            .setName(Plugins.ViewModel.id + '-Help')
             .setHeader(CardService.newCardHeader()
-                .setTitle('Help - ' + Plugins.name)
+                .setTitle('Help - ' + Plugins.ViewModel.name)
                 .setSubtitle('Help and Support')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.imageUrl)
+                .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText('Help Image'))
             .addSection(CardService.newCardSection()
                 .addWidget(
@@ -93,12 +93,12 @@ Plugins.ViewModel = {
     },
     BuildUserProfileCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
-            .setName('Profile - ' + Plugins.name)
+            .setName(Plugins.ViewModel.id + '-UserProfile')
             .setHeader(CardService.newCardHeader()
-                .setTitle('Profile - ' + Plugins.name)
+                .setTitle('Profile - ' + Plugins.ViewModel.name)
                 .setSubtitle('User Profile')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.imageUrl)
+                .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText('Profile Image'))
             .addSection(CardService.newCardSection()
                 .addWidget(
