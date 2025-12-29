@@ -36,13 +36,13 @@ class BotApiHandler {
 };
 
 BotApiHandler.View = {
-    onGetMeClick: (e) => {
+    GetMe: (e) => {
         return new BotApiHandler
             .ControllerWrapper(
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleGetMeClick(e);
     },
-    onGetChatClick: (e) => {
+    GetChat: (e) => {
         return new BotApiHandler
             .ControllerWrapper(
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
@@ -155,10 +155,69 @@ BotApiHandler.ControllerWrapper = class {
     }
 
     handleGetChatClick(e) {
-        return ChannelsHandler
-            .ControllerWrapper(
-                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
-            .handleGetChatClick(e);
+        try {
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'client', // chat side
+                    'Request to get chat info',
+                    JSON.stringify({ e }) // placeholder
+                ]);
+
+            // extract chat_id from event object
+            const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
+                ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
+                : null;
+
+            if (!token) {
+                throw new Error('Bot API token is required.');
+            }
+
+            const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['chat_id_input'])
+                ? e.commonEventObject.formInputs['chat_id_input']?.stringInputs?.value?.[0]
+                : null;
+
+            if (!chatId) {
+                throw new Error('Chat ID is required.');
+            }
+
+            const telegramBotClient = new TelegramBotClient(token);
+
+            // 1. using the bot token and chat id, get chat info from Telegram API`
+            const response = telegramBotClient.getChat(encodeURIComponent(chatId));
+            if (response.getResponseCode() !== 200) {
+                throw new Error("Failed to get bot info");
+            }
+            const result = JSON.parse(response.getContentText()).result;
+            // 2. add result to Terminal Output sheet
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Retrieved info for chat ID: ${chatId}`,
+                    JSON.stringify(result)
+                ]);
+
+            // For demonstration, we just return the chat ID back
+            return this.handleOperationSuccess(`Chat ID retrieved successfully: ${chatId}`)
+                .build();
+        } catch (error) {
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'server', // chat side
+                    `Error retrieving chat info`,
+                    error.toString()
+                ]);
+            return this.handleError(error)
+                .build();
+        }
     }
 
     handleSendTestMessageClick(e) {

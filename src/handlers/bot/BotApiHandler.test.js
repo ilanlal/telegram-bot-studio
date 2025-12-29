@@ -28,7 +28,31 @@ describe('BotApiHandler', () => {
         UrlFetchAppStubConfiguration.when(getMeUrl)
             .return(new HttpResponse()
                 .setContentText(JSON.stringify({ result: true })));
-        const actionResponse = BotApiHandler.View.onGetMeClick(event);
+        const actionResponse = BotApiHandler.View.GetMe(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+    });
+
+    // getChat
+    test('should handle getChatClick', () => {
+        const chatId = '@testchannel';
+        const handler = new BotApiHandler();
+        const event = {
+            commonEventObject: {
+                formInputs: {
+                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
+                    'chat_id_input': { stringInputs: { value: [chatId] } }
+                }
+            }
+        }; // Mock event object
+        // Mock the getChat API response
+        const getChatUrl = `https://api.telegram.org/bot${sampleToken}/getChat?chat_id=${encodeURIComponent(chatId)}`;
+        UrlFetchAppStubConfiguration.when(getChatUrl)
+            .return(new HttpResponse()
+                .setContentText(JSON.stringify({ result: true })));
+                
+        const actionResponse = BotApiHandler.View.GetChat(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

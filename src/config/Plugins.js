@@ -216,7 +216,7 @@ Plugins.GetMe = {
                                 CardService.newAction()
                                     // List of widget IDs whose values are required for this action to be executed
                                     .addRequiredWidget(['txt_bot_api_token'])
-                                    .setFunctionName('BotApiHandler.View.onGetMeClick'))));
+                                    .setFunctionName('BotApiHandler.View.GetMe'))));
 
         return cardBuilder.build();
     },
@@ -268,7 +268,17 @@ Plugins.GetChat = {
             .addWidget(CardService.newDecoratedText()
                 .setTopLabel(Plugins.GetChat.version)
                 .setText(Plugins.GetChat.name + ':')
-                .setBottomLabel(Plugins.GetChat.description));
+                .setBottomLabel(Plugins.GetChat.description)
+                .setWrapText(false)
+                .setButton(
+                    CardService.newTextButton()
+                        .setText('📢')
+                        .setDisabled(false)
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetChat.HomeCard' })
+                        )));
     },
     HomeCard: (data = {}) => {
         // Build the GetChat plugin card
@@ -294,9 +304,22 @@ Plugins.GetChat = {
                 // Chat ID input
                 .addWidget(
                     CardService.newTextInput()
-                        .setFieldName('txt_chat_id')
-                        .setTitle('💬 Chat ID')
-                        .setHint('Enter the Chat ID to get information')));
+                        .setFieldName('chat_id_input')
+                        .setTitle('📢 Chat ID')
+                        .setHint('Enter the Chat ID to get information')))
+            // Add JSON Tools Welcome Section
+            .addSection(Plugins.JsonTools.WelcomeSection(data))
+            // Add fixed footer with Get Chat Info button;
+            .setFixedFooter(
+                CardService.newFixedFooter()
+                    .setPrimaryButton(
+                        CardService.newTextButton()
+                            .setText('📢 Get Chat Info')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    // List of widget IDs whose values are required for this action to be executed
+                                    .addRequiredWidget(['txt_bot_api_token', 'chat_id_input'])
+                                    .setFunctionName('BotApiHandler.View.GetChat'))));
 
         return cardBuilder.build();
     },
