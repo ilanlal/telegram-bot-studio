@@ -2,29 +2,29 @@ class EventHandler {
 };
 
 EventHandler.ViewModel = {
-    onOpenHomeCard: (e) => {
-        return NavigationHandler.ViewModel
-            .onPushCardClick({ parameters: { template: 'EMD.Cards.Home' } });
+    OpenHomeCard: (e) => {
+        return AppHandler.ViewModel
+            .OpenHomeCard(e);
     },
-    onOpenAccountCard: (e) => {
-        return NavigationHandler.ViewModel
-            .onPushCardClick({ parameters: { template: 'EMD.Cards.Account' } });
+    OpenAccountCard: (e) => {
+        return AppHandler.ViewModel
+            .OpenUserProfileCard(e);
     },
-    onOpenAboutCard: (e) => {
-        return NavigationHandler.ViewModel
-            .onPushCardClick({ parameters: { template: 'EMD.Cards.About' } });
+    OpenAboutCard: (e) => {
+        return AppHandler.ViewModel
+            .OpenAboutCard(e);
     },
-    onOpenHelpCard: (e) => {
-        return NavigationHandler.ViewModel
-            .onPushCardClick({ parameters: { template: 'EMD.Cards.Help' } });
+    OpenHelpCard: (e) => {
+        return AppHandler.ViewModel
+            .OpenHelpCard(e);
     },
-    onActivatePremiumClicked: (e) => {
+    ActivatePremiumClicked: (e) => {
         return MembershipHandler.ViewModel
-            .onActivatePremiumClicked(e);
+            .ActivatePremiumClicked(e);
     },
-    onRevokeLicenseClicked: (e) => {
+    RevokeLicenseClicked: (e) => {
         return MembershipHandler.ViewModel
-            .onRevokeLicenseClicked(e);
+            .RevokeLicenseClicked(e);
     }
 }
 

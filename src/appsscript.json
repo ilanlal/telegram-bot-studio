@@ -27,17 +27,17 @@
         "https://easyadm.com"
       ],
       "homepageTrigger": {
-        "runFunction": "EventHandler.ViewModel.onOpenHomeCard"
+        "runFunction": "EventHandler.ViewModel.OpenHomeCard"
       },
       "useLocaleFromApp": true,
       "universalActions": [
         {
           "label": "Account",
-          "runFunction": "EventHandler.ViewModel.onOpenAccountCard"
+          "runFunction": "EventHandler.ViewModel.OpenAccountCard"
         },
         {
           "label": "About",
-          "runFunction": "EventHandler.ViewModel.onOpenAboutCard"
+          "runFunction": "EventHandler.ViewModel.OpenAboutCard"
         },
         {
           "label": "Help & Support",

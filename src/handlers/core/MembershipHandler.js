@@ -37,13 +37,13 @@ class MembershipHandler {
 }
 
 MembershipHandler.ViewModel = {
-    onActivatePremiumClicked: (e) => {
+    ActivatePremiumClicked: (e) => {
         return new MembershipHandler
             .ControllerWrapper(
                 MembershipHandler.prototype.cardService, MembershipHandler.prototype.documentProperties, MembershipHandler.prototype.userProperties, MembershipHandler.prototype.scriptProperties)
             .handleActivatePremium(e);
     },
-    onRevokeLicenseClicked: (e) => {
+    RevokeLicenseClicked: (e) => {
         return new MembershipHandler
             .ControllerWrapper(
                 MembershipHandler.prototype.cardService, MembershipHandler.prototype.documentProperties, MembershipHandler.prototype.userProperties, MembershipHandler.prototype.scriptProperties)

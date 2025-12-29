@@ -10,7 +10,7 @@ describe('AppHandler', () => {
 
     it('should onOpenHomeCard', () => {
         const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.onOpenHomeCard(event);
+        const actionResponse = AppHandler.ViewModel.OpenHomeCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -24,7 +24,7 @@ describe('AppHandler', () => {
 
     it('should handle onUserProfileCardOpen', () => {
         const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.onOpenUserProfileCard(event);
+        const actionResponse = AppHandler.ViewModel.OpenUserProfileCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -39,7 +39,7 @@ describe('AppHandler', () => {
 
     it('should handle onAboutCardOpen', () => {
         const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.onOpenAboutCard(event);
+        const actionResponse = AppHandler.ViewModel.OpenAboutCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -55,7 +55,7 @@ describe('AppHandler', () => {
     // onActivatePremiumClicked
     it('should handle onActivatePremiumClicked', () => {
         const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.onActivatePremiumClicked(event);
+        const actionResponse = AppHandler.ViewModel.ActivatePremiumClicked(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -66,7 +66,7 @@ describe('AppHandler', () => {
     // onRevokeLicenseClicked
     it('should handle onRevokeLicenseClicked', () => {
         const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.onRevokeLicenseClicked(event);
+        const actionResponse = AppHandler.ViewModel.RevokeLicenseClicked(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

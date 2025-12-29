@@ -18,7 +18,7 @@ describe('Membership Handler', () => {
     // onActivatePremiumClicked
     it('should handle onActivatePremiumClicked', () => {
         const event = {}; // Mock event object
-        const actionResponse = MembershipHandler.ViewModel.onActivatePremiumClicked(event);
+        const actionResponse = MembershipHandler.ViewModel.ActivatePremiumClicked(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -29,7 +29,7 @@ describe('Membership Handler', () => {
     // onRevokeLicenseClicked
     it('should handle onRevokeLicenseClicked', () => {
         const event = {}; // Mock event object
-        const actionResponse = MembershipHandler.ViewModel.onRevokeLicenseClicked(event);
+        const actionResponse = MembershipHandler.ViewModel.RevokeLicenseClicked(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

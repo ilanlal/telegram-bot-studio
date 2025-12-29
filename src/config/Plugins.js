@@ -38,7 +38,7 @@ Plugins.ViewModel = {
                             .setText('Explore More Features')
                             .setOnClickAction(
                                 CardService.newAction()
-                                    .setFunctionName('AppModelHandler.View.onExploreMoreFeaturesClick')))
+                                    .setFunctionName('AppHandler.ViewModel.OpenAboutCard')))
             );
         }
         else {
@@ -49,13 +49,13 @@ Plugins.ViewModel = {
                             .setText('Upgrade to Premium')
                             .setOnClickAction(
                                 CardService.newAction()
-                                    .setFunctionName('AppModelHandler.View.onUpgradeToPremiumClick')))
+                                    .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard')))
                     .setSecondaryButton(
                         CardService.newTextButton()
                             .setText('Learn More')
                             .setOnClickAction(
                                 CardService.newAction()
-                                    .setFunctionName('AppModelHandler.View.onLearnMoreClick')))
+                                    .setFunctionName('AppHandler.ViewModel.OpenAboutCard')))
             );
         }
 
@@ -112,6 +112,9 @@ Plugins.Navigations = {
     PushCard: (e) => {
         // extract parameters from event
         const path = e.parameters?.path || null;
+        if(!path) {
+            throw new Error('"path" parameter is required to navigate.');
+        }
 
         // path = 'Plugins.GetMe.HomeCard', 'Plugins.GetChat.HomeCard', etc.
         if (path && Plugins[path]) {

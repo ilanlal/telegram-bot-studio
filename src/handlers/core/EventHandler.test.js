@@ -8,9 +8,9 @@ describe('EventHandler', () => {
         expect(handler).toBeInstanceOf(EventHandler);
     });
 
-    it('should onOpenHomeCard', () => {
+    it('should OpenHomeCard', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.onOpenHomeCard(event);
+        const actionResponse = EventHandler.ViewModel.OpenHomeCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -22,9 +22,9 @@ describe('EventHandler', () => {
         expect(data.cardNavigations[0].pushCard).toBeDefined();
     });
 
-    it('should handle onAccountCardOpen', () => {
+    it('should handle OpenAccountCard', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.onOpenAccountCard(event);
+        const actionResponse = EventHandler.ViewModel.OpenAccountCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -37,9 +37,9 @@ describe('EventHandler', () => {
         expect(data.cardNavigations[0].pushCard).toBeDefined();
     });
 
-    it('should handle onAboutCardOpen', () => {
+    it('should handle OpenAboutCard', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.onOpenAboutCard(event);
+        const actionResponse = EventHandler.ViewModel.OpenAboutCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -54,7 +54,7 @@ describe('EventHandler', () => {
     // onActivatePremiumClicked
     it('should handle onActivatePremiumClicked', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.onActivatePremiumClicked(event);
+        const actionResponse = EventHandler.ViewModel.ActivatePremiumClicked(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
@@ -65,7 +65,7 @@ describe('EventHandler', () => {
     // onRevokeLicenseClicked
     it('should handle onRevokeLicenseClicked', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.onRevokeLicenseClicked(event);
+        const actionResponse = EventHandler.ViewModel.RevokeLicenseClicked(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

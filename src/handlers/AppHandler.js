@@ -2,33 +2,33 @@ class AppHandler {
 };
 
 AppHandler.ViewModel = {
-    onOpenHomeCard: (e) => {
+    OpenHomeCard: (e) => {
         return new AppHandler
             .ControllerWrapper()
             .handleOpenHomeCard(e);
     },
-    onOpenUserProfileCard: (e) => {
+    OpenUserProfileCard: (e) => {
         return new AppHandler
             .ControllerWrapper()
             .handleOpenUserProfileCard(e);
     },
-    onOpenAboutCard: (e) => {
+    OpenAboutCard: (e) => {
         return new AppHandler
             .ControllerWrapper()
             .handleOpenAboutCard(e);
     },
-    onOpenHelpCard: (e) => {
+    OpenHelpCard: (e) => {
         return new AppHandler
             .ControllerWrapper()
             .handleOpenHelpCard(e);
     },
-    onActivatePremiumClicked: (e) => {
+    ActivatePremiumClicked: (e) => {
         return MembershipHandler.ViewModel
-            .onActivatePremiumClicked(e);
+            .ActivatePremiumClicked(e);
     },
-    onRevokeLicenseClicked: (e) => {
+    RevokeLicenseClicked: (e) => {
         return MembershipHandler.ViewModel
-            .onRevokeLicenseClicked(e);
+            .RevokeLicenseClicked(e);
     }
 }
 

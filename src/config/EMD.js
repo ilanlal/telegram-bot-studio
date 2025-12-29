@@ -9588,7 +9588,7 @@ EMD.MembershipSubscription = {
                                     disabled: !!data.appModel?.isPremium,
                                     text: 'Subscribe Now',
                                     onClick: {
-                                        functionName: 'EventHandler.ViewModel.onActivatePremiumClicked'
+                                        functionName: 'EventHandler.ViewModel.ActivatePremiumClicked'
                                     }
                                 }
                             }
@@ -9602,7 +9602,7 @@ EMD.MembershipSubscription = {
                         disabled: !!data.appModel?.isPremium,
                         text: '🏆 Activate Now',
                         onClick: {
-                            functionName: 'EventHandler.ViewModel.onActivatePremiumClicked'
+                            functionName: 'EventHandler.ViewModel.ActivatePremiumClicked'
                         }
                     }
                 },
@@ -9611,7 +9611,7 @@ EMD.MembershipSubscription = {
                         disabled: !!!data.appModel?.isPremium,
                         text: '🛑 Deactivate',
                         onClick: {
-                            functionName: 'EventHandler.ViewModel.onDeactivatePremiumClicked'
+                            functionName: 'EventHandler.ViewModel.DeactivatePremiumClicked'
                         }
                     }
                 }
