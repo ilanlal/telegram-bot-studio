@@ -124,8 +124,7 @@ AppHandler.ControllerWrapper = class {
             const preState = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
             // store the new state within user properties or perform necessary actions
             PropertiesService.getUserProperties().setProperty(actionName, preState==='ON' ? 'ON' : 'OFF');
-            // Perform the toggle action logic here
-            // For example, update user settings or preferences
+            // return success notification
             return CardService.newActionResponseBuilder()
                 .setNotification(
                     CardService.newNotification()
