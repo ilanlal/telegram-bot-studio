@@ -118,6 +118,8 @@ Plugins.ViewModel = {
             Plugins.ViewModel.BuildMembershipSection(data));
 
         // 2. Settings section
+        data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
+        
         cardBuilder.addSection(
             CardService.newCardSection()
                 .setHeader('Settings')
@@ -126,20 +128,18 @@ Plugins.ViewModel = {
                 // Debug mode toggle
                 .addWidget(
                     CardService.newDecoratedText()
-                        .setTopLabel('Switch decorated text widget label')
-                        .setText('This is a decorated text widget with a switch on the right')
+                        .setTopLabel('Debug Mode')
+                        .setText('Enable or disable debug mode for detailed logging.')
                         .setWrapText(true)
                         .setSwitchControl(
                             CardService.newSwitch()
                                 .setFieldName('debug_mode_switch')
-                                .setValue('ON')
+                                .setValue(data.debug_mode_switch)
                                 .setOnChangeAction(
                                     CardService.newAction()
                                         .setFunctionName('AppHandler.ViewModel.ToggleAction')
                                         .setParameters({
-                                            actionName: 'debug_mode_switch',
-                                            // The new state will be passed as 'isEnabled' parameter
-                                            isEnabled: data.debug_mode_switch ? 'true' : 'false'
+                                            actionName: 'debug_mode_switch'
                                         })
                                 )
                         )
