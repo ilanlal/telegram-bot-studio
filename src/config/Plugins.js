@@ -354,7 +354,7 @@ Plugins.GetMe = {
             .addSection(CardService.newCardSection()
                 .setHeader('GetMe Bot Information')
                 .setCollapsible(true)
-                .setNumUncollapsibleWidgets(2)
+                .setNumUncollapsibleWidgets(token ? 0 : 2)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
@@ -380,10 +380,9 @@ Plugins.GetMe = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         // Log the request to Terminal Output sheet
         TerminalOutput.Write(activeSpreadsheet, 'client', 'GET_ME', data, `Request to get bot info with token: ${token}`);
-        
+
         // Add result section if token is provided
         if (token) {
-
             const telegramBotClient = new TelegramBotClient(token);
             const response = telegramBotClient.getMe();
             if (response.getResponseCode() !== 200) {
@@ -430,11 +429,18 @@ Plugins.GetMe = {
         return cardBuilder.build();
     },
     ResultSection: (result = {}) => {
+        const grid = CardService.newGrid()
+            .setTitle('My Grid')
+            .setNumColumns(2)
+            .addItem(
+                CardService.newGridItem().setTitle('My item'));
+
         // Build the execution result card
         return CardService.newCardSection()
             .setHeader('Execution Result')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(1)
+            .addWidget(grid)
             .addWidget(
                 CardService.newTextParagraph()
                     .setText(JSON.stringify(result, null, 4)));
