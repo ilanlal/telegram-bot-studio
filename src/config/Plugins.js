@@ -124,27 +124,30 @@ Plugins.ViewModel = {
         // 2. Settings section
         data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
         data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
+        data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'ON';
+        data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
+
         cardBuilder.addSection(
             CardService.newCardSection()
                 .setHeader('Settings')
-                .setCollapsible(true)
+                .setCollapsible(false)
                 .setNumUncollapsibleWidgets(2)
-                // Debug mode toggle
+                // Terminal Output toggle
                 .addWidget(
                     CardService.newDecoratedText()
-                        .setTopLabel('Debug Mode')
-                        .setText('Enable or disable debug mode for detailed logging.')
+                        .setTopLabel('Terminal Output')
+                        .setText('View the terminal output logs for debugging and monitoring.')
                         .setWrapText(true)
                         .setSwitchControl(
                             CardService.newSwitch()
-                                .setFieldName('debug_mode_switch')
-                                .setSelected(data.debug_mode_switch === 'ON')
+                                .setFieldName('terminal_output_switch')
+                                .setSelected(data.terminal_output_switch === 'ON')
                                 .setValue('ON')
                                 .setOnChangeAction(
                                     CardService.newAction()
                                         .setFunctionName('AppHandler.ViewModel.ToggleAction')
                                         .setParameters({
-                                            actionName: 'debug_mode_switch'
+                                            actionName: 'terminal_output_switch'
                                         })
                                 )
                         )
@@ -165,6 +168,26 @@ Plugins.ViewModel = {
                                         .setFunctionName('AppHandler.ViewModel.ToggleAction')
                                         .setParameters({
                                             actionName: 'developer_mode_switch'
+                                        })
+                                )
+                        )
+                )
+                // Debug mode toggle
+                .addWidget(
+                    CardService.newDecoratedText()
+                        .setTopLabel('Debug Mode')
+                        .setText('Enable or disable debug mode for detailed logging.')
+                        .setWrapText(true)
+                        .setSwitchControl(
+                            CardService.newSwitch()
+                                .setFieldName('debug_mode_switch')
+                                .setSelected(data.debug_mode_switch === 'ON')
+                                .setValue('ON')
+                                .setOnChangeAction(
+                                    CardService.newAction()
+                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                        .setParameters({
+                                            actionName: 'debug_mode_switch'
                                         })
                                 )
                         )
@@ -230,6 +253,44 @@ Plugins.ViewModel = {
             );
 
         return newSection;
+    },
+    BuildResultSection: (result = {}) => {
+        const grid = CardService.newGrid()
+            .setId('resultGrid')
+            .setTitle('Preview')
+            .setNumColumns(1)
+            .setBorderStyle(
+                CardService.newBorderStyle()
+                    .setType(CardService.BorderType.STROKE)
+                    // No effect as of now
+                    //.setStrokeColor('#4CAF50')
+                    .setCornerRadius(0));
+        // Add each property from result to the grid
+        Object.keys(result).forEach((key) => {
+            grid.addItem(
+                CardService.newGridItem()
+                    .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
+                    .setIdentifier(key)
+                    .setTitle(key)
+                    .setSubtitle(JSON.stringify(result[key])));
+        });
+        // Raw JSON view
+        const rawResultTextParagraph = CardService.newTextParagraph()
+            .setText('Raw:\n' + JSON.stringify(result))
+            .setMaxLines(1);
+        // Build the execution result card
+        return CardService.newCardSection()
+            .setHeader('🟢 200 OK')
+            .addWidget(grid)
+            .addWidget(rawResultTextParagraph);
+    },
+    BuildErrorSection: (errorText = '') => {
+        return CardService.newCardSection()
+            .setHeader('❌ Error')
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText(errorText)
+            );
     }
 };
 
@@ -388,18 +449,26 @@ Plugins.GetMe = {
             // Log the request to Terminal Output sheet
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Start', data, `Request to get bot info with token: ${token}`);
 
-            const telegramBotClient = new TelegramBotClient(token);
-            const response = telegramBotClient.getMe();
-            if (response.getResponseCode() !== 200) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'ERROR:HomeCard', response.getContentText(), `Failed to get bot info for token: ${token}`);
-                throw new Error("Failed to get bot info");
+            try {
+                const telegramBotClient = new TelegramBotClient(token);
+                const response = telegramBotClient.getMe();
+                if (response.getResponseCode() !== 200) {
+                    throw new Error(`Error fetching bot info: ${response.getResponseCode()} - ${response.getContentText()}`);
+                }
+
+                const result = JSON.parse(response.getContentText()).result;
+
+                // Log the response to Terminal Output sheet
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Response', result, `Retrieved bot info for token: ${token}`);
+
+                // Add result section
+                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
+
+            } catch (error) {
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'ERROR', data, `Exception while getting bot info for token: ${token} - ${error.toString()}`);
+                cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error.toString()));
+                return cardBuilder.build();
             }
-            const result = JSON.parse(response.getContentText()).result;
-
-            // Log the response to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Response', result, `Retrieved bot info for token: ${token}`);
-
-            cardBuilder.addSection(Plugins.GetMe.ResultSection(result));
         }
 
         if (data.developer_mode_switch === 'ON') {
@@ -430,41 +499,6 @@ Plugins.GetMe = {
                         )));
 
         return cardBuilder.build();
-    },
-    ResultSection: (result = {}) => {
-        const grid = CardService.newGrid()
-            .setId('resultGrid')
-            .setTitle('Preview')
-            .setNumColumns(1)
-            .setBorderStyle(
-                CardService.newBorderStyle()
-                    .setType(CardService.BorderType.STROKE)
-                    // No effect as of now
-                    //.setStrokeColor('#4CAF50')
-                    .setCornerRadius(0));
-
-        // Add each property from result to the grid
-        Object.keys(result).forEach((key) => {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
-                    .setIdentifier(key)
-                    .setTitle(key)
-                    .setSubtitle(JSON.stringify(result[key])));
-        });
-
-        // Raw JSON view
-        const rawResultTextParagraph = CardService.newTextParagraph()
-            .setText('Raw:\n' + JSON.stringify(result))
-            .setMaxLines(1);
-
-        // Build the execution result card
-        return CardService.newCardSection()
-            .setHeader('🟢 200 OK')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(2)
-            .addWidget(rawResultTextParagraph)
-            .addWidget(grid);
     },
     AboutCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
@@ -577,25 +611,25 @@ Plugins.GetChat = {
             // Log the request to Terminal Output sheet
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Start', data, `Request to get chat info with token: ${token}, chat ID: ${chatId}`);
 
-            const telegramBotClient = new TelegramBotClient(token);
-            const response = telegramBotClient.getChat(encodeURIComponent(chatId));
-            if (response.getResponseCode() !== 200) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'ERROR', response.getContentText(), `Failed to get chat info for token: ${token} and chat ID: ${chatId}`);
-                throw new Error("Failed to get chat info");
+            try {
+                const telegramBotClient = new TelegramBotClient(token);
+                const response = telegramBotClient.getChat(encodeURIComponent(chatId));
+
+                if (response.getResponseCode() !== 200) {
+                    throw new Error(`Failed to get chat info: ${response.getContentText()}`);
+                }
+                const result = JSON.parse(response.getContentText()).result;
+
+                // Log the response to Terminal Output sheet
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${token} and chat ID: ${chatId}`);
+
+                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
+            } catch (error) {
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'ERROR', data, `Exception while getting chat info for token: ${token}, chat ID: ${chatId} - ${error.toString()}`);
+                cardBuilder.addSection(
+                    Plugins.ViewModel.BuildErrorSection(error.toString()));
+
             }
-            const result = JSON.parse(response.getContentText()).result;
-
-            // Log the response to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${token} and chat ID: ${chatId}`);
-
-            cardBuilder.addSection(Plugins.GetChat.ResultSection(result));
-        }
-
-        // if developer mode is on, add data section
-        if (data.developer_mode_switch === 'ON') {
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildDataSection(data)
-            );
         }
 
         // Add fixed footer with Get Chat Info button;
@@ -619,41 +653,6 @@ Plugins.GetChat = {
                         )));
 
         return cardBuilder.build();
-    },
-    ResultSection: (result = {}) => {
-        const grid = CardService.newGrid()
-            .setId('resultGrid')
-            .setTitle('Preview')
-            .setNumColumns(1)
-            .setBorderStyle(
-                CardService.newBorderStyle()
-                    .setType(CardService.BorderType.STROKE)
-                    // No effect as of now
-                    //.setStrokeColor('#4CAF50')
-                    .setCornerRadius(0));
-
-        // Add each property from result to the grid
-        Object.keys(result).forEach((key) => {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
-                    .setIdentifier(key)
-                    .setTitle(key)
-                    .setSubtitle(JSON.stringify(result[key])));
-        });
-
-        // Raw JSON view
-        const rawResultTextParagraph = CardService.newTextParagraph()
-            .setText('Raw:\n' + JSON.stringify(result))
-            .setMaxLines(1);
-
-        // Build the execution result card
-        return CardService.newCardSection()
-            .setHeader('🟢 200 OK')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(2)
-            .addWidget(rawResultTextParagraph)
-            .addWidget(grid);
     },
     AboutCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()

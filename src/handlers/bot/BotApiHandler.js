@@ -109,7 +109,7 @@ BotApiHandler.ControllerWrapper = class {
             TerminalOutput.Write(
                 this._activeSpreadsheet,
                 'BotApiHandler.ControllerWrapper',
-                'ERROR::handleGetMe', e, error.toString());
+                'ERROR', e, error.toString());
             return this.handleError(error)
                 .build();
         }
@@ -124,7 +124,7 @@ BotApiHandler.ControllerWrapper = class {
         } catch (error) {
             TerminalOutput.Write(this._activeSpreadsheet,
                 'BotApiHandler.ControllerWrapper',
-                'ERROR::handleGetChat',
+                'ERROR',
                 e,
                 error.toString());
             return this.handleError(error)

@@ -1,5 +1,10 @@
 class TerminalOutput {
     static Write(activeSpreadsheet, source, message, e, details) {
+        const terminalOutputEnabled = PropertiesService.getUserProperties()
+            .getProperty('terminal_output_switch') || 'ON';
+        if (terminalOutputEnabled !== 'ON') {
+            return;
+        }
         const sheet = SheetModel.create(activeSpreadsheet)
             .getSheet(EMD.Spreadsheet.TerminalOutput({}));
 
