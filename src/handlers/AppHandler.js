@@ -120,9 +120,9 @@ AppHandler.ControllerWrapper = class {
                     JSON.stringify({ e }) // placeholder
                 ]);
             const actionName = e?.commonEventObject?.parameters?.actionName;
-            
-            const state = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
             // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
+            const state = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
+            
             // Perform the toggle action logic here
             // For example, update user settings or preferences
             return CardService.newActionResponseBuilder()
