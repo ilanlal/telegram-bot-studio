@@ -32,6 +32,9 @@ describe('BotApiHandler', () => {
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
+        //console.log(JSON.stringify(data, null, 2));
+        // no error in data
+        expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
     });
 
     // getChat

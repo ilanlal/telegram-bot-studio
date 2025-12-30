@@ -101,31 +101,15 @@ BotApiHandler.ControllerWrapper = class {
 
     handleGetMe(e) {
         try {
-            // extract chat_id from event object
-            const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
-                ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
-                : null;
-            if (!token) {
-                throw new Error("Bot API token is required.");
-            }
-            // Log the request to Terminal Output sheet
-            TerminalOutput.Write(this._activeSpreadsheet, 'client', 'GET_ME', e, `Request to get bot info with token: ${token}`);
-            const telegramBotClient = new TelegramBotClient(token);
-            const response = telegramBotClient.getMe();
-            if (response.getResponseCode() !== 200) {
-                throw new Error("Failed to get bot info");
-            }
-            const result = JSON.parse(response.getContentText()).result;
-
-            // Log the response to Terminal Output sheet
-            TerminalOutput.Write(this._activeSpreadsheet, 'server', 'GET_ME', result, `Retrieved bot info for token: ${token}`);
-
             e.parameters = {
                 path: 'Plugins.GetMe.HomeCard'
             };
             return Plugins.Navigations.UpdateCard(e);
         } catch (error) {
-            TerminalOutput.Write(this._activeSpreadsheet, 'server', 'ERROR::GET_ME', error.toString(), `Error retrieving bot info`);
+            TerminalOutput.Write(
+                this._activeSpreadsheet,
+                'BotApiHandler.ControllerWrapper',
+                'ERROR::handleGetMe', e, error.toString());
             return this.handleError(error)
                 .build();
         }
@@ -133,44 +117,16 @@ BotApiHandler.ControllerWrapper = class {
 
     handleGetChat(e) {
         try {
-            // extract chat_id from event object
-            const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
-                ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
-                : null;
-
-            if (!token) {
-                throw new Error('Bot API token is required.');
-            }
-
-            const chatId = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_chat_id'])
-                ? e.commonEventObject.formInputs['txt_chat_id']?.stringInputs?.value?.[0]
-                : null;
-
-            if (!chatId) {
-                throw new Error('Chat ID is required.');
-            }
-
-            // Log the request to Terminal Output sheet
-            TerminalOutput.Write(this._activeSpreadsheet, 'client', 'GET_CHAT', e, `Request to get chat info with token: ${token} and chat ID: ${chatId}`);
-
-            const telegramBotClient = new TelegramBotClient(token);
-
-            // 1. using the bot token and chat id, get chat info from Telegram API`
-            const response = telegramBotClient.getChat(encodeURIComponent(chatId));
-            if (response.getResponseCode() !== 200) {
-                throw new Error("Failed to get bot info");
-            }
-            const result = JSON.parse(response.getContentText()).result;
-            // 2. add result to Terminal Output sheet
-            TerminalOutput.Write(this._activeSpreadsheet, 'server', 'GET_CHAT', result, `Retrieved chat info for chat ID: ${chatId}`);
-
-            // 3. update the current card with chat info
             e.parameters = {
                 path: 'Plugins.GetChat.HomeCard'
             };
             return Plugins.Navigations.UpdateCard(e);
         } catch (error) {
-            tTerminalOutput.Write(this._activeSpreadsheet, 'server', 'ERROR::GET_CHAT', error.toString(), `Error retrieving chat info`);
+            TerminalOutput.Write(this._activeSpreadsheet,
+                'BotApiHandler.ControllerWrapper',
+                'ERROR::handleGetChat',
+                e,
+                error.toString());
             return this.handleError(error)
                 .build();
         }

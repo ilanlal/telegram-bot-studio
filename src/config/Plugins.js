@@ -235,6 +235,11 @@ Plugins.ViewModel = {
 
 Plugins.Navigations = {
     PushCard: (e) => {
+        TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+            'Plugins.Navigations',
+            'PushCard',
+            e,
+            `Pushing card with path: ${e.parameters?.path || 'N/A'}`);
         // extract parameters from event
         const path = e.parameters?.path || null;
         if (!path) {
@@ -272,6 +277,11 @@ Plugins.Navigations = {
         throw new Error(`Plugin path "${path}" not found.`);
     },
     UpdateCard: (e) => {
+        TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+            'Plugins.Navigations',
+            'UpdateCard',
+            e,
+            `Updating card with path: ${e.parameters?.path || 'N/A'}`);
         // extract parameters from event
         const path = e.parameters?.path || null;
         if (!path) {
@@ -352,9 +362,9 @@ Plugins.GetMe = {
                 .setImageAltText('Card Image'))
             // Add section for inputs and button
             .addSection(CardService.newCardSection()
-                .setHeader('GetMe Bot Information')
+                .setHeader('🗃️ Get (Me)')
                 .setCollapsible(true)
-                .setNumUncollapsibleWidgets(token ? 0 : 2)
+                .setNumUncollapsibleWidgets(token ? 1 : 2)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
@@ -370,34 +380,27 @@ Plugins.GetMe = {
                             CardService.newAction()
                                 // List of widget IDs whose values are required for this action to be executed
                                 .addRequiredWidget(['txt_bot_api_token'])
-                                .setFunctionName('BotApiHandler.View.GetMe')))
-                // Add basic help about GetMe plugin
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText('Click "Get Bot Info" to retrieve information about your bot using the GetMe method. Ensure you have entered a valid Bot Token.')
-                ));
-
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        // Log the request to Terminal Output sheet
-        TerminalOutput.Write(activeSpreadsheet, 'client', 'GET_ME', data, `Request to get bot info with token: ${token}`);
+                                .setFunctionName('BotApiHandler.View.GetMe'))));
 
         // Add result section if token is provided
-        if (token) {
+        if (token !== '') {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            // Log the request to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Start', data, `Request to get bot info with token: ${token}`);
+
             const telegramBotClient = new TelegramBotClient(token);
             const response = telegramBotClient.getMe();
             if (response.getResponseCode() !== 200) {
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'ERROR:HomeCard', response.getContentText(), `Failed to get bot info for token: ${token}`);
                 throw new Error("Failed to get bot info");
             }
             const result = JSON.parse(response.getContentText()).result;
 
             // Log the response to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'server', 'GET_ME', result, `Retrieved bot info for token: ${token}`);
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Response', result, `Retrieved bot info for token: ${token}`);
 
             cardBuilder.addSection(Plugins.GetMe.ResultSection(result));
         }
-
-        // Add JSON Tools Section
-        cardBuilder.addSection(Plugins.JsonTools.WelcomeSection(data));
 
         if (data.developer_mode_switch === 'ON') {
             // Add data section
@@ -431,23 +434,36 @@ Plugins.GetMe = {
     ResultSection: (result = {}) => {
         const grid = CardService.newGrid()
             .setId('resultGrid')
-            .setTitle('Result Preview')
-            .setNumColumns(1);
+            .setTitle('Preview')
+            .setNumColumns(1)
+            .setBorderStyle(
+                CardService.newBorderStyle()
+                    .setType(CardService.BorderType.STROKE)
+                    // No effect as of now
+                    //.setStrokeColor('#4CAF50')
+                    .setCornerRadius(0));
 
         // Add each property from result to the grid
         Object.keys(result).forEach((key) => {
             grid.addItem(
                 CardService.newGridItem()
+                    .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
                     .setIdentifier(key)
                     .setTitle(key)
                     .setSubtitle(JSON.stringify(result[key])));
         });
 
+        // Raw JSON view
+        const rawResultTextParagraph = CardService.newTextParagraph()
+            .setText('Raw:\n' + JSON.stringify(result))
+            .setMaxLines(1);
+
         // Build the execution result card
         return CardService.newCardSection()
-            .setHeader('Execution Result')
+            .setHeader('🟢 200 OK')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1)
+            .setNumUncollapsibleWidgets(2)
+            .addWidget(rawResultTextParagraph)
             .addWidget(grid);
     },
     AboutCard: (data = {}) => {
@@ -484,22 +500,11 @@ Plugins.GetMe = {
     }
 }
 
-Plugins.GetMe.Controller = {
-    Execute: (e) => {
-        const token = e?.commonEventObject?.formInputs?.txt_bot_api_token?.stringInputs?.value?.[0] || '';
-        if (!token) {
-            throw new Error('Bot Token is required to execute GetMe.');
-        }
-        const response = BotApiHandler.View.GetMe(e);
-        return response;
-    }
-};
-
 Plugins.GetChat = {
     id: 'GetChatPlugin',
     name: 'GetChat Plugin',
-    description: 'Plugin to get chat information using GetChat method.',
-    version: '1.0.1',
+    description: 'Plugin to get chat information using getChat method.',
+    version: '1.0.2',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
@@ -522,31 +527,35 @@ Plugins.GetChat = {
                         )));
     },
     HomeCard: (data = {}) => {
+        const token = data.txt_bot_api_token || '';
+        const chatId = data.txt_chat_id || '';
         // Build the GetChat plugin card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.GetChat.name)
             .setHeader(CardService.newCardHeader()
-                .setTitle('GetChat Information')
-                .setSubtitle('GetChat Card')
+                .setTitle('GetChat Chat Information')
+                .setSubtitle('Usage the api getChat Method to get information about a chat.')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.GetChat.imageUrl)
                 .setImageAltText('Card Image'))
             // Add section for inputs (token, chat id)
             .addSection(CardService.newCardSection()
-                .setHeader('GetChat Information')
+                .setHeader('🗃️ Get (Chat)')
                 .setCollapsible(true)
                 .setNumUncollapsibleWidgets(3)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
-                        .setId('txt_bot_api_token')
+                        .setValue(token)
+                        //.setId('txt_bot_api_token')
                         .setFieldName('txt_bot_api_token')
                         .setTitle('🤖 Your Bot Token')
                         .setHint('Enter your Bot Token, get it from @BotFather'))
                 // Chat ID input
                 .addWidget(
                     CardService.newTextInput()
-                        .setId('txt_chat_id')
+                        .setValue(chatId)
+                        //.setId('txt_chat_id')
                         .setFieldName('txt_chat_id')
                         .setTitle('📢 Chat ID')
                         .setHint('Enter the Chat ID to get information'))
@@ -559,15 +568,28 @@ Plugins.GetChat = {
                                 // List of widget IDs whose values are required for this action to be executed
                                 .addRequiredWidget(['txt_bot_api_token'])
                                 .addRequiredWidget(['txt_chat_id'])
-                                .setFunctionName('BotApiHandler.View.GetChat')))
-                // Add basic help about GetChat plugin
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setMaxLines(2)
-                        .setText('Click "Get Chat Info" to retrieve information about a chat using the GetChat method. Ensure you have entered a valid Bot Token and Chat ID.')
-                ))
-            // Add JSON Tools Welcome Section
-            .addSection(Plugins.JsonTools.WelcomeSection(data));
+                                .setFunctionName('BotApiHandler.View.GetChat'))));
+
+
+        // Add result section if token is provided
+        if (token !== '' && chatId !== '') {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            // Log the request to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Start', data, `Request to get chat info with token: ${token}, chat ID: ${chatId}`);
+
+            const telegramBotClient = new TelegramBotClient(token);
+            const response = telegramBotClient.getChat(encodeURIComponent(chatId));
+            if (response.getResponseCode() !== 200) {
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'ERROR', response.getContentText(), `Failed to get chat info for token: ${token} and chat ID: ${chatId}`);
+                throw new Error("Failed to get chat info");
+            }
+            const result = JSON.parse(response.getContentText()).result;
+
+            // Log the response to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${token} and chat ID: ${chatId}`);
+
+            cardBuilder.addSection(Plugins.GetChat.ResultSection(result));
+        }
 
         // if developer mode is on, add data section
         if (data.developer_mode_switch === 'ON') {
@@ -597,6 +619,41 @@ Plugins.GetChat = {
                         )));
 
         return cardBuilder.build();
+    },
+    ResultSection: (result = {}) => {
+        const grid = CardService.newGrid()
+            .setId('resultGrid')
+            .setTitle('Preview')
+            .setNumColumns(1)
+            .setBorderStyle(
+                CardService.newBorderStyle()
+                    .setType(CardService.BorderType.STROKE)
+                    // No effect as of now
+                    //.setStrokeColor('#4CAF50')
+                    .setCornerRadius(0));
+
+        // Add each property from result to the grid
+        Object.keys(result).forEach((key) => {
+            grid.addItem(
+                CardService.newGridItem()
+                    .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
+                    .setIdentifier(key)
+                    .setTitle(key)
+                    .setSubtitle(JSON.stringify(result[key])));
+        });
+
+        // Raw JSON view
+        const rawResultTextParagraph = CardService.newTextParagraph()
+            .setText('Raw:\n' + JSON.stringify(result))
+            .setMaxLines(1);
+
+        // Build the execution result card
+        return CardService.newCardSection()
+            .setHeader('🟢 200 OK')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(2)
+            .addWidget(rawResultTextParagraph)
+            .addWidget(grid);
     },
     AboutCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
