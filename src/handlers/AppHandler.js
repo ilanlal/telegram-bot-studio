@@ -110,13 +110,26 @@ AppHandler.ControllerWrapper = class {
 
     handleToggleAction(e) {
         try {
-            const params = e.commonEventObject.parameters;
-            const actionName = params.actionName;
-            const isEnabled = params.isEnabled === 'true';
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .appendRow([
+                    // Created On as iso string
+                    new Date().toISOString(),
+                    'client', // chat side
+                    'Toggle action',
+                    JSON.stringify({ e }) // placeholder
+                ]);
+            const actionName = e?.commonEventObject?.parameters?.actionName;
+            
+            const state = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
             // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
             // Perform the toggle action logic here
             // For example, update user settings or preferences
-            return this.handleOperationSuccess(`Action "${actionName}" has been ${isEnabled ? 'enabled' : 'disabled'}.`);
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(`👋 Action "${actionName}" has been state: ${state==='ON' ? '✅ On' : '📴 Off'}.`))
+                .build();
         } catch (error) {
             return this.handleOperationError(error);
         }
