@@ -29,6 +29,11 @@ AppHandler.ViewModel = {
     RevokeLicense: (e) => {
         return MembershipHandler.ViewModel
             .RevokeLicense(e);
+    },
+    ToggleAction(e) {
+        return new AppHandler
+            .ControllerWrapper()
+            .handleToggleAction(e);
     }
 }
 
@@ -53,7 +58,11 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenUserProfileCard(e) {
         try {
+            const debug_mode_switch = (e.commonEventObject?.formInputs?.debug_mode_switch)
+                ? e.commonEventObject.formInputs.debug_mode_switch.stringInputs.value[0]
+                : 'OFF';
             const data = {
+                debug_mode_switch,
                 ...AppModel.create().toJSON()
             };
             return CardService.newActionResponseBuilder()
@@ -94,6 +103,20 @@ AppHandler.ControllerWrapper = class {
                             Plugins.ViewModel.BuildHelpCard(data)
                         )
                 ).build();
+        } catch (error) {
+            return this.handleOperationError(error);
+        }
+    }
+
+    handleToggleAction(e) {
+        try {
+            const params = e.commonEventObject.parameters;
+            const actionName = params.actionName;
+            const isEnabled = params.isEnabled === 'true';
+            // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
+            // Perform the toggle action logic here
+            // For example, update user settings or preferences
+            return this.handleOperationSuccess(`Action "${actionName}" has been ${isEnabled ? 'enabled' : 'disabled'}.`);
         } catch (error) {
             return this.handleOperationError(error);
         }

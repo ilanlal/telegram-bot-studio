@@ -137,6 +137,23 @@ BotApiHandler.ControllerWrapper = class {
                     `Call getMe('${token}')`,
                     JSON.stringify(result)
                 ]);
+
+            const lastRow = SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .getLastRow();
+
+                const lastRowA1Notation = `A${lastRow}:D${lastRow}`;
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                // Set active selection to the last row.
+                .setActiveSelection(lastRowA1Notation);
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .getRange(lastRowA1Notation)
+                .setBackground('gray');
+
             return this.handleOperationSuccess("👍 Bot info retrieved successfully.")
                 .build();
         } catch (error) {
@@ -146,7 +163,7 @@ BotApiHandler.ControllerWrapper = class {
                     // Created On as iso string
                     new Date().toISOString(),
                     'server', // chat side
-                    `Error calling getMe('${token}')`,
+                    `Error calling getMe`,
                     error.toString()
                 ]);
             return this.handleError(error)

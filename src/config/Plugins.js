@@ -131,11 +131,16 @@ Plugins.ViewModel = {
                         .setWrapText(true)
                         .setSwitchControl(
                             CardService.newSwitch()
-                                .setFieldName('form_input_switch_key')
-                                .setValue('form_input_switch_value')
+                                .setFieldName('debug_mode_switch')
+                                .setValue('ON')
                                 .setOnChangeAction(
-                                    CardService.newAction().setFunctionName(
-                                        'handleSwitchChange'),
+                                    CardService.newAction()
+                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                        .setParameters({
+                                            actionName: 'debug_mode_switch',
+                                            // The new state will be passed as 'isEnabled' parameter
+                                            isEnabled: data.debug_mode_switch ? 'true' : 'false'
+                                        })
                                 )
                         )
                 ));
@@ -242,7 +247,7 @@ Plugins.GetMe = {
     id: 'GetMePlugin',
     name: 'GetMe Plugin',
     description: 'Plugin to get bot information using GetMe method.',
-    version: '1.0.0',
+    version: '1.0.3',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
@@ -355,7 +360,7 @@ Plugins.GetChat = {
     id: 'GetChatPlugin',
     name: 'GetChat Plugin',
     description: 'Plugin to get chat information using GetChat method.',
-    version: '1.0.0',
+    version: '1.0.1',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()

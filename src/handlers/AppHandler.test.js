@@ -74,5 +74,19 @@ describe('AppHandler', () => {
         expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
     });
 
-    // Additional tests for other handlers can be added similarly
+    // ToggleAction
+    it('should handle ToggleAction', () => {
+        const event = {
+            commonEventObject: {
+                parameters: {
+                    actionName: 'debug_mode_switch',
+                    isEnabled: 'true'
+                }
+            }
+        };
+        const actionResponse = AppHandler.ViewModel.ToggleAction(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+    });
 });
