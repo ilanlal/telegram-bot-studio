@@ -119,7 +119,7 @@ Plugins.ViewModel = {
 
         // 2. Settings section
         data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
-        
+
         cardBuilder.addSection(
             CardService.newCardSection()
                 .setHeader('Settings')
@@ -280,46 +280,53 @@ Plugins.GetMe = {
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.GetMe.imageUrl)
                 .setImageAltText('Card Image'))
+            // Add section for inputs (token)
             .addSection(CardService.newCardSection()
                 .setHeader('GetMe Bot Information')
                 .setCollapsible(true)
-                .setNumUncollapsibleWidgets(1)
+                .setNumUncollapsibleWidgets(2)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
                         .setFieldName('txt_bot_api_token')
                         .setTitle('🤖 Your Bot Token')
                         .setHint('Enter your Bot Token, get it from @BotFather')
-                        .setValue(data.botToken || '')))
-            .addSection(CardService.newCardSection()
+                        .setValue(data.botToken || ''))
+                // Get Me button
+                .addWidget(
+                    CardService.newTextButton()
+                        .setText('🤖 Get Bot Info')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                // List of widget IDs whose values are required for this action to be executed
+                                .addRequiredWidget(['txt_bot_api_token'])
+                                .setFunctionName('BotApiHandler.View.GetMe')))
+                // Add basic help about GetMe plugin
                 .addWidget(
                     CardService.newTextParagraph()
-                        .setText('Use this card to get bot information using the GetMe method.')))
-            .addSection(CardService.newCardSection()
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText('Explore more features with the premium membership!')))
-            // Add JSON Tools Welcome Section
+                        .setText('Click "Get Bot Info" to retrieve information about your bot using the GetMe method. Ensure you have entered a valid Bot Token.')
+                ))
+            // Add JSON Tools Section
             .addSection(Plugins.JsonTools.WelcomeSection(data))
             // Add fixed footer with Get Bot Info button
             .setFixedFooter(
                 CardService.newFixedFooter()
                     .setPrimaryButton(
                         CardService.newTextButton()
-                            .setText('Get Bot Info')
+                            .setText('About')
                             .setOnClickAction(
                                 CardService.newAction()
-                                    // List of widget IDs whose values are required for this action to be executed
-                                    .addRequiredWidget(['txt_bot_api_token'])
-                                    .setFunctionName('BotApiHandler.View.GetMe')))
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.GetMe.AboutCard' })
+                            ))
                     .setSecondaryButton(
                         CardService.newTextButton()
                             .setText('Help')
                             .setOnClickAction(
                                 CardService.newAction()
                                     .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.GetMe.HelpCard' }
-                                    ))));
+                                    .setParameters({ path: 'Plugins.GetMe.HelpCard' })
+                            )));
 
         return cardBuilder.build();
     },
@@ -396,8 +403,8 @@ Plugins.GetChat = {
             // Add section for inputs (token, chat id)
             .addSection(CardService.newCardSection()
                 .setHeader('GetChat Information')
-                .setCollapsible(false)
-                .setNumUncollapsibleWidgets(1)
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(3)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
@@ -411,7 +418,23 @@ Plugins.GetChat = {
                         .setId('txt_chat_id')
                         .setFieldName('txt_chat_id')
                         .setTitle('📢 Chat ID')
-                        .setHint('Enter the Chat ID to get information')))
+                        .setHint('Enter the Chat ID to get information'))
+                // Get Chat Info button
+                .addWidget(
+                    CardService.newTextButton()
+                        .setText('📢 Get Chat Info')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                // List of widget IDs whose values are required for this action to be executed
+                                .addRequiredWidget(['txt_bot_api_token'])
+                                .addRequiredWidget(['txt_chat_id'])
+                                .setFunctionName('BotApiHandler.View.GetChat')))
+                // Add basic help about GetChat plugin
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('Click "Get Chat Info" to retrieve information about a chat using the GetChat method. Ensure you have entered a valid Bot Token and Chat ID.')
+                )
+            )
             // Add JSON Tools Welcome Section
             .addSection(Plugins.JsonTools.WelcomeSection(data))
             // Add fixed footer with Get Chat Info button;
@@ -419,21 +442,20 @@ Plugins.GetChat = {
                 CardService.newFixedFooter()
                     .setPrimaryButton(
                         CardService.newTextButton()
-                            .setText('📢 Get Chat Info')
+                            .setText('About')
                             .setOnClickAction(
                                 CardService.newAction()
-                                    // List of widget IDs whose values are required for this action to be executed
-                                    .addRequiredWidget(['txt_bot_api_token'])
-                                    .addRequiredWidget(['txt_chat_id'])
-                                    .setFunctionName('BotApiHandler.View.GetChat')))
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.GetChat.AboutCard' })
+                            ))
                     .setSecondaryButton(
                         CardService.newTextButton()
                             .setText('Help')
                             .setOnClickAction(
                                 CardService.newAction()
                                     .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.GetChat.HelpCard' }
-                                    ))));
+                                    .setParameters({ path: 'Plugins.GetChat.HelpCard' })
+                            )));
 
         return cardBuilder.build();
     },
@@ -463,7 +485,7 @@ Plugins.JsonTools = {
         return CardService.newCardSection()
             .setHeader('Useful JSON Tools')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1)
+            .setNumUncollapsibleWidgets(0)
             // Add decorated text widget
             .addWidget(CardService.newDecoratedText()
                 .setTopLabel(Plugins.JsonTools.version)
