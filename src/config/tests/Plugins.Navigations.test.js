@@ -15,6 +15,27 @@ describe('Plugins Navigations', () => {
         expect(data.cardNavigations[0].pushCard).toBeDefined();
     });
 
+    // Plugins.Navigations.UpdateCard test
+    it('should handle UpdateCard navigation', () => {
+        // mock event parameters
+        const e = {
+            parameters: { path: 'Plugins.GetMe.HomeCard' },
+            commonEventObject: {
+                formInputs: {
+                    txt_bot_api_token: { stringInputs: { value: ['some input value'] } },
+                    txt_chat_id: { stringInputs: { value: ['some chat id'] } }
+                }
+            }
+        };
+        const actionResponse = Plugins.Navigations.UpdateCard(e);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+        expect(data.cardNavigations).toBeDefined();
+        expect(data.cardNavigations.length).toBeGreaterThan(0);
+        expect(data.cardNavigations[0].updateCard).toBeDefined();
+    });
+
     it('should throw error for missing path parameter', () => {
         // mock event parameters without path
         const e = { parameters: {} };

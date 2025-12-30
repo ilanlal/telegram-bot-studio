@@ -268,6 +268,42 @@ Plugins.Navigations = {
         }
 
         throw new Error(`Plugin path "${path}" not found.`);
+    },
+    UpdateCard: (e) => {
+        // extract parameters from event
+        const path = e.parameters?.path || null;
+        if (!path) {
+            throw new Error('"path" parameter is required to navigate.');
+        }
+
+        // path = 'Plugins.GetMe.HomeCard', 'Plugins.GetChat.HomeCard', etc.
+        const splitPath = path.split('.');
+        if (splitPath.length !== 3) {
+            throw new Error(`Invalid plugin path format: "${path}". Expected format: "Plugins.PluginName.ActionName".`);
+        }
+
+        const plugin = splitPath[1];
+        const action = splitPath[2];
+
+        if (Plugins[plugin] && typeof Plugins[plugin][action] === 'function') {
+            const formInputs = e.commonEventObject?.formInputs || {};
+            // create data object from form inputs
+            const data = {};
+            Object.keys(formInputs).forEach((key) => {
+                const input = formInputs[key];
+                if (input.stringInputs) {
+                    data[key] = input.stringInputs.value[0];
+                }
+            });
+            // Call the plugin action to get the card
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .updateCard(Plugins[plugin][action](data))
+                ).build();
+        }
+
+        throw new Error(`Plugin path "${path}" not found.`);
     }
 };
 
@@ -335,7 +371,7 @@ Plugins.GetMe = {
                 ))
             // Add JSON Tools Section
             .addSection(Plugins.JsonTools.WelcomeSection(data))
-            // Add fixed footer with Get Bot Info button
+            // Add fixed footer with About and Help buttons
             .setFixedFooter(
                 CardService.newFixedFooter()
                     .setPrimaryButton(

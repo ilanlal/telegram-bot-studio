@@ -97,23 +97,10 @@ BotApiHandler.ControllerWrapper = class {
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
         this._activeSpreadsheet = activeSpreadsheet;
-        // Ensure Terminal Output sheet is initialized and active
-        SheetModel.create(this._activeSpreadsheet)
-            .setActiveSheet(EMD.Spreadsheet.TerminalOutput({}));
     }
 
     handleGetMeClick(e) {
         try {
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .appendRow([
-                    // Created On as iso string
-                    new Date().toISOString(),
-                    'client', // chat side
-                    'Request to get bot info',
-                    JSON.stringify({ e }) // placeholder
-                ]);
-
             // extract chat_id from event object
             const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
                 ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
@@ -121,6 +108,8 @@ BotApiHandler.ControllerWrapper = class {
             if (!token) {
                 throw new Error("Bot API token is required.");
             }
+            // Log the request to Terminal Output sheet
+            this.writeToTerminalOutput('client', 'GET_ME', e, `Request to get bot info with token: ${token}`);
             const telegramBotClient = new TelegramBotClient(token);
             const response = telegramBotClient.getMe();
             if (response.getResponseCode() !== 200) {
@@ -128,44 +117,13 @@ BotApiHandler.ControllerWrapper = class {
             }
             const result = JSON.parse(response.getContentText()).result;
 
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .appendRow([
-                    // Created On as iso string
-                    new Date().toISOString(),
-                    'server', // chat side
-                    `Call getMe('${token}')`,
-                    JSON.stringify(result)
-                ]);
-
-            const lastRow = SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .getLastRow();
-
-            const lastRowA1Notation = `A${lastRow}:E${lastRow}`;
-
-            SheetModel.create(this._activeSpreadsheet)
-            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-            // Set active selection to the last row.
-            .setActiveSelection(lastRowA1Notation);
-
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .getRange(lastRowA1Notation)
-                .setBackground('#e0ffe0'); // light green background for success
+            // Log the response to Terminal Output sheet
+            this.writeToTerminalOutput('server', 'GET_ME', result, `Retrieved bot info for token: ${token}`);
 
             return this.handleOperationSuccess("👍 Bot info retrieved successfully.")
                 .build();
         } catch (error) {
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .appendRow([
-                    // Created On as iso string
-                    new Date().toISOString(),
-                    'server', // chat side
-                    `Error calling getMe`,
-                    error.toString()
-                ]);
+            this.writeToTerminalOutput('server', 'ERROR::GET_ME', error.toString(), `Error retrieving bot info`);
             return this.handleError(error)
                 .build();
         }
@@ -173,16 +131,6 @@ BotApiHandler.ControllerWrapper = class {
 
     handleGetChatClick(e) {
         try {
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .appendRow([
-                    // Created On as iso string
-                    new Date().toISOString(),
-                    'client', // chat side
-                    'Request to get chat info',
-                    JSON.stringify({ e }) // placeholder
-                ]);
-
             // extract chat_id from event object
             const token = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
                 ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
@@ -200,6 +148,9 @@ BotApiHandler.ControllerWrapper = class {
                 throw new Error('Chat ID is required.');
             }
 
+            // Log the request to Terminal Output sheet
+            this.writeToTerminalOutput('client', 'GET_CHAT', e, `Request to get chat info with token: ${token} and chat ID: ${chatId}`);
+
             const telegramBotClient = new TelegramBotClient(token);
 
             // 1. using the bot token and chat id, get chat info from Telegram API`
@@ -209,46 +160,16 @@ BotApiHandler.ControllerWrapper = class {
             }
             const result = JSON.parse(response.getContentText()).result;
             // 2. add result to Terminal Output sheet
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .appendRow([
-                    // Created On as iso string
-                    new Date().toISOString(),
-                    'server', // chat side
-                    `Retrieved info for chat ID: ${chatId}`,
-                    JSON.stringify(result)
-                ]);
+            this.writeToTerminalOutput('server', 'GET_CHAT', result, `Retrieved chat info for chat ID: ${chatId}`);
 
-            const lastRow = SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .getLastRow();
-
-            const lastRowA1Notation = `A${lastRow}:E${lastRow}`;
-
-            SheetModel.create(this._activeSpreadsheet)
-            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-            // Set active selection to the last row.
-            .setActiveSelection(lastRowA1Notation);
-
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .getRange(lastRowA1Notation)
-                .setBackground('#e0ffe0'); // light green background for success
-
+            // 3. update the current card with chat info
+            Plugins.Navigations.UpdateCard({ parameters: { path: 'Plugins.GetChat.HomeCard' }, ...e });
 
             // For demonstration, we just return the chat ID back
             return this.handleOperationSuccess(`Chat ID retrieved successfully: ${chatId}`)
                 .build();
         } catch (error) {
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .appendRow([
-                    // Created On as iso string
-                    new Date().toISOString(),
-                    'server', // chat side
-                    `Error retrieving chat info`,
-                    error.toString()
-                ]);
+            this.writeToTerminalOutput('server', 'ERROR::GET_CHAT', error.toString(), `Error retrieving chat info`);
             return this.handleError(error)
                 .build();
         }
@@ -443,6 +364,29 @@ BotApiHandler.ControllerWrapper = class {
             .setNotification(
                 CardService.newNotification()
                     .setText(message));
+    }
+
+    writeToTerminalOutput(source, message, e, details) {
+        const sheet = SheetModel.create(this._activeSpreadsheet)
+            .getSheet(EMD.Spreadsheet.TerminalOutput({}));
+
+        sheet.appendRow([
+            // Created On as iso string
+            new Date().toISOString(),
+            // source
+            source, // chat side
+            // Message
+            message,
+            // Event Object
+            JSON.stringify(e),
+            // Details 
+            details
+        ]);
+        const lastRow = sheet.getLastRow();
+
+        const lastRowA1Notation = `A${lastRow}:E${lastRow}`;
+
+        return sheet.setActiveSelection(lastRowA1Notation);
     }
 
     handleError(error) {
