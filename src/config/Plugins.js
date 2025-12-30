@@ -459,9 +459,9 @@ Plugins.GetChat = {
                 // Add basic help about GetChat plugin
                 .addWidget(
                     CardService.newTextParagraph()
+                        .setMaxLines(2)
                         .setText('Click "Get Chat Info" to retrieve information about a chat using the GetChat method. Ensure you have entered a valid Bot Token and Chat ID.')
-                )
-            )
+                ))
             // Add JSON Tools Welcome Section
             .addSection(Plugins.JsonTools.WelcomeSection(data))
             // Add fixed footer with Get Chat Info button;
