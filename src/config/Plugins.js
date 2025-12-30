@@ -15,6 +15,8 @@ Plugins.ViewModel = {
     version: '1.0.0',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     BuildHomeCard: (data = {}) => {
+        data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
+
         // Build the App Model plugin card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.ViewModel.id + '-Home')
@@ -33,9 +35,11 @@ Plugins.ViewModel = {
         });
 
         // Add data section
-        cardBuilder.addSection(
-            Plugins.ViewModel.BuildDataSection(data)
-        );
+        if (data.developer_mode_switch === 'ON') {
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildDataSection(data)
+            );
+        }
 
         // Add fixed footer
         if (data.isPremium) {
@@ -119,7 +123,7 @@ Plugins.ViewModel = {
 
         // 2. Settings section
         data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
-
+        data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
         cardBuilder.addSection(
             CardService.newCardSection()
                 .setHeader('Settings')
@@ -144,12 +148,35 @@ Plugins.ViewModel = {
                                         })
                                 )
                         )
-                ));
+                )
+                // Developer mode toggle
+                .addWidget(
+                    CardService.newDecoratedText()
+                        .setTopLabel('Developer Mode')
+                        .setText('Enable or disable developer mode for advanced features.')
+                        .setWrapText(true)
+                        .setSwitchControl(
+                            CardService.newSwitch()
+                                .setFieldName('developer_mode_switch')
+                                .setSelected(data.developer_mode_switch === 'ON')
+                                .setValue('ON')
+                                .setOnChangeAction(
+                                    CardService.newAction()
+                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                        .setParameters({
+                                            actionName: 'developer_mode_switch'
+                                        })
+                                )
+                        )
+                )
+        );
 
         // 3. data section
-        cardBuilder.addSection(
-            Plugins.ViewModel.BuildDataSection(data)
-        );
+        if (data.developer_mode_switch === 'ON') {
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildDataSection(data)
+            );
+        }
 
         return cardBuilder.build();
     },
@@ -477,15 +504,15 @@ Plugins.GetChat = {
 
 Plugins.JsonTools = {
     id: 'JsonToolsPlugin',
-    name: 'Tools for JSON Data',
-    description: 'A set of tools to beautify, minify, and validate JSON data.',
+    name: 'JSON Tools Plugin',
+    description: 'A set of tools to make working with JSON data easier.',
     version: '1.1.0',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/ss-json-editor/main/assets/logo120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
-            .setHeader('Useful JSON Tools')
+            .setHeader('🪚 Useful JSON Tools')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(0)
+            .setNumUncollapsibleWidgets(2)
             // Add decorated text widget
             .addWidget(CardService.newDecoratedText()
                 .setTopLabel(Plugins.JsonTools.version)
@@ -494,25 +521,33 @@ Plugins.JsonTools = {
                 .setWrapText(false))
             // Add button set for JSON Tools
             .addWidget(CardService.newTextButton()
-                .setText('🎨 Beautify JSON')
+                .setText('🎨 Beautify')
                 .setOnClickAction(
                     CardService.newAction()
                         .setFunctionName('JsonHandler.View.BeautifyJson')
                 ))
             // Add Minify JSON button
             .addWidget(CardService.newTextButton()
-                .setText('🗜️ Minify JSON')
+                .setText('🗜️ Minify')
                 .setOnClickAction(
                     CardService.newAction()
                         .setFunctionName('JsonHandler.View.MinifyJson')
                 ))
             // Add Validate JSON button
             .addWidget(CardService.newTextButton()
-                .setText('✅ Validate JSON')
+                .setText('✅ Validate')
                 .setOnClickAction(
                     CardService.newAction()
                         .setFunctionName('JsonHandler.View.ValidateJson')
-                ));
+                )
+                // Add basic help about JSON Tools plugin
+            ).addWidget(
+                CardService.newTextParagraph()
+                    .setMaxLines(2)
+                    .setText('Use these tools to beautify, minify, or validate your JSON data easily within Google Workspace.\n\n'
+                        + 'Simply click on the desired action button to get started.'
+                    )
+            );
     }
 }
 

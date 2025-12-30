@@ -16,6 +16,6 @@ describe('Plugins JsonTools', () => {
         expect(welcomeSection).toBeDefined();
         const sectionData = welcomeSection.getData();
         expect(sectionData).toBeDefined();
-        expect(sectionData.header).toBe('Useful JSON Tools');
+        expect(sectionData.header).toBe('🪚 Useful JSON Tools');
     });
 });
