@@ -432,7 +432,7 @@ Plugins.GetMe = {
         const grid = CardService.newGrid()
             .setId('resultGrid')
             .setTitle('Result Preview')
-            .setNumColumns(2);
+            .setNumColumns(1);
 
         // Add each property from result to the grid
         Object.keys(result).forEach((key) => {
@@ -448,10 +448,7 @@ Plugins.GetMe = {
             .setHeader('Execution Result')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(1)
-            .addWidget(grid)
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText(JSON.stringify(result, null, 4)));
+            .addWidget(grid);
     },
     AboutCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
