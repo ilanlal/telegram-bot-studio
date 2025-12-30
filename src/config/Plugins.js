@@ -134,7 +134,8 @@ Plugins.ViewModel = {
                         .setSwitchControl(
                             CardService.newSwitch()
                                 .setFieldName('debug_mode_switch')
-                                .setValue(data.debug_mode_switch)
+                                .setSelected(data.debug_mode_switch === 'ON')
+                                .setValue('ON')
                                 .setOnChangeAction(
                                     CardService.newAction()
                                         .setFunctionName('AppHandler.ViewModel.ToggleAction')

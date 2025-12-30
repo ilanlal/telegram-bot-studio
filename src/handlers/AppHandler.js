@@ -121,15 +121,15 @@ AppHandler.ControllerWrapper = class {
                 ]);
             const actionName = e?.commonEventObject?.parameters?.actionName;
             // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
-            const state = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0] || 'OFF';
+            const preState = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
             // store the new state within user properties or perform necessary actions
-            PropertiesService.getUserProperties().setProperty(actionName, state);
+            PropertiesService.getUserProperties().setProperty(actionName, preState==='ON' ? 'ON' : 'OFF');
             // Perform the toggle action logic here
             // For example, update user settings or preferences
             return CardService.newActionResponseBuilder()
                 .setNotification(
                     CardService.newNotification()
-                        .setText(`👋 Action "${actionName}" has been state: ${state==='ON' ? '✅ On' : '📴 Off'}.`))
+                        .setText(`👋 Action "${actionName}" has been state: ${preState==='ON' ? '✅ On' : '📴 Off'}.`))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);
