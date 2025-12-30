@@ -123,12 +123,12 @@ AppHandler.ControllerWrapper = class {
             // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
             const preState = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
             // store the new state within user properties or perform necessary actions
-            PropertiesService.getUserProperties().setProperty(actionName, preState==='ON' ? 'ON' : 'OFF');
+            PropertiesService.getUserProperties().setProperty(actionName, preState === 'ON' ? 'ON' : 'OFF');
             // return success notification
             return CardService.newActionResponseBuilder()
                 .setNotification(
                     CardService.newNotification()
-                        .setText(`👋 Action "${actionName}" has been state: ${preState==='ON' ? '✅ On' : '📴 Off'}.`))
+                        .setText(`👋 Action "${actionName}" has been state: ${preState === 'ON' ? '✅ On' : '📴 Off'}.`))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);

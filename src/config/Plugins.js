@@ -254,9 +254,11 @@ Plugins.Navigations = {
                 .toJSON();
 
             const data = {
-                ...appModelData
+                ...appModelData,
                 // You can add more data extraction logic here if needed
+                developer_mode_switch: PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF'
             };
+
 
             // Call the plugin action to get the card
             return CardService.newActionResponseBuilder()
@@ -288,7 +290,10 @@ Plugins.Navigations = {
         if (Plugins[plugin] && typeof Plugins[plugin][action] === 'function') {
             const formInputs = e.commonEventObject?.formInputs || {};
             // create data object from form inputs
-            const data = {};
+            const data = {
+                ...AppModel.create().toJSON(),
+                developer_mode_switch: PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF'
+            };
             Object.keys(formInputs).forEach((key) => {
                 const input = formInputs[key];
                 if (input.stringInputs) {
@@ -334,6 +339,8 @@ Plugins.GetMe = {
                         )));
     },
     HomeCard: (data = {}) => {
+        const token = data.txt_bot_api_token || '';
+
         // Build the GetMe plugin card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.GetMe.name)
@@ -343,7 +350,7 @@ Plugins.GetMe = {
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.GetMe.imageUrl)
                 .setImageAltText('Card Image'))
-            // Add section for inputs (token)
+            // Add section for inputs and button
             .addSection(CardService.newCardSection()
                 .setHeader('GetMe Bot Information')
                 .setCollapsible(true)
@@ -354,7 +361,7 @@ Plugins.GetMe = {
                         .setFieldName('txt_bot_api_token')
                         .setTitle('🤖 Your Bot Token')
                         .setHint('Enter your Bot Token, get it from @BotFather')
-                        .setValue(data.botToken || ''))
+                        .setValue(token))
                 // Get Me button
                 .addWidget(
                     CardService.newTextButton()
@@ -368,30 +375,69 @@ Plugins.GetMe = {
                 .addWidget(
                     CardService.newTextParagraph()
                         .setText('Click "Get Bot Info" to retrieve information about your bot using the GetMe method. Ensure you have entered a valid Bot Token.')
-                ))
-            // Add JSON Tools Section
-            .addSection(Plugins.JsonTools.WelcomeSection(data))
-            // Add fixed footer with About and Help buttons
-            .setFixedFooter(
-                CardService.newFixedFooter()
-                    .setPrimaryButton(
-                        CardService.newTextButton()
-                            .setText('About')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.GetMe.AboutCard' })
-                            ))
-                    .setSecondaryButton(
-                        CardService.newTextButton()
-                            .setText('Help')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.GetMe.HelpCard' })
-                            )));
+                ));
+
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        // Log the request to Terminal Output sheet
+        TerminalOutput.Write(activeSpreadsheet, 'client', 'GET_ME', data, `Request to get bot info with token: ${token}`);
+        
+        // Add result section if token is provided
+        if (token) {
+
+            const telegramBotClient = new TelegramBotClient(token);
+            const response = telegramBotClient.getMe();
+            if (response.getResponseCode() !== 200) {
+                throw new Error("Failed to get bot info");
+            }
+            const result = JSON.parse(response.getContentText()).result;
+
+            // Log the response to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'server', 'GET_ME', result, `Retrieved bot info for token: ${token}`);
+
+            cardBuilder.addSection(Plugins.GetMe.ResultSection(result));
+        }
+
+        // Add JSON Tools Section
+        cardBuilder.addSection(Plugins.JsonTools.WelcomeSection(data));
+
+        if (data.developer_mode_switch === 'ON') {
+            // Add data section
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildDataSection(data)
+            );
+        }
+
+        // Add fixed footer with About and Help buttons
+        cardBuilder.setFixedFooter(
+            CardService.newFixedFooter()
+                .setPrimaryButton(
+                    CardService.newTextButton()
+                        .setText('About')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetMe.AboutCard' })
+                        ))
+                .setSecondaryButton(
+                    CardService.newTextButton()
+                        .setText('Help')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetMe.HelpCard' })
+                        )));
 
         return cardBuilder.build();
+    },
+    ResultSection: (result = {}) => {
+        // Build the execution result card
+        return CardService.newCardSection()
+            .setHeader('Execution Result')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1)
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText(JSON.stringify(result, null, 4)));
     },
     AboutCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
@@ -426,6 +472,17 @@ Plugins.GetMe = {
         return cardBuilder.build();
     }
 }
+
+Plugins.GetMe.Controller = {
+    Execute: (e) => {
+        const token = e?.commonEventObject?.formInputs?.txt_bot_api_token?.stringInputs?.value?.[0] || '';
+        if (!token) {
+            throw new Error('Bot Token is required to execute GetMe.');
+        }
+        const response = BotApiHandler.View.GetMe(e);
+        return response;
+    }
+};
 
 Plugins.GetChat = {
     id: 'GetChatPlugin',
@@ -499,26 +556,34 @@ Plugins.GetChat = {
                         .setText('Click "Get Chat Info" to retrieve information about a chat using the GetChat method. Ensure you have entered a valid Bot Token and Chat ID.')
                 ))
             // Add JSON Tools Welcome Section
-            .addSection(Plugins.JsonTools.WelcomeSection(data))
-            // Add fixed footer with Get Chat Info button;
-            .setFixedFooter(
-                CardService.newFixedFooter()
-                    .setPrimaryButton(
-                        CardService.newTextButton()
-                            .setText('About')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.GetChat.AboutCard' })
-                            ))
-                    .setSecondaryButton(
-                        CardService.newTextButton()
-                            .setText('Help')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.GetChat.HelpCard' })
-                            )));
+            .addSection(Plugins.JsonTools.WelcomeSection(data));
+
+        // if developer mode is on, add data section
+        if (data.developer_mode_switch === 'ON') {
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildDataSection(data)
+            );
+        }
+
+        // Add fixed footer with Get Chat Info button;
+        cardBuilder.setFixedFooter(
+            CardService.newFixedFooter()
+                .setPrimaryButton(
+                    CardService.newTextButton()
+                        .setText('About')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetChat.AboutCard' })
+                        ))
+                .setSecondaryButton(
+                    CardService.newTextButton()
+                        .setText('Help')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetChat.HelpCard' })
+                        )));
 
         return cardBuilder.build();
     },

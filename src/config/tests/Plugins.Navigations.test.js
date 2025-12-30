@@ -2,6 +2,11 @@ require('../../../tests');
 const { Plugins } = require('../Plugins');
 
 describe('Plugins Navigations', () => {
+    const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
+    beforeEach(() => {
+        UrlFetchAppStubConfiguration.reset();
+    });
+
     it('should handle PushCard navigation', () => {
         // mock event parameters
         const e = { parameters: { path: 'Plugins.GetMe.HomeCard' } };
@@ -22,11 +27,31 @@ describe('Plugins Navigations', () => {
             parameters: { path: 'Plugins.GetMe.HomeCard' },
             commonEventObject: {
                 formInputs: {
-                    txt_bot_api_token: { stringInputs: { value: ['some input value'] } },
-                    txt_chat_id: { stringInputs: { value: ['some chat id'] } }
+                    txt_bot_api_token: { stringInputs: { value: [sampleToken] } }
                 }
             }
         };
+
+        const getMeUrl = `https://api.telegram.org/bot${sampleToken}/getMe`;
+        UrlFetchAppStubConfiguration.when(getMeUrl)
+            .return(new HttpResponse()
+                .setContentText(JSON.stringify({
+                    // ChatFullInfo response structure
+                    ok: true,
+                    result: {
+                        id: -1001234567890,
+                        title: "Test Channel",
+                        type: "channel",
+                        username: "testchannel",
+                        first_name: "Test",
+                        last_name: "Channel",
+                        active_usernames: ["testchannel"],
+                        description: "This is a test channel",
+                        invite_link: "https://t.me/joinchat/testinvite",
+                        pinned_message: null
+                    }
+                })));
+
         const actionResponse = Plugins.Navigations.UpdateCard(e);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
