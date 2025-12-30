@@ -430,10 +430,18 @@ Plugins.GetMe = {
     },
     ResultSection: (result = {}) => {
         const grid = CardService.newGrid()
-            .setTitle('My Grid')
-            .setNumColumns(2)
-            .addItem(
-                CardService.newGridItem().setTitle('My item'));
+            .setId('resultGrid')
+            .setTitle('Result Preview')
+            .setNumColumns(2);
+
+        // Add each property from result to the grid
+        Object.keys(result).forEach((key) => {
+            grid.addItem(
+                CardService.newGridItem()
+                    .setIdentifier(key)
+                    .setTitle(key)
+                    .setSubtitle(JSON.stringify(result[key])));
+        });
 
         // Build the execution result card
         return CardService.newCardSection()
