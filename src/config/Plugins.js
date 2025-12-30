@@ -418,13 +418,13 @@ Plugins.GetChat = {
                 CardService.newFixedFooter()
                     .setPrimaryButton(
                         CardService.newTextButton()
-                            .setText('Get Bot Info')
+                            .setText('📢 Get Chat Info')
                             .setOnClickAction(
                                 CardService.newAction()
                                     // List of widget IDs whose values are required for this action to be executed
                                     .addRequiredWidget(['txt_bot_api_token'])
                                     .addRequiredWidget(['txt_chat_id'])
-                                    .setFunctionName('BotApiHandler.View.GetMe')))
+                                    .setFunctionName('BotApiHandler.View.GetChat')))
                     .setSecondaryButton(
                         CardService.newTextButton()
                             .setText('Help')

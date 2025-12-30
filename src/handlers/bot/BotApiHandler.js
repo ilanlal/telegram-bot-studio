@@ -142,17 +142,17 @@ BotApiHandler.ControllerWrapper = class {
                 .getSheet(EMD.Spreadsheet.TerminalOutput({}))
                 .getLastRow();
 
-                const lastRowA1Notation = `A${lastRow}:D${lastRow}`;
+            const lastRowA1Notation = `A${lastRow}:E${lastRow}`;
 
             SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                // Set active selection to the last row.
-                .setActiveSelection(lastRowA1Notation);
+            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+            // Set active selection to the last row.
+            .setActiveSelection(lastRowA1Notation);
 
             SheetModel.create(this._activeSpreadsheet)
                 .getSheet(EMD.Spreadsheet.TerminalOutput({}))
                 .getRange(lastRowA1Notation)
-                .setBackground('gray');
+                .setBackground('#e0ffe0'); // light green background for success
 
             return this.handleOperationSuccess("👍 Bot info retrieved successfully.")
                 .build();
@@ -218,6 +218,23 @@ BotApiHandler.ControllerWrapper = class {
                     `Retrieved info for chat ID: ${chatId}`,
                     JSON.stringify(result)
                 ]);
+
+            const lastRow = SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .getLastRow();
+
+            const lastRowA1Notation = `A${lastRow}:E${lastRow}`;
+
+            SheetModel.create(this._activeSpreadsheet)
+            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+            // Set active selection to the last row.
+            .setActiveSelection(lastRowA1Notation);
+
+            SheetModel.create(this._activeSpreadsheet)
+                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
+                .getRange(lastRowA1Notation)
+                .setBackground('#e0ffe0'); // light green background for success
+
 
             // For demonstration, we just return the chat ID back
             return this.handleOperationSuccess(`Chat ID retrieved successfully: ${chatId}`)
