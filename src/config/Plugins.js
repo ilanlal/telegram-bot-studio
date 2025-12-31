@@ -549,7 +549,7 @@ Plugins.GetMe = {
                         .setText('This is the help section for the GetMe plugin. Here you can find information and support.')));
 
         // Add useful links section
-        /*cardBuilder.addSection(
+        cardBuilder.addSection(
             CardService.newCardSection()
                 .setHeader('Useful Links')
                 .addWidget(
@@ -557,14 +557,14 @@ Plugins.GetMe = {
                         .setText('📄 Documentation')
                         .setOpenLink(
                             CardService.newOpenLink()
-                                .setUrl('https://telegram-bot-studio.github.io/docs/getting-started/')))
+                                .setUrl('https://github.com/ilanlal/telegram-bot-studio#readme')))
                 .addWidget(
                     CardService.newTextButton()
-                        .setText('💬 Support Forum')
+                        .setText('📢 Report Issues')
                         .setOpenLink(
                             CardService.newOpenLink()
-                                .setUrl('https://telegram-bot-studio.github.io/support/forum/'))));
-        */
+                                .setUrl('https://github.com/ilanlal/telegram-bot-studio/issues'))));
+        
 
         // Add usful tools section
         cardBuilder.addSection(
