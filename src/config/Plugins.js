@@ -3,16 +3,34 @@ class Plugins {
         return [
             Plugins.GetMe,
             Plugins.GetChat,
-            Plugins.JsonTools
+            //Plugins.JsonTools
         ];
     }
 }
 
+Plugins.DEFAULT_IMAGE_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png';
+Plugins.WELCOME_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/480x480_welcome.png';
+Plugins.MATH_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-math.webp';
+Plugins.THANK_YOU_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-thank-you.webp';
+Plugins.YOU_GOT_IT_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-you-got-it.webp';
+Plugins.BIG_TIME_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-big-time.webp';
+Plugins.PEACH_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-peach.webp';
+Plugins.HAVE_A_NICE_DAY_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-have-a-nice-day.webp';
+Plugins.I_AM_THINKING_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-i-am-thinking.webp';
+Plugins.WAIT_FOR_IT_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-wait-for-it.webp';
+Plugins.YES_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-yes.webp';
+Plugins.PAY_ATTENTION_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-pay-attention.webp';
+Plugins.KISS_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-kiss.webp';
+Plugins.CHEERS_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-cheers.webp';
+Plugins.BLINK_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-blink.webp';
+Plugins.LOGO_PNG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/240x240.png';
+Plugins.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-studio';
+
 Plugins.ViewModel = {
     id: 'AppModelPlugin',
     name: 'Telegram Bot Studio',
-    description: 'Plugins to manage Telegram Bot Studio features within Google Workspace.',
-    version: '1.0.0',
+    description: 'All-in-one for Telegram Bot',
+    version: '1.1.0',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     BuildHomeCard: (data = {}) => {
         data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
@@ -80,7 +98,7 @@ Plugins.ViewModel = {
                 .setTitle('About ' + Plugins.ViewModel.name)
                 .setSubtitle(Plugins.ViewModel.description)
                 .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.ViewModel.imageUrl)
+                .setImageUrl(Plugins.BIG_TIME_IMG_URL)
                 .setImageAltText('Card Image'))
             .addSection(CardService.newCardSection()
                 .addWidget(
@@ -95,7 +113,7 @@ Plugins.ViewModel = {
                 .setTitle('Help - ' + Plugins.ViewModel.name)
                 .setSubtitle('Help and Support')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.ViewModel.imageUrl)
+                .setImageUrl(Plugins.YES_IMG_URL)
                 .setImageAltText('Help Image'))
             .addSection(CardService.newCardSection()
                 .addWidget(
@@ -110,7 +128,7 @@ Plugins.ViewModel = {
                 .setTitle('Profile - ' + Plugins.ViewModel.name)
                 .setSubtitle('User Profile')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.ViewModel.imageUrl)
+                .setImageUrl(Plugins.YOU_GOT_IT_IMG_URL)
                 .setImageAltText('Profile Image'))
             .addSection(CardService.newCardSection()
                 .addWidget(
@@ -385,17 +403,17 @@ Plugins.Navigations = {
 
 Plugins.GetMe = {
     id: 'GetMePlugin',
-    name: 'GetMe Plugin',
-    description: 'Plugin to get bot information using GetMe method.',
-    version: '1.0.3',
+    name: 'Get Me',
+    description: 'Retrieve your bot information',
+    version: '1.0.4',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
-            .setHeader('GetMe Extensions')
+            //.setHeader('GetMe Extensions')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(1)
             .addWidget(CardService.newDecoratedText()
-                .setTopLabel(Plugins.GetMe.version)
+                .setTopLabel(Plugins.GetMe.version + ' ⭐')
                 .setText(Plugins.GetMe.name + ':')
                 .setBottomLabel(Plugins.GetMe.description)
                 .setWrapText(false)
@@ -416,16 +434,16 @@ Plugins.GetMe = {
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.GetMe.name)
             .setHeader(CardService.newCardHeader()
-                .setTitle('GetMe Bot Information')
-                .setSubtitle('GetMe Card')
+                .setTitle('Get Me')
+                .setSubtitle('Retrieve your bot information')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.GetMe.imageUrl)
                 .setImageAltText('Card Image'))
             // Add section for inputs and button
             .addSection(CardService.newCardSection()
-                .setHeader('🗃️ Get (Me)')
+                .setHeader('🗃️ Inputs')
                 .setCollapsible(true)
-                .setNumUncollapsibleWidgets(token ? 1 : 2)
+                .setNumUncollapsibleWidgets(2)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
@@ -530,23 +548,46 @@ Plugins.GetMe = {
                     CardService.newTextParagraph()
                         .setText('This is the help section for the GetMe plugin. Here you can find information and support.')));
 
+        // Add useful links section
+        /*cardBuilder.addSection(
+            CardService.newCardSection()
+                .setHeader('Useful Links')
+                .addWidget(
+                    CardService.newTextButton()
+                        .setText('📄 Documentation')
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl('https://telegram-bot-studio.github.io/docs/getting-started/')))
+                .addWidget(
+                    CardService.newTextButton()
+                        .setText('💬 Support Forum')
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl('https://telegram-bot-studio.github.io/support/forum/'))));
+        */
+
+        // Add usful tools section
+        cardBuilder.addSection(
+            Plugins.JsonTools.WelcomeSection(data)
+        );
+        //Plugins.JsonTools.WelcomeSection(),
         return cardBuilder.build();
     }
 }
 
 Plugins.GetChat = {
     id: 'GetChatPlugin',
-    name: 'GetChat Plugin',
-    description: 'Plugin to get chat information using getChat method.',
-    version: '1.0.2',
+    name: 'Get Chat',
+    description: 'Telegram channel or user information.',
+    version: '1.0.3',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
-            .setHeader('GetChat Extensions')
+            //.setHeader('GetChat Extensions')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(1)
             .addWidget(CardService.newDecoratedText()
-                .setTopLabel(Plugins.GetChat.version)
+                .setTopLabel(`version ${Plugins.GetChat.version} ⭐`)
                 .setText(Plugins.GetChat.name + ':')
                 .setBottomLabel(Plugins.GetChat.description)
                 .setWrapText(false)
@@ -567,21 +608,21 @@ Plugins.GetChat = {
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.GetChat.name)
             .setHeader(CardService.newCardHeader()
-                .setTitle('GetChat Chat Information')
-                .setSubtitle('Usage the api getChat Method to get information about a chat.')
+                .setTitle('Get Chat')
+                .setSubtitle('Telegram Chat Information')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.GetChat.imageUrl)
                 .setImageAltText('Card Image'))
             // Add section for inputs (token, chat id)
             .addSection(CardService.newCardSection()
-                .setHeader('🗃️ Get (Chat)')
+                .setHeader('🗃️ Inputs')
                 .setCollapsible(true)
                 .setNumUncollapsibleWidgets(3)
                 // Bot Token input
                 .addWidget(
                     CardService.newTextInput()
                         .setValue(token)
-                        //.setId('txt_bot_api_token')
+                        .setId('txt_bot_api_token')
                         .setFieldName('txt_bot_api_token')
                         .setTitle('🤖 Your Bot Token')
                         .setHint('Enter your Bot Token, get it from @BotFather'))
@@ -589,7 +630,7 @@ Plugins.GetChat = {
                 .addWidget(
                     CardService.newTextInput()
                         .setValue(chatId)
-                        //.setId('txt_chat_id')
+                        .setId('txt_chat_id')
                         .setFieldName('txt_chat_id')
                         .setTitle('📢 Chat ID')
                         .setHint('Enter the Chat ID to get information'))

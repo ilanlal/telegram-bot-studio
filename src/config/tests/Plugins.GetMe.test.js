@@ -4,7 +4,7 @@ const { Plugins } = require('../Plugins');
 describe('Plugins.GetMe', () => {
     const pluginsToTest = [
         Plugins.GetMe,
-        //Plugins.GetChat
+        Plugins.GetChat
     ];
 
     pluginsToTest.forEach((plugin) => {
@@ -33,7 +33,7 @@ describe('Plugins.GetMe', () => {
                 expect(welcomeSection).toBeDefined();
                 const sectionData = welcomeSection.getData();
                 expect(sectionData).toBeDefined();
-                expect(sectionData.header).toBe('GetMe Extensions');
+                
             });
 
             // AboutCard test
