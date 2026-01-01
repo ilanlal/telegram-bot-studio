@@ -2,7 +2,7 @@ require('../../tests');
 const { Plugins } = require('./Plugins');
 
 describe('Plugins Configuration', () => {
-    it('should have GetMe plugin defined with required properties', () => {
+    it('should have plugins defined with required properties', () => {
         const pluginsToTest = [
             Plugins.GetMe,
             Plugins.GetChat
