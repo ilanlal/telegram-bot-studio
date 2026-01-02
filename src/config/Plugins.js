@@ -272,35 +272,56 @@ Plugins.ViewModel = {
 
         return newSection;
     },
+    BuildResultSectionPlaceholder: () => {
+        return CardService.newCardSection()
+            .setHeader('🔶 Execution Result')
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('Run the action to see the result here.')
+            )
+            // add divider
+            .addWidget(CardService.newDivider());
+    },
     BuildResultSection: (result = {}) => {
-        const grid = CardService.newGrid()
-            .setId('resultGrid')
-            .setTitle('Preview')
-            .setNumColumns(1)
-            .setBorderStyle(
-                CardService.newBorderStyle()
-                    .setType(CardService.BorderType.STROKE)
-                    // No effect as of now
-                    //.setStrokeColor('#4CAF50')
-                    .setCornerRadius(0));
-        // Add each property from result to the grid
+        const newSection = CardService.newCardSection()
+            .setHeader('🟢 200 OK')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(2);
+
+        // Add each property from result to the section as decorated text
         Object.keys(result).forEach((key) => {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
-                    .setIdentifier(key)
-                    .setTitle(key)
-                    .setSubtitle(JSON.stringify(result[key])));
+            newSection.addWidget(
+                CardService.newDecoratedText()
+                    //.setStartIcon(
+                    //    CardService.newIconImage().setMaterialIcon(
+                    //        CardService.newMaterialIcon().setName('smart_toy')))
+                    //.setTopLabel(key)
+                    .setText(key)
+                    .setWrapText(false)
+                    .setBottomLabel(JSON.stringify(result[key]))
+                    .setButton(
+                        CardService.newTextButton()
+                            //.setText('Get Started')
+                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                            .setAltText('Start using GetMe plugin')
+                            //.setBackgroundColor('#4CAF50')
+                            .setDisabled(false)
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('content_copy')
+                            )
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.GetMe.HomeCard' })
+                            )));
         });
         // Raw JSON view
         const rawResultTextParagraph = CardService.newTextParagraph()
             .setText('Raw:\n' + JSON.stringify(result))
-            .setMaxLines(1);
+            .setMaxLines(2);
         // Build the execution result card
-        return CardService.newCardSection()
-            .setHeader('🟢 200 OK')
-            .addWidget(grid)
-            .addWidget(rawResultTextParagraph);
+        return newSection.addWidget(rawResultTextParagraph);
     },
     BuildErrorSection: (errorText = '') => {
         return CardService.newCardSection()
@@ -309,6 +330,15 @@ Plugins.ViewModel = {
                 CardService.newTextParagraph()
                     .setText(errorText)
             );
+    },
+    BuildBotApiTokenInputWidget: (token) => {
+        // Bot Token input
+        return CardService.newTextInput()
+            .setValue(token || '')
+            .setId('txt_bot_api_token')
+            .setFieldName('txt_bot_api_token')
+            .setTitle('🤖 Your Bot Token')
+            .setHint('Enter your Bot Token, get it from @BotFather');
     }
 };
 
@@ -498,16 +528,12 @@ Plugins.GetMe = {
                 .setImageAltText('Card Image'))
             // Add section for inputs parameters
             .addSection(CardService.newCardSection()
-                .setHeader('📄 Input Parameters')
+                .setHeader('Input Parameters')
                 .setCollapsible(true)
                 .setNumUncollapsibleWidgets(1)
                 // Bot Token input
                 .addWidget(
-                    CardService.newTextInput()
-                        .setFieldName('txt_bot_api_token')
-                        .setTitle('🤖 Your Bot Token')
-                        .setHint('Enter your Bot Token, get it from @BotFather')
-                        .setValue(input_token || ''))
+                    Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
                 // More info text
                 .addWidget(
                     CardService.newTextParagraph()
@@ -566,13 +592,7 @@ Plugins.GetMe = {
         else {
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Info', data, 'No Bot Token provided, skipping API call.');
             // Placeholder section for "Result" section when no token is provided
-            cardBuilder.addSection(
-                CardService.newCardSection()
-                    .setHeader('🟡 Wait for input')
-                    .addWidget(
-                        CardService.newTextParagraph()
-                            .setText('Please enter your Bot Token and click "Send" to retrieve your bot information.'))
-            );
+            cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
         }
 
         if (data.developer_mode_switch === 'ON') {
@@ -784,7 +804,7 @@ Plugins.GetChat = {
             );
     },
     HomeCard: (data = {}) => {
-        const token = data.txt_bot_api_token || '';
+        const input_token = data.txt_bot_api_token || '';
         const chatId = data.txt_chat_id || '';
         // Build the GetChat plugin card
         const cardBuilder = CardService.newCardBuilder()
@@ -802,19 +822,14 @@ Plugins.GetChat = {
                 .setNumUncollapsibleWidgets(2)
                 // Bot Token input
                 .addWidget(
-                    CardService.newTextInput()
-                        .setValue(token)
-                        .setId('txt_bot_api_token')
-                        .setFieldName('txt_bot_api_token')
-                        .setTitle('🤖 Your Bot Token')
-                        .setHint('Enter your Bot Token, get it from @BotFather'))
+                    Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
                 // Chat ID input
                 .addWidget(
                     CardService.newTextInput()
                         .setValue(chatId)
                         .setId('txt_chat_id')
                         .setFieldName('txt_chat_id')
-                        .setTitle('📢 Chat ID')
+                        .setTitle('🆔 Chat ID')
                         .setHint('Enter the Chat ID to get information'))
                 // More info text
                 .addWidget(
@@ -863,12 +878,12 @@ Plugins.GetChat = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
         // Add result section if token is provided
-        if (token !== '' && chatId !== '') {
+        if (input_token !== '' && chatId !== '') {
             // Log the request to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Start', data, `Request to get chat info with token: ${token}, chat ID: ${chatId}`);
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Start', data, `Request to get chat info with token: ${input_token}, chat ID: ${chatId}`);
 
             try {
-                const telegramBotClient = new TelegramBotClient(token);
+                const telegramBotClient = new TelegramBotClient(input_token);
                 const response = telegramBotClient.getChat(encodeURIComponent(chatId));
 
                 if (response.getResponseCode() !== 200) {
@@ -877,11 +892,11 @@ Plugins.GetChat = {
                 const result = JSON.parse(response.getContentText()).result;
 
                 // Log the response to Terminal Output sheet
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${token} and chat ID: ${chatId}`);
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${input_token} and chat ID: ${chatId}`);
 
                 cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
             } catch (error) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'ERROR', data, `Exception while getting chat info for token: ${token}, chat ID: ${chatId} - ${error.toString()}`);
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'ERROR', data, `Exception while getting chat info for token: ${input_token}, chat ID: ${chatId} - ${error.toString()}`);
                 cardBuilder.addSection(
                     Plugins.ViewModel.BuildErrorSection(error.toString()));
 
@@ -890,13 +905,7 @@ Plugins.GetChat = {
         else {
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Info', data, 'No Bot Token or Chat ID provided, skipping API call.');
             // Placeholder section for "Result" section when no token/chat ID is provided
-            cardBuilder.addSection(
-                CardService.newCardSection()
-                    .setHeader('🟡 Wait for input')
-                    .addWidget(
-                        CardService.newTextParagraph()
-                            .setText('Please enter your Bot Token and Chat ID, then click "Send" to retrieve chat information.'))
-            );
+            cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
         }
 
         // Add fixed footer with Get Chat Info button;
