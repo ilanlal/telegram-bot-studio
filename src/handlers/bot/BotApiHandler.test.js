@@ -61,6 +61,27 @@ describe('BotApiHandler', () => {
         expect(data).toBeDefined();
     });
 
+    // fetchWebhook
+    test('should handle fetchWebhookClick', () => {
+        const handler = new BotApiHandler();
+        const event = {
+            commonEventObject: {
+                formInputs: {
+                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } }
+                }
+            }
+        };
+        // Mock the getWebhookInfo API response
+        const getWebhookInfoUrl = `https://api.telegram.org/bot${sampleToken}/getWebhookInfo`;
+        UrlFetchAppStubConfiguration.when(getWebhookInfoUrl)
+            .return(new HttpResponse()
+                .setContentText(JSON.stringify({ result: true })));
+        const actionResponse = BotApiHandler.View.FetchWebhook(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+    });
+
     describe('set bot info', () => {
         // setMyName
         test('should handle setMyNameClick', () => {

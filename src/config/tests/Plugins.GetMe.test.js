@@ -4,7 +4,8 @@ const { Plugins } = require('../Plugins');
 describe('Plugins.GetMe', () => {
     const pluginsToTest = [
         Plugins.GetMe,
-        Plugins.GetChat
+        Plugins.GetChat,
+        Plugins.Webhook
     ];
 
     pluginsToTest.forEach((plugin) => {

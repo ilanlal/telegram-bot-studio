@@ -3,6 +3,7 @@ class Plugins {
         return [
             Plugins.GetMe,
             Plugins.GetChat,
+            Plugins.Webhook
             //Plugins.JsonTools
         ];
     }
@@ -1125,6 +1126,333 @@ Plugins.GetChat = {
         return cardBuilder.build();
     }
 };
+
+Plugins.Webhook = {
+    id: 'WebhookPlugin',
+    name: 'Webhook',
+    short_description: 'Manage Telegram bot webhooks',
+    description: 'The Webhook plugin allows you to set, get, and delete webhooks for your Telegram bot using the Bot API. Manage your bot\'s webhook settings easily by providing your bot token and the desired webhook URL.',
+    version: '1.0.0',
+    stars: '🏆',
+    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    WelcomeSection: (data = {}) => {
+        return CardService.newCardSection()
+            //.setHeader('GetMe Extensions')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1)
+            // add main decorated text widget
+            .addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('webhook')))
+                    .setTopLabel(`Version ${Plugins.Webhook.version} ${Plugins.Webhook.stars}`)
+                    .setText(Plugins.Webhook.name)
+                    .setBottomLabel(Plugins.Webhook.short_description)
+                    .setWrapText(false)
+                    .setButton(
+                        CardService.newTextButton()
+                            //.setText('Open')
+                            .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('extension')
+                                    .setFill(true)
+                                    .setWeight(0)
+                                    .setGrade(200)
+                            )
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.Webhook.HomeCard' })
+                            )
+                    )
+            )
+            // add more description below
+            .addWidget(CardService.newTextParagraph()
+                .setText(Plugins.Webhook.description)
+            )
+            // add separator
+            .addWidget(CardService.newDivider())
+            // add help button
+            .addWidget(
+                CardService.newTextButton()
+                    .setAltText('Get more help about GetMe plugin')
+                    //.setBackgroundColor('#E7EA55')
+                    .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                    .setText('Need Help?')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('help')
+                            .setFill(true)
+                            .setWeight(0)
+                            .setGrade(0)
+                    )
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('Plugins.Navigations.PushCard')
+                            .setParameters({ path: 'Plugins.Webhook.HelpCard' }))
+            )
+            // add about button
+            .addWidget(
+                CardService.newTextButton()
+                    .setAltText('About Webhook plugin')
+                    //.setBackgroundColor('#E7EA55')
+                    .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                    .setText('About Webhook')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('developer_guide')
+                            .setFill(true)
+                            .setWeight(0)
+                            .setGrade(0)
+                    )
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('Plugins.Navigations.PushCard')
+                            .setParameters({ path: 'Plugins.Webhook.AboutCard' }))
+            );
+    },
+    HomeCard: (data = {}) => {
+        const input_token = data.txt_bot_api_token || null;
+
+        // Build the GetMe plugin card
+        const cardBuilder = CardService.newCardBuilder()
+            .setName(Plugins.Webhook.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle(Plugins.Webhook.name)
+                .setSubtitle(Plugins.Webhook.short_description)
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.Webhook.imageUrl)
+                .setImageAltText('Card Image'))
+            // Add section for inputs parameters
+            .addSection(CardService.newCardSection()
+                //.setHeader('🔷 Input Parameter:')
+                .setCollapsible(false)
+                .setNumUncollapsibleWidgets(3)
+                // Add input header
+                .addWidget(
+                    Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                        '🟦 Input Parameter:',
+                        'Provide the necessary parameters to retrieve your bot information.'
+                    )
+                )
+                // add divider
+                .addWidget(CardService.newDivider())
+                // Bot Token input
+                .addWidget(
+                    Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
+            );
+
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+        // If token is provided, call getMe API
+        if (input_token) {
+            // Log the request to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Start', data, `Request to get bot info with token: ${input_token}`);
+
+            try {
+                // Call Telegram Bot API getMe method
+                const telegramBotClient = new TelegramBotClient(input_token);
+                const response = telegramBotClient.getWebhookInfo();
+
+                // Check for errors in response
+                if (response.getResponseCode() !== 200) {
+                    throw new Error(`Error fetching bot info: ${response.getResponseCode()} - ${response.getContentText()}`);
+                }
+
+                const result = JSON.parse(response.getContentText()).result;
+
+                // Log the response to Terminal Output sheet
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Response', result, `Retrieved bot info for token: ${input_token}`);
+
+                // Add result section
+                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
+            } catch (error) {
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'ERROR', data, error.toString());
+                cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error));
+            }
+        }
+        else {
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Info', data, 'No Bot Token provided, skipping API call.');
+            // Placeholder section for "Result" section when no token is provided
+            cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
+        }
+
+        // Help & Support text
+        cardBuilder.addSection(
+            CardService.newCardSection()
+                .setHeader('Help & Support')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(0)
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(Plugins.Webhook.description)
+                )
+                // add separator
+                .addWidget(CardService.newDivider())
+                // Help button
+                .addWidget(
+                    CardService.newTextButton()
+                        .setAltText('Get more help about Webhook plugin')
+                        //.setBackgroundColor('#E7EA55')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setText('Need Help?')
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('help')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(0)
+                        )
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.Webhook.HelpCard' }))
+                )
+                // About button
+                .addWidget(
+                    CardService.newTextButton()
+                        .setAltText('About Webhook plugin')
+                        //.setBackgroundColor('#E7EA55')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setText('About Webhook')
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('developer_guide')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(0)
+                        )
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.Webhook.AboutCard' }))
+                )
+        );
+
+        if (data.developer_mode_switch === 'ON') {
+            // Add data section
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildDataSection(data)
+            );
+        }
+
+        // Add fixed footer with About and Help buttons
+        cardBuilder.setFixedFooter(
+            CardService.newFixedFooter()
+                .setPrimaryButton(
+                    CardService.newTextButton()
+                        .setAltText('Send Request to get bot info')
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('search_check_2')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(200)
+                        )
+                        .setText('Fetch Webhook')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                // List of widget IDs whose values are required for this action to be executed
+                                .addRequiredWidget(['txt_bot_api_token'])
+                                .setFunctionName('BotApiHandler.View.FetchWebhook'))
+                ));
+
+        return cardBuilder.build();
+    },
+    AboutCard: (data = {}) => {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('About ' + Plugins.Webhook.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('About ' + Plugins.Webhook.name)
+                .setSubtitle(Plugins.Webhook.short_description)
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.Webhook.imageUrl)
+                .setImageAltText('Card Image'))
+            .addSection(CardService.newCardSection()
+                .setHeader('About')
+                .setCollapsible(false)
+                .setNumUncollapsibleWidgets(0)
+                // Add about wellcome text
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('Welcome to the GetMe plugin! This plugin allows you to retrieve information about your Telegram bot using the Bot API. Simply enter your bot token and click "Get Bot Info" to see details about your bot, including its username, first name, and more.'))
+                // Add about details text
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(Plugins.Webhook.description)))
+            // Add plugin info section
+            .addSection(CardService.newCardSection()
+                .setHeader('Plugin Info')
+                .setCollapsible(false)
+                .setNumUncollapsibleWidgets(0)
+                // Add plugin details
+                .addWidget(
+                    // About plugin details in Grid format
+                    CardService.newGrid()
+                        .setNumColumns(2)
+                        .addItem(
+                            CardService.newGridItem()
+                                .setTitle('Plugin Name')
+                                .setSubtitle(Plugins.Webhook.name))
+                        .addItem(
+                            CardService.newGridItem()
+                                .setTitle('Description')
+                                .setSubtitle(Plugins.Webhook.short_description))
+                        .addItem(
+                            CardService.newGridItem()
+                                .setTitle('Version')
+                                .setSubtitle(Plugins.Webhook.version))
+                        .addItem(
+                            CardService.newGridItem()
+                                .setTitle('Rating')
+                                .setSubtitle(Plugins.Webhook.stars))
+                )
+            );
+
+        return cardBuilder.build();
+    },
+    HelpCard: (data = {}) => {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('Help - ' + Plugins.Webhook.name)
+            .setHeader(CardService.newCardHeader()
+                .setTitle('Help about ' + Plugins.Webhook.name)
+                .setSubtitle(Plugins.Webhook.short_description)
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.Webhook.imageUrl)
+                .setImageAltText('Help Image'))
+            .addSection(CardService.newCardSection()
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(Plugins.Webhook.description + '\n\nFor further assistance, please refer to the links below.')));
+
+        // Add useful links section
+        cardBuilder.addSection(
+            CardService.newCardSection()
+                .setHeader('🔗 Useful Links')
+                .addWidget(
+                    CardService.newTextButton()
+                        .setText('📄 Documentation')
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl('https://github.com/ilanlal/telegram-bot-studio#readme')))
+                .addWidget(
+                    CardService.newTextButton()
+                        .setText('📢 Report Issues')
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl('https://github.com/ilanlal/telegram-bot-studio/issues'))));
+
+
+        // Add usful tools section
+        cardBuilder.addSection(
+            Plugins.JsonTools.WelcomeSection(data)
+        );
+        //Plugins.JsonTools.WelcomeSection(),
+        return cardBuilder.build();
+    }
+}
 
 Plugins.JsonTools = {
     id: 'JsonToolsPlugin',

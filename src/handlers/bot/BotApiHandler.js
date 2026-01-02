@@ -48,6 +48,12 @@ BotApiHandler.View = {
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleGetChat(e);
     },
+    FetchWebhook: (e) => {
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleFetchWebhook(e);
+    },
     onSendTestMessageClick: (e) => {
         // Not implemented yet
         return new BotApiHandler
@@ -108,7 +114,7 @@ BotApiHandler.ControllerWrapper = class {
         } catch (error) {
             TerminalOutput.Write(
                 this._activeSpreadsheet,
-                'BotApiHandler.ControllerWrapper',
+                'BotApiHandler.GetMe',
                 'ERROR', e, error.toString());
             return this.handleError(error)
                 .build();
@@ -123,7 +129,24 @@ BotApiHandler.ControllerWrapper = class {
             return Plugins.Navigations.UpdateCard(e);
         } catch (error) {
             TerminalOutput.Write(this._activeSpreadsheet,
-                'BotApiHandler.ControllerWrapper',
+                'BotApiHandler.GetChat',
+                'ERROR',
+                e,
+                error.toString());
+            return this.handleError(error)
+                .build();
+        }
+    }
+
+    handleFetchWebhook(e) {
+        try {
+            e.parameters = {
+                path: 'Plugins.Webhook.HomeCard'
+            };
+            return Plugins.Navigations.UpdateCard(e);
+        } catch (error) {
+            TerminalOutput.Write(this._activeSpreadsheet,
+                'BotApiHandler.FetchWebhook',
                 'ERROR',
                 e,
                 error.toString());
