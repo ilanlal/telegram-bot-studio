@@ -274,19 +274,42 @@ Plugins.ViewModel = {
     },
     BuildResultSectionPlaceholder: () => {
         return CardService.newCardSection()
-            .setHeader('🔶 Execution Result')
+            //.setHeader('🔘 Execution Result')
+            // add placeholder decorated text widget
             .addWidget(
-                CardService.newTextParagraph()
-                    .setText('Run the action to see the result here.')
+                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                    '🔘 Execution Result',
+                    'Send the action to see the result here.'
+                )
             )
             // add divider
             .addWidget(CardService.newDivider());
     },
     BuildResultSection: (result = {}) => {
         const newSection = CardService.newCardSection()
-            .setHeader('🟢 200 OK')
+            //.setHeader('🟢 200 OK')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(2);
+            .setNumUncollapsibleWidgets(9);
+
+        // Add response header
+        newSection.addWidget(
+            Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                '🟢 200 OK',
+                'Successful Response'
+            )
+        );
+
+        // add divider
+        newSection.addWidget(CardService.newDivider());
+
+        // Add Preview title
+        newSection.addWidget(
+            CardService.newTextParagraph()
+                .setText('Response: [Preview]')
+        );
+
+        // Add divider
+        newSection.addWidget(CardService.newDivider());
 
         // Add each property from result to the section as decorated text
         Object.keys(result).forEach((key) => {
@@ -303,33 +326,58 @@ Plugins.ViewModel = {
                         CardService.newTextButton()
                             //.setText('Get Started')
                             .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                            .setAltText('Start using GetMe plugin')
+                            .setAltText('Copy ' + key + ' value to clipboard')
                             //.setBackgroundColor('#4CAF50')
-                            .setDisabled(false)
+                            .setDisabled(true)
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
                                     .setName('content_copy')
                             )
                             .setOnClickAction(
                                 CardService.newAction()
-                                    .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.GetMe.HomeCard' })
+                                    .setFunctionName('Utils.ViewModel.CopyToClipboard')
                             )));
         });
         // Raw JSON view
-        const rawResultTextParagraph = CardService.newTextParagraph()
-            .setText('Raw:\n' + JSON.stringify(result))
-            .setMaxLines(2);
+        // Add divider
+        newSection.addWidget(CardService.newDivider());
+        // Add Raw title
+        newSection.addWidget(
+            CardService.newTextParagraph()
+                .setText('Response: [Raw JSON]'));
+        // Add divider
+        newSection.addWidget(CardService.newDivider());
+        // Add raw result text paragraph
+        newSection.addWidget(
+            CardService.newTextParagraph()
+                .setText(JSON.stringify(result))
+            //.setMaxLines(2)
+        );
+
         // Build the execution result card
-        return newSection.addWidget(rawResultTextParagraph);
+        return newSection;
     },
-    BuildErrorSection: (errorText = '') => {
+    BuildErrorSection: (error) => {
         return CardService.newCardSection()
-            .setHeader('⛔ Error')
+            //.setHeader('📛 Error')
+            // add error header
             .addWidget(
-                CardService.newTextParagraph()
-                    .setText(errorText)
-            );
+                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                    '📛 Error',
+                    error.toString()
+                )
+            )
+            // add divider
+            .addWidget(CardService.newDivider());
+    },
+    BuildBotApiTokenInputWidget: (token) => {
+        // Bot Token input
+        return CardService.newTextInput()
+            .setValue(token || '')
+            .setId('txt_bot_api_token')
+            .setFieldName('txt_bot_api_token')
+            .setTitle('🤖 Your Bot Token')
+            .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
     },
     BuildBotApiTokenInputWidget: (token) => {
         // Bot Token input
@@ -339,6 +387,12 @@ Plugins.ViewModel = {
             .setFieldName('txt_bot_api_token')
             .setTitle('🤖 Your Bot Token')
             .setHint('Enter your Bot Token, get it from @BotFather');
+    },
+    BuildHeadDecoratedTextWidget: (title, subtitle) => {
+        return CardService.newDecoratedText()
+            .setText(title)
+            .setBottomLabel(subtitle)
+            .setWrapText(true);
     }
 };
 
@@ -436,7 +490,7 @@ Plugins.GetMe = {
     name: 'Get Me',
     short_description: 'Retrieve Telegram bot information',
     description: 'The GetMe plugin allows you to retrieve information about your Telegram bot using the Bot API. Simply provide your bot token to get started.',
-    version: '1.2.0',
+    version: '1.0.0',
     stars: '⭐⭐⭐⭐⭐',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
@@ -444,7 +498,7 @@ Plugins.GetMe = {
             //.setHeader('GetMe Extensions')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(1)
-            // add main widget
+            // add main decorated text widget
             .addWidget(CardService.newDecoratedText()
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
@@ -453,22 +507,13 @@ Plugins.GetMe = {
                 .setText(Plugins.GetMe.name)
                 .setBottomLabel(Plugins.GetMe.short_description)
                 .setWrapText(false)
-                .setButton(
-                    CardService.newTextButton()
-                        //.setText('Get Started')
-                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                        .setAltText('Start using GetMe plugin')
-                        //.setBackgroundColor('#4CAF50')
-                        .setDisabled(false)
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('extension')
-                        )
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.Navigations.PushCard')
-                                .setParameters({ path: 'Plugins.GetMe.HomeCard' })
-                        )))
+                .setEndIcon(
+                    CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('extension')))
+                .setOnClickAction(CardService.newAction()
+                    .setFunctionName('Plugins.Navigations.PushCard')
+                    .setParameters({ path: 'Plugins.GetMe.HomeCard' }))
+            )
             // add more description below
             .addWidget(CardService.newTextParagraph()
                 .setText(Plugins.GetMe.description)
@@ -528,36 +573,21 @@ Plugins.GetMe = {
                 .setImageAltText('Card Image'))
             // Add section for inputs parameters
             .addSection(CardService.newCardSection()
-                .setHeader('Input Parameters')
-                .setCollapsible(true)
-                .setNumUncollapsibleWidgets(1)
+                //.setHeader('🔷 Input Parameter:')
+                .setCollapsible(false)
+                .setNumUncollapsibleWidgets(3)
+                // Add input header
+                .addWidget(
+                    Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                        '🟦 Input Parameter:',
+                        'Provide the necessary parameters to retrieve your bot information.'
+                    )
+                )
+                // add divider
+                .addWidget(CardService.newDivider())
                 // Bot Token input
                 .addWidget(
                     Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
-                // More info text
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText(Plugins.GetMe.description)
-                )
-                // Help button
-                .addWidget(
-                    CardService.newTextButton()
-                        .setAltText('Get more help about GetMe plugin')
-                        //.setBackgroundColor('#E7EA55')
-                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                        .setText('Need Help?')
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('help')
-                                .setFill(true)
-                                .setWeight(0)
-                                .setGrade(0)
-                        )
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.Navigations.PushCard')
-                                .setParameters({ path: 'Plugins.GetMe.HelpCard' }))
-                )
             );
 
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -586,7 +616,7 @@ Plugins.GetMe = {
                 cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
             } catch (error) {
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'ERROR', data, error.toString());
-                cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error.toString()));
+                cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error));
             }
         }
         else {
@@ -594,6 +624,58 @@ Plugins.GetMe = {
             // Placeholder section for "Result" section when no token is provided
             cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
         }
+
+        // Help & Support text
+        cardBuilder.addSection(
+            CardService.newCardSection()
+                .setHeader('Help & Support')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(0)
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(Plugins.GetMe.description)
+                )
+                // add separator
+                .addWidget(CardService.newDivider())
+                // Help button
+                .addWidget(
+                    CardService.newTextButton()
+                        .setAltText('Get more help about GetMe plugin')
+                        //.setBackgroundColor('#E7EA55')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setText('Need Help?')
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('help')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(0)
+                        )
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetMe.HelpCard' }))
+                )
+                // About button
+                .addWidget(
+                    CardService.newTextButton()
+                        .setAltText('About GetMe plugin')
+                        //.setBackgroundColor('#E7EA55')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setText('About GetMe')
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('developer_guide')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(0)
+                        )
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetMe.AboutCard' }))
+                )
+        );
 
         if (data.developer_mode_switch === 'ON') {
             // Add data section
@@ -725,7 +807,7 @@ Plugins.GetChat = {
     name: 'Get Chat',
     short_description: 'Retrieve Telegram chat information',
     description: 'The Get Chat plugin allows you to retrieve information about a Telegram chat (channel, group, or user) using the Bot API. Provide your bot token and the chat ID to get started.',
-    version: '1.1.1',
+    version: '1.0.0',
     stars: '⭐⭐⭐⭐⭐',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
@@ -738,26 +820,19 @@ Plugins.GetChat = {
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('chat_info')))
+                .setEndIcon(
+                    CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('extension')))
                 .setTopLabel(`Version ${Plugins.GetChat.version} ${Plugins.GetChat.stars}`)
                 .setText(Plugins.GetChat.name)
                 .setBottomLabel(Plugins.GetChat.short_description)
-                .setWrapText(false)
-                .setButton(
-                    CardService.newTextButton()
-                        //.setText('Get Started')
-                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                        .setAltText('Start using Get Chat plugin')
-                        //.setBackgroundColor('#4CAF50')
-                        .setDisabled(false)
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('extension')
-                        )
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.Navigations.PushCard')
-                                .setParameters({ path: 'Plugins.GetChat.HomeCard' })
-                        )))
+                .setWrapText(true)
+                .setOnClickAction(
+                    CardService.newAction()
+                        .setFunctionName('Plugins.Navigations.PushCard')
+                        .setParameters({ path: 'Plugins.GetChat.HomeCard' })
+                )
+            )
             // add more description below
             .addWidget(CardService.newTextParagraph()
                 .setText(Plugins.GetChat.description)
@@ -817,25 +892,88 @@ Plugins.GetChat = {
                 .setImageAltText('Card Image'))
             // Add section for inputs (token, chat id)
             .addSection(CardService.newCardSection()
-                .setHeader('Input Parameters')
-                .setCollapsible(true)
-                .setNumUncollapsibleWidgets(2)
+                //.setHeader('🔷 Input Parameters:')
+                .setCollapsible(false)
+                .setNumUncollapsibleWidgets(3)
+                // Add input header
+                .addWidget(
+                    Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                        '🟦 Input Parameters:',
+                        'Provide the necessary parameters to retrieve chat information.'
+                    )
+                )
+                // add divider
+                .addWidget(CardService.newDivider())
                 // Bot Token input
                 .addWidget(
                     Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
                 // Chat ID input
                 .addWidget(
                     CardService.newTextInput()
-                        .setValue(chatId)
+                        .setValue(chatId || '')
                         .setId('txt_chat_id')
                         .setFieldName('txt_chat_id')
                         .setTitle('🆔 Chat ID')
                         .setHint('Enter the Chat ID to get information'))
+            );
+
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+        // Add result section if token is provided
+        if (input_token !== '' && chatId !== '') {
+            // Log the request to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Start', data, `Request to get chat info with token: ${input_token}, chat ID: ${chatId}`);
+
+            try {
+                const telegramBotClient = new TelegramBotClient(input_token);
+                const response = telegramBotClient.getChat(encodeURIComponent(chatId));
+
+                if (response.getResponseCode() !== 200) {
+                    throw new Error(`Failed to get chat info: ${response.getContentText()}`);
+                }
+                const result = JSON.parse(response.getContentText()).result;
+
+                // Log the response to Terminal Output sheet
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${input_token} and chat ID: ${chatId}`);
+
+                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
+            } catch (error) {
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'ERROR', data, `Exception while getting chat info for token: ${input_token}, chat ID: ${chatId} - ${error.toString()}`);
+                cardBuilder.addSection(
+                    Plugins.ViewModel.BuildErrorSection(error));
+
+            }
+        }
+        else {
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Info', data, 'No Bot Token or Chat ID provided, skipping API call.');
+            // Placeholder section for "Result" section when no token/chat ID is provided
+            cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
+        }
+
+        // Help & Support text
+        cardBuilder.addSection(
+            CardService.newCardSection()
+                .setHeader('Help & Support')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(0)
                 // More info text
                 .addWidget(
                     CardService.newTextParagraph()
                         .setText(Plugins.GetChat.description)
                 )
+                // add separator
+                .addWidget(CardService.newDivider())
+                // add example chat IDs
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('Example Chat IDs:\n- For a user: `@username` or user ID like `123456789`\n- For a group: `-1001234567890`\n- For a channel: `-1001234567890`')
+                )
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('Example try to use 93372553 (@BotFather Telegram\'s official account) as Chat ID to see the result.')
+                )
+                // add separator
+                .addWidget(CardService.newDivider())
                 // Help button
                 .addWidget(
                     CardService.newTextButton()
@@ -875,37 +1013,11 @@ Plugins.GetChat = {
                                 .setParameters({ path: 'Plugins.GetChat.AboutCard' }))
                 ));
 
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-
-        // Add result section if token is provided
-        if (input_token !== '' && chatId !== '') {
-            // Log the request to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Start', data, `Request to get chat info with token: ${input_token}, chat ID: ${chatId}`);
-
-            try {
-                const telegramBotClient = new TelegramBotClient(input_token);
-                const response = telegramBotClient.getChat(encodeURIComponent(chatId));
-
-                if (response.getResponseCode() !== 200) {
-                    throw new Error(`Failed to get chat info: ${response.getContentText()}`);
-                }
-                const result = JSON.parse(response.getContentText()).result;
-
-                // Log the response to Terminal Output sheet
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${input_token} and chat ID: ${chatId}`);
-
-                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
-            } catch (error) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'ERROR', data, `Exception while getting chat info for token: ${input_token}, chat ID: ${chatId} - ${error.toString()}`);
-                cardBuilder.addSection(
-                    Plugins.ViewModel.BuildErrorSection(error.toString()));
-
-            }
-        }
-        else {
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Info', data, 'No Bot Token or Chat ID provided, skipping API call.');
-            // Placeholder section for "Result" section when no token/chat ID is provided
-            cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
+        if (data.developer_mode_switch === 'ON') {
+            // Add data section
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildDataSection(data)
+            );
         }
 
         // Add fixed footer with Get Chat Info button;
@@ -989,8 +1101,27 @@ Plugins.GetChat = {
     HelpCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
             .setName('Help - ' + Plugins.GetChat.name)
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Help - ' + Plugins.GetChat.name));
+            .setHeader(
+                CardService.newCardHeader()
+                    .setTitle('Help - ' + Plugins.GetChat.name));
+        // Add Help decorated header widget
+        cardBuilder.addSection(CardService.newCardSection()
+            .addWidget(
+                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                    'Help about ' + Plugins.GetChat.name,
+                    Plugins.GetChat.short_description
+                )));
+
+        cardBuilder.addSection(CardService.newCardSection()
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText(Plugins.GetChat.description)));
+
+        // Add useful tools section
+        cardBuilder.addSection(
+            Plugins.JsonTools.WelcomeSection(data)
+        );
+
         return cardBuilder.build();
     }
 };
