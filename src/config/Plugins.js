@@ -61,7 +61,7 @@ Plugins.ViewModel = {
 
             newFixedFooter.setPrimaryButton(
                 CardService.newTextButton()
-                    .setText('Sign Out')
+                    .setText('Disconnect Bot')
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('logout')
@@ -76,7 +76,7 @@ Plugins.ViewModel = {
         else {
             newFixedFooter.setPrimaryButton(
                 CardService.newTextButton()
-                    .setText('Sign In')
+                    .setText('Connect Bot')
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('login')
@@ -118,7 +118,7 @@ Plugins.ViewModel = {
         const newFixedFooter = CardService.newFixedFooter()
             .setPrimaryButton(
                 CardService.newTextButton()
-                    .setAltText('Login with Bot Token')
+                    .setAltText('Connect with Bot Token')
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('login')
@@ -126,7 +126,7 @@ Plugins.ViewModel = {
                             .setWeight(0)
                             .setGrade(200))
 
-                    .setText('Login')
+                    .setText('Connect')
                     .setOnClickAction(
                         CardService.newAction()
                             // List of widget IDs whose values are required for this action to be executed

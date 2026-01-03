@@ -75,34 +75,8 @@ MembershipHandler.ControllerWrapper = class {
             // Save membership info to user properties
             this._userProperties.setProperty(AppModel.MEMBERSHIP_PROPERTY_KEY, JSON.stringify(membership));
 
-            // Update the card or UI as needed
-            const cardsToUpdate = [
-                EMD.Cards.Home,
-                EMD.Cards.MembershipSubscription];
-
-            // trigger a updateCard for each card
-            cardsToUpdate.forEach((emd) => {
-                NavigationHandler.ViewModel.onUpdateCardClick({
-                    commonEventObject: {
-                        parameters: {
-                            // template: 'EMD.Cards.Home',
-                            template: emd,
-                            cardName: emd().name
-                        }
-                    }
-                });
-            });
-
-            // pop back to home card
-            NavigationHandler.ViewModel.onPopToNamedCardClick({
-                commonEventObject: {
-                    parameters: {
-                        cardName: EMD.Cards.Home().name
-                    }
-                }
-            });
-
-            return this.handleOperationSuccess('Premium membership activated successfully!');
+            // popToRoot first
+            return Plugins.Navigations.PopToRoot(e);
         } catch (error) {
             return this.handleOperationError(error);
         }
@@ -112,33 +86,7 @@ MembershipHandler.ControllerWrapper = class {
         try {
             // Simulate revocation logic
             this._userProperties.deleteProperty(AppModel.MEMBERSHIP_PROPERTY_KEY);
-            // Update the card or UI as needed
-            const cardsToUpdate = [
-                EMD.Cards.Home,
-                EMD.Cards.MembershipSubscription];
-
-            // trigger a updateCard for each card
-            cardsToUpdate.forEach((emd) => {
-                NavigationHandler.ViewModel.onUpdateCardClick({
-                    commonEventObject: {
-                        parameters: {
-                            // template: 'EMD.Cards.Home',
-                            template: emd,
-                            cardName: emd().name
-                        }
-                    }
-                });
-            });
-
-            // pop back to home card
-            NavigationHandler.ViewModel.onPopToNamedCardClick({
-                commonEventObject: {
-                    parameters: {
-                        cardName: EMD.Cards.Home().name
-                    }
-                }
-            });
-            return this.handleOperationSuccess('License revoked successfully.');
+            return Plugins.Navigations.PopToRoot(e);
         } catch (error) {
             return this.handleOperationError(error);
         }
