@@ -466,7 +466,8 @@ Plugins.Navigations = {
             const data = {
                 ...appModelData,
                 // You can add more data extraction logic here if needed
-                developer_mode_switch: PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF'
+                developer_mode_switch: PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF',
+                txt_bot_api_token: PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || ''
             };
 
 
@@ -507,7 +508,8 @@ Plugins.Navigations = {
             // create data object from form inputs
             const data = {
                 ...AppModel.create().toJSON(),
-                developer_mode_switch: PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF'
+                developer_mode_switch: PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF',
+                txt_bot_api_token: PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || ''
             };
             Object.keys(formInputs).forEach((key) => {
                 const input = formInputs[key];
