@@ -1397,15 +1397,15 @@ Plugins.Webhook = {
                 }
                 else { // If webhook is not set
                     newInputParameterSection
+                        // webhook url input
                         .addWidget(
-                            // webhook url input
                             CardService.newTextInput()
                                 //.setVisibility((result.url !== '') ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
                                 .setValue(data.txt_webhook_url || '')
                                 .setId('txt_webhook_url')
                                 .setFieldName('txt_webhook_url')
-                                .setTitle('🌐 Webhook URL (mandatory)')
-                                .setHint('Enter the HTTPS URL to send updates to. Use an empty string to remove webhook integration')
+                                .setTitle('🌐 Webhook URL')
+                                .setHint('Enter the HTTPS URL to send updates to. Use an IP address if you don\'t have a domain.')
                         )
                         // secret_token input
                         .addWidget(

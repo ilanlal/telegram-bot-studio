@@ -72,6 +72,12 @@ BotApiHandler.View = {
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleDeleteWebhook(e);
     },
+    SetWebhook: (e) => {
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleSetWebhook(e);
+    },
     onSendTestMessageClick: (e) => {
         // Not implemented yet
         return new BotApiHandler
@@ -262,6 +268,41 @@ BotApiHandler.ControllerWrapper = class {
         } catch (error) {
             TerminalOutput.Write(this._activeSpreadsheet,
                 'BotApiHandler.DeleteWebhook',
+                'ERROR',
+                e,
+                error.toString());
+            return this.handleError(error)
+                .build();
+        }
+    }
+
+    handleSetWebhook(e) {
+        try {
+            // set webhook logic here
+            // extract webhook_url
+            const webhookUrl = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_webhook_url'])
+                ? e.commonEventObject.formInputs['txt_webhook_url']?.stringInputs?.value?.[0]
+                : null;
+                
+            if (!webhookUrl) {
+                throw new Error('Webhook URL is required to set webhook.');
+            }
+            const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
+                ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
+                : null;
+            if (!inputToken) {
+                throw new Error('Bot API token is required to set webhook.');
+            }
+            const client = new TelegramBotClient(inputToken);
+            const result = client.setWebhook(webhookUrl);
+            // then update card to reflect changes
+            e.parameters = {
+                path: 'Plugins.Webhook.HomeCard'
+            };
+            return Plugins.Navigations.UpdateCard(e);
+        } catch (error) {
+            TerminalOutput.Write(this._activeSpreadsheet,
+                'BotApiHandler.SetWebhook',
                 'ERROR',
                 e,
                 error.toString());
