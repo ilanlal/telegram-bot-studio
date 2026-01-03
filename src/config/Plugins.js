@@ -430,10 +430,10 @@ Plugins.ViewModel = {
         return CardService.newDecoratedText()
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel('🤖 Connected Bot')
+                    CardService.newMaterialIcon().setName('online_prediction')))
+            .setTopLabel('Bot Connected Successfully')
             .setText(`****${token.slice(-8)}`)
-            .setBottomLabel('🟢 Online')
+            .setBottomLabel('🟢 On-line')
             .setWrapText(true);
     }
 };
