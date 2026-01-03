@@ -23,6 +23,15 @@ describe('Plugins ViewModel', () => {
         expect(cardData.sections.length).toBeGreaterThan(0);
     });
 
+    // BuildLoginCard test
+    it('should create LoginCard', () => {
+        const loginCard = Plugins.ViewModel.BuildLoginCard();
+        expect(loginCard).toBeDefined();
+        const cardData = loginCard.getData();
+        expect(cardData).toBeDefined();
+        expect(cardData.name).toBe('LoginCard');
+    });
+
     // AboutCard test
     it('should create AboutCard', () => {
         const aboutCard = Plugins.ViewModel.BuildAboutCard();

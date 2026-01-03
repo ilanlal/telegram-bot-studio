@@ -30,13 +30,15 @@ Plugins.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-studio';
 Plugins.ViewModel = {
     id: 'AppModelPlugin',
     name: 'Telegram Bot Studio',
-    description: 'All-in-one for Telegram Bot',
+    description: 'Plugins for Telegram Bots',
     version: '1.2.0',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     BuildHomeCard: (data = {}) => {
-        data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
+        //data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
+        data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
+        data.isAuthenticated = !!data.txt_bot_api_token;
 
-        // Build the App Model plugin card
+        // Build the home card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.ViewModel.id + '-Home')
             .setHeader(CardService.newCardHeader()
@@ -46,6 +48,61 @@ Plugins.ViewModel = {
                 .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText(Plugins.ViewModel.name + ' Image'));
 
+
+
+        const newFixedFooter = CardService.newFixedFooter();
+        if (data.isAuthenticated) {
+            // Add login status section
+            cardBuilder.addSection(
+                CardService.newCardSection()
+                    .addWidget(
+                        Plugins.ViewModel.BuildCurrentBotProfileWidget(data.txt_bot_api_token))
+            );
+
+            newFixedFooter.setPrimaryButton(
+                CardService.newTextButton()
+                    .setText('Sign Out')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('logout')
+                            .setFill(true)
+                            .setWeight(0)
+                            .setGrade(200))
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('BotApiHandler.View.Logout'))
+            )
+        }
+        else {
+            newFixedFooter.setPrimaryButton(
+                CardService.newTextButton()
+                    .setText('Sign In')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('login')
+                            .setFill(true)
+                            .setWeight(0)
+                            .setGrade(200))
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('Plugins.Navigations.PushCard')
+                            .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
+                    )
+            )
+        }
+
+        if (data.isPremium) {
+            // Premium member footer do nothing for now
+        }
+        else {
+            // Free member footer
+            newFixedFooter.setSecondaryButton(
+                CardService.newTextButton()
+                    .setText('Upgrade to Premium')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard')))
+        }
         // for each plugin, add a section
         Plugins.prototype.pluginList.forEach((plugin) => {
             cardBuilder.addSection(
@@ -53,43 +110,43 @@ Plugins.ViewModel = {
             );
         });
 
-        // Add data section
-        if (data.developer_mode_switch === 'ON') {
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildDataSection(data)
-            );
-        }
+        cardBuilder.setFixedFooter(newFixedFooter);
 
-        // Add fixed footer
-        if (data.isPremium) {
-            cardBuilder.setFixedFooter(
-                CardService.newFixedFooter()
-                    .setPrimaryButton(
-                        CardService.newTextButton()
-                            .setText('Explore More Features')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('AppHandler.ViewModel.OpenAboutCard')))
-            );
-        }
-        else {
-            cardBuilder.setFixedFooter(
-                CardService.newFixedFooter()
-                    .setPrimaryButton(
-                        CardService.newTextButton()
-                            .setText('Upgrade to Premium')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard')))
-                    .setSecondaryButton(
-                        CardService.newTextButton()
-                            .setText('Help')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('AppHandler.ViewModel.OpenHelpCard')))
-            );
-        }
+        return cardBuilder.build();
+    },
+    BuildLoginCard: (data = {}) => {
+        const newFixedFooter = CardService.newFixedFooter()
+            .setPrimaryButton(
+                CardService.newTextButton()
+                    .setAltText('Login with Bot Token')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('login')
+                            .setFill(true)
+                            .setWeight(0)
+                            .setGrade(200))
 
+                    .setText('Login')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            // List of widget IDs whose values are required for this action to be executed
+                            .addRequiredWidget(['txt_bot_api_token'])
+                            .setFunctionName('BotApiHandler.View.Login')));
+
+        const newInputSection = CardService.newCardSection()
+            .addWidget(Plugins.ViewModel.BuildBotApiTokenInputWidget(data.txt_bot_api_token || ''));
+
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('LoginCard')
+            .setHeader(CardService.newCardHeader()
+                .setTitle('Login')
+                .setSubtitle('Telegram Bot Login')
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.WELCOME_IMG_URL)
+                .setImageAltText('Login Image'))
+            //.addSection(newInputSection)
+            .addSection(newInputSection)
+            .setFixedFooter(newFixedFooter);
         return cardBuilder.build();
     },
     BuildAboutCard: (data = {}) => {
@@ -142,7 +199,7 @@ Plugins.ViewModel = {
 
         // 2. Settings section
         data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
-        data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
+        // data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
         data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'ON';
         data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
 
@@ -171,26 +228,6 @@ Plugins.ViewModel = {
                                 )
                         )
                 )
-                // Developer mode toggle
-                .addWidget(
-                    CardService.newDecoratedText()
-                        .setTopLabel('Developer Mode')
-                        .setText('Enable or disable developer mode for advanced features.')
-                        .setWrapText(true)
-                        .setSwitchControl(
-                            CardService.newSwitch()
-                                .setFieldName('developer_mode_switch')
-                                .setSelected(data.developer_mode_switch === 'ON')
-                                .setValue('ON')
-                                .setOnChangeAction(
-                                    CardService.newAction()
-                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
-                                        .setParameters({
-                                            actionName: 'developer_mode_switch'
-                                        })
-                                )
-                        )
-                )
                 // Debug mode toggle
                 .addWidget(
                     CardService.newDecoratedText()
@@ -212,13 +249,6 @@ Plugins.ViewModel = {
                         )
                 )
         );
-
-        // 3. data section
-        if (data.developer_mode_switch === 'ON') {
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildDataSection(data)
-            );
-        }
 
         return cardBuilder.build();
     },
@@ -290,7 +320,7 @@ Plugins.ViewModel = {
         const newSection = CardService.newCardSection()
             //.setHeader('🟢 200 OK')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(9);
+            .setNumUncollapsibleWidgets(6);
 
         // Add response header
         newSection.addWidget(
@@ -371,6 +401,12 @@ Plugins.ViewModel = {
             // add divider
             .addWidget(CardService.newDivider());
     },
+    BuildErrorWidget: (error) => {
+        return Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+            '📛 Error',
+            error.toString()
+        );
+    },
     BuildBotApiTokenInputWidget: (token) => {
         // Bot Token input
         return CardService.newTextInput()
@@ -380,19 +416,24 @@ Plugins.ViewModel = {
             .setTitle('🤖 Your Bot Token')
             .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
     },
-    BuildBotApiTokenInputWidget: (token) => {
-        // Bot Token input
-        return CardService.newTextInput()
-            .setValue(token || '')
-            .setId('txt_bot_api_token')
-            .setFieldName('txt_bot_api_token')
-            .setTitle('🤖 Your Bot Token')
-            .setHint('Enter your Bot Token, get it from @BotFather');
-    },
     BuildHeadDecoratedTextWidget: (title, subtitle) => {
         return CardService.newDecoratedText()
             .setText(title)
             .setBottomLabel(subtitle)
+            .setWrapText(true);
+    },
+    BuildCurrentBotProfileWidget: (token) => {
+        if (!token) {
+            throw new Error('Bot token is required to build current bot profile widget.');
+        }
+
+        return CardService.newDecoratedText()
+            .setStartIcon(
+                CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('smart_toy')))
+            .setTopLabel('Current Bot')
+            .setText(`🤖 Bot Token: ****${token.slice(-8)}`)
+            .setBottomLabel('🟢 - Set as default')
             .setWrapText(true);
     }
 };
@@ -483,6 +524,33 @@ Plugins.Navigations = {
         }
 
         throw new Error(`Plugin path "${path}" not found.`);
+    },
+    PopCard: (e) => {
+        return CardService.newActionResponseBuilder()
+            .setNavigation(
+                CardService.newNavigation()
+                    .popCard()
+            ).build();
+    },
+    PopToRoot: (e) => {
+        const formInputs = e.commonEventObject?.formInputs || {};
+        // create data object from form inputs
+        const data = {
+            ...AppModel.create().toJSON(),
+            // developer_mode_switch: PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF'
+        };
+        Object.keys(formInputs).forEach((key) => {
+            const input = formInputs[key];
+            if (input.stringInputs) {
+                data[key] = input.stringInputs.value[0];
+            }
+        });
+        return CardService.newActionResponseBuilder()
+            .setNavigation(
+                CardService.newNavigation()
+                    .popToRoot()
+                    .updateCard(Plugins.ViewModel.BuildHomeCard(data))
+            ).build();
     }
 };
 
@@ -492,7 +560,7 @@ Plugins.GetMe = {
     short_description: 'Retrieve Telegram bot information',
     description: 'The GetMe plugin allows you to retrieve information about your Telegram bot using the Bot API. Simply provide your bot token to get started.',
     version: '1.0.0',
-    stars: '⭐⭐⭐⭐⭐',
+    stars: '⭐',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
@@ -508,12 +576,23 @@ Plugins.GetMe = {
                 .setText(Plugins.GetMe.name)
                 .setBottomLabel(Plugins.GetMe.short_description)
                 .setWrapText(false)
-                .setEndIcon(
-                    CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('extension')))
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.Navigations.PushCard')
-                    .setParameters({ path: 'Plugins.GetMe.HomeCard' }))
+                .setButton(
+                    CardService.newTextButton()
+                        //.setText('Open')
+                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('rocket_launch')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(200)
+                        )
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetMe.HomeCard' })
+                        )
+                )
             )
             // add more description below
             .addWidget(CardService.newTextParagraph()
@@ -678,21 +757,12 @@ Plugins.GetMe = {
                 )
         );
 
-        if (data.developer_mode_switch === 'ON') {
-            // Add data section
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildDataSection(data)
-            );
-        }
-
-        // Add fixed footer with About and Help buttons
+        // Add fixed footer with Send button
         cardBuilder.setFixedFooter(
             CardService.newFixedFooter()
                 .setPrimaryButton(
                     CardService.newTextButton()
                         .setAltText('Send Request to get bot info')
-                        //.setBackgroundColor('#E7EA55')
-                        //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('send')
@@ -809,7 +879,7 @@ Plugins.GetChat = {
     short_description: 'Retrieve Telegram chat information',
     description: 'The Get Chat plugin allows you to retrieve information about a Telegram chat (channel, group, or user) using the Bot API. Provide your bot token and the chat ID to get started.',
     version: '1.0.0',
-    stars: '⭐⭐⭐⭐⭐',
+    stars: '⭐',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
@@ -821,17 +891,26 @@ Plugins.GetChat = {
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('chat_info')))
-                .setEndIcon(
-                    CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('extension')))
                 .setTopLabel(`Version ${Plugins.GetChat.version} ${Plugins.GetChat.stars}`)
                 .setText(Plugins.GetChat.name)
                 .setBottomLabel(Plugins.GetChat.short_description)
                 .setWrapText(true)
-                .setOnClickAction(
-                    CardService.newAction()
-                        .setFunctionName('Plugins.Navigations.PushCard')
-                        .setParameters({ path: 'Plugins.GetChat.HomeCard' })
+                .setButton(
+                    CardService.newTextButton()
+                        //.setText('Open')
+                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('rocket_launch')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(200)
+                        )
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetChat.HomeCard' })
+                        )
                 )
             )
             // add more description below
@@ -1014,13 +1093,6 @@ Plugins.GetChat = {
                                 .setParameters({ path: 'Plugins.GetChat.AboutCard' }))
                 ));
 
-        if (data.developer_mode_switch === 'ON') {
-            // Add data section
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildDataSection(data)
-            );
-        }
-
         // Add fixed footer with Get Chat Info button;
         cardBuilder.setFixedFooter(
             CardService.newFixedFooter()
@@ -1133,7 +1205,7 @@ Plugins.Webhook = {
     short_description: 'Manage Telegram bot webhooks',
     description: 'The Webhook plugin allows you to set, get, and delete webhooks for your Telegram bot using the Bot API. Manage your bot\'s webhook settings easily by providing your bot token and the desired webhook URL.',
     version: '1.0.0',
-    stars: '🏆',
+    stars: '✨',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
@@ -1146,17 +1218,19 @@ Plugins.Webhook = {
                     .setStartIcon(
                         CardService.newIconImage().setMaterialIcon(
                             CardService.newMaterialIcon().setName('webhook')))
-                    .setTopLabel(`Version ${Plugins.Webhook.version} ${Plugins.Webhook.stars}`)
+                    .setTopLabel(`Version ${Plugins.Webhook.version} ${Plugins.Webhook.stars} ${data.isPremium ? '' : '🏆 (Premium required)'}`)
                     .setText(Plugins.Webhook.name)
                     .setBottomLabel(Plugins.Webhook.short_description)
                     .setWrapText(false)
                     .setButton(
                         CardService.newTextButton()
+                            .setDisabled(!!!data.isPremium)
+                            .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
                             //.setText('Open')
                             .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
-                                    .setName('extension')
+                                    .setName('rocket_launch')
                                     .setFill(true)
                                     .setWeight(0)
                                     .setGrade(200)
@@ -1215,8 +1289,41 @@ Plugins.Webhook = {
     },
     HomeCard: (data = {}) => {
         const input_token = data.txt_bot_api_token || null;
+        const input_webhook_url = data.txt_webhook_url || null;
+        const newStateSection = CardService.newCardSection()
+            //.setHeader('🔷 Result:')
+            .setCollapsible(false)
+            .setNumUncollapsibleWidgets(1);
 
-        // Build the GetMe plugin card
+        let newResultSection = null;
+
+        const newInputParameterSection = CardService.newCardSection()
+            .setHeader('🔹 Input Parameter:')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(2)
+            // Add Bot Token input as default input
+            .addWidget(
+                Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token));
+
+        const newFixedFooter = CardService.newFixedFooter()
+            // set search as default primary button
+            .setPrimaryButton(
+                CardService.newTextButton()
+                    .setAltText('Send Request to get bot info')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('search_check_2')
+                            .setFill(true)
+                            .setWeight(0)
+                            .setGrade(200)
+                    )
+                    .setText('Fetch Webhook')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .addRequiredWidget(['txt_bot_api_token'])
+                            .setFunctionName('BotApiHandler.View.FetchWebhook'))
+            );
+        // Build the getWebhookInfo plugin card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.Webhook.name)
             .setHeader(CardService.newCardHeader()
@@ -1224,29 +1331,11 @@ Plugins.Webhook = {
                 .setSubtitle(Plugins.Webhook.short_description)
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.Webhook.imageUrl)
-                .setImageAltText('Card Image'))
-            // Add section for inputs parameters
-            .addSection(CardService.newCardSection()
-                //.setHeader('🔷 Input Parameter:')
-                .setCollapsible(false)
-                .setNumUncollapsibleWidgets(3)
-                // Add input header
-                .addWidget(
-                    Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                        '🟦 Input Parameter:',
-                        'Provide the necessary parameters to retrieve your bot information.'
-                    )
-                )
-                // add divider
-                .addWidget(CardService.newDivider())
-                // Bot Token input
-                .addWidget(
-                    Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
-            );
+                .setImageAltText('Card Image'));
 
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
-        // If token is provided, call getMe API
+        // If token is provided, call getWebhookInfo API
         if (input_token) {
             // Log the request to Terminal Output sheet
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Start', data, `Request to get bot info with token: ${input_token}`);
@@ -1266,19 +1355,178 @@ Plugins.Webhook = {
                 // Log the response to Terminal Output sheet
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Response', result, `Retrieved bot info for token: ${input_token}`);
 
-                // Add result section
-                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
+                // Add component when webhook is set
+                if (result.url !== '') {
+                    // Add webhook info result
+                    newStateSection
+                        // Add webhook status decorated text widget
+                        .addWidget(
+                            Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                                '✅ Webhook is set',
+                                'Your webhook is currently set and active.')
+                        )
+                        // add separator
+                        .addWidget(CardService.newDivider())
+
+
+                    // Add result section
+                    newResultSection = Plugins.ViewModel.BuildResultSection(result);
+
+                    // Delete webhook button in footer
+                    newFixedFooter.setPrimaryButton(
+                        CardService.newTextButton()
+                            .setAltText('Delete the current webhook')
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('delete')
+                                    .setFill(true)
+                                    .setWeight(0)
+                                    .setGrade(200)
+                            )
+                            .setText('Delete Webhook')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    // List of widget IDs whose values are required for this action to be executed
+                                    .addRequiredWidget(['txt_bot_api_token'])
+                                    .setFunctionName('BotApiHandler.View.DeleteWebhook')
+                                    .setParameters({ current_webhook_url: encodeURIComponent(result.url) || '' })
+                            )
+                    );
+                }
+                else { // If webhook is not set
+                    newInputParameterSection
+                        .addWidget(
+                            // webhook url input
+                            CardService.newTextInput()
+                                //.setVisibility((result.url !== '') ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
+                                .setValue(data.txt_webhook_url || '')
+                                .setId('txt_webhook_url')
+                                .setFieldName('txt_webhook_url')
+                                .setTitle('🌐 Webhook URL (mandatory)')
+                                .setHint('Enter the HTTPS URL to send updates to. Use an empty string to remove webhook integration')
+                        )
+                        // secret_token input
+                        .addWidget(
+                            CardService.newTextInput()
+                                .setValue(data.txt_secret_token || '')
+                                .setId('txt_secret_token')
+                                .setFieldName('txt_secret_token')
+                                .setTitle('🔒 Secret Token (optional)')
+                                .setHint('A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed.')
+                                .setValidation(
+                                    CardService.newValidation()
+                                        .setCharacterLimit('256')
+                                        .setInputType(
+                                            CardService.InputType.TEXT))
+                        )
+                        // ip_address
+                        .addWidget(
+                            CardService.newTextInput()
+                                .setValue(data.txt_ip_address || '')
+                                .setId('txt_ip_address')
+                                .setFieldName('txt_ip_address')
+                                .setTitle('💻 IP Address (optional)')
+                                .setHint('Enter the The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS')
+                        )
+                        // max_connections input
+                        .addWidget(
+                            CardService.newTextInput()
+                                .setValue('40')
+                                .setId('txt_max_connections')
+                                .setFieldName('txt_max_connections')
+                                .setTitle('🔢 Max Connections (optional)')
+                                .setHint('Enter the The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40.')
+                                .setValidation(
+                                    CardService.newValidation()
+                                        .setInputType(
+                                            CardService.InputType.INTEGER))
+                        )
+                        // allowed_updates multi select input
+                        //.addWidget(
+                        //Plugins.ViewModel.BuildAllowedUpdatesMultiSelectWidget(data.allowed_updates_multiselect || [])
+                        //)
+                        //  drop_pending_updates decorated switch widget
+                        .addWidget(
+                            CardService.newDecoratedText()
+                                .setStartIcon(
+                                    CardService.newIconImage().setMaterialIcon(
+                                        CardService.newMaterialIcon().setName('pending_actions')))
+                                .setText('Drop Pending Updates')
+                                .setBottomLabel('Pass True to drop all pending updates')
+                                .setWrapText(true)
+                                .setSwitchControl(
+                                    CardService.newSwitch()
+                                        .setFieldName('drop_pending_updates_switch')
+                                        .setSelected(data.drop_pending_updates_switch === 'ON')
+                                        .setValue('ON')
+                                        .setOnChangeAction(
+                                            CardService.newAction()
+                                                .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                                .setParameters({
+                                                    actionName: 'drop_pending_updates_switch'
+                                                })
+                                        )
+                                )
+                        );
+
+                    newStateSection
+                        .addWidget(
+                            // webhook status decorated text widget
+                            Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                                'ℹ️ Webhook is not set',
+                                'No webhook is currently set for your bot. Please provide a webhook URL to set up a webhook.')
+                        )
+                        // add separator
+                        .addWidget(CardService.newDivider());
+
+                    // Set webhook button in footer
+                    newFixedFooter.setPrimaryButton(
+                        CardService.newTextButton()
+                            .setAltText('Set Webhook for the bot')
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('webhook')
+                                    .setFill(true)
+                                    .setWeight(0)
+                                    .setGrade(200)
+                            )
+                            .setText('Set Webhook')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    // List of widget IDs whose values are required for this action to be executed
+                                    .addRequiredWidget(['txt_bot_api_token'])
+                                    .addRequiredWidget(['txt_webhook_url'])
+                                    .setFunctionName('BotApiHandler.View.SetWebhook'))
+                    );
+                }
             } catch (error) {
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'ERROR', data, error.toString());
-                cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error));
+
+                newStateSection.addWidget(
+                    Plugins.ViewModel.BuildErrorWidget(error)
+                );
             }
         }
         else {
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Info', data, 'No Bot Token provided, skipping API call.');
             // Placeholder section for "Result" section when no token is provided
-            cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
+            newStateSection.addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('info')))
+                    .setText('🔘 No Bot API Token provided.')
+                    .setBottomLabel('Please provide the Bot API Token to fetch webhook information.')
+            );
         }
 
+        // Add input parameter section
+        cardBuilder.addSection(newInputParameterSection);
+        // Add result section
+        cardBuilder.addSection(newStateSection);
+        if (newResultSection) {
+            cardBuilder.addSection(newResultSection);
+        }
         // Help & Support text
         cardBuilder.addSection(
             CardService.newCardSection()
@@ -1331,33 +1579,8 @@ Plugins.Webhook = {
                 )
         );
 
-        if (data.developer_mode_switch === 'ON') {
-            // Add data section
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildDataSection(data)
-            );
-        }
-
         // Add fixed footer with About and Help buttons
-        cardBuilder.setFixedFooter(
-            CardService.newFixedFooter()
-                .setPrimaryButton(
-                    CardService.newTextButton()
-                        .setAltText('Send Request to get bot info')
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('search_check_2')
-                                .setFill(true)
-                                .setWeight(0)
-                                .setGrade(200)
-                        )
-                        .setText('Fetch Webhook')
-                        .setOnClickAction(
-                            CardService.newAction()
-                                // List of widget IDs whose values are required for this action to be executed
-                                .addRequiredWidget(['txt_bot_api_token'])
-                                .setFunctionName('BotApiHandler.View.FetchWebhook'))
-                ));
+        cardBuilder.setFixedFooter(newFixedFooter);
 
         return cardBuilder.build();
     },

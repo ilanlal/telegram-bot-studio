@@ -36,6 +36,18 @@ class BotApiHandler {
 };
 
 BotApiHandler.View = {
+    Login: (e) => {
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleLogin(e);
+    },
+    Logout: (e) => {
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleLogout(e);
+    },
     GetMe: (e) => {
         return new BotApiHandler
             .ControllerWrapper(
@@ -53,6 +65,12 @@ BotApiHandler.View = {
             .ControllerWrapper(
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
             .handleFetchWebhook(e);
+    },
+    DeleteWebhook: (e) => {
+        return new BotApiHandler
+            .ControllerWrapper(
+                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
+            .handleDeleteWebhook(e);
     },
     onSendTestMessageClick: (e) => {
         // Not implemented yet
@@ -105,6 +123,68 @@ BotApiHandler.ControllerWrapper = class {
         this._activeSpreadsheet = activeSpreadsheet;
     }
 
+    handleLogin(e) {
+        // extract parameters from event object if needed
+        // txt_bot_api_token
+        const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
+            ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
+            : null;
+        if (!inputToken || inputToken.trim() === '') {
+            throw new Error('Bot API token is required for login.');
+        }
+        try {
+            // getme to validate token
+            const client = new TelegramBotClient(inputToken);
+            const response = client.getMe();
+            // Check for errors in response
+            if (response.getResponseCode() !== 200) {
+                throw new Error(`Error fetching bot info: ${response.getResponseCode()} - ${response.getContentText()}`);
+            }
+
+            const result = JSON.parse(response.getContentText()).result;
+
+            // Log the response to Terminal Output sheet
+            TerminalOutput.Write(this._activeSpreadsheet, 'Plugins.Login', 'Response', result, `Retrieved bot info for token: ${inputToken}`);
+
+            // on success,
+            // Store the token in user properties or user properties as needed
+            this._userProperties.setProperty('txt_bot_api_token', inputToken);
+
+            e.parameters = {
+                path: 'Plugins.ViewModel.BuildHomeCard'
+            };
+            return Plugins.Navigations.PopToRoot(e);
+        } catch (error) {
+            TerminalOutput.Write(
+                this._activeSpreadsheet,
+                'BotApiHandler.Login',
+                'ERROR', e, error.toString());
+            return this.handleError(error)
+                .build();
+        }
+    }
+
+    handleLogout(e) {
+        try {
+            // Clear the stored token from user properties
+            this._userProperties.deleteProperty('txt_bot_api_token');
+            e.parameters = {
+                path: 'Plugins.ViewModel.BuildHomeCard'
+            };
+
+            //Plugins.Navigations.PopToRoot(e);
+
+            return Plugins.Navigations.UpdateCard(e);
+        } catch (error) {
+            TerminalOutput.Write(
+                this._activeSpreadsheet,
+                'BotApiHandler.Logout',
+                'ERROR', e, error.toString());
+            return this.handleError(error)
+                .build();
+        }
+    }
+
     handleGetMe(e) {
         try {
             e.parameters = {
@@ -147,6 +227,41 @@ BotApiHandler.ControllerWrapper = class {
         } catch (error) {
             TerminalOutput.Write(this._activeSpreadsheet,
                 'BotApiHandler.FetchWebhook',
+                'ERROR',
+                e,
+                error.toString());
+            return this.handleError(error)
+                .build();
+        }
+    }
+
+    handleDeleteWebhook(e) {
+        try {
+            // delete webhook logic here
+            // extract current_webhook_url
+            const webhookUrl = e.parameters.current_webhook_url ? decodeURIComponent(e.parameters.current_webhook_url) : null;
+            if (!webhookUrl) {
+                throw new Error('Current webhook URL is required to delete webhook.');
+            }
+
+            const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
+                ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
+                : null;
+
+            if (!inputToken) {
+                throw new Error('Bot API token is required to delete webhook.');
+            }
+
+            const client = new TelegramBotClient(inputToken);
+            const result = client.deleteWebhook(webhookUrl);
+            // then update card to reflect changes
+            e.parameters = {
+                path: 'Plugins.Webhook.HomeCard'
+            };
+            return Plugins.Navigations.UpdateCard(e);
+        } catch (error) {
+            TerminalOutput.Write(this._activeSpreadsheet,
+                'BotApiHandler.DeleteWebhook',
                 'ERROR',
                 e,
                 error.toString());
