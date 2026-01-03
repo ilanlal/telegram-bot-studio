@@ -36,7 +36,7 @@ Plugins.ViewModel = {
     BuildHomeCard: (data = {}) => {
         //data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
         data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
-        data.isAuthenticated = !!data.txt_bot_api_token;
+        data.isConnected = !!data.txt_bot_api_token;
 
         // Build the home card
         const cardBuilder = CardService.newCardBuilder()
@@ -51,7 +51,7 @@ Plugins.ViewModel = {
 
 
         const newFixedFooter = CardService.newFixedFooter();
-        if (data.isAuthenticated) {
+        if (data.isConnected) {
             // Add login status section
             cardBuilder.addSection(
                 CardService.newCardSection()
@@ -106,7 +106,7 @@ Plugins.ViewModel = {
         // for each plugin, add a section
         Plugins.prototype.pluginList.forEach((plugin) => {
             cardBuilder.addSection(
-                plugin.WelcomeSection({ isPremium: data.isPremium })
+                plugin.WelcomeSection({ isPremium: data.isPremium, isConnected: data.isConnected })
             );
         });
 
@@ -431,9 +431,9 @@ Plugins.ViewModel = {
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel('Current Bot')
-            .setText(`🤖 Bot Token: ****${token.slice(-8)}`)
-            .setBottomLabel('🟢 - Set as default')
+            .setTopLabel('🤖 Connected Bot')
+            .setText(`****${token.slice(-8)}`)
+            .setBottomLabel('🟢 Online')
             .setWrapText(true);
     }
 };
@@ -573,18 +573,18 @@ Plugins.GetMe = {
             .addWidget(CardService.newDecoratedText()
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('smart_toy')))
+                        CardService.newMaterialIcon().setName('rocket_launch')))
                 .setTopLabel(`Version ${Plugins.GetMe.version} ${Plugins.GetMe.stars}`)
                 .setText(Plugins.GetMe.name)
                 .setBottomLabel(Plugins.GetMe.short_description)
                 .setWrapText(false)
                 .setButton(
                     CardService.newTextButton()
-                        //.setText('Open')
+                        .setDisabled(!!!data.isConnected)
                         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
-                                .setName('rocket_launch')
+                                .setName('smart_toy')
                                 .setFill(true)
                                 .setWeight(0)
                                 .setGrade(200)
@@ -899,11 +899,11 @@ Plugins.GetChat = {
                 .setWrapText(true)
                 .setButton(
                     CardService.newTextButton()
-                        //.setText('Open')
+                        .setDisabled(!!!data.isConnected)
                         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
-                                .setName('rocket_launch')
+                                .setName('chat_info')
                                 .setFill(true)
                                 .setWeight(0)
                                 .setGrade(200)
@@ -1226,7 +1226,7 @@ Plugins.Webhook = {
                     .setWrapText(false)
                     .setButton(
                         CardService.newTextButton()
-                            .setDisabled(!!!data.isPremium)
+                            .setDisabled(!!!data.isPremium || !!!data.isConnected)
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
                             //.setText('Open')
                             .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
