@@ -48,17 +48,15 @@ Plugins.ViewModel = {
                 .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText(Plugins.ViewModel.name + ' Image'));
 
-
+        // Add login status section
+        cardBuilder.addSection(
+            CardService.newCardSection()
+                .addWidget(
+                    Plugins.ViewModel.BuildConnectionWidget(data.txt_bot_api_token))
+        );
 
         const newFixedFooter = CardService.newFixedFooter();
         if (data.isConnected) {
-            // Add login status section
-            cardBuilder.addSection(
-                CardService.newCardSection()
-                    .addWidget(
-                        Plugins.ViewModel.BuildCurrentBotProfileWidget(data.txt_bot_api_token))
-            );
-
             newFixedFooter.setPrimaryButton(
                 CardService.newTextButton()
                     .setText('Disconnect Bot')
@@ -422,19 +420,56 @@ Plugins.ViewModel = {
             .setBottomLabel(subtitle)
             .setWrapText(true);
     },
-    BuildCurrentBotProfileWidget: (token) => {
+    BuildConnectionWidget: (token) => {
         if (!token) {
-            throw new Error('Bot token is required to build current bot profile widget.');
+            return CardService.newDecoratedText()
+                .setStartIcon(
+                    CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('online_prediction')))
+                .setTopLabel('Disconnected:')
+                .setText('🔴 Off-line')
+                .setBottomLabel('No Bot Token found')
+                .setWrapText(true)
+                .setButton(
+                    CardService.newTextButton()
+                        .setAltText('Connect with Bot Token')
+                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('login')
+                                .setFill(true)
+                                .setWeight(700)
+                                .setGrade(-25))
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
+                        )
+                );
         }
 
         return CardService.newDecoratedText()
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('online_prediction')))
-            .setTopLabel('Bot Connected Successfully')
-            .setText(`****${token.slice(-8)}`)
-            .setBottomLabel('🟢 On-line')
-            .setWrapText(true);
+            .setTopLabel('Connected:')
+            .setText('🟢 On-line')
+            .setBottomLabel(`****${token.slice(-16)}`)
+            .setWrapText(true)
+            .setButton(
+                CardService.newTextButton()
+                    .setAltText('Disconnect Bot')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('logout')
+                            .setFill(true)
+                            .setWeight(0)
+                            .setGrade(200))
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('BotApiHandler.View.Logout')
+                    )
+            );
     }
 };
 
@@ -571,9 +606,6 @@ Plugins.GetMe = {
             .setNumUncollapsibleWidgets(1)
             // add main decorated text widget
             .addWidget(CardService.newDecoratedText()
-                .setStartIcon(
-                    CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('rocket_launch')))
                 .setTopLabel(`Version ${Plugins.GetMe.version} ${Plugins.GetMe.stars}`)
                 .setText(Plugins.GetMe.name)
                 .setBottomLabel(Plugins.GetMe.short_description)
@@ -581,12 +613,13 @@ Plugins.GetMe = {
                 .setButton(
                     CardService.newTextButton()
                         .setDisabled(!!!data.isConnected)
-                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setAltText('Open GetMe Plugin')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('smart_toy')
                                 .setFill(true)
-                                .setWeight(0)
+                                .setWeight(700)
                                 .setGrade(200)
                         )
                         .setOnClickAction(
@@ -643,6 +676,10 @@ Plugins.GetMe = {
     },
     HomeCard: (data = {}) => {
         const input_token = data.txt_bot_api_token || null;
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+        // Log the request to Terminal Output sheet
+        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.HomeCard', 'Start', data, `Request to get bot info with token: ${input_token}`);
 
         // Build the GetMe plugin card
         const cardBuilder = CardService.newCardBuilder()
@@ -672,13 +709,10 @@ Plugins.GetMe = {
                     Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
             );
 
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
 
         // If token is provided, call getMe API
         if (input_token) {
-            // Log the request to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Start', data, `Request to get bot info with token: ${input_token}`);
-
             try {
                 // Call Telegram Bot API getMe method
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -692,17 +726,16 @@ Plugins.GetMe = {
                 const result = JSON.parse(response.getContentText()).result;
 
                 // Log the response to Terminal Output sheet
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Response', result, `Retrieved bot info for token: ${input_token}`);
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.HomeCard', 'Response', result, `Retrieved bot info for token: ${input_token}`);
 
                 // Add result section
                 cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
             } catch (error) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'ERROR', data, error.toString());
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.HomeCard', 'ERROR', data, error.toString());
                 cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error));
             }
         }
         else {
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe', 'Info', data, 'No Bot Token provided, skipping API call.');
             // Placeholder section for "Result" section when no token is provided
             cardBuilder.addSection(Plugins.ViewModel.BuildResultSectionPlaceholder());
         }
@@ -890,9 +923,6 @@ Plugins.GetChat = {
             .setNumUncollapsibleWidgets(1)
             // add main widget
             .addWidget(CardService.newDecoratedText()
-                .setStartIcon(
-                    CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('chat_info')))
                 .setTopLabel(`Version ${Plugins.GetChat.version} ${Plugins.GetChat.stars}`)
                 .setText(Plugins.GetChat.name)
                 .setBottomLabel(Plugins.GetChat.short_description)
@@ -900,12 +930,13 @@ Plugins.GetChat = {
                 .setButton(
                     CardService.newTextButton()
                         .setDisabled(!!!data.isConnected)
-                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setAltText('Open Get Chat Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('chat_info')
                                 .setFill(true)
-                                .setWeight(0)
+                                .setWeight(700)
                                 .setGrade(200)
                         )
                         .setOnClickAction(
@@ -1217,9 +1248,6 @@ Plugins.Webhook = {
             // add main decorated text widget
             .addWidget(
                 CardService.newDecoratedText()
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('webhook')))
                     .setTopLabel(`Version ${Plugins.Webhook.version} ${Plugins.Webhook.stars} ${data.isPremium ? '' : '🏆 (Premium required)'}`)
                     .setText(Plugins.Webhook.name)
                     .setBottomLabel(Plugins.Webhook.short_description)
@@ -1229,12 +1257,12 @@ Plugins.Webhook = {
                             .setDisabled(!!!data.isPremium || !!!data.isConnected)
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
                             //.setText('Open')
-                            .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
-                                    .setName('rocket_launch')
+                                    .setName('webhook')
                                     .setFill(true)
-                                    .setWeight(0)
+                                    .setWeight(700)
                                     .setGrade(200)
                             )
                             .setOnClickAction(
