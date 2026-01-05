@@ -342,10 +342,6 @@ Plugins.ViewModel = {
         Object.keys(result).forEach((key) => {
             newSection.addWidget(
                 CardService.newDecoratedText()
-                    //.setStartIcon(
-                    //    CardService.newIconImage().setMaterialIcon(
-                    //        CardService.newMaterialIcon().setName('smart_toy')))
-                    //.setTopLabel(key)
                     .setText(key + ":")
                     .setWrapText(true)
                     .setBottomLabel(JSON.stringify(result[key])));
@@ -356,6 +352,7 @@ Plugins.ViewModel = {
         // Add Raw title
         newSection.addWidget(
             CardService.newTextParagraph()
+                .setMaxLines(0)
                 .setText('Response: [Raw JSON]'));
         // Add divider
         newSection.addWidget(CardService.newDivider());
