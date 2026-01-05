@@ -30,7 +30,7 @@
   },
   "jest": {
     "modulePaths": [
-      "<rootDir>/src/"
+      "<rootDir>/tests/"
     ],
     "coverageDirectory": "./coverage/",
     "collectCoverage": false,
