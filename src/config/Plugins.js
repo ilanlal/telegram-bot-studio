@@ -1449,6 +1449,13 @@ Plugins.Webhook = {
                 // Log the response to Terminal Output sheet
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'Response', result, `Retrieved bot info for token: ${input_token}`);
 
+                // Add webhook state widget
+                cardBuilder.addSection(
+                    CardService.newCardSection()
+                        //.setHeader('🔹 Webhook Status:')
+                        .addWidget(
+                            Plugins.Webhook.BuildWebhookWidget(result)));
+
                 // Add component when webhook is set
                 if (result.url !== '') {
                     // Add result section
@@ -1609,13 +1616,23 @@ Plugins.Webhook = {
         //Plugins.JsonTools.WelcomeSection(),
         return cardBuilder.build();
     },
-    BuildWebhookWidget: (current_webhook_url = null) => {
+    BuildWebhookWidget: (result) => {
+        if (result?.url === '') {
+            return CardService.newDecoratedText()
+                .setStartIcon(
+                    CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('webhook')))
+                .setText('❌ No Webhook Info Available')
+                .setBottomLabel('Unable to retrieve webhook information. Please ensure your bot token is correct and try again.')
+                .setWrapText(true);
+        }
+
         return CardService.newDecoratedText()
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('webhook')))
-            .setText(current_webhook_url ? '🌐 Current Webhook URL:' : '❌ No Webhook Set')
-            .setBottomLabel(current_webhook_url ? current_webhook_url : 'Your bot does not have a webhook set. Please set a webhook to receive updates via webhooks.')
+            .setText('🟢 Webhook is set successfully!')
+            .setBottomLabel('🔹 Webhook URL: ' + result.url)
             .setWrapText(true);
     },
     BuildInputSection: (data = {}) => {

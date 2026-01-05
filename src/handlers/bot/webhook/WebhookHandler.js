@@ -4,24 +4,16 @@ class WebhookHandler {
         const userProperties = PropertiesService.getUserProperties();
         const scriptProperties = PropertiesService.getScriptProperties();
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        LoggerModel.create(activeSpreadsheet, documentProperties, userProperties, scriptProperties)
-            .logEvent({
-                dc: '@webhook_handler',
-                action: 'handlePostUpdateRequest',
-                chat_id: '0000',
-                content: JSON.stringify(postData),
-                event: 'request_received'
-            });
 
         try {
             const contents = JSON.parse(postData.contents) || {};
             const chatId = contents?.message?.chat?.id || contents?.callback_query?.message?.chat?.id || '0000';
-            const action = contents?.message?.text || contents?.callback_query?.data || 'unknown_action';
+            const action = contents?.message?.text || contents?.callback_query?.data || 'stage_handle_event';
             const eventType = contents?.message ? 'message' : contents?.callback_query ? 'callback_query' : contents?.poll_answer ? 'poll_answer' : contents?.poll ? 'poll' : 'unknown event';
 
             LoggerModel.create(activeSpreadsheet, documentProperties, userProperties, scriptProperties)
                 .logEvent({
-                    dc: '@webhook_handler',
+                    dc: '@webhook_handler.handlePostUpdateRequest',
                     action: action,
                     chat_id: chatId,
                     content: JSON.stringify(postData),
@@ -50,8 +42,8 @@ class WebhookHandler {
         } catch (error) {
             LoggerModel.create(activeSpreadsheet, documentProperties, userProperties, scriptProperties)
                 .logError({
-                    dc: '@webhook_handler.error',
-                    action: JSON.stringify(postData),
+                    dc: '@webhook_handler.handlePostUpdateRequest.error',
+                    action: "ERROR",
                     chat_id: '0000',
                     content: error.toString(),
                     event: error.stack

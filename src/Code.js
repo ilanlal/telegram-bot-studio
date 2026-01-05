@@ -15,11 +15,26 @@ function doGet(e) {
 
 function doPost(e) {
     try {
-        //const postData = JSON.parse(e.postData);
+        const contents = JSON.parse(e.postData.contents) || {};
+        LoggerModel.create()
+            .logEvent({
+                dc: 'Code_doPost',
+                action: 'doPost',
+                chat_id: '0000',
+                content: JSON.stringify(e),
+                event: JSON.stringify(contents)
+            });
         // Handle the webhook event
         return WebhookHandler.handlePostUpdateRequest(e.postData);
     } catch (error) {
-
+        LoggerModel.create()
+            .logError({
+                dc: '@doPost.error',
+                action: JSON.stringify(e),
+                chat_id: '0000',
+                content: error.toString(),
+                event: error.stack
+            });
         throw error;
     }
 }

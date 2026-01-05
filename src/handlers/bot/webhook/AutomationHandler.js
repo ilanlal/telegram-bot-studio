@@ -91,7 +91,7 @@ class AutomationHandler {
     }
 
     executeAction(chat_id, action, reply_to_message_id, callback_query_id = null) {
-        LoggerModel.create(this._scriptProperties, this._activeSpreadsheet)
+        /*LoggerModel.create(this._activeSpreadsheet, this._documentProperties, this._userProperties, this._scriptProperties)
             .logEvent({
                 dc: 'automation_action',
                 action: action.method || '_no_method_',
@@ -99,7 +99,7 @@ class AutomationHandler {
                 content: JSON.stringify(action),
                 event: 'executeAction',
                 note: `reply_to_message_id: ${reply_to_message_id || 'none'} | callback_query_id: ${callback_query_id || 'none'}`
-            });
+            });*/
 
         // Handle delay if specified
         if (action.delay_ms && !isNaN(action.delay_ms)) {
