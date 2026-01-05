@@ -325,20 +325,9 @@ Plugins.ViewModel = {
     },
     BuildResultSection: (result = {}) => {
         const newSection = CardService.newCardSection()
-            //.setHeader('🟢 200 OK')
+            .setHeader('🔹 Execution Result')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(6);
-
-        // Add response header
-        newSection.addWidget(
-            Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                '🟢 200 OK',
-                'Successful Response'
-            )
-        );
-
-        // add divider
-        newSection.addWidget(CardService.newDivider());
+            .setNumUncollapsibleWidgets(2);
 
         // Add Preview title
         newSection.addWidget(
@@ -446,7 +435,7 @@ Plugins.ViewModel = {
         return CardService.newDecoratedText()
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('online_prediction')))
+                    CardService.newMaterialIcon().setName('smart_toy')))
             .setTopLabel('Connected:')
             .setText('🟢 On-line')
             .setBottomLabel(`${friendlyName} - ${token.slice(0, 8)}****${token.slice(-8)}`)
@@ -1061,13 +1050,6 @@ Plugins.GetChat = {
             .addWidget(
                 Plugins.ViewModel.BuildConnectionWidget(input_token)
             )
-            // Add input header
-            .addWidget(
-                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                    '🔹 Input Parameters:',
-                    'Provide the necessary parameters to retrieve chat information.'
-                )
-            )
             // add divider
             .addWidget(CardService.newDivider())
             // Bot Token input (hidden if token is provided)
@@ -1449,12 +1431,9 @@ Plugins.Webhook = {
                 // Log the response to Terminal Output sheet
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'Response', result, `Retrieved bot info for token: ${input_token}`);
 
-                // Add webhook state widget
+                // Add webhook state section
                 cardBuilder.addSection(
-                    CardService.newCardSection()
-                        //.setHeader('🔹 Webhook Status:')
-                        .addWidget(
-                            Plugins.Webhook.BuildWebhookWidget(result)));
+                    Plugins.Webhook.BuildWebhookSection(result));
 
                 // Add component when webhook is set
                 if (result.url !== '') {
@@ -1622,24 +1601,44 @@ Plugins.Webhook = {
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('webhook')))
-                .setText('❌ No Webhook Info Available')
-                .setBottomLabel('Unable to retrieve webhook information. Please ensure your bot token is correct and try again.')
+                .setTopLabel('Webhook URL:')
+                .setText('🔘 URL Not set.')
+                .setBottomLabel('No webhook is currently set for this bot.')
                 .setWrapText(true);
         }
 
         return CardService.newDecoratedText()
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('webhook')))
-            .setText('🟢 Webhook is set successfully!')
-            .setBottomLabel('🔹 Webhook URL: ' + result.url)
+                    CardService.newMaterialIcon().setName(result.last_error_date ? 'warning' : 'webhook')))
+            .setTopLabel(`Webhook URL:`)
+            .setText('🟢 URL Set.')
+            .setBottomLabel(`${result.url.slice(0, 16)}...${result.url.slice(-10)} | Pending Updates: ${result.pending_update_count}`)
             .setWrapText(true);
+    },
+    BuildWebhookSection: (result) => {
+        return CardService.newCardSection()
+            //.setHeader('🔹 Webhook Status:')
+            .addWidget(
+                Plugins.Webhook.BuildWebhookWidget(result))
+            .addWidget(CardService.newDivider())
+            // add webhook error info if available
+            .addWidget(
+                CardService.newDecoratedText()
+                    .setVisibility(result.last_error_date ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('error')))
+                    .setTopLabel(`⚠️ Warning: pending updates: ${result.pending_update_count}`)
+                    .setText(result.last_error_date ? new Date(result.last_error_date * 1000).toLocaleString() : 'N/A')
+                    .setBottomLabel(result.last_error_message || 'N/A')
+                    .setWrapText(false)
+            );
     },
     BuildInputSection: (data = {}) => {
         return CardService.newCardSection()
-            //.setHeader('🔹 Input Parameter:')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(2)
+            .setNumUncollapsibleWidgets(3)
             // Add Bot Token input as default input
             // txt_webhook_url input
             .addWidget(
