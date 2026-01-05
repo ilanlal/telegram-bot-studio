@@ -10,10 +10,12 @@ class TelegramBotProxy {
     executeApiRequest(uriAction, payload) {
         const url = this.apiBaseUrl + '/' + uriAction;
 
+        // If no payload, do a simple GET request
         if (!payload) {
             return UrlFetchApp.fetch(url);
         }
-
+        
+        // Otherwise, do a POST request with JSON payload
         const options = {
             'method': 'post',
             'contentType': 'application/json',

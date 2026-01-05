@@ -100,6 +100,7 @@ describe("Webhook Tests", () => {
     test("setWebhook method should return status 200", () => {
         /* @see https://core.telegram.org/bots/api#setwebhook */
         const contentText = `{
+            "ok": true,
             "result": true
         }`;
         const webAppUrl = 'https://script.google.com/macros/s/AKfycbx.../exec';
@@ -120,7 +121,7 @@ describe("Webhook Tests", () => {
             "result": true
         }`;
         const webAppUrl = 'https://script.google.com/macros/s/AKfycbx.../exec';
-        const callbackUrl = `https://api.telegram.org/bot[YOUR_BOT_TOKEN]/deleteWebhook?url=${webAppUrl}`;
+        const callbackUrl = `https://api.telegram.org/bot[YOUR_BOT_TOKEN]/deleteWebhook`;
 
         UrlFetchAppStubConfiguration.when(callbackUrl)
             .return(new HttpResponse().setContentText(contentText));

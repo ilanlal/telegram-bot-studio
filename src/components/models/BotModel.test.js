@@ -37,7 +37,7 @@ describe('BotModel', () => {
 
         // deleteWebhook
         test('should delete webhook', () => {
-            const deleteWebhookUri = `https://api.telegram.org/bot${sampleToken}/deleteWebhook?url=${callbackUrl}`;
+            const deleteWebhookUri = `https://api.telegram.org/bot${sampleToken}/deleteWebhook`;
             UrlFetchAppStubConfiguration.when(deleteWebhookUri)
                 .return(new HttpResponse()
                     .setContentText(JSON.stringify({ result: true })));

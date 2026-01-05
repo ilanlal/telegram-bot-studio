@@ -1,22 +1,12 @@
 /**
- * @version 1.0.0-remastered
+ * @version 3.0.0
  * @file TelegramBotClient.gs
  * @author Ilan Laloum <ilanlal@gmail.com> (https://github.com/ilanlal)
  * @license MIT
  * 
  * This class provides methods to interact with the Telegram Bot API, allowing you to send messages, photos, and other media to users via a Telegram bot.
  * 
- * @example
- * const botToken = '[YOUR_BOT_TOKEN]';
- * const chat_id = '[YOUR_CHAT_ID]';
- * const botClient = new TelegramBotClient(botToken);
- * 
- * botClient.sendMessage({
- *  chat_id: chat_id,
- *  text: "Hi.. this is test"
- * });
- * 
- * @see https://github.com/ilanlal/basic-telegram-bot-remastered
+ * @see https://github.com/ilanlal/telegram-bot-studio
  */
 
 class TelegramBotClient {
@@ -124,8 +114,9 @@ class TelegramBotClient {
     const data = {
       'method': "post",
       'payload': {
-        'url': webAppUrl,
-        ...payload
+        ...payload,
+        // re-write url parameter if exists within payload
+        'url': webAppUrl
       }
     };
     return UrlFetchApp.fetch(url, data);
@@ -134,15 +125,9 @@ class TelegramBotClient {
   /**
    * @see https://core.telegram.org/bots/api#deletewebhook
    **/
-  deleteWebhook(webAppUrl) {
-    if (webAppUrl) {
-      const url = this.getApiBaseUrl() + "/deleteWebhook?url=" + webAppUrl;
-      const response = UrlFetchApp.fetch(url);
-      return response;
-    }
-    else {
-      throw new Error("webAppUrl paramter is null or empty!");
-    }
+  deleteWebhook() {
+    const url = this.getApiBaseUrl() + "/deleteWebhook";
+    return UrlFetchApp.fetch(url);
   }
 
   getChat(chat_id) {
@@ -153,6 +138,24 @@ class TelegramBotClient {
   getBusinessConnection(business_connection_id) {
     const url = `${this.getApiBaseUrl()}/getBusinessConnection?business_connection_id=${business_connection_id}`;
     return UrlFetchApp.fetch(url);
+  }
+
+  executeApiRequest(uriAction, payload) {
+    const url = this.apiBaseUrl + '/' + uriAction;
+
+    // If no payload, do a simple GET request
+    if (!payload) {
+      return UrlFetchApp.fetch(url);
+    }
+
+    // Otherwise, do a POST request with JSON payload
+    const options = {
+      'method': 'post',
+      'contentType': 'application/json',
+      'payload': JSON.stringify(payload)
+    };
+
+    return UrlFetchApp.fetch(url, options);
   }
 }
 
