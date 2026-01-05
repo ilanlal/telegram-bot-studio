@@ -480,6 +480,17 @@ Plugins.ViewModel = {
                             .setFunctionName('BotApiHandler.View.Logout')
                     )
             );
+    },
+    BuildConnectionSection: (token) => {
+        return CardService.newCardSection()
+            .setHeader('Connection Status')
+            .addWidget(
+                Plugins.ViewModel.BuildConnectionWidget(token)
+            )
+            // add bot token input widget (hidden if token exists)
+            .addWidget(
+                Plugins.ViewModel.BuildBotApiTokenInputWidget(token)
+            );
     }
 };
 
@@ -722,7 +733,7 @@ Plugins.GetMe = {
                 .setImageAltText('Card Image'));
 
         const topSection = CardService.newCardSection()
-            .setHeader('🔘 Get Bot Info')
+            //.setHeader('🔘 Get Bot Info')
             .setCollapsible(false)
             // add connection status widget
             .addWidget(
@@ -732,6 +743,8 @@ Plugins.GetMe = {
             .addWidget(
                 Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token)
             );
+
+        cardBuilder.addSection(topSection);
 
         // If token is provided, call getMe API
         if (input_token) {
@@ -1052,33 +1065,39 @@ Plugins.GetChat = {
                 .setSubtitle(Plugins.GetChat.short_description)
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.GetChat.imageUrl)
-                .setImageAltText('Card Image'))
-            // Add section for inputs (token, chat id)
-            .addSection(CardService.newCardSection()
-                //.setHeader('🔷 Input Parameters:')
-                .setCollapsible(false)
-                .setNumUncollapsibleWidgets(3)
-                // Add input header
-                .addWidget(
-                    Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                        '🟦 Input Parameters:',
-                        'Provide the necessary parameters to retrieve chat information.'
-                    )
+                .setImageAltText('Card Image'));
+
+
+        // Add section for inputs (token, chat id)
+        const topSection = CardService.newCardSection()
+            .setCollapsible(false)
+            .setNumUncollapsibleWidgets(3)
+            // add connection status widget
+            .addWidget(
+                Plugins.ViewModel.BuildConnectionWidget(input_token)
+            )
+            // Add input header
+            .addWidget(
+                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
+                    '🔹 Input Parameters:',
+                    'Provide the necessary parameters to retrieve chat information.'
                 )
-                // add divider
-                .addWidget(CardService.newDivider())
-                // Bot Token input
-                .addWidget(
-                    Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
-                // Chat ID input
-                .addWidget(
-                    CardService.newTextInput()
-                        .setValue(chatId || '')
-                        .setId('txt_chat_id')
-                        .setFieldName('txt_chat_id')
-                        .setTitle('🆔 Chat ID')
-                        .setHint('Enter the Chat ID to get information'))
-            );
+            )
+            // add divider
+            .addWidget(CardService.newDivider())
+            // Bot Token input (hidden if token is provided)
+            .addWidget(
+                Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
+            // Chat ID input
+            .addWidget(
+                CardService.newTextInput()
+                    .setValue(chatId || '')
+                    .setId('txt_chat_id')
+                    .setFieldName('txt_chat_id')
+                    .setTitle('🆔 Chat ID')
+                    .setHint('Enter the Chat ID to get information'));
+
+        cardBuilder.addSection(topSection);
 
         // Add result section if token is provided
         if (input_token !== '' && chatId !== '') {
@@ -1287,7 +1306,7 @@ Plugins.Webhook = {
     short_description: 'Manage Telegram bot webhooks',
     description: 'The Webhook plugin allows you to set, get, and delete webhooks for your Telegram bot using the Bot API. Manage your bot\'s webhook settings easily by providing your bot token and the desired webhook URL.',
     version: '1.0.0',
-    stars: '✨',
+    stars: '⭐⭐⭐⭐✨',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
@@ -1389,17 +1408,10 @@ Plugins.Webhook = {
     HomeCard: (data = {}) => {
         const input_token = data.txt_bot_api_token || null;
         const input_webhook_url = data.txt_webhook_url || null;
-        const newTopSection = CardService.newCardSection()
-            .setCollapsible(false)
-            .setNumUncollapsibleWidgets(1)
-            // add connection widget
-            .addWidget(
-                Plugins.ViewModel.BuildConnectionWidget(input_token)
-            )
-            // Add webhook status decorated text widget
-            .addWidget(
-                Plugins.Webhook.BuildWebhookWidget(input_webhook_url)
-            );
+         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+        // Log the request to Terminal Output sheet
+        TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'Start', data, `Request to get bot info with token: ${input_token}`);
 
         let newResultSection = null;
 
@@ -1431,13 +1443,12 @@ Plugins.Webhook = {
                 .setImageUrl(Plugins.Webhook.imageUrl)
                 .setImageAltText('Card Image'));
 
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        // Top section
+        cardBuilder.addSection(Plugins.ViewModel.BuildConnectionSection(input_token));
 
         // If token is provided, call getWebhookInfo API
         if (input_token) {
-            // Log the request to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Start', data, `Request to get bot info with token: ${input_token}`);
-
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'Submit', data, `Request to get bot info with token: ${input_token}`);
             try {
                 // Call Telegram Bot API getMe method
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1451,24 +1462,13 @@ Plugins.Webhook = {
                 const result = JSON.parse(response.getContentText()).result;
 
                 // Log the response to Terminal Output sheet
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Response', result, `Retrieved bot info for token: ${input_token}`);
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'Response', result, `Retrieved bot info for token: ${input_token}`);
 
                 // Add component when webhook is set
                 if (result.url !== '') {
-                    // Add webhook info result
-                    newTopSection
-                        // Add webhook status decorated text widget
-                        .addWidget(
-                            Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                                '✅ Webhook is set',
-                                'Your webhook is currently set and active.')
-                        )
-                        // add separator
-                        .addWidget(CardService.newDivider())
-
-
                     // Add result section
-                    newResultSection = Plugins.ViewModel.BuildResultSection(result);
+                    cardBuilder.addSection(
+                        Plugins.ViewModel.BuildResultSection(result))
 
                     // Delete webhook button in footer
                     newFixedFooter.setPrimaryButton(
@@ -1492,16 +1492,9 @@ Plugins.Webhook = {
                     );
                 }
                 else { // If webhook is not set
-                    newTopSection
-                        .addWidget(
-                            // webhook status decorated text widget
-                            Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                                'ℹ️ Webhook is not set',
-                                'No webhook is currently set for your bot. Please provide a webhook URL to set up a webhook.')
-                        )
-                        // add separator
-                        .addWidget(CardService.newDivider());
-
+                    // Add input parameter section
+                    cardBuilder.addSection(Plugins.Webhook.BuildInputSection(data));
+                    TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'InputSectionAdded', data, 'Input section added for webhook URL.');
                     // Set webhook button in footer
                     newFixedFooter.setPrimaryButton(
                         CardService.newTextButton()
@@ -1525,38 +1518,13 @@ Plugins.Webhook = {
             } catch (error) {
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'ERROR', data, error.toString());
 
-                newTopSection.addWidget(
-                    Plugins.ViewModel.BuildErrorWidget(error)
-                );
+                cardBuilder.addSection(
+                    Plugins.ViewModel.BuildErrorSection(error));
             }
         }
-        else {
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook', 'Info', data, 'No Bot Token provided, skipping API call.');
-            // Placeholder section for "Result" section when no token is provided
-            newTopSection.addWidget(
-                CardService.newDecoratedText()
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('info')))
-                    .setText('🔘 No Bot API Token provided.')
-                    .setBottomLabel('Please provide the Bot API Token to fetch webhook information.')
-            );
-        }
 
-        // Add Bot Token input widget (hidden if token is provided)
-        newTopSection.addWidget(
-            Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token));
-
-        // Add input parameter section
-        cardBuilder.addSection(Plugins.Webhook.BuildInputSection(data));
-
-        // Add top section
-        cardBuilder.addSection(newTopSection);
 
         // Add result section if available
-        if (newResultSection) {
-            cardBuilder.addSection(newResultSection);
-        }
         // Add quick help section
         cardBuilder.addSection(Plugins.Webhook.BuildQuickHelpSection());
 
