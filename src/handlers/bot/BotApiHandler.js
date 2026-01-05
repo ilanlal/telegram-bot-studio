@@ -135,9 +135,15 @@ BotApiHandler.ControllerWrapper = class {
         const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
             ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
             : null;
+
         if (!inputToken || inputToken.trim() === '') {
             throw new Error('Bot API token is required for login.');
         }
+
+        const friendlyName = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_friendly_name'])
+            ? e.commonEventObject.formInputs['txt_bot_friendly_name']?.stringInputs?.value?.[0]
+            : 'Telegram Bot';
+
         try {
             // getme to validate token
             const client = new TelegramBotClient(inputToken);
@@ -155,7 +161,9 @@ BotApiHandler.ControllerWrapper = class {
             // on success,
             // Store the token in user properties or user properties as needed
             this._userProperties.setProperty('txt_bot_api_token', inputToken);
+            this._userProperties.setProperty('txt_bot_friendly_name', friendlyName);
 
+            // Navigate to home card
             e.parameters = {
                 path: 'Plugins.ViewModel.BuildHomeCard'
             };
