@@ -605,8 +605,8 @@ Plugins.GetMe = {
                 .setButton(
                     CardService.newTextButton()
                         .setDisabled(!!!data.isConnected)
+                        .setText('Start')
                         .setAltText('Open GetMe Plugin')
-                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('smart_toy')
@@ -940,8 +940,8 @@ Plugins.GetChat = {
                 .setWrapText(true)
                 .setButton(
                     CardService.newTextButton()
+                        .setText('Start')
                         .setDisabled(!!!data.isConnected)
-                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                         .setAltText('Open Get Chat Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
@@ -1288,8 +1288,7 @@ Plugins.Webhook = {
                         CardService.newTextButton()
                             .setDisabled(!!!data.isPremium || !!!data.isConnected)
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
-                            //.setText('Open')
-                            //.setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                            .setText('Start')
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
                                     .setName('webhook')
