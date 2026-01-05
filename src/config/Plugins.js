@@ -808,15 +808,15 @@ Plugins.GetMe = {
             CardService.newFixedFooter()
                 .setPrimaryButton(
                     CardService.newTextButton()
-                        .setAltText('Send Request to get bot info')
+                        .setAltText('Refresh Bot Info')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
-                                .setName('send')
+                                .setName('refresh')
                                 .setFill(true)
                                 .setWeight(0)
                                 .setGrade(200)
                         )
-                        .setText('Send')
+                        .setText('Refresh')
                         .setOnClickAction(
                             CardService.newAction()
                                 // List of widget IDs whose values are required for this action to be executed

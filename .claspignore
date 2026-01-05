@@ -8,6 +8,8 @@
 **/__snapshots__/**
 **/build/**
 **/.vscode/**
+**/.github/**
+**/coverage/**
 **/*.test.js
 **/*.test.*.js
 **/index.js
