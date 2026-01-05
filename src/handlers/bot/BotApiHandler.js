@@ -283,29 +283,62 @@ BotApiHandler.ControllerWrapper = class {
             const webhookUrl = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_webhook_url'])
                 ? e.commonEventObject.formInputs['txt_webhook_url']?.stringInputs?.value?.[0]
                 : null;
-                
+
             if (!webhookUrl) {
                 throw new Error('Webhook URL is required to set webhook.');
             }
             const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
                 ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
                 : null;
+
             if (!inputToken) {
                 throw new Error('Bot API token is required to set webhook.');
             }
+
+            const maxConnections = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_max_connections'])
+                ? e.commonEventObject.formInputs['txt_max_connections']?.stringInputs?.value?.[0]
+                : '40';
+
+            const maxConnInt = parseInt(maxConnections, 10);
+
+            if (isNaN(maxConnInt) || maxConnInt < 1 || maxConnInt > 100) {
+                throw new Error('Max Connections must be an integer between 1 and 100.');
+            }
+
+            const ipAddress = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_ip_address'])
+                ? e.commonEventObject.formInputs['txt_ip_address']?.stringInputs?.value?.[0]
+                : null;
+            const secretToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_secret_token'])
+                ? e.commonEventObject.formInputs['txt_secret_token']?.stringInputs?.value?.[0]
+                : '';
+
+            // drop_pending_updates_switch
+            const dropPendingUpdates = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['drop_pending_updates_switch'])
+                ? (e.commonEventObject.formInputs['drop_pending_updates_switch']?.stringInputs?.value?.[0] === 'ON')
+                : false;
+
+            // create telegram bot client
             const client = new TelegramBotClient(inputToken);
-            const result = client.setWebhook(webhookUrl);
+
+            // set webhook
+            const result = client.setWebhook(webhookUrl, {
+                max_connections: parseInt(maxConnections, 10),
+                ip_address: ipAddress,
+                secret_token: secretToken,
+                drop_pending_updates: dropPendingUpdates
+            });
+
             // then update card to reflect changes
             e.parameters = {
                 path: 'Plugins.Webhook.HomeCard'
             };
             return Plugins.Navigations.UpdateCard(e);
         } catch (error) {
-            TerminalOutput.Write(this._activeSpreadsheet,
+            TerminalOutput.Write(
+                this._activeSpreadsheet,
                 'BotApiHandler.SetWebhook',
-                'ERROR',
-                e,
-                error.toString());
+                'ERROR', e, error.toString());
+
             return this.handleError(error)
                 .build();
         }

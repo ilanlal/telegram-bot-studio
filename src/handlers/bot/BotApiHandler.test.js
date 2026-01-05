@@ -91,7 +91,7 @@ describe('BotApiHandler', () => {
                     'txt_bot_api_token': { stringInputs: { value: [sampleToken] } }
                 }
             },
-            parameters: { 
+            parameters: {
                 current_webhook_url: 'https://example.com/webhook'
             }
         };
@@ -105,6 +105,81 @@ describe('BotApiHandler', () => {
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();
+    });
+
+    // setWebhook (url only)
+    test('should handle setWebhookClick (url only)', () => {
+        const handler = new BotApiHandler();
+        const event = {
+            commonEventObject: {
+                formInputs: {
+                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
+                    'txt_webhook_url': { stringInputs: { value: ['https://example.com/webhook'] } }
+                }
+            }
+        };
+        // Mock the setWebhook API response
+        const setWebhookUrl = `https://api.telegram.org/bot${sampleToken}/setWebhook`;
+        UrlFetchAppStubConfiguration.when(setWebhookUrl)
+            .return(new HttpResponse()
+                .setContentText(JSON.stringify({ ok: true, result: true })));
+
+        const actionResponse = BotApiHandler.View.SetWebhook(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+    });
+
+    // setWebhook (with options)
+    test('should handle setWebhookClick (with options)', () => {
+        const handler = new BotApiHandler();
+        const event = {
+            commonEventObject: {
+                formInputs: {
+                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
+                    'txt_webhook_url': { stringInputs: { value: ['https://example.com/webhook'] } },
+                    'drop_pending_updates_switch': { stringInputs: { value: ['true'] } },
+                    'txt_ip_address': { stringInputs: { value: ['192.168.1.1'] } },
+                    'txt_max_connections': { stringInputs: { value: ['40'] } }
+                }
+            }
+        };
+
+        // Mock the setWebhook API response
+        const setWebhookUrl = `https://api.telegram.org/bot${sampleToken}/setWebhook`;
+        UrlFetchAppStubConfiguration.when(setWebhookUrl)
+            .return(new HttpResponse()
+                .setContentText(JSON.stringify({ ok: true, result: true })));
+        const actionResponse = BotApiHandler.View.SetWebhook(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+    });
+
+    // setWebhook (with max connections > 100) should throw error
+    test('should handle setWebhookClick (with max connections > 100)', () => {
+        const handler = new BotApiHandler();
+        const event = {
+            commonEventObject: {
+                formInputs: {
+                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
+                    'txt_webhook_url': { stringInputs: { value: ['https://example.com/webhook'] } },
+                    'txt_max_connections': { stringInputs: { value: ['150'] } }
+                }
+            }
+        };
+        const setWebhookUrl = `https://api.telegram.org/bot${sampleToken}/setWebhook`;
+        UrlFetchAppStubConfiguration.when(setWebhookUrl)
+            .return(new HttpResponse()
+                .setContentText(JSON.stringify({ ok: true, result: true })));
+
+        //expect(() => BotApiHandler.View.SetWebhook(event)).toThrow('Max connections must be between 1 and 100.');
+        // response should contain error message
+        const actionResponse = BotApiHandler.View.SetWebhook(event);
+        expect(actionResponse).toBeDefined();
+        const data = actionResponse.getData();
+        expect(data).toBeDefined();
+        expect(JSON.stringify(data)).toContain('Error:');
     });
 
     // login

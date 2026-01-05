@@ -1425,7 +1425,7 @@ Plugins.Webhook = {
                 }
                 else { // If webhook is not set
                     newInputParameterSection
-                        // webhook url input
+                        // txt_webhook_url input
                         .addWidget(
                             CardService.newTextInput()
                                 //.setVisibility((result.url !== '') ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
@@ -1435,7 +1435,7 @@ Plugins.Webhook = {
                                 .setTitle('🌐 Webhook URL')
                                 .setHint('Enter the HTTPS URL to send updates to. Use an IP address if you don\'t have a domain.')
                         )
-                        // secret_token input
+                        // txt_secret_token input
                         .addWidget(
                             CardService.newTextInput()
                                 .setValue(data.txt_secret_token || '')
@@ -1449,7 +1449,7 @@ Plugins.Webhook = {
                                         .setInputType(
                                             CardService.InputType.TEXT))
                         )
-                        // ip_address
+                        // txt_ip_address
                         .addWidget(
                             CardService.newTextInput()
                                 .setValue(data.txt_ip_address || '')
@@ -1458,7 +1458,7 @@ Plugins.Webhook = {
                                 .setTitle('💻 IP Address (optional)')
                                 .setHint('Enter the The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS')
                         )
-                        // max_connections input
+                        // txt_max_connections input
                         .addWidget(
                             CardService.newTextInput()
                                 .setValue('40')
@@ -1475,7 +1475,7 @@ Plugins.Webhook = {
                         //.addWidget(
                         //Plugins.ViewModel.BuildAllowedUpdatesMultiSelectWidget(data.allowed_updates_multiselect || [])
                         //)
-                        //  drop_pending_updates decorated switch widget
+                        //  drop_pending_updates_switch switch input
                         .addWidget(
                             CardService.newDecoratedText()
                                 .setStartIcon(

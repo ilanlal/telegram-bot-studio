@@ -97,10 +97,7 @@ class TelegramBotClient {
   }
 
   /**
-   * V8.2
-   * Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
    * @see https://core.telegram.org/bots/api#getwebhookinfo
-   * @returns {object} The response from the API endpoint.
    **/
   getWebhookInfo() {
     const url = this.getApiBaseUrl() + "/getWebhookInfo";
@@ -109,29 +106,33 @@ class TelegramBotClient {
   }
 
   /**
-   * V8.2
-   * Use this method to set a new webhook for the bot. Requires the URL to be set. Returns True on success.
    * @see https://core.telegram.org/bots/api#setwebhook
-   * @param {string} webAppUrl The URL of the web app.
-   * @returns {Response|} The response from the API endpoint.
    **/
-  setWebhook(webAppUrl) {
-    if (webAppUrl) {
+  setWebhook(webAppUrl, payload) {
+    if (!webAppUrl) {
+      throw new Error("webAppUrl parameter is null or empty!");
+    }
+
+    // Simple setWebhook without extra payload
+    if (!payload) {
       const url = this.getApiBaseUrl() + "/setWebhook?url=" + webAppUrl;
       return UrlFetchApp.fetch(url);
     }
-    else {
-      throw new Error("webAppUrl paramter is null or empty!");
-    }
+
+    // setWebhook with extra payload
+    const url = this.getApiBaseUrl() + "/setWebhook";
+    const data = {
+      'method': "post",
+      'payload': {
+        'url': webAppUrl,
+        ...payload
+      }
+    };
+    return UrlFetchApp.fetch(url, data);
   }
 
   /**
-   * V8.2
-   * Use this method to delete the webhook for the bot. Requires no parameters. Returns True on success.
    * @see https://core.telegram.org/bots/api#deletewebhook
-   * @param {string} webAppUrl The URL of the web app.
-   * 
-   * @returns {object} The response from the API endpoint.
    **/
   deleteWebhook(webAppUrl) {
     if (webAppUrl) {
