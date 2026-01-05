@@ -5,7 +5,7 @@ const { TelegramBotClient } = require('../TelegramBotClient');
 
 describe('TelegramBotClient newClient method', () => {
     test('should create an instance using the newClient method', () => {
-        const botClient = TelegramBotClient.newClient('sample-token-123');
+        const botClient = new TelegramBotClient('[YOUR_BOT_TOKEN]');
         expect(botClient).toBeInstanceOf(TelegramBotClient);
     });
 });
@@ -14,17 +14,11 @@ describe('TelegramBotClient base definition', () => {
     let telegramBotClient;
 
     beforeEach(() => {
-        telegramBotClient = global.TelegramBotClientFactory
-            .withToken('[DUMMY_BOT_TOKEN]')
-            .create();
+        telegramBotClient = new TelegramBotClient('[YOUR_BOT_TOKEN]');
     });
 
     test("TelegramBotClient should be defined", () => {
         expect(TelegramBotClient).toBeDefined();
-    });
-
-    test("global.TelegramBotClientFactory should be defined", () => {
-        expect(global.TelegramBotClientFactory).toBeDefined();
     });
 });
 
@@ -33,9 +27,7 @@ describe("getMe Tests", () => {
     let telegramBotClient;
 
     beforeEach(() => {
-        telegramBotClient = global.TelegramBotClientFactory
-            .withToken('[YOUR_BOT_TOKEN]')
-            .create();
+        telegramBotClient = new TelegramBotClient('[YOUR_BOT_TOKEN]');
     });
 
 
@@ -66,9 +58,7 @@ describe("Webhook Tests", () => {
     let telegramBotClient;
 
     beforeEach(() => {
-        telegramBotClient = global.TelegramBotClientFactory
-            .withToken('[YOUR_BOT_TOKEN]')
-            .create();
+        telegramBotClient = new TelegramBotClient('[YOUR_BOT_TOKEN]');
     });
 
     // test getWebhookInfo execution
@@ -138,9 +128,7 @@ describe("TelegramBotClient setMyName, setMyDescription, setMyShortDescription T
     let telegramBotClient;
 
     beforeEach(() => {
-        telegramBotClient = global.TelegramBotClientFactory
-            .withToken('[YOUR_BOT_TOKEN]')
-            .create();
+        telegramBotClient = new TelegramBotClient('[YOUR_BOT_TOKEN]');
     });
 
     // test setMyName execution
