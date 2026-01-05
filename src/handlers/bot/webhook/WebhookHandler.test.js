@@ -11,16 +11,16 @@ describe('WebhookHandler', () => {
 
     it('should run doPost message handler', () => {
         const event = {
-            postData: JSON.stringify({
-                contents: {
+            postData: {
+                contents: JSON.stringify({
                     message: {
                         from: { id: 5678, is_bot: false, first_name: 'Test User' },
                         chat: { id: 5678, first_name: 'Test User', type: 'private' },
                         date: 1700000000,
                         text: '/start'
                     }
-                }
-            })
+                })
+            }
         };
 
         const response = WebhookHandler.handlePostUpdateRequest(event.postData);
@@ -29,18 +29,18 @@ describe('WebhookHandler', () => {
 
     it('should run doPost callback_query handler', () => {
         const event = {
-            postData: JSON.stringify({
-                contents: {
+            postData: {
+                contents: JSON.stringify({
                     callback_query: {
                         id: '1234567890',
                         from: {
                             id: 123456,
                             language_code: 'en'
                         },
-                        data: 'button_clicked'
+                        data: '/start'
                     }
-                }
-            })
+                })
+            }
         };
 
         const sendMessgeUrl = `https://api.telegram.org/bot${dummyToken}/sendMessage`;
@@ -59,7 +59,7 @@ describe('WebhookHandler', () => {
     });
 
     it('should throw error for invalid message format', () => {
-        const content = { message: {} };
-        expect(() => WebhookHandler.handlePostUpdateRequest(content.postData)).toThrow('Invalid message format');
+        const postData = { contents: JSON.stringify({ message: {} }) };
+        expect(() => WebhookHandler.handlePostUpdateRequest(postData)).toThrow('Invalid message format');
     });
 });

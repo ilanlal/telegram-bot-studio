@@ -357,24 +357,9 @@ Plugins.ViewModel = {
                     //    CardService.newIconImage().setMaterialIcon(
                     //        CardService.newMaterialIcon().setName('smart_toy')))
                     //.setTopLabel(key)
-                    .setText(key)
-                    .setWrapText(false)
-                    .setBottomLabel(JSON.stringify(result[key]))
-                    .setButton(
-                        CardService.newTextButton()
-                            //.setText('Get Started')
-                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                            .setAltText('Copy ' + key + ' value to clipboard')
-                            //.setBackgroundColor('#4CAF50')
-                            .setDisabled(true)
-                            .setMaterialIcon(
-                                CardService.newMaterialIcon()
-                                    .setName('content_copy')
-                            )
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('Utils.ViewModel.CopyToClipboard')
-                            )));
+                    .setText(key + ":")
+                    .setWrapText(true)
+                    .setBottomLabel(JSON.stringify(result[key])));
         });
         // Raw JSON view
         // Add divider
@@ -1325,7 +1310,7 @@ Plugins.Webhook = {
                             .setDisabled(!!!data.isPremium || !!!data.isConnected)
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
                             //.setText('Open')
-                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                            //.setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
                                     .setName('webhook')
@@ -1408,7 +1393,7 @@ Plugins.Webhook = {
     HomeCard: (data = {}) => {
         const input_token = data.txt_bot_api_token || null;
         const input_webhook_url = data.txt_webhook_url || null;
-         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
         // Log the request to Terminal Output sheet
         TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'Start', data, `Request to get bot info with token: ${input_token}`);

@@ -113,7 +113,7 @@ class EnvironmentModel {
 }
 
 EnvironmentModel.InputMeta = {
-    BOT_API_TOKEN: 'bot_api_token',
+    BOT_API_TOKEN: 'txt_bot_api_token',
     DEPLOYMENT_ID: 'deployment_id',
     TEST_DEPLOYMENT_ID: 'test_deployment_id',
     ADMIN_CHAT_ID: 'admin_chat_id',
