@@ -55,52 +55,6 @@ Plugins.ViewModel = {
                     Plugins.ViewModel.BuildConnectionWidget(data.txt_bot_api_token))
         );
 
-        const newFixedFooter = CardService.newFixedFooter();
-        if (data.isConnected) {
-            newFixedFooter.setPrimaryButton(
-                CardService.newTextButton()
-                    .setText('Disconnect Bot')
-                    .setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName('logout')
-                            .setFill(true)
-                            .setWeight(0)
-                            .setGrade(200))
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('BotApiHandler.View.Logout'))
-            )
-        }
-        else {
-            newFixedFooter.setPrimaryButton(
-                CardService.newTextButton()
-                    .setText('Connect Bot')
-                    .setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName('login')
-                            .setFill(true)
-                            .setWeight(0)
-                            .setGrade(200))
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('Plugins.Navigations.PushCard')
-                            .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
-                    )
-            )
-        }
-
-        if (data.isPremium) {
-            // Premium member footer do nothing for now
-        }
-        else {
-            // Free member footer
-            newFixedFooter.setSecondaryButton(
-                CardService.newTextButton()
-                    .setText('Upgrade to Premium')
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard')))
-        }
         // for each plugin, add a section
         Plugins.prototype.pluginList.forEach((plugin) => {
             cardBuilder.addSection(
@@ -108,7 +62,25 @@ Plugins.ViewModel = {
             );
         });
 
-        cardBuilder.setFixedFooter(newFixedFooter);
+        // if not premium, add upgrade footer
+        if (!data.isPremium) {
+            const newFixedFooter = CardService.newFixedFooter()
+                .setPrimaryButton(
+                    CardService.newTextButton()
+                        .setText('Upgrade to Premium')
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('upgrade')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(200))
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard'))
+                );
+
+            cardBuilder.setFixedFooter(newFixedFooter);
+        }
 
         return cardBuilder.build();
     },
