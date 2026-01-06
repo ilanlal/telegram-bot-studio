@@ -251,13 +251,12 @@ BotApiHandler.ControllerWrapper = class {
 
     handleDeleteWebhook(e) {
         try {
-            // delete webhook logic here
-            // extract current_webhook_url
-            const webhookUrl = e.parameters.current_webhook_url ? decodeURIComponent(e.parameters.current_webhook_url) : null;
-            if (!webhookUrl) {
-                throw new Error('Current webhook URL is required to delete webhook.');
-            }
+            // drop_pending_updates_switch
+            const dropPendingUpdates = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['drop_pending_updates_switch'])
+                ? (e.commonEventObject.formInputs['drop_pending_updates_switch']?.stringInputs?.value?.[0] === 'ON')
+                : false;
 
+            // extract token
             const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
                 ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
                 : null;
@@ -267,7 +266,7 @@ BotApiHandler.ControllerWrapper = class {
             }
 
             const client = new TelegramBotClient(inputToken);
-            const result = client.deleteWebhook(webhookUrl);
+            const result = client.deleteWebhook(dropPendingUpdates);
             // then update card to reflect changes
             e.parameters = {
                 path: 'Plugins.Webhook.HomeCard'

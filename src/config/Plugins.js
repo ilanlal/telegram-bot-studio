@@ -298,7 +298,7 @@ Plugins.ViewModel = {
         const newSection = CardService.newCardSection()
             .setHeader('✅ Execution Result')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(2);
+            .setNumUncollapsibleWidgets(0);
 
         // Add Preview title
         newSection.addWidget(
@@ -406,9 +406,9 @@ Plugins.ViewModel = {
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel('🟢 Bot set.')
+            .setTopLabel('🟢 Bot token set.')
             .setText(`${friendlyName}`)
-            .setBottomLabel(`🤖: ${token.slice(0, 12)}****${token.slice(-12)}`)
+            .setBottomLabel(`Token:${token.slice(0, 12)}****${token.slice(-12)}`)
             .setWrapText(false)
             .setButton(
                 CardService.newTextButton()
@@ -579,7 +579,7 @@ Plugins.GetMe = {
                     CardService.newTextButton()
                         .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                         .setDisabled(!!!data.isConnected)
-                        .setText('Show')
+                        //.setText('Show')
                         .setAltText('Open Get Me Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
@@ -915,7 +915,7 @@ Plugins.GetChat = {
                 .setButton(
                     CardService.newTextButton()
                         .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                        .setText('Show')
+                        //.setText('Show')
                         .setDisabled(!!!data.isConnected)
                         .setAltText('Open Get Chat Plugin')
                         .setMaterialIcon(
@@ -1264,7 +1264,7 @@ Plugins.Webhook = {
                             .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                             .setDisabled(!!!data.isPremium || !!!data.isConnected)
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
-                            .setText('Show')
+                            //.setText('Show')
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
                                     .setName('webhook')
@@ -1358,15 +1358,15 @@ Plugins.Webhook = {
             // set search as default primary button
             .setPrimaryButton(
                 CardService.newTextButton()
-                    .setAltText('Send Request to get bot info')
+                    .setAltText('Refresh Bot Info')
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
-                            .setName('search_check_2')
+                            .setName('refresh')
                             .setFill(true)
-                            .setWeight(0)
-                            .setGrade(200)
+                            .setWeight(500)
+                            .setGrade(0)
                     )
-                    .setText('Fetch Webhook')
+                    .setText('Refresh')
                     .setOnClickAction(
                         CardService.newAction()
                             .addRequiredWidget(['txt_bot_api_token'])
@@ -1405,39 +1405,18 @@ Plugins.Webhook = {
 
                 // Add webhook state section
                 cardBuilder.addSection(
-                    Plugins.Webhook.BuildWebhookSection(result));
+                    Plugins.Webhook.BuildWebhookSection(data, result));
 
-                // Add component when webhook is set
+                // when webhook is set
                 if (result.url !== '') {
                     // Add result section
                     cardBuilder.addSection(
                         Plugins.ViewModel.BuildResultSection(result))
-
-                    // Delete webhook button in footer
-                    newFixedFooter.setPrimaryButton(
-                        CardService.newTextButton()
-                            .setAltText('Delete the current webhook')
-                            .setMaterialIcon(
-                                CardService.newMaterialIcon()
-                                    .setName('delete')
-                                    .setFill(true)
-                                    .setWeight(0)
-                                    .setGrade(200)
-                            )
-                            .setText('Delete Webhook')
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    // List of widget IDs whose values are required for this action to be executed
-                                    .addRequiredWidget(['txt_bot_api_token'])
-                                    .setFunctionName('BotApiHandler.View.DeleteWebhook')
-                                    .setParameters({ current_webhook_url: encodeURIComponent(result.url) || '' })
-                            )
-                    );
                 }
-                else { // If webhook is not set
+                else { // when webhook is not set
                     // Add input parameter section
                     cardBuilder.addSection(Plugins.Webhook.BuildInputSection(data));
-                    TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'InputSectionAdded', data, 'Input section added for webhook URL.');
+
                     // Set webhook button in footer
                     newFixedFooter.setPrimaryButton(
                         CardService.newTextButton()
@@ -1573,44 +1552,108 @@ Plugins.Webhook = {
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('webhook')))
-                .setTopLabel('Webhook URL:')
-                .setText('🔘 URL Not set.')
-                .setBottomLabel('No webhook is currently set for this bot.')
+                .setTopLabel('🔘 Webhook URL not set.')
+                .setText('Inactive Webhook URL:')
+                .setBottomLabel('Set a webhook URL to start receiving updates.')
                 .setWrapText(true);
         }
 
         return CardService.newDecoratedText()
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName(result.last_error_date ? 'warning' : 'webhook')))
-            .setTopLabel(`Webhook URL:`)
-            .setText('🟢 URL Set.')
-            .setBottomLabel(`${result.url.slice(0, 16)}...${result.url.slice(-10)} | Pending Updates: ${result.pending_update_count}`)
-            .setWrapText(true);
+                    CardService.newMaterialIcon().setName('webhook')))
+            .setTopLabel(`🟢 Webhook URL set.`)
+            .setText('Active Webhook URL:')
+            .setBottomLabel(`${result.url.slice(0, 20)}...${result.url.slice(-16)}`)
+            .setWrapText(false);
     },
-    BuildWebhookSection: (result) => {
-        return CardService.newCardSection()
+    BuildWebhookSection: (data, result) => {
+        const section = CardService.newCardSection()
             //.setHeader('🔹 Webhook Status:')
             .addWidget(
-                Plugins.Webhook.BuildWebhookWidget(result))
-            .addWidget(CardService.newDivider())
-            // add webhook error info if available
-            .addWidget(
-                CardService.newDecoratedText()
+                Plugins.Webhook.BuildWebhookWidget(result));
+
+        // If there is a last error, show it
+        if (result.last_error_date) {
+            // add warning for pending updates
+            section
+                // add divider
+                .addWidget(CardService.newDivider()
                     .setVisibility(result.last_error_date ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('error')))
-                    .setTopLabel(`⚠️ Warning: pending updates: ${result.pending_update_count}`)
-                    .setText(result.last_error_date ? new Date(result.last_error_date * 1000).toLocaleString() : 'N/A')
-                    .setBottomLabel(result.last_error_message || 'N/A')
-                    .setWrapText(false)
-            );
+                )
+                // add last error info
+                .addWidget(
+                    CardService.newDecoratedText()
+                        .setVisibility(result.last_error_date ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
+                        .setStartIcon(
+                            CardService.newIconImage().setMaterialIcon(
+                                CardService.newMaterialIcon().setName('error')))
+                        .setTopLabel(`⚠️ Warning: pending updates: ${result.pending_update_count}`)
+                        .setText(result.last_error_date ? new Date(result.last_error_date * 1000).toLocaleString() : 'N/A')
+                        .setBottomLabel(result.last_error_message || 'N/A')
+                        .setWrapText(false)
+                );
+        }
+
+        // if webhook is set, add delete webhook button
+        if (result.url !== '') {
+            // Add delete webhook button
+
+            section
+                // add divider
+                .addWidget(
+                    CardService.newDivider()
+                        .setVisibility(result.last_error_date ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
+                )
+                //  drop_pending_updates_switch switch input
+                .addWidget(
+                    CardService.newDecoratedText()
+                        .setStartIcon(
+                            CardService.newIconImage().setMaterialIcon(
+                                CardService.newMaterialIcon().setName('pending_actions')))
+                        .setText('Drop Pending Updates')
+                        .setBottomLabel('Pass True to drop all pending updates')
+                        .setWrapText(true)
+                        .setSwitchControl(
+                            CardService.newSwitch()
+                                .setFieldName('drop_pending_updates_switch')
+                                .setSelected(data.drop_pending_updates_switch === 'ON')
+                                .setValue('ON')
+                                .setOnChangeAction(
+                                    CardService.newAction()
+                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                        .setParameters({
+                                            actionName: 'drop_pending_updates_switch'
+                                        })
+                                )
+                        )
+                )
+                .addWidget(
+                    CardService.newTextButton()
+                        .setAltText('Delete the current webhook')
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('delete')
+                                .setFill(true)
+                                .setWeight(0)
+                                .setGrade(200)
+                        )
+                        .setText('Delete Webhook')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                // List of widget IDs whose values are required for this action to be executed
+                                .addRequiredWidget(['txt_bot_api_token'])
+                                .setFunctionName('BotApiHandler.View.DeleteWebhook')
+                        )
+                );
+        }
+
+        return section;
     },
     BuildInputSection: (data = {}) => {
         return CardService.newCardSection()
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(3)
+            .setNumUncollapsibleWidgets(1)
             // Add Bot Token input as default input
             // txt_webhook_url input
             .addWidget(
@@ -1621,6 +1664,29 @@ Plugins.Webhook = {
                     .setFieldName('txt_webhook_url')
                     .setTitle('🌐 Webhook URL')
                     .setHint('Enter the HTTPS URL to send updates to. Use an IP address if you don\'t have a domain.')
+            )
+            //  drop_pending_updates_switch switch input
+            .addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('pending_actions')))
+                    .setText('Drop Pending Updates')
+                    .setBottomLabel('Pass True to drop all pending updates')
+                    .setWrapText(true)
+                    .setSwitchControl(
+                        CardService.newSwitch()
+                            .setFieldName('drop_pending_updates_switch')
+                            .setSelected(data.drop_pending_updates_switch === 'ON')
+                            .setValue('ON')
+                            .setOnChangeAction(
+                                CardService.newAction()
+                                    .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                    .setParameters({
+                                        actionName: 'drop_pending_updates_switch'
+                                    })
+                            )
+                    )
             )
             // txt_secret_token input
             .addWidget(
@@ -1662,29 +1728,7 @@ Plugins.Webhook = {
             //.addWidget(
             //Plugins.ViewModel.BuildAllowedUpdatesMultiSelectWidget(data.allowed_updates_multiselect || [])
             //)
-            //  drop_pending_updates_switch switch input
-            .addWidget(
-                CardService.newDecoratedText()
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('pending_actions')))
-                    .setText('Drop Pending Updates')
-                    .setBottomLabel('Pass True to drop all pending updates')
-                    .setWrapText(true)
-                    .setSwitchControl(
-                        CardService.newSwitch()
-                            .setFieldName('drop_pending_updates_switch')
-                            .setSelected(data.drop_pending_updates_switch === 'ON')
-                            .setValue('ON')
-                            .setOnChangeAction(
-                                CardService.newAction()
-                                    .setFunctionName('AppHandler.ViewModel.ToggleAction')
-                                    .setParameters({
-                                        actionName: 'drop_pending_updates_switch'
-                                    })
-                            )
-                    )
-            );
+            ;
     },
     BuildQuickHelpSection: () => {
         return CardService.newCardSection()
