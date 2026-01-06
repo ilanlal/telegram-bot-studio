@@ -29,7 +29,7 @@ describe('Plugins ViewModel', () => {
         expect(loginCard).toBeDefined();
         const cardData = loginCard.getData();
         expect(cardData).toBeDefined();
-        expect(cardData.name).toBe('LoginCard');
+        expect(cardData.name).toBe('SetupBotConnectionCard');
     });
 
     // AboutCard test

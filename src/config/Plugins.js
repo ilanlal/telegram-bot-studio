@@ -108,17 +108,36 @@ Plugins.ViewModel = {
                 // add bot token input widget (hidden if token exists)
                 Plugins.ViewModel.BuildTokenTextInputWidget(''));
 
+        const newQuickTipsSection = CardService.newCardSection()
+            .setHeader('Quick Tips')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(0)
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('You can create a new bot and get your bot token from the BotFather on Telegram.')
+            )
+            // Quick steps
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('1. Open Telegram and search for @BotFather.\n2. Start a chat and send the command /newbot.\n3. Follow the instructions to set a name and username for your bot.\n4. After creating the bot, BotFather will provide you with a bot token. Copy this token to use in the app.'))
+            // add divider
+            .addWidget(CardService.newDivider())
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('💡 Make sure to keep your bot token secure and do not share it with others.'))
+
 
         const cardBuilder = CardService.newCardBuilder()
-            .setName('LoginCard')
+            .setName('SetupBotConnectionCard')
             .setHeader(CardService.newCardHeader()
                 .setTitle('Connect Your Bot')
                 .setSubtitle('Set up your Telegram Bot connection')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.WELCOME_IMG_URL)
-                .setImageAltText('Login Image'))
+                .setImageAltText('Setup Bot Connection Image'))
             //.addSection(newInputSection)
             .addSection(newInputSection)
+            .addSection(newQuickTipsSection)
             .setFixedFooter(newFixedFooter);
         return cardBuilder.build();
     },
