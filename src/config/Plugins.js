@@ -421,9 +421,9 @@ Plugins.ViewModel = {
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel(`🟢 Bot active`)
+            .setTopLabel(`Connected as ${friendlyName}`)
             .setText(`@${username}`)
-            .setBottomLabel(`${token}`)
+            .setBottomLabel(`${token.slice(0, 11)}****${token.slice(-16)}`)
             .setWrapText(false)
             .setButton(
                 CardService.newTextButton()
