@@ -64,6 +64,9 @@ Plugins.ViewModel = {
 
         // if not premium, add upgrade footer
         if (!data.isPremium) {
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildActivatePremiumWithCallToActionSection(data)
+            );
             const newFixedFooter = CardService.newFixedFooter()
                 .setPrimaryButton(
                     CardService.newTextButton()
@@ -273,7 +276,16 @@ Plugins.ViewModel = {
         else {
             newSection.addWidget(
                 CardService.newTextButton()
-                    .setText('💎 Upgrade to Premium')
+                    .setAltText('Upgrade to Premium Membership')
+                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setText('Upgrade to Premium')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('upgrade')
+                            .setFill(true)
+                            .setWeight(500)
+                            .setGrade(0)
+                    )
                     .setOnClickAction(
                         CardService.newAction()
                             .setFunctionName('AppHandler.ViewModel.ActivatePremium'))
@@ -450,6 +462,42 @@ Plugins.ViewModel = {
             .addWidget(
                 Plugins.ViewModel.BuildTokenTextInputWidget(token)
             );
+    },
+    BuildActivatePremiumWithCallToActionSection: (data = {}) => {
+        const newSection = CardService.newCardSection()
+            .setHeader('💎 Upgrade to Premium Membership')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1);
+
+        // todo: show message like 'obtain your 90-day premium membership now!'
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Free Membership')
+                .setText('90-day free trial available.')
+                .setBottomLabel('Upgrade to premium to unlock all features and enhance your experience.')
+                .setWrapText(true)
+        );
+
+        // Add upgrade button
+        newSection.addWidget(
+            CardService.newTextButton()
+                .setText('Upgrade to Premium')
+                .setAltText('Upgrade to Premium Membership')
+                .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                .setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('upgrade')
+                        .setFill(true)
+                        .setWeight(500)
+                        .setGrade(0)
+                )
+                .setOnClickAction(
+                    CardService.newAction()
+                        .setFunctionName('Plugins.Navigations.PushCard')
+                        .setParameters({ path: 'Plugins.ViewModel.BuildUserProfileCard' })
+                )
+        );
+        return newSection;
     }
 };
 
