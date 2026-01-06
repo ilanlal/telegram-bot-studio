@@ -237,7 +237,7 @@ Plugins.ViewModel = {
         const newSection = CardService.newCardSection()
             .setHeader('Membership Subscription')
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1);
+            .setNumUncollapsibleWidgets(isPremium ? 1 : 2);
 
         // Add membership status widget
         newSection.addWidget(CardService.newDecoratedText()
@@ -284,11 +284,10 @@ Plugins.ViewModel = {
     },
     BuildResultSectionPlaceholder: () => {
         return CardService.newCardSection()
-            //.setHeader('🔘 Execution Result')
             // add placeholder decorated text widget
             .addWidget(
                 Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                    '🔘 Execution Result',
+                    '🔘 No Result',
                     'Send the action to see the result here.'
                 )
             )
@@ -297,7 +296,7 @@ Plugins.ViewModel = {
     },
     BuildResultSection: (result = {}) => {
         const newSection = CardService.newCardSection()
-            .setHeader('🔹 Execution Result')
+            .setHeader('✅ Execution Result')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(2);
 
@@ -318,22 +317,24 @@ Plugins.ViewModel = {
                     .setWrapText(true)
                     .setBottomLabel(JSON.stringify(result[key])));
         });
+
         // Raw JSON view
         // Add divider
         newSection.addWidget(CardService.newDivider());
+
         // Add Raw title
         newSection.addWidget(
             CardService.newTextParagraph()
-                .setMaxLines(0)
                 .setText('Response: [Raw JSON]'));
+
         // Add divider
         newSection.addWidget(CardService.newDivider());
+
         // Add raw result text paragraph
         newSection.addWidget(
             CardService.newTextParagraph()
-                .setText(JSON.stringify(result))
-            //.setMaxLines(2)
-        );
+                .setMaxLines(1)
+                .setText(JSON.stringify(result)));
 
         // Build the execution result card
         return newSection;
@@ -378,21 +379,21 @@ Plugins.ViewModel = {
             return CardService.newDecoratedText()
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('online_prediction')))
-                .setTopLabel('Disconnected:')
-                .setText('🔴 Off-line')
-                .setBottomLabel('No Bot Token found')
+                        CardService.newMaterialIcon().setName('smart_toy')))
+                .setTopLabel('🔘 Not set')
+                .setText('No Bot Token set.')
+                .setBottomLabel('Set up your bot connection to get started.')
                 .setWrapText(true)
                 .setButton(
                     CardService.newTextButton()
-                        .setAltText('Connect with Bot Token')
+                        .setAltText('Add Bot Token')
                         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
-                                .setName('login')
+                                .setName('add')
                                 .setFill(true)
-                                .setWeight(700)
-                                .setGrade(-25))
+                                .setWeight(500)
+                                .setGrade(0))
                         .setOnClickAction(
                             CardService.newAction()
                                 .setFunctionName('Plugins.Navigations.PushCard')
@@ -405,19 +406,19 @@ Plugins.ViewModel = {
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel('Connected:')
-            .setText('🟢 On-line')
-            .setBottomLabel(`${friendlyName} - ${token.slice(0, 8)}****${token.slice(-8)}`)
-            .setWrapText(true)
+            .setTopLabel('🟢 Bot set.')
+            .setText(`${friendlyName}`)
+            .setBottomLabel(`🤖: ${token.slice(0, 12)}****${token.slice(-12)}`)
+            .setWrapText(false)
             .setButton(
                 CardService.newTextButton()
-                    .setAltText('Disconnect Bot')
+                    .setAltText('Delete Bot Connection')
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
-                            .setName('logout')
-                            .setFill(true)
-                            .setWeight(0)
-                            .setGrade(200))
+                            .setName('delete_forever')
+                            .setFill(false)
+                            .setWeight(500)
+                            .setGrade(0))
                     .setOnClickAction(
                         CardService.newAction()
                             .setFunctionName('BotApiHandler.View.Logout')
@@ -426,7 +427,7 @@ Plugins.ViewModel = {
     },
     BuildConnectionSection: (token) => {
         return CardService.newCardSection()
-            .setHeader('Connection Status')
+            //.setHeader('Connection Status')
             .addWidget(
                 Plugins.ViewModel.BuildConnectionWidget(token)
             )
@@ -576,15 +577,16 @@ Plugins.GetMe = {
                 .setWrapText(false)
                 .setButton(
                     CardService.newTextButton()
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                         .setDisabled(!!!data.isConnected)
-                        .setText('Start')
-                        .setAltText('Open GetMe Plugin')
+                        .setText('Show')
+                        .setAltText('Open Get Me Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('smart_toy')
                                 .setFill(true)
-                                .setWeight(700)
-                                .setGrade(200)
+                                .setWeight(500)
+                                .setGrade(0)
                         )
                         .setOnClickAction(
                             CardService.newAction()
@@ -912,15 +914,16 @@ Plugins.GetChat = {
                 .setWrapText(true)
                 .setButton(
                     CardService.newTextButton()
-                        .setText('Start')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setText('Show')
                         .setDisabled(!!!data.isConnected)
                         .setAltText('Open Get Chat Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('chat_info')
                                 .setFill(true)
-                                .setWeight(700)
-                                .setGrade(200)
+                                .setWeight(500)
+                                .setGrade(0)
                         )
                         .setOnClickAction(
                             CardService.newAction()
@@ -1258,15 +1261,16 @@ Plugins.Webhook = {
                     .setWrapText(false)
                     .setButton(
                         CardService.newTextButton()
+                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                             .setDisabled(!!!data.isPremium || !!!data.isConnected)
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
-                            .setText('Start')
+                            .setText('Show')
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
                                     .setName('webhook')
                                     .setFill(true)
-                                    .setWeight(700)
-                                    .setGrade(200)
+                                    .setWeight(500)
+                                    .setGrade(0)
                             )
                             .setOnClickAction(
                                 CardService.newAction()
