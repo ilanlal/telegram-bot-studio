@@ -109,7 +109,7 @@ Plugins.ViewModel = {
                 Plugins.ViewModel.BuildTokenTextInputWidget(''));
 
         const newQuickTipsSection = CardService.newCardSection()
-            .setHeader('Quick Tips')
+            .setHeader('Quick Tips to Get Your Bot Token')
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(0)
             .addWidget(
@@ -135,7 +135,6 @@ Plugins.ViewModel = {
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.WELCOME_IMG_URL)
                 .setImageAltText('Setup Bot Connection Image'))
-            //.addSection(newInputSection)
             .addSection(newInputSection)
             .addSection(newQuickTipsSection)
             .setFixedFooter(newFixedFooter);
@@ -591,14 +590,14 @@ Plugins.GetMe = {
                 .setWrapText(false)
                 .setButton(
                     CardService.newTextButton()
-                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setDisabled(!!!data.isConnected)
                         //.setText('Show')
                         .setAltText('Open Get Me Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('smart_toy')
-                                .setFill(true)
+                                .setFill(false)
                                 .setWeight(500)
                                 .setGrade(0)
                         )
@@ -928,14 +927,14 @@ Plugins.GetChat = {
                 .setWrapText(true)
                 .setButton(
                     CardService.newTextButton()
-                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         //.setText('Show')
                         .setDisabled(!!!data.isConnected)
                         .setAltText('Open Get Chat Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('chat_info')
-                                .setFill(true)
+                                .setFill(false)
                                 .setWeight(500)
                                 .setGrade(0)
                         )
@@ -1275,14 +1274,14 @@ Plugins.Webhook = {
                     .setWrapText(false)
                     .setButton(
                         CardService.newTextButton()
-                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                            .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                             .setDisabled(!!!data.isPremium || !!!data.isConnected)
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
                             //.setText('Show')
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
                                     .setName('webhook')
-                                    .setFill(true)
+                                    .setFill(false)
                                     .setWeight(500)
                                     .setGrade(0)
                             )
@@ -1617,35 +1616,29 @@ Plugins.Webhook = {
                 //  drop_pending_updates_switch switch input
                 .addWidget(
                     CardService.newDecoratedText()
-                        .setStartIcon(
-                            CardService.newIconImage().setMaterialIcon(
-                                CardService.newMaterialIcon().setName('pending_actions')))
-                        .setText('Drop Pending Updates')
-                        .setBottomLabel('Pass True to drop all pending updates')
+                        .setText('Drop Pending Updates?')
+                        .setBottomLabel('Check to drop all pending updates')
                         .setWrapText(true)
                         .setSwitchControl(
                             CardService.newSwitch()
                                 .setFieldName('drop_pending_updates_switch')
                                 .setSelected(data.drop_pending_updates_switch === 'ON')
                                 .setValue('ON')
-                                .setOnChangeAction(
-                                    CardService.newAction()
-                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
-                                        .setParameters({
-                                            actionName: 'drop_pending_updates_switch'
-                                        })
-                                )
+                                .setControlType(CardService.SwitchControlType.CHECK_BOX)
                         )
                 )
+                // add delete webhook button
                 .addWidget(
                     CardService.newTextButton()
+                        //.setBackgroundColor('#F0A0A0')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                         .setAltText('Delete the current webhook')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('delete')
-                                .setFill(true)
-                                .setWeight(0)
-                                .setGrade(200)
+                                .setFill(false)
+                                .setWeight(500)
+                                .setGrade(0)
                         )
                         .setText('Delete Webhook')
                         .setOnClickAction(
@@ -1677,24 +1670,15 @@ Plugins.Webhook = {
             //  drop_pending_updates_switch switch input
             .addWidget(
                 CardService.newDecoratedText()
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('pending_actions')))
-                    .setText('Drop Pending Updates')
-                    .setBottomLabel('Pass True to drop all pending updates')
+                    .setText('Drop Pending Updates?')
+                    .setBottomLabel('Check to drop all pending updates')
                     .setWrapText(true)
                     .setSwitchControl(
                         CardService.newSwitch()
                             .setFieldName('drop_pending_updates_switch')
                             .setSelected(data.drop_pending_updates_switch === 'ON')
                             .setValue('ON')
-                            .setOnChangeAction(
-                                CardService.newAction()
-                                    .setFunctionName('AppHandler.ViewModel.ToggleAction')
-                                    .setParameters({
-                                        actionName: 'drop_pending_updates_switch'
-                                    })
-                            )
+                            .setControlType(CardService.SwitchControlType.CHECK_BOX)
                     )
             )
             // txt_secret_token input
