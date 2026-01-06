@@ -93,8 +93,8 @@ Plugins.ViewModel = {
                         CardService.newMaterialIcon()
                             .setName('login')
                             .setFill(true)
-                            .setWeight(0)
-                            .setGrade(200))
+                            .setWeight(500)
+                            .setGrade(0))
 
                     .setText('Connect')
                     .setOnClickAction(
@@ -104,22 +104,16 @@ Plugins.ViewModel = {
                             .setFunctionName('BotApiHandler.View.Login')));
 
         const newInputSection = CardService.newCardSection()
-            .addWidget(Plugins.ViewModel.BuildBotApiTokenInputWidget(data.txt_bot_api_token || ''))
-            // add friendly name input
             .addWidget(
-                CardService.newTextInput()
-                    .setValue(data.txt_bot_friendly_name || 'Telegram Bot')
-                    .setId('txt_bot_friendly_name')
-                    .setFieldName('txt_bot_friendly_name')
-                    .setTitle('Bot Friendly Name')
-                    .setHint('Enter a friendly name for your bot, for example: My Telegram Bot')
-            );
+                // add bot token input widget (hidden if token exists)
+                Plugins.ViewModel.BuildTokenTextInputWidget(''));
+
 
         const cardBuilder = CardService.newCardBuilder()
             .setName('LoginCard')
             .setHeader(CardService.newCardHeader()
-                .setTitle('Login')
-                .setSubtitle('Telegram Bot Login')
+                .setTitle('Connect Your Bot')
+                .setSubtitle('Set up your Telegram Bot connection')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.WELCOME_IMG_URL)
                 .setImageAltText('Login Image'))
@@ -358,7 +352,7 @@ Plugins.ViewModel = {
             error.toString()
         );
     },
-    BuildBotApiTokenInputWidget: (token) => {
+    BuildTokenTextInputWidget: (token) => {
         // Bot Token input
         return CardService.newTextInput()
             .setVisibility(token ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
@@ -401,14 +395,15 @@ Plugins.ViewModel = {
                         )
                 );
         }
-        const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Telegram Bot';
+        const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Unknown Name';
+        const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
         return CardService.newDecoratedText()
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel('🟢 Bot token set.')
+            .setTopLabel(`🟢 Bot Active - @${username}`)
             .setText(`${friendlyName}`)
-            .setBottomLabel(`Token:${token.slice(0, 12)}****${token.slice(-12)}`)
+            .setBottomLabel(`${token.slice(0, 12)}****${token.slice(-12)}`)
             .setWrapText(false)
             .setButton(
                 CardService.newTextButton()
@@ -433,7 +428,7 @@ Plugins.ViewModel = {
             )
             // add bot token input widget (hidden if token exists)
             .addWidget(
-                Plugins.ViewModel.BuildBotApiTokenInputWidget(token)
+                Plugins.ViewModel.BuildTokenTextInputWidget(token)
             );
     }
 };
@@ -686,7 +681,7 @@ Plugins.GetMe = {
             )
             // add Bot Token input (hidden if token is provided)
             .addWidget(
-                Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token)
+                Plugins.ViewModel.BuildTokenTextInputWidget(input_token)
             );
 
         cardBuilder.addSection(topSection);
@@ -1026,7 +1021,7 @@ Plugins.GetChat = {
             .addWidget(CardService.newDivider())
             // Bot Token input (hidden if token is provided)
             .addWidget(
-                Plugins.ViewModel.BuildBotApiTokenInputWidget(input_token))
+                Plugins.ViewModel.BuildTokenTextInputWidget(input_token))
             // Chat ID input
             .addWidget(
                 CardService.newTextInput()
@@ -1552,8 +1547,8 @@ Plugins.Webhook = {
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('webhook')))
-                .setTopLabel('🔘 Webhook URL not set.')
-                .setText('Inactive Webhook URL:')
+                .setTopLabel('🔘 Webhook Inactive')
+                .setText('Inactive Webhook URL')
                 .setBottomLabel('Set a webhook URL to start receiving updates.')
                 .setWrapText(true);
         }
@@ -1562,10 +1557,10 @@ Plugins.Webhook = {
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('webhook')))
-            .setTopLabel(`🟢 Webhook URL set.`)
-            .setText('Active Webhook URL:')
+            .setTopLabel(`🟢 Webhook Active`)
+            .setText('URL:')
             .setBottomLabel(`${result.url.slice(0, 20)}...${result.url.slice(-16)}`)
-            .setWrapText(false);
+            .setWrapText(true);
     },
     BuildWebhookSection: (data, result) => {
         const section = CardService.newCardSection()
