@@ -1569,7 +1569,6 @@ Plugins.Webhook = {
     },
     BuildWebhookSection: (data, result) => {
         const section = CardService.newCardSection()
-            //.setHeader('🔹 Webhook Status:')
             .addWidget(
                 Plugins.Webhook.BuildWebhookWidget(result));
 
@@ -1579,12 +1578,10 @@ Plugins.Webhook = {
             section
                 // add divider
                 .addWidget(CardService.newDivider()
-                    .setVisibility(result.last_error_date ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
                 )
                 // add last error info
                 .addWidget(
                     CardService.newDecoratedText()
-                        .setVisibility(result.last_error_date ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
                         .setStartIcon(
                             CardService.newIconImage().setMaterialIcon(
                                 CardService.newMaterialIcon().setName('error')))
@@ -1598,12 +1595,10 @@ Plugins.Webhook = {
         // if webhook is set, add delete webhook button
         if (result.url !== '') {
             // Add delete webhook button
-
             section
                 // add divider
                 .addWidget(
                     CardService.newDivider()
-                        .setVisibility(result.last_error_date ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
                 )
                 //  drop_pending_updates_switch switch input
                 .addWidget(
@@ -1653,7 +1648,7 @@ Plugins.Webhook = {
     BuildInputSection: (data = {}) => {
         return CardService.newCardSection()
             .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1)
+            .setNumUncollapsibleWidgets(2)
             // Add Bot Token input as default input
             // txt_webhook_url input
             .addWidget(
