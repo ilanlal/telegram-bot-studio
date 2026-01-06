@@ -392,8 +392,8 @@ Plugins.ViewModel = {
                 .setStartIcon(
                     CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('smart_toy')))
-                .setTopLabel('🔘 Not set')
-                .setText('No Bot Token set.')
+                .setTopLabel('Welcome to Telegram Bot Studio!')
+                .setText('Getting started is easy.')
                 .setBottomLabel('Set up your bot connection to get started.')
                 .setWrapText(true)
                 .setButton(
@@ -1089,16 +1089,14 @@ Plugins.GetChat = {
             CardService.newFixedFooter()
                 .setPrimaryButton(
                     CardService.newTextButton()
-                        .setText('Send')
+                        .setText('Send Request')
                         .setAltText('Send Request to get chat info')
-                        //.setBackgroundColor('#E7EA55')
-                        //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('send')
-                                .setFill(true)
-                                .setWeight(0)
-                                .setGrade(200)
+                                .setFill(false)
+                                .setWeight(500)
+                                .setGrade(0)
                         )
                         .setOnClickAction(
                             CardService.newAction()
@@ -1630,8 +1628,8 @@ Plugins.Webhook = {
                 // add delete webhook button
                 .addWidget(
                     CardService.newTextButton()
-                        //.setBackgroundColor('#F0A0A0')
-                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        //.setBackgroundColor('#8a46d8')
+                        //.setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                         .setAltText('Delete the current webhook')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
@@ -1745,8 +1743,8 @@ Plugins.Webhook = {
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('help')
-                            .setFill(true)
-                            .setWeight(0)
+                            .setFill(false)
+                            .setWeight(500)
                             .setGrade(0)
                     )
                     .setOnClickAction(
@@ -1764,8 +1762,8 @@ Plugins.Webhook = {
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('developer_guide')
-                            .setFill(true)
-                            .setWeight(0)
+                            .setFill(false)
+                            .setWeight(500)
                             .setGrade(0)
                     )
                     .setOnClickAction(

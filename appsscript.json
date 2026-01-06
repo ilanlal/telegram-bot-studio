@@ -13,11 +13,10 @@
   ],
   "addOns": {
     "common": {
-      "name": "Telegram Bot Studio - Basic Bot Addon",
+      "name": "Telegram Bot Studio",
       "logoUrl": "https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/192x192.png",
       "layoutProperties": {
-        "primaryColor": "#2772ed",
-        "secondaryColor": "#1010ff"
+        "primaryColor": "#8a46d8"
       },
       "openLinkUrlPrefixes": [
         "https://raw.githubusercontent.com/ilanlal/",
