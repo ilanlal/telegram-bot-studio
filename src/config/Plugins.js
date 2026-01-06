@@ -260,6 +260,8 @@ Plugins.ViewModel = {
 
         // Create button based on membership status
         if (isPremium) {
+        // add membership expiry date if premium
+            
             newSection.addWidget(
                 CardService.newTextButton()
                     .setText('❌ Cancel Subscription')
