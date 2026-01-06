@@ -260,8 +260,8 @@ Plugins.ViewModel = {
 
         // Create button based on membership status
         if (isPremium) {
-        // add membership expiry date if premium
-            
+            // add membership expiry date if premium
+
             newSection.addWidget(
                 CardService.newTextButton()
                     .setText('❌ Cancel Subscription')
@@ -421,13 +421,13 @@ Plugins.ViewModel = {
             .setStartIcon(
                 CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel(`🟢 Bot Active - @${username}`)
-            .setText(`${friendlyName}`)
-            .setBottomLabel(`${token.slice(0, 12)}****${token.slice(-12)}`)
+            .setTopLabel(`🟢 Bot active`)
+            .setText(`@${username}`)
+            .setBottomLabel(`${token}`)
             .setWrapText(false)
             .setButton(
                 CardService.newTextButton()
-                    .setAltText('Delete Bot Connection')
+                    .setAltText(`Forget @${username} Bot Connection (Delete Token)`)
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('delete_forever')
