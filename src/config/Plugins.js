@@ -435,7 +435,7 @@ Plugins.ViewModel = {
                     CardService.newMaterialIcon().setName('smart_toy')))
             .setTopLabel(`Connected as ${friendlyName}`)
             .setText(`@${username}`)
-            .setBottomLabel(`${token.slice(0, 11)}****${token.slice(-16)}`)
+            //.setBottomLabel(`${token.slice(0, 11)}****${token.slice(-16)}`)
             .setWrapText(false)
             .setButton(
                 CardService.newTextButton()
@@ -773,6 +773,9 @@ Plugins.GetMe = {
                 // Log the response to Terminal Output sheet
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.HomeCard', 'Response', result, `Retrieved bot info for token: ${input_token}`);
 
+                cardBuilder.addSection(
+                    Plugins.GetMe.BuildHighlightResultSection(data, result));
+
                 // Add result section
                 cardBuilder.addSection(
                     Plugins.ViewModel.BuildResultSection(result));
@@ -953,6 +956,55 @@ Plugins.GetMe = {
         );
         //Plugins.JsonTools.WelcomeSection(),
         return cardBuilder.build();
+    },
+    BuildHighlightResultSection: (data = {}, result) => {
+        const newSection = CardService.newCardSection()
+            .setHeader('🔎 Bot Information')
+            .setCollapsible(false)
+            .setNumUncollapsibleWidgets(0);
+        // add divider
+        newSection.addWidget(CardService.newDivider());
+        // Add Token info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('🔑 Token:')
+                .setText(data.txt_bot_api_token || 'N/A')
+                .setWrapText(true)
+        );
+
+        // Add id info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('🆔 ID:')
+                .setText(result.id || 'N/A')
+                .setWrapText(true)
+        );
+
+        // add supports_inline_queries info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Supports Inline Queries:')
+                .setText(result.supports_inline_queries ? '🟢 Yes' : '🔴 No')
+                .setWrapText(true)
+        );
+
+        // add can_connect_to_business
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Can Connect to Business:')
+                .setText(result.can_connect_to_business ? '🟢 Yes' : '🔴 No')
+                .setWrapText(true)
+        );
+
+        // has_main_web_app
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Has Main Web App:')
+                .setText(result.has_main_web_app ? '🟢 Yes' : '🔴 No')
+                .setWrapText(true)
+        );
+
+        return newSection;
     }
 }
 
@@ -1115,7 +1167,10 @@ Plugins.GetChat = {
 
                 // Log the response to Terminal Output sheet
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat', 'Response', result, `Retrieved chat info for token: ${input_token} and chat ID: ${chatId}`);
-
+                // Add highlight section
+                cardBuilder.addSection(
+                    Plugins.GetChat.BuildHighlightResultSection(data, result));
+                // Add result section
                 cardBuilder.addSection(
                     Plugins.ViewModel.BuildResultSection(result));
             } catch (error) {
@@ -1297,6 +1352,48 @@ Plugins.GetChat = {
                             .setFunctionName('Plugins.Navigations.PushCard')
                             .setParameters({ path: 'Plugins.GetChat.AboutCard' }))
             );
+    },
+    BuildHighlightResultSection: (data = {}, result) => {
+        const newSection = CardService.newCardSection()
+            .setHeader('🔎 Chat Information')
+            .setCollapsible(false)
+            .setNumUncollapsibleWidgets(0);
+        // add divider
+        newSection.addWidget(CardService.newDivider());
+        // Add Token info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Name:')
+                .setText(result.title || result.first_name || 'N/A')
+                .setWrapText(true)
+        );
+
+        // add type info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Type:')
+                .setText(result.type || 'N/A')
+                .setWrapText(true)
+        );
+
+        // Add id can_send_gift
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Can Send Gift:')
+                .setText(result.can_send_gift ? '🟢 Yes' : '🔴 No')
+                .setWrapText(true)
+        );
+
+        // Add accepted_gift_types for accepted
+        // accepted_gift_types = {"unlimited_gifts":false,"limited_gifts":true,"unique_gifts":false,"premium_subscription":true,"gifts_from_channels":true}
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Accepted Gift Types:')
+                .setText(result.accepted_gift_types ? Object.keys(result.accepted_gift_types).filter(key => result.accepted_gift_types[key]).join('; ') : 'N/A')
+                .setWrapText(true)
+        );
+
+        return newSection;
     }
 };
 
