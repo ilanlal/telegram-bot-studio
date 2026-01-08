@@ -526,7 +526,7 @@ Plugins.Navigations = {
         if (Plugins[plugin] && typeof Plugins[plugin][action] === 'function') {
             const appModelData = AppModel.create()
                 .toJSON();
-
+            const formInputs = e.commonEventObject?.formInputs || {};
             const data = {
                 ...appModelData,
                 // You can add more data extraction logic here if needed
@@ -534,6 +534,12 @@ Plugins.Navigations = {
                 txt_bot_api_token: PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || ''
             };
 
+            Object.keys(formInputs).forEach((key) => {
+                const input = formInputs[key];
+                if (input.stringInputs) {
+                    data[key] = input.stringInputs.value[0];
+                }
+            });
 
             // Call the plugin action to get the card
             return CardService.newActionResponseBuilder()
@@ -777,15 +783,17 @@ Plugins.GetMe = {
                 cardBuilder.addSection(
                     Plugins.GetMe.BuildHighlightResultSection(data, result));
 
-                // get chat then build get chat result section:
-                const chatResponse = telegramBotClient.getChat(result.id);
-
-                if (chatResponse.getResponseCode() === 200) {
-                    const chatResult = JSON.parse(chatResponse.getContentText()).result;
-                    cardBuilder.addSection(
-                        Plugins.GetChat.BuildHighlightResultSection(data, chatResult));
-                }
-
+                // add hidden input field to store last successful bot chat_id
+                cardBuilder.addSection(
+                    CardService.newCardSection()
+                        .addWidget(
+                            CardService.newTextInput()
+                                .setVisibility(CardService.Visibility.HIDDEN)
+                                .setValue(result.id.toString())
+                                .setId('txt_chat_id')
+                                .setFieldName('txt_chat_id')
+                        )
+                );
 
                 // Add result section
                 cardBuilder.addSection(
@@ -857,6 +865,7 @@ Plugins.GetMe = {
         // Add fixed footer with Send button
         cardBuilder.setFixedFooter(
             CardService.newFixedFooter()
+                // Set Send button
                 .setPrimaryButton(
                     CardService.newTextButton()
                         .setAltText('Refresh Bot Info')
@@ -873,7 +882,26 @@ Plugins.GetMe = {
                                 // List of widget IDs whose values are required for this action to be executed
                                 .addRequiredWidget(['txt_bot_api_token'])
                                 .setFunctionName('BotApiHandler.View.GetMe'))
-                ));
+                )
+                // Set secondary Get Chat button
+                .setSecondaryButton(
+                    CardService.newTextButton()
+                        .setAltText('Get Chat Info')
+                        .setDisabled(!!!input_token)
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('chat')
+                                .setFill(true)
+                                .setWeight(500)
+                                .setGrade(0)
+                        )
+                        .setText('Get Chat')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Navigations.PushCard')
+                                .setParameters({ path: 'Plugins.GetChat.HomeCard' }))
+                )
+        );
 
         return cardBuilder.build();
     },
