@@ -27,7 +27,13 @@ describe('BotApiHandler', () => {
         const getMeUrl = `https://api.telegram.org/bot${sampleToken}/getMe`;
         UrlFetchAppStubConfiguration.when(getMeUrl)
             .return(new HttpResponse()
-                .setContentText(JSON.stringify({ result: true })));
+                .setContentText(JSON.stringify({ ok: true, result: { id: 123456789, is_bot: true, first_name: "TestBot", username: "test_bot" } })));
+        // Mock the getChat API response
+        const getChatUrl = `https://api.telegram.org/bot${sampleToken}/getChat?chat_id=123456789`;
+        UrlFetchAppStubConfiguration.when(getChatUrl)
+            .return(new HttpResponse()
+                .setContentText(JSON.stringify({ ok: true, result: { id: 123456789, title: "Test Channel", type: "private" } })));
+
         const actionResponse = BotApiHandler.View.GetMe(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();

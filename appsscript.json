@@ -9,7 +9,7 @@
   "oauthScopes": [
     "https://www.googleapis.com/auth/script.locale",
     "https://www.googleapis.com/auth/spreadsheets.currentonly",
-    "https://www.googleapis.com/auth/script.external_request"    
+    "https://www.googleapis.com/auth/script.external_request"
   ],
   "addOns": {
     "common": {
@@ -23,7 +23,9 @@
         "https://www.github.com/ilanlal/",
         "https://github.com/ilanlal/",
         "https://www.easyadm.com",
-        "https://easyadm.com"
+        "https://easyadm.com",
+        "https://t.me/",
+        "https://telegram.me/"
       ],
       "homepageTrigger": {
         "runFunction": "EventHandler.ViewModel.OpenHomeCard"
@@ -48,6 +50,8 @@
   },
   "urlFetchWhitelist": [
     "https://api.telegram.org/",
+    "https://t.me/",
+    "https://telegram.me/",
     "https://raw.githubusercontent.com/ilanlal/",
     "https://www.github.com/ilanlal/",
     "https://github.com/ilanlal/",

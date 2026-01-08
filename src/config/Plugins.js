@@ -30,7 +30,8 @@ Plugins.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-studio';
 Plugins.ViewModel = {
     id: 'AppModelPlugin',
     name: 'Telegram Bot Studio',
-    description: 'Plugins for Telegram Bots',
+    short_description: 'Plugins for Telegram Bots',
+    description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.2.0',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     BuildHomeCard: (data = {}) => {
@@ -43,7 +44,7 @@ Plugins.ViewModel = {
             .setName(Plugins.ViewModel.id + '-Home')
             .setHeader(CardService.newCardHeader()
                 .setTitle(Plugins.ViewModel.name)
-                .setSubtitle(Plugins.ViewModel.description)
+                .setSubtitle(Plugins.ViewModel.short_description)
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText(Plugins.ViewModel.name + ' Image'));
@@ -776,6 +777,16 @@ Plugins.GetMe = {
                 cardBuilder.addSection(
                     Plugins.GetMe.BuildHighlightResultSection(data, result));
 
+                // get chat then build get chat result section:
+                const chatResponse = telegramBotClient.getChat(result.id);
+
+                if (chatResponse.getResponseCode() === 200) {
+                    const chatResult = JSON.parse(chatResponse.getContentText()).result;
+                    cardBuilder.addSection(
+                        Plugins.GetChat.BuildHighlightResultSection(data, chatResult));
+                }
+
+
                 // Add result section
                 cardBuilder.addSection(
                     Plugins.ViewModel.BuildResultSection(result));
@@ -979,44 +990,40 @@ Plugins.GetMe = {
                 .setWrapText(true)
         );
 
-        const grid = CardService.newGrid()
-            .setTitle('Bot Details')
-            .setNumColumns(2);
-
-        // Add id info
-        grid.addItem(
-            CardService.newGridItem()
-                .setTitle(result.id ? result.id.toString() : 'N/A')
-                .setSubtitle('ID:')
-            //.setLayout(CardService.GridItemLayout.TEXT_BELOW)
+        // Add first name info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setStartIcon(
+                    CardService.newIconImage()
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon().setName('badge')))
+                .setTopLabel('Name')
+                .setText(result.first_name || 'N/A')
+                .setWrapText(true)
         );
 
-        // add first_name info
-        if (result.first_name) {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setTitle(result.first_name)
-                    .setSubtitle('First Name:')
-            );
-        }
+        // add id info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setStartIcon(
+                    CardService.newIconImage()
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon().setName('fingerprint')))
+                .setTopLabel('Bot ID')
+                .setText(result.id ? result.id.toString() : 'N/A')
+                .setWrapText(true)
+        );
 
-        // add last_name info
-        if (result.last_name) {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setTitle(result.last_name)
-                    .setSubtitle('Last Name:')
-            );
-        }
+        const grid = CardService.newGrid()
+            .setTitle('More Bot Capabilities')
+            .setNumColumns(2);
 
         // add can_join_groups info
-        if (result.can_join_groups) {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setTitle(result.can_join_groups ? '🟢 Yes' : '🔴 No')
-                    .setSubtitle('Can Join Groups:')
-            );
-        }
+        grid.addItem(
+            CardService.newGridItem()
+                .setTitle(result.can_join_groups ? '🟢 Yes' : '🔴 No')
+                .setSubtitle('Can Join Groups?')
+        );
 
         // add is_bot info
         grid.addItem(
@@ -1030,7 +1037,8 @@ Plugins.GetMe = {
             CardService.newGridItem()
                 .setTitle(result.supports_inline_queries ? '🟢 Yes' : '🔴 No')
                 .setSubtitle('Supports Inline Queries?')
-            //.setLayout(CardService.GridItemLayout.TEXT_BELOW)
+                .setLayout(CardService.GridItemLayout.TEXT_BELOW)
+                .setTextAlignment(CardService.HorizontalAlignment.START)
         );
 
         // add can_connect_to_business
@@ -1038,7 +1046,8 @@ Plugins.GetMe = {
             CardService.newGridItem()
                 .setTitle(result.can_connect_to_business ? '🟢 Yes' : '🔴 No')
                 .setSubtitle('Can Connect to Business?')
-            //.setLayout(CardService.GridItemLayout.TEXT_BELOW)
+                .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
+                .setTextAlignment(CardService.HorizontalAlignment.START)
         );
 
         // has_main_web_app
@@ -1046,10 +1055,40 @@ Plugins.GetMe = {
             CardService.newGridItem()
                 .setTitle(result.has_main_web_app ? '🟢 Yes' : '🔴 No')
                 .setSubtitle('Has Main Web App?')
-            //.setLayout(CardService.GridItemLayout.TEXT_BELOW)
+                .setLayout(CardService.GridItemLayout.TEXT_ABOVE)
+                .setTextAlignment(CardService.HorizontalAlignment.START)
         );
 
         newSection.addWidget(grid);
+
+        // add username open link button
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setStartIcon(
+                    CardService.newIconImage()
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon().setName('alternate_email')))
+                .setTopLabel('Username')
+                .setText(`t.me/${result.username}`)
+                .setWrapText(false)
+                .setButton(
+                    CardService.newTextButton()
+                        .setAltText(`Open @${result.username} on Telegram`)
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('open_in_new')
+                                .setFill(false)
+                                .setWeight(500)
+                                .setGrade(0)
+                        )
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setText(`@${result.username}`)
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl(`https://t.me/${result.username}`)
+                        )
+                )
+        );
 
         return newSection;
     }
@@ -1408,43 +1447,82 @@ Plugins.GetChat = {
 
         // add divider
         newSection.addWidget(CardService.newDivider());
-        const grid = CardService.newGrid()
-            .setNumColumns(2);
-
+        // add username and link info
+        if (result.username) {
+            const usernameLink = `https://t.me/${result.username}`;
+            newSection.addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage()
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon().setName('alternate_email')))
+                    .setTopLabel('Username')
+                    .setText('@' + result.username)
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                            .setText(`t.me/${result.username}`)
+                            .setOpenLink(
+                                CardService.newOpenLink()
+                                    .setUrl(usernameLink)
+                            )
+                    )
+            );
+        }
         // Add title info
         if (result.title) {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setTitle(result.title)
-                    .setSubtitle('Title:')
+            newSection.addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage()
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon().setName('chat')))
+                    .setTopLabel('💬 Chat Title')
             );
         }
-        // add first_name info
-        if (result.first_name) {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setTitle(result.first_name)
-                    .setSubtitle('First Name:')
+        // add first_name and last_name info
+        else if (result.first_name) {
+            newSection.addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage()
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon().setName('person')))
+                    .setTopLabel('First Name')
+                    .setText(result.first_name)
+                    .setWrapText(true)
             );
+            // add last_name info
+            if (result.last_name) {
+                newSection.addWidget(
+                    CardService.newDecoratedText()
+                        .setStartIcon(
+                            CardService.newIconImage()
+                                .setMaterialIcon(
+                                    CardService.newMaterialIcon().setName('person')))
+                        .setTopLabel('Last Name')
+                        .setText(result.last_name)
+                        .setWrapText(true)
+                );
+            }
         }
 
-        // add last_name info
-        if (result.last_name) {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setTitle(result.last_name)
-                    .setSubtitle('Last Name:')
-            );
-        }
-        // add username info
-        if (result.username) {
-            grid.addItem(
-                CardService.newGridItem()
-                    .setTitle(result.username)
-                    .setSubtitle('Username:')
-            );
-        }
+        // add chat ID info
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setStartIcon(
+                    CardService.newIconImage()
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon().setName('fingerprint')))
+                .setTopLabel('Chat ID')
+                .setText(result.id ? result.id.toString() : 'N/A')
+                .setWrapText(true)
+        );
 
+        const grid = CardService.newGrid()
+            .setTitle('More Chat Details')
+            .setNumColumns(2);
 
         // add type info
         grid.addItem(
@@ -1457,7 +1535,7 @@ Plugins.GetChat = {
         grid.addItem(
             CardService.newGridItem()
                 .setTitle(result.can_send_gift ? '🟢 Yes' : '🔴 No')
-                .setSubtitle('Can Send Gift:')
+                .setSubtitle('Can send gifts ?')
         );
 
         // add has_private_forwards
@@ -1465,7 +1543,7 @@ Plugins.GetChat = {
             grid.addItem(
                 CardService.newGridItem()
                     .setTitle(result.has_private_forwards ? '🟢 Yes' : '🔴 No')
-                    .setSubtitle('Has Private Forwards:')
+                    .setSubtitle('Has private forwards ?')
             );
         }
 
@@ -1474,7 +1552,7 @@ Plugins.GetChat = {
             grid.addItem(
                 CardService.newGridItem()
                     .setTitle(result.max_reaction_count ? result.max_reaction_count.toString() : 'N/A')
-                    .setSubtitle('Max Reaction Count:')
+                    .setSubtitle('Maximum allowed reaction count')
             );
         }
 
