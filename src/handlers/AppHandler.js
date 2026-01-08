@@ -12,6 +12,11 @@ AppHandler.ViewModel = {
             .ControllerWrapper()
             .handleOpenUserProfileCard(e);
     },
+    OpenSettingsCard: (e) => {
+        return new AppHandler
+            .ControllerWrapper()
+            .handleOpenSettingsCard(e);
+    },
     OpenAboutCard: (e) => {
         return new AppHandler
             .ControllerWrapper()
@@ -58,11 +63,7 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenUserProfileCard(e) {
         try {
-            const debug_mode_switch = (e.commonEventObject?.formInputs?.debug_mode_switch)
-                ? e.commonEventObject.formInputs.debug_mode_switch.stringInputs.value[0]
-                : 'OFF';
             const data = {
-                debug_mode_switch,
                 ...AppModel.create().toJSON()
             };
             return CardService.newActionResponseBuilder()
@@ -70,6 +71,22 @@ AppHandler.ControllerWrapper = class {
                     CardService.newNavigation()
                         .pushCard(
                             Plugins.ViewModel.BuildUserProfileCard(data)))
+                .build();
+        } catch (error) {
+            return this.handleOperationError(error);
+        }
+    }
+
+    handleOpenSettingsCard(e) {
+        try {
+            const data = {
+                ...AppModel.create().toJSON()
+            };
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(
+                            Plugins.ViewModel.BuildSettingsCard(data)))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);

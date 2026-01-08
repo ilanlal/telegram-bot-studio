@@ -6,9 +6,13 @@ EventHandler.ViewModel = {
         return AppHandler.ViewModel
             .OpenHomeCard(e);
     },
-    OpenAccountCard: (e) => {
+    OpenProfileCard: (e) => {
         return AppHandler.ViewModel
             .OpenUserProfileCard(e);
+    },
+    OpenSettingsCard: (e) => {
+        return AppHandler.ViewModel
+            .OpenSettingsCard(e);
     },
     OpenAboutCard: (e) => {
         return AppHandler.ViewModel

@@ -22,9 +22,9 @@ describe('EventHandler', () => {
         expect(data.cardNavigations[0].pushCard).toBeDefined();
     });
 
-    it('should handle OpenAccountCard', () => {
+    it('should handle OpenProfileCard', () => {
         const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.OpenAccountCard(event);
+        const actionResponse = EventHandler.ViewModel.OpenProfileCard(event);
         expect(actionResponse).toBeDefined();
         const data = actionResponse.getData();
         expect(data).toBeDefined();

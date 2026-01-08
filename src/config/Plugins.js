@@ -49,7 +49,11 @@ Plugins.ViewModel = {
                 .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText(Plugins.ViewModel.name + ' Image'));
 
-        // Add login status section
+        // Add setting section
+        cardBuilder.addSection(
+            Plugins.Settings.WelcomeSection(data));
+
+        // Add bot connection section
         cardBuilder.addSection(
             CardService.newCardSection()
                 .addWidget(
@@ -191,59 +195,6 @@ Plugins.ViewModel = {
         // 1. membership section
         cardBuilder.addSection(
             Plugins.ViewModel.BuildMembershipSection(data));
-
-        // 2. Settings section
-        data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
-        // data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
-        data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'ON';
-        data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
-
-        cardBuilder.addSection(
-            CardService.newCardSection()
-                .setHeader('Settings')
-                .setCollapsible(false)
-                .setNumUncollapsibleWidgets(2)
-                // Terminal Output toggle
-                .addWidget(
-                    CardService.newDecoratedText()
-                        .setTopLabel('Terminal Output')
-                        .setText('View the terminal output logs for debugging and monitoring.')
-                        .setWrapText(true)
-                        .setSwitchControl(
-                            CardService.newSwitch()
-                                .setFieldName('terminal_output_switch')
-                                .setSelected(data.terminal_output_switch === 'ON')
-                                .setValue('ON')
-                                .setOnChangeAction(
-                                    CardService.newAction()
-                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
-                                        .setParameters({
-                                            actionName: 'terminal_output_switch'
-                                        })
-                                )
-                        )
-                )
-                // Debug mode toggle
-                .addWidget(
-                    CardService.newDecoratedText()
-                        .setTopLabel('Debug Mode')
-                        .setText('Enable or disable debug mode for detailed logging.')
-                        .setWrapText(true)
-                        .setSwitchControl(
-                            CardService.newSwitch()
-                                .setFieldName('debug_mode_switch')
-                                .setSelected(data.debug_mode_switch === 'ON')
-                                .setValue('ON')
-                                .setOnChangeAction(
-                                    CardService.newAction()
-                                        .setFunctionName('AppHandler.ViewModel.ToggleAction')
-                                        .setParameters({
-                                            actionName: 'debug_mode_switch'
-                                        })
-                                )
-                        )
-                )
-        );
 
         return cardBuilder.build();
     },
@@ -623,6 +574,125 @@ Plugins.Navigations = {
                     .popToRoot()
                     .updateCard(Plugins.ViewModel.BuildHomeCard(data))
             ).build();
+    }
+};
+
+Plugins.Settings = {
+    id: 'SettingsPlugin',
+    name: 'Settings',
+    short_description: 'Manage add-on settings',
+    description: 'The Settings card allows you to manage and configure settings for your Telegram bot add-on. You can adjust preferences, set up integrations, and customize the behavior of your bot to suit your needs.',
+    version: '1.0.0',
+    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    WelcomeSection: (data = {}) => {
+        return CardService.newCardSection()
+            //.setHeader('Settings Extensions')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1)
+            // add main decorated text widget
+            .addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('settings')))
+                    .setText(Plugins.Settings.name)
+                    .setBottomLabel(Plugins.Settings.short_description)
+                    .setWrapText(false)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setAltText('Open Settings Plugin')
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('settings')
+                                    .setFill(false)
+                                    .setWeight(500)
+                                    .setGrade(0)
+                            )
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.Settings.HomeCard' })
+                            )
+                    )
+            );
+    },
+    HomeCard: (data = {}) => {
+        data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
+        // data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
+        data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'ON';
+
+        const cardBuilder = CardService.newCardBuilder()
+            .setName(Plugins.Settings.name + '-Home')
+            .setHeader(CardService.newCardHeader()
+                .setTitle(Plugins.Settings.name)
+                .setSubtitle(Plugins.Settings.short_description)
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.Settings.imageUrl)
+                .setImageAltText('Card Image'));
+
+        // add api endpoint section
+        const apiEndpointSection = CardService.newCardSection()
+            .setHeader('API Endpoint Settings')
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('Configure the API endpoint settings for your Telegram bot.'));
+
+        apiEndpointSection.addWidget(
+            CardService.newTextInput()
+                .setTitle('API Endpoint URL')
+                .setFieldName('txt_api_endpoint_url')
+                .setValue(data.txt_api_endpoint_url)
+                .setHint('Enter the API endpoint URL for your Telegram bot. Default is https://api.telegram.org/'));
+
+        cardBuilder.addSection(apiEndpointSection);
+
+        const settingsSection = CardService.newCardSection()
+            .setHeader('General Settings')
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('Manage general settings for your Telegram bot add-on.'));
+        // Terminal Output toggle
+        settingsSection.addWidget(
+            CardService.newDecoratedText()
+                .setTopLabel('Terminal Output')
+                .setText('View the terminal output logs for debugging and monitoring.')
+                .setWrapText(true)
+                .setSwitchControl(
+                    CardService.newSwitch()
+                        .setFieldName('terminal_output_switch')
+                        .setSelected(data.terminal_output_switch === 'ON')
+                        .setValue('ON')
+                        .setOnChangeAction(
+                            CardService.newAction()
+                                .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                .setParameters({
+                                    actionName: 'terminal_output_switch'
+                                })
+                        )
+                )
+        );
+        cardBuilder.addSection(settingsSection);
+
+        // add fixed footer with save button
+        const newFixedFooter = CardService.newFixedFooter()
+            .setPrimaryButton(
+                CardService.newTextButton()
+                    .setAltText('Save Settings')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('save')
+                            .setFill(true)
+                            .setWeight(700)
+                            .setGrade(200))
+                    .setText('Save')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('Plugin.Settings.SaveSettings')
+                    )
+            );
+        cardBuilder.setFixedFooter(newFixedFooter);
+
+        return cardBuilder.build();
     }
 };
 
