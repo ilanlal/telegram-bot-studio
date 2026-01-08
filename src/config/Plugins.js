@@ -49,16 +49,9 @@ Plugins.ViewModel = {
                 .setImageUrl(Plugins.ViewModel.imageUrl)
                 .setImageAltText(Plugins.ViewModel.name + ' Image'));
 
-        // Add setting section
-        cardBuilder.addSection(
-            Plugins.Settings.WelcomeSection(data));
-
         // Add bot connection section
         cardBuilder.addSection(
-            CardService.newCardSection()
-                .addWidget(
-                    Plugins.ViewModel.BuildConnectionWidget(data.txt_bot_api_token))
-        );
+            Plugins.Connection.WelcomeSection(data));
 
         // for each plugin, add a section
         Plugins.prototype.pluginList.forEach((plugin) => {
@@ -366,9 +359,10 @@ Plugins.ViewModel = {
                     CardService.newTextButton()
                         .setAltText('Add Bot Token')
                         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setBackgroundColor('#00cc41')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
-                                .setName('add')
+                                .setName('power_settings_new')
                                 .setFill(true)
                                 .setWeight(500)
                                 .setGrade(0))
@@ -394,7 +388,7 @@ Plugins.ViewModel = {
                     .setAltText(`Forget @${username} Bot Connection (Delete Token)`)
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
-                            .setName('delete_forever')
+                            .setName('cancel')
                             .setFill(false)
                             .setWeight(500)
                             .setGrade(0))
@@ -574,6 +568,144 @@ Plugins.Navigations = {
                     .popToRoot()
                     .updateCard(Plugins.ViewModel.BuildHomeCard(data))
             ).build();
+    }
+};
+
+Plugins.Connection = {
+    id: 'ConnectionPlugin',
+    name: 'Connection',
+    short_description: 'Manage bot connection settings',
+    description: 'The Connection plugin allows you to manage and configure the connection settings for your Telegram bot. You can set up your bot token, test the connection, and ensure that your bot is properly connected to the Telegram API.',
+    version: '1.0.0',
+    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    WelcomeSection: (data = {}) => {
+        const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
+        const newSection = CardService.newCardSection()
+            //.setHeader('Bot Connection')
+            .setCollapsible(false)
+            .setNumUncollapsibleWidgets(1);
+
+        if (token === '') {
+            newSection.addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('smart_toy')))
+                    .setTopLabel('Welcome to Telegram Bot Studio!')
+                    .setText('Getting started is easy.')
+                    .setBottomLabel('Set up your bot connection to get started.')
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setAltText('Add Bot Token')
+                            .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                            .setBackgroundColor('#00cc41')
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('power_settings_new')
+                                    .setFill(true)
+                                    .setWeight(500)
+                                    .setGrade(0))
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
+                            )
+                    ));
+        }
+        else {
+            // else, show connected widget
+            const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Unknown Name';
+            const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+            newSection.addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('smart_toy')))
+                    .setTopLabel(`Connected as ${friendlyName}`)
+                    .setText(`@${username}`)
+                    //.setBottomLabel(`${token.slice(0, 11)}****${token.slice(-16)}`)
+                    .setWrapText(false)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setAltText(`Forget @${username} Bot Connection (Delete Token)`)
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('cancel')
+                                    .setFill(false)
+                                    .setWeight(500)
+                                    .setGrade(0))
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('BotApiHandler.View.Logout')
+                            )
+                    ));
+
+            newSection
+                // add bot token input widget (hidden if token exists)
+                .addWidget(
+                    Plugins.ViewModel.BuildTokenTextInputWidget(token)
+                )
+        }
+
+        return newSection;
+    },
+    HomeCard: (data = {}) => {
+        const newFixedFooter = CardService.newFixedFooter()
+            .setPrimaryButton(
+                CardService.newTextButton()
+                    .setAltText('Connect with Bot Token')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('login')
+                            .setFill(true)
+                            .setWeight(500)
+                            .setGrade(0))
+
+                    .setText('Connect')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            // List of widget IDs whose values are required for this action to be executed
+                            .addRequiredWidget(['txt_bot_api_token'])
+                            .setFunctionName('BotApiHandler.View.Login')));
+
+        const newInputSection = CardService.newCardSection()
+            .addWidget(
+                // add bot token input widget (hidden if token exists)
+                Plugins.ViewModel.BuildTokenTextInputWidget(''));
+
+        const newQuickTipsSection = CardService.newCardSection()
+            .setHeader('Quick Tips to Get Your Bot Token')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(0)
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('You can create a new bot and get your bot token from the BotFather on Telegram.')
+            )
+            // Quick steps
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('1. Open Telegram and search for @BotFather.\n2. Start a chat and send the command /newbot.\n3. Follow the instructions to set a name and username for your bot.\n4. After creating the bot, BotFather will provide you with a bot token. Copy this token to use in the app.'))
+            // add divider
+            .addWidget(CardService.newDivider())
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('💡 Make sure to keep your bot token secure and do not share it with others.'))
+
+
+        const cardBuilder = CardService.newCardBuilder()
+            .setName('SetupBotConnectionCard')
+            .setHeader(
+                CardService.newCardHeader()
+                    .setTitle('Connect Your Bot')
+                    .setSubtitle('Set up your Telegram Bot connection')
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
+                    .setImageUrl(Plugins.WELCOME_IMG_URL)
+                    .setImageAltText('Setup Bot Connection Image'))
+            .addSection(newInputSection)
+            .addSection(newQuickTipsSection)
+            .setFixedFooter(newFixedFooter);
+        return cardBuilder.build();
     }
 };
 
@@ -817,19 +949,7 @@ Plugins.GetMe = {
                 .setImageUrl(Plugins.GetMe.imageUrl)
                 .setImageAltText('Card Image'));
 
-        const topSection = CardService.newCardSection()
-            //.setHeader('🔘 Get Bot Info')
-            .setCollapsible(false)
-            // add connection status widget
-            .addWidget(
-                Plugins.ViewModel.BuildConnectionWidget(input_token)
-            )
-            // add Bot Token input (hidden if token is provided)
-            .addWidget(
-                Plugins.ViewModel.BuildTokenTextInputWidget(input_token)
-            );
-
-        cardBuilder.addSection(topSection);
+        cardBuilder.addSection(Plugins.Connection.WelcomeSection(data));
 
         // If token is provided, call getMe API
         if (input_token) {
@@ -1312,20 +1432,14 @@ Plugins.GetChat = {
                 .setImageUrl(Plugins.GetChat.imageUrl)
                 .setImageAltText('Card Image'));
 
+        cardBuilder.addSection(Plugins.Connection.WelcomeSection(data));
 
-        // Add section for inputs (token, chat id)
+        // Add section for inputs (chat id)
         const topSection = CardService.newCardSection()
             .setCollapsible(false)
             .setNumUncollapsibleWidgets(3)
-            // add connection status widget
-            .addWidget(
-                Plugins.ViewModel.BuildConnectionWidget(input_token)
-            )
             // add divider
             .addWidget(CardService.newDivider())
-            // Bot Token input (hidden if token is provided)
-            .addWidget(
-                Plugins.ViewModel.BuildTokenTextInputWidget(input_token))
             // Chat ID input
             .addWidget(
                 CardService.newTextInput()
@@ -1804,7 +1918,7 @@ Plugins.Webhook = {
                 .setImageAltText('Card Image'));
 
         // Top section
-        cardBuilder.addSection(Plugins.ViewModel.BuildConnectionSection(input_token));
+        cardBuilder.addSection(Plugins.Connection.WelcomeSection(data));
 
         // If token is provided, call getWebhookInfo API
         if (input_token) {
