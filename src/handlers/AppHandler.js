@@ -86,7 +86,7 @@ AppHandler.ControllerWrapper = class {
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.ViewModel.BuildSettingsCard(data)))
+                            Plugins.Settings.HomeCard(data)))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);
