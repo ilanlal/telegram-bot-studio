@@ -25,7 +25,8 @@
         "https://www.easyadm.com",
         "https://easyadm.com",
         "https://t.me/",
-        "https://telegram.me/"
+        "https://telegram.me/",
+        "https://api.telegram.org/"
       ],
       "homepageTrigger": {
         "runFunction": "EventHandler.ViewModel.OpenHomeCard"
@@ -33,19 +34,23 @@
       "useLocaleFromApp": true,
       "universalActions": [
         {
-          "label": "👤 Profile",
+          "label": "Profile",
           "runFunction": "EventHandler.ViewModel.OpenProfileCard"
         },
         {
-          "label": "⚙️ Settings",
+          "label": "Settings",
           "runFunction": "EventHandler.ViewModel.OpenSettingsCard"
+        },
+        {
+          "label": "Help",
+          "runFunction": "EventHandler.ViewModel.OpenHelpCard"
         },
         {
           "label": "About",
           "runFunction": "EventHandler.ViewModel.OpenAboutCard"
         },
         {
-          "label": "Help & Support",
+          "label": "Visit Bot Studio",
           "openLink": "https://github.com/ilanlal/telegram-bot-studio#readme"
         }
       ]
