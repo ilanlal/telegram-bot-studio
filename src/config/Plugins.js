@@ -7,6 +7,18 @@ class Plugins {
             //Plugins.JsonTools
         ];
     }
+
+    static primaryColor() {
+        return '#8a46d8';
+    }
+
+    static secondaryColor() {
+        return '#0a7fad';
+    }
+
+    static accentColor() {
+        return '#ff5722';
+    }
 }
 
 Plugins.DEFAULT_IMAGE_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png';
@@ -94,7 +106,7 @@ Plugins.ViewModel = {
                         CardService.newMaterialIcon()
                             .setName('login')
                             .setFill(true)
-                            .setWeight(500)
+                            .setWeight(300)
                             .setGrade(0))
 
                     .setText('Connect')
@@ -228,7 +240,7 @@ Plugins.ViewModel = {
                         CardService.newMaterialIcon()
                             .setName('upgrade')
                             .setFill(true)
-                            .setWeight(500)
+                            .setWeight(300)
                             .setGrade(0)
                     )
                     .setOnClickAction(
@@ -359,12 +371,12 @@ Plugins.ViewModel = {
                     CardService.newTextButton()
                         .setAltText('Add Bot Token')
                         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                        .setBackgroundColor('#00cc41')
+                        .setBackgroundColor('#009c41')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('power_settings_new')
                                 .setFill(true)
-                                .setWeight(500)
+                                .setWeight(300)
                                 .setGrade(0))
                         .setOnClickAction(
                             CardService.newAction()
@@ -390,7 +402,7 @@ Plugins.ViewModel = {
                         CardService.newMaterialIcon()
                             .setName('cancel')
                             .setFill(false)
-                            .setWeight(500)
+                            .setWeight(300)
                             .setGrade(0))
                     .setOnClickAction(
                         CardService.newAction()
@@ -434,7 +446,7 @@ Plugins.ViewModel = {
                     CardService.newMaterialIcon()
                         .setName('upgrade')
                         .setFill(true)
-                        .setWeight(500)
+                        .setWeight(300)
                         .setGrade(0)
                 )
                 .setOnClickAction(
@@ -580,75 +592,12 @@ Plugins.Connection = {
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
-        const newSection = CardService.newCardSection()
-            //.setHeader('Bot Connection')
-            .setCollapsible(false)
-            .setNumUncollapsibleWidgets(1);
-
-        if (token === '') {
-            newSection.addWidget(
-                CardService.newDecoratedText()
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('smart_toy')))
-                    .setTopLabel('Welcome to Telegram Bot Studio!')
-                    .setText('Getting started is easy.')
-                    .setBottomLabel('Set up your bot connection to get started.')
-                    .setWrapText(true)
-                    .setButton(
-                        CardService.newTextButton()
-                            .setAltText('Add Bot Token')
-                            .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                            .setBackgroundColor('#00cc41')
-                            .setMaterialIcon(
-                                CardService.newMaterialIcon()
-                                    .setName('power_settings_new')
-                                    .setFill(true)
-                                    .setWeight(500)
-                                    .setGrade(0))
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
-                            )
-                    ));
+        if (!token) {
+            return Plugins.Connection.BuildDisconnectedSection(data);
         }
         else {
-            // else, show connected widget
-            const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Unknown Name';
-            const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
-            newSection.addWidget(
-                CardService.newDecoratedText()
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('smart_toy')))
-                    .setTopLabel(`Connected as ${friendlyName}`)
-                    .setText(`@${username}`)
-                    //.setBottomLabel(`${token.slice(0, 11)}****${token.slice(-16)}`)
-                    .setWrapText(false)
-                    .setButton(
-                        CardService.newTextButton()
-                            .setAltText(`Forget @${username} Bot Connection (Delete Token)`)
-                            .setMaterialIcon(
-                                CardService.newMaterialIcon()
-                                    .setName('cancel')
-                                    .setFill(false)
-                                    .setWeight(500)
-                                    .setGrade(0))
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName('BotApiHandler.View.Logout')
-                            )
-                    ));
-
-            newSection
-                // add bot token input widget (hidden if token exists)
-                .addWidget(
-                    Plugins.ViewModel.BuildTokenTextInputWidget(token)
-                )
+            return Plugins.Connection.BuildConnectedSection({ txt_bot_api_token: token, ...data });
         }
-
-        return newSection;
     },
     HomeCard: (data = {}) => {
         const newFixedFooter = CardService.newFixedFooter()
@@ -659,7 +608,7 @@ Plugins.Connection = {
                         CardService.newMaterialIcon()
                             .setName('login')
                             .setFill(true)
-                            .setWeight(500)
+                            .setWeight(300)
                             .setGrade(0))
 
                     .setText('Connect')
@@ -706,6 +655,74 @@ Plugins.Connection = {
             .addSection(newQuickTipsSection)
             .setFixedFooter(newFixedFooter);
         return cardBuilder.build();
+    },
+    BuildDisconnectedSection: (data = {}) => {
+        return CardService.newCardSection()
+            //.setHeader('No Bot Connection')
+            .addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('smart_toy')))
+                    .setTopLabel('Start Here!')
+                    .setText('Getting started is easy.')
+                    .setBottomLabel('Click the button to set up your bot connection.')
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setAltText('Set Up Bot Connection')
+                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                            .setBackgroundColor(Plugins.primaryColor())
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('power_settings_new')
+                                    .setFill(true)
+                                    .setWeight(500)
+                                    .setGrade(0))
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
+                            )
+                    ));
+    },
+    BuildConnectedSection: (data = {}) => {
+        const token = data.txt_bot_api_token;
+        const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Unknown Name';
+        const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+
+        return CardService.newCardSection()
+            .setHeader('🤖 @' + username)
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(0)
+            .addWidget(
+                CardService.newDecoratedText()
+                    .setStartIcon(
+                        CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('smart_toy')))
+                    .setTopLabel(`Connected as ${friendlyName}`)
+                    .setText(`@${username}`)
+                    //.setBottomLabel(`${token.slice(0, 11)}****${token.slice(-16)}`)
+                    .setWrapText(false)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setAltText(`Forget @${username} (Delete Token) Bot Connection`)
+                            .setBackgroundColor(Plugins.accentColor())
+                            .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName('cancel')
+                                    .setFill(true)
+                                    .setWeight(300)
+                                    .setGrade(0))
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('BotApiHandler.View.Logout')
+                            )
+                    ))
+            .addWidget(
+                Plugins.ViewModel.BuildTokenTextInputWidget(token)
+            );
     }
 };
 
@@ -737,7 +754,7 @@ Plugins.Settings = {
                                 CardService.newMaterialIcon()
                                     .setName('settings')
                                     .setFill(false)
-                                    .setWeight(500)
+                                    .setWeight(300)
                                     .setGrade(0)
                             )
                             .setOnClickAction(
@@ -850,6 +867,7 @@ Plugins.GetMe = {
                 .setButton(
                     CardService.newTextButton()
                         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setBackgroundColor(Plugins.secondaryColor())
                         .setDisabled(!!!data.isConnected)
                         //.setText('Show')
                         .setAltText('Open Get Me Plugin')
@@ -857,7 +875,7 @@ Plugins.GetMe = {
                             CardService.newMaterialIcon()
                                 .setName('smart_toy')
                                 .setFill(false)
-                                .setWeight(500)
+                                .setWeight(300)
                                 .setGrade(0)
                         )
                         .setOnClickAction(
@@ -1082,7 +1100,7 @@ Plugins.GetMe = {
                             CardService.newMaterialIcon()
                                 .setName('chat')
                                 .setFill(true)
-                                .setWeight(500)
+                                .setWeight(300)
                                 .setGrade(0)
                         )
                         .setText('Get Chat')
@@ -1189,8 +1207,8 @@ Plugins.GetMe = {
     BuildHighlightResultSection: (data = {}, result) => {
         const newSection = CardService.newCardSection()
             .setHeader('🔎 Bot Information')
-            .setCollapsible(false)
-            .setNumUncollapsibleWidgets(0);
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(5);
         // add divider
         newSection.addWidget(CardService.newDivider());
 
@@ -1203,9 +1221,37 @@ Plugins.GetMe = {
                             CardService.newMaterialIcon().setName('vpn_key'))
 
                 )
-                .setTopLabel('🤖 Bot Token')
+                .setTopLabel('API Token')
                 .setText(data.txt_bot_api_token)
                 .setWrapText(true)
+        );
+
+        // add username open link button
+        newSection.addWidget(
+            CardService.newDecoratedText()
+                .setStartIcon(
+                    CardService.newIconImage()
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon().setName('alternate_email')))
+                .setTopLabel('Username')
+                .setText(`t.me/${result.username}`)
+                .setWrapText(false)
+                .setButton(
+                    CardService.newTextButton()
+                        .setAltText(`Open @${result.username} on Telegram`)
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName('open_in_new')
+                                .setFill(true)
+                                .setWeight(500)
+                                .setGrade(0)
+                        )
+                        //.setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl(`https://t.me/${result.username}`)
+                        )
+                )
         );
 
         // Add first name info
@@ -1279,35 +1325,6 @@ Plugins.GetMe = {
 
         newSection.addWidget(grid);
 
-        // add username open link button
-        newSection.addWidget(
-            CardService.newDecoratedText()
-                .setStartIcon(
-                    CardService.newIconImage()
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon().setName('alternate_email')))
-                .setTopLabel('Username')
-                .setText(`t.me/${result.username}`)
-                .setWrapText(false)
-                .setButton(
-                    CardService.newTextButton()
-                        .setAltText(`Open @${result.username} on Telegram`)
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('open_in_new')
-                                .setFill(false)
-                                .setWeight(500)
-                                .setGrade(0)
-                        )
-                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                        .setText(`@${result.username}`)
-                        .setOpenLink(
-                            CardService.newOpenLink()
-                                .setUrl(`https://t.me/${result.username}`)
-                        )
-                )
-        );
-
         return newSection;
     }
 }
@@ -1333,16 +1350,16 @@ Plugins.GetChat = {
                 .setWrapText(true)
                 .setButton(
                     CardService.newTextButton()
-                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                        //.setText('Show')
+                        .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                        .setBackgroundColor(Plugins.secondaryColor())
                         .setDisabled(!!!data.isConnected)
                         .setAltText('Open Get Chat Plugin')
                         .setMaterialIcon(
                             CardService.newMaterialIcon()
                                 .setName('chat_info')
-                                .setFill(false)
-                                .setWeight(500)
-                                .setGrade(0)
+                                .setFill(true)
+                                .setWeight(300)
+                                .setGrade(-25)
                         )
                         .setOnClickAction(
                             CardService.newAction()
@@ -1498,7 +1515,7 @@ Plugins.GetChat = {
                             CardService.newMaterialIcon()
                                 .setName('send')
                                 .setFill(false)
-                                .setWeight(500)
+                                .setWeight(300)
                                 .setGrade(0)
                         )
                         .setOnClickAction(
@@ -1654,8 +1671,8 @@ Plugins.GetChat = {
     BuildHighlightResultSection: (data = {}, result) => {
         const newSection = CardService.newCardSection()
             .setHeader('🔎 Chat Information')
-            .setCollapsible(false)
-            .setNumUncollapsibleWidgets(0);
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(4);
 
         // add divider
         newSection.addWidget(CardService.newDivider());
@@ -1780,7 +1797,7 @@ Plugins.Webhook = {
     short_description: 'Manage Telegram bot webhooks',
     description: 'The Webhook plugin allows you to set, get, and delete webhooks for your Telegram bot using the Bot API. Manage your bot\'s webhook settings easily by providing your bot token and the desired webhook URL.',
     version: '1.0.0',
-    stars: '⭐⭐⭐⭐✨',
+    stars: '⭐✨',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
@@ -1790,7 +1807,7 @@ Plugins.Webhook = {
             // add main decorated text widget
             .addWidget(
                 CardService.newDecoratedText()
-                    .setTopLabel(`Version ${Plugins.Webhook.version} ${Plugins.Webhook.stars} ${data.isPremium ? '' : '🏆 (Premium required)'}`)
+                    .setTopLabel(`Version ${Plugins.Webhook.version} ${Plugins.Webhook.stars} ${data.isPremium ? '' : '🏆 PREMIUM'}`)
                     .setText(Plugins.Webhook.name)
                     .setBottomLabel(Plugins.Webhook.short_description)
                     .setWrapText(false)
@@ -1798,14 +1815,15 @@ Plugins.Webhook = {
                         CardService.newTextButton()
                             .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                             .setDisabled(!!!data.isPremium || !!!data.isConnected)
+                            .setBackgroundColor(Plugins.secondaryColor())
                             .setAltText(data.isPremium ? 'Open Webhook Plugin' : 'Upgrade to Premium to access Webhook Plugin')
                             //.setText('Show')
                             .setMaterialIcon(
                                 CardService.newMaterialIcon()
                                     .setName('webhook')
-                                    .setFill(false)
-                                    .setWeight(500)
-                                    .setGrade(0)
+                                    .setFill(true)
+                                    .setWeight(300)
+                                    .setGrade(-25)
                             )
                             .setOnClickAction(
                                 CardService.newAction()
@@ -1898,7 +1916,7 @@ Plugins.Webhook = {
                         CardService.newMaterialIcon()
                             .setName('refresh')
                             .setFill(true)
-                            .setWeight(500)
+                            .setWeight(300)
                             .setGrade(0)
                     )
                     .setText('Refresh')
@@ -2159,7 +2177,7 @@ Plugins.Webhook = {
                             CardService.newMaterialIcon()
                                 .setName('delete')
                                 .setFill(false)
-                                .setWeight(500)
+                                .setWeight(300)
                                 .setGrade(0)
                         )
                         .setText('Delete Webhook')
@@ -2268,7 +2286,7 @@ Plugins.Webhook = {
                         CardService.newMaterialIcon()
                             .setName('help')
                             .setFill(false)
-                            .setWeight(500)
+                            .setWeight(300)
                             .setGrade(0)
                     )
                     .setOnClickAction(
@@ -2287,7 +2305,7 @@ Plugins.Webhook = {
                         CardService.newMaterialIcon()
                             .setName('developer_guide')
                             .setFill(false)
-                            .setWeight(500)
+                            .setWeight(300)
                             .setGrade(0)
                     )
                     .setOnClickAction(
