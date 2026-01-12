@@ -23,15 +23,6 @@ describe('Plugins ViewModel', () => {
         expect(cardData.sections.length).toBeGreaterThan(0);
     });
 
-    // BuildLoginCard test
-    it('should create LoginCard', () => {
-        const loginCard = Plugins.ViewModel.BuildLoginCard();
-        expect(loginCard).toBeDefined();
-        const cardData = loginCard.getData();
-        expect(cardData).toBeDefined();
-        expect(cardData.name).toBe('SetupBotConnectionCard');
-    });
-
     // AboutCard test
     it('should create AboutCard', () => {
         const aboutCard = Plugins.ViewModel.BuildAboutCard();
@@ -48,14 +39,5 @@ describe('Plugins ViewModel', () => {
         const cardData = helpCard.getData();
         expect(cardData).toBeDefined();
         expect(cardData.name).toBe(`${Plugins.ViewModel.id}-Help`);
-    });
-
-    // UserProfileCard test
-    it('should create UserProfileCard', () => {
-        const userProfileCard = Plugins.ViewModel.BuildUserProfileCard();
-        expect(userProfileCard).toBeDefined();
-        const cardData = userProfileCard.getData();
-        expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(`${Plugins.ViewModel.id}-UserProfile`);
     });
 });

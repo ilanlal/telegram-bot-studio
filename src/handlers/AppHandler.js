@@ -70,7 +70,7 @@ AppHandler.ControllerWrapper = class {
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.ViewModel.BuildUserProfileCard(data)))
+                            Plugins.UserProfile.HomeCard(data)))
                 .build();
         } catch (error) {
             return this.handleOperationError(error);

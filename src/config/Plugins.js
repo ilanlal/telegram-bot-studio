@@ -45,7 +45,7 @@ Plugins.ViewModel = {
     short_description: 'Plugins for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.0',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    imageUrl: Plugins.DEFAULT_IMAGE_URL,
     BuildHomeCard: (data = {}) => {
         data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
         data.isConnected = !!data.txt_bot_api_token;
@@ -133,62 +133,6 @@ Plugins.ViewModel = {
             );
         }
 
-        return cardBuilder.build();
-    },
-    BuildLoginCard: (data = {}) => {
-        const newFixedFooter = CardService.newFixedFooter()
-            .setPrimaryButton(
-                CardService.newTextButton()
-                    .setAltText('Connect with Bot Token')
-                    .setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName('login')
-                            .setFill(true)
-                            .setWeight(300)
-                            .setGrade(0))
-
-                    .setText('Connect')
-                    .setOnClickAction(
-                        CardService.newAction()
-                            // List of widget IDs whose values are required for this action to be executed
-                            .addRequiredWidget(['txt_bot_api_token'])
-                            .setFunctionName('BotApiHandler.View.Login')));
-
-        const newInputSection = CardService.newCardSection()
-            .addWidget(
-                // add bot token input widget (hidden if token exists)
-                Plugins.ViewModel.BuildTokenTextInputWidget(''));
-
-        const newQuickTipsSection = CardService.newCardSection()
-            .setHeader('Quick Tips to Get Your Bot Token')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(0)
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('You can create a new bot and get your bot token from the BotFather on Telegram.')
-            )
-            // Quick steps
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('1. Open Telegram and search for @BotFather.\n2. Start a chat and send the command /newbot.\n3. Follow the instructions to set a name and username for your bot.\n4. After creating the bot, BotFather will provide you with a bot token. Copy this token to use in the app.'))
-            // add divider
-            .addWidget(CardService.newDivider())
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('💡 Make sure to keep your bot token secure and do not share it with others.'))
-
-
-        const cardBuilder = CardService.newCardBuilder()
-            .setName('SetupBotConnectionCard')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Connect Your Bot')
-                .setSubtitle('Set up your Telegram Bot connection')
-                .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.WELCOME_IMG_URL)
-                .setImageAltText('Setup Bot Connection Image'))
-            .addSection(newInputSection)
-            .addSection(newQuickTipsSection)
-            .setFixedFooter(newFixedFooter);
         return cardBuilder.build();
     },
     BuildAboutCard: (data = {}) => {
@@ -297,96 +241,13 @@ Plugins.ViewModel = {
 
         return cardBuilder.build();
     },
-    BuildUserProfileCard: (data = {}) => {
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.ViewModel.id + '-UserProfile')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Profile - ' + Plugins.ViewModel.name)
-                .setSubtitle('User Profile')
-                .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.YOU_GOT_IT_IMG_URL)
-                .setImageAltText('Profile Image'))
-            .addSection(CardService.newCardSection()
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText('This is the profile section for the App Model plugin. Here you can view and edit your profile information.')));
-
-        // 1. membership section
-        cardBuilder.addSection(
-            Plugins.ViewModel.BuildMembershipSection(data));
-
-        return cardBuilder.build();
-    },
-    BuildMembershipSection: (data = {}) => {
-        const isPremium = data.isPremium ?? false;
-
-        const newSection = CardService.newCardSection()
-            .setHeader('Membership Subscription')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(isPremium ? 1 : 2);
-
-        // Add membership status widget
-        newSection.addWidget(CardService.newDecoratedText()
-            .setTopLabel('Membership Status')
-            .setText(isPremium ? '💎 Premium Member' : '🆓 Free Member')
-            .setBottomLabel(isPremium ? 'Thank you for being a premium member!' : 'Upgrade to premium for more features.')
-            .setWrapText(false));
-
-        // Create button based on membership status
-        if (isPremium) {
-            // add membership expiry date if premium
-
-            newSection.addWidget(
-                CardService.newTextButton()
-                    .setText('❌ Cancel Subscription')
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('AppHandler.ViewModel.RevokeLicense'))
-            );
-        }
-        else {
-            newSection.addWidget(
-                CardService.newTextButton()
-                    .setAltText('Upgrade to Premium Membership')
-                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setText('Upgrade to Premium')
-                    .setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName('upgrade')
-                            .setFill(true)
-                            .setWeight(300)
-                            .setGrade(0)
-                    )
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('AppHandler.ViewModel.ActivatePremium'))
-            );
-        }
-
-
-        return newSection;
-    },
-    BuildDataSection: (data = {}) => {
-        const newSection = CardService.newCardSection()
-            .setHeader('App Data')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(0)
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setMaxLines(35)
-                    .setText(JSON.stringify(data, null, 2))
-            );
-
-        return newSection;
-    },
     BuildResultSectionPlaceholder: () => {
         return CardService.newCardSection()
+            .setHeader('☑️ Execution Result')
             // add placeholder decorated text widget
             .addWidget(
-                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                    '🔘 No Result',
-                    'Send the action to see the result here.'
-                )
+                CardService.newTextParagraph()
+                    .setText('Execution result will be displayed here.')
             )
             // add divider
             .addWidget(CardService.newDivider());
@@ -436,24 +297,21 @@ Plugins.ViewModel = {
         // Build the execution result card
         return newSection;
     },
-    BuildErrorSection: (error) => {
+    BuildErrorSection: (error = {}) => {
         return CardService.newCardSection()
-            //.setHeader('📛 Error')
+            .setHeader('📛 Error')
             // add error header
             .addWidget(
-                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                    '📛 Error',
-                    error.toString()
-                )
+                CardService.newTextParagraph()
+                    .setText('An error occurred during execution:')
+            )
+            // add error message
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText(error.toString())
             )
             // add divider
             .addWidget(CardService.newDivider());
-    },
-    BuildErrorWidget: (error) => {
-        return Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-            '📛 Error',
-            error.toString()
-        );
     },
     BuildTokenTextInputWidget: (token) => {
         // Bot Token input
@@ -464,76 +322,6 @@ Plugins.ViewModel = {
             .setFieldName('txt_bot_api_token')
             .setTitle('🤖 Your Bot Token')
             .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
-    },
-    BuildHeadDecoratedTextWidget: (title, subtitle) => {
-        return CardService.newDecoratedText()
-            .setText(title)
-            .setBottomLabel(subtitle)
-            .setWrapText(true);
-    },
-    BuildConnectionWidget: (token) => {
-        if (!token) {
-            return CardService.newDecoratedText()
-                .setStartIcon(
-                    CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('smart_toy')))
-                .setTopLabel('Welcome to Telegram Bot Studio!')
-                .setText('Getting started is easy.')
-                .setBottomLabel('Set up your bot connection to get started.')
-                .setWrapText(true)
-                .setButton(
-                    CardService.newTextButton()
-                        .setAltText('Add Bot Token')
-                        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                        .setBackgroundColor('#009c41')
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('power_settings_new')
-                                .setFill(true)
-                                .setWeight(300)
-                                .setGrade(0))
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.Navigations.PushCard')
-                                .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
-                        )
-                );
-        }
-        const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Unknown Name';
-        const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
-        return CardService.newDecoratedText()
-            .setStartIcon(
-                CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('smart_toy')))
-            .setTopLabel(`Connected as ${friendlyName}`)
-            .setText(`@${username}`)
-            //.setBottomLabel(`${token.slice(0, 11)}****${token.slice(-16)}`)
-            .setWrapText(false)
-            .setButton(
-                CardService.newTextButton()
-                    .setAltText(`Forget @${username} Bot Connection (Delete Token)`)
-                    .setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName('cancel')
-                            .setFill(false)
-                            .setWeight(300)
-                            .setGrade(0))
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('BotApiHandler.View.Logout')
-                    )
-            );
-    },
-    BuildConnectionSection: (token) => {
-        return CardService.newCardSection()
-            //.setHeader('Connection Status')
-            .addWidget(
-                Plugins.ViewModel.BuildConnectionWidget(token)
-            )
-            // add bot token input widget (hidden if token exists)
-            .addWidget(
-                Plugins.ViewModel.BuildTokenTextInputWidget(token)
-            );
     },
     BuildActivatePremiumWithCallToActionSection: (data = {}) => {
         const newSection = CardService.newCardSection()
@@ -566,7 +354,7 @@ Plugins.ViewModel = {
                 .setOnClickAction(
                     CardService.newAction()
                         .setFunctionName('Plugins.Navigations.PushCard')
-                        .setParameters({ path: 'Plugins.ViewModel.BuildUserProfileCard' })
+                        .setParameters({ path: 'Plugins.UserProfile.HomeCard' })
                 )
         );
         return newSection;
@@ -703,7 +491,7 @@ Plugins.Connection = {
     short_description: 'Manage bot connection settings',
     description: 'The Connection plugin allows you to manage and configure the connection settings for your Telegram bot. You can set up your bot token, test the connection, and ensure that your bot is properly connected to the Telegram API.',
     version: '1.0.0',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    imageUrl: Plugins.WELCOME_IMG_URL,
     WelcomeSection: (data = {}) => {
         const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
         if (!token) {
@@ -758,13 +546,12 @@ Plugins.Connection = {
 
         const cardBuilder = CardService.newCardBuilder()
             .setName('SetupBotConnectionCard')
-            .setHeader(
-                CardService.newCardHeader()
-                    .setTitle('Connect Your Bot')
-                    .setSubtitle('Set up your Telegram Bot connection')
-                    .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.WELCOME_IMG_URL)
-                    .setImageAltText('Setup Bot Connection Image'))
+            .setHeader(CardService.newCardHeader()
+                .setTitle('Connect Your Bot')
+                .setSubtitle('Set up your Telegram Bot connection')
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.WELCOME_IMG_URL)
+                .setImageAltText('Setup Bot Connection Image'))
             .addSection(newInputSection)
             .addSection(newQuickTipsSection)
             .setFixedFooter(newFixedFooter);
@@ -796,7 +583,7 @@ Plugins.Connection = {
                             .setOnClickAction(
                                 CardService.newAction()
                                     .setFunctionName('Plugins.Navigations.PushCard')
-                                    .setParameters({ path: 'Plugins.ViewModel.BuildLoginCard' })
+                                    .setParameters({ path: 'Plugins.Connection.HomeCard' })
                             )
                     ));
     },
@@ -1002,6 +789,80 @@ Plugins.Settings = {
                 path: 'Plugins.Settings.HomeCard'
             }
         });
+    }
+};
+
+Plugins.UserProfile = {
+    id: 'UserProfilePlugin',
+    name: 'User Profile',
+    HomeCard: (data = {}) => {
+        const cardBuilder = CardService.newCardBuilder()
+            .setName(Plugins.UserProfile.id + '-Home')
+            .setHeader(CardService.newCardHeader()
+                .setTitle('Profile - ' + Plugins.UserProfile.name)
+                .setSubtitle('User Profile')
+                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setImageUrl(Plugins.YOU_GOT_IT_IMG_URL)
+                .setImageAltText('Profile Image'))
+            .addSection(CardService.newCardSection()
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('This is the profile section for the App Model plugin. Here you can view and edit your profile information.')));
+
+        // 1. membership section
+        cardBuilder.addSection(
+            Plugins.UserProfile.BuildMembershipSection(data));
+
+        return cardBuilder.build();
+    },
+    BuildMembershipSection: (data = {}) => {
+        const isPremium = data.isPremium ?? false;
+
+        const newSection = CardService.newCardSection()
+            .setHeader('Membership Subscription')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(isPremium ? 1 : 2);
+
+        // Add membership status widget
+        newSection.addWidget(CardService.newDecoratedText()
+            .setTopLabel('Membership Status')
+            .setText(isPremium ? '💎 Premium Member' : '🆓 Free Member')
+            .setBottomLabel(isPremium ? 'Thank you for being a premium member!' : 'Upgrade to premium for more features.')
+            .setWrapText(false));
+
+        // Create button based on membership status
+        if (isPremium) {
+            // add membership expiry date if premium
+
+            newSection.addWidget(
+                CardService.newTextButton()
+                    .setText('❌ Cancel Subscription')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('AppHandler.ViewModel.RevokeLicense'))
+            );
+        }
+        else {
+            newSection.addWidget(
+                CardService.newTextButton()
+                    .setAltText('Upgrade to Premium Membership')
+                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setText('Upgrade to Premium')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('upgrade')
+                            .setFill(true)
+                            .setWeight(300)
+                            .setGrade(0)
+                    )
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('AppHandler.ViewModel.ActivatePremium'))
+            );
+        }
+
+
+        return newSection;
     }
 };
 
@@ -1749,10 +1610,10 @@ Plugins.GetChat = {
         // Add Help decorated header widget
         cardBuilder.addSection(CardService.newCardSection()
             .addWidget(
-                Plugins.ViewModel.BuildHeadDecoratedTextWidget(
-                    'Help about ' + Plugins.GetChat.name,
-                    Plugins.GetChat.short_description
-                )));
+                CardService.newDecoratedText()
+                    .setTopLabel('Need Help?')
+                    .setText(`The ${Plugins.GetChat.name} plugin allows you to retrieve information about a Telegram chat (channel, group, or user) using the Bot API. Provide your bot token and the chat ID to get started.`)
+            ));
 
         cardBuilder.addSection(CardService.newCardSection()
             .addWidget(
