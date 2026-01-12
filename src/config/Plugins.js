@@ -126,7 +126,7 @@ Plugins.ViewModel = {
             cardBuilder.setFixedFooter(CardService.newFixedFooter()
                 .setPrimaryButton(CardService.newTextButton()
                     .setText('💎 Upgrade to Premium')
-                    .setBackgroundColor(Plugins.primaryColor())
+                    .setBackgroundColor(Plugins.secondaryColor())
                     .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard')))
@@ -508,14 +508,12 @@ Plugins.Connection = {
             .setStartIcon(CardService.newIconImage().setMaterialIcon(
                 CardService.newMaterialIcon()
                     .setName(isConnected ? 'sensors' : 'sensors_off')
-                    .setWeight(isConnected ? 300 : 500)
-                    .setGrade(isConnected ? 0 : 200)
                     .setFill(false)))
             .setButton(CardService.newTextButton()
                 .setText(isConnected ? 'Manage' : 'Link Bot')
                 // Use a 'FILLED' style for the primary action when disconnected
                 .setTextButtonStyle(isConnected ? CardService.TextButtonStyle.TEXT : CardService.TextButtonStyle.FILLED)
-                .setBackgroundColor(Plugins.primaryColor())
+                .setBackgroundColor(Plugins.secondaryColor())
                 .setOnClickAction(CardService.newAction()
                     .setFunctionName('Plugins.Navigations.PushCard')
                     .setParameters({ path: 'Plugins.Connection.HomeCard' })))
@@ -527,16 +525,17 @@ Plugins.Connection = {
         return statusSection;
     },
     HomeCard: (data = {}) => {
-        data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '[YOUR_BOT_TOKEN_HERE]';
+        data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
         // Build the Home Card for Connection Plugin
         // Professional Footer with a high-visibility 'Connect' action
         const newFixedFooter = CardService.newFixedFooter()
             .setPrimaryButton(
                 CardService.newTextButton()
-                    .setText('Verify & Connect Bot')
-                    .setBackgroundColor(Plugins.primaryColor())
+                    .setDisabled(!!data.txt_bot_api_token)
+                    .setText('Connect')
+                    .setBackgroundColor(Plugins.secondaryColor())
                     .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setMaterialIcon(CardService.newMaterialIcon().setName('bolt'))
+                    .setMaterialIcon(CardService.newMaterialIcon().setName('check_circle'))
                     .setOnClickAction(
                         CardService.newAction()
                             .addRequiredWidget(['txt_bot_api_token'])
@@ -547,10 +546,8 @@ Plugins.Connection = {
                     .setText('Forget')
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
-                            .setName('delete')
+                            .setName('link_off')
                             .setFill(false)
-                            .setWeight(300)
-                            .setGrade(0)
                     )
                     .setOnClickAction(
                         CardService.newAction()
@@ -632,7 +629,7 @@ Plugins.Settings = {
     short_description: 'Manage add-on settings',
     description: 'The Settings card allows you to manage and configure settings for your Telegram bot add-on. You can adjust preferences, set up integrations, and customize the behavior of your bot to suit your needs.',
     version: '1.0.0',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    imageUrl: Plugins.YOU_GOT_IT_IMG_URL,
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
             //.setHeader('Settings Extensions')
@@ -666,8 +663,11 @@ Plugins.Settings = {
             );
     },
     HomeCard: (data = {}) => {
-        // create random secret for demonstration purposes (64 characters)
+        // 1. Data Initialization
+        // Create a random demo key if none exists (for display purposes)
         const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
+
+        // Fetch properties with robust fallbacks
         data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
         data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'ON';
         data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty('txt_secret_private_key') || privateKeyDemo;
@@ -675,94 +675,88 @@ Plugins.Settings = {
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.Settings.name + '-Home')
             .setHeader(CardService.newCardHeader()
-                .setTitle(Plugins.Settings.name)
-                .setSubtitle(Plugins.Settings.short_description)
-                .setImageStyle(CardService.ImageStyle.SQUARE)
+                .setTitle('System Configuration')
+                .setSubtitle('Manage endpoints, security keys, and debugging')
+                .setImageStyle(CardService.ImageStyle.CIRCLE)
                 .setImageUrl(Plugins.Settings.imageUrl)
-                .setImageAltText('Card Image'));
+                .setImageAltText('Settings Logo'));
 
-        // add api endpoint section
-        const apiEndpointSection = CardService.newCardSection()
-            .setHeader('API Endpoint Settings')
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('Configure the API endpoint settings for your Telegram bot.'));
+        // 2. Network & Security Section (Compact Grouping)
+        // Groups the API URL and Secret Key together as they are both core config items
+        const configSection = CardService.newCardSection()
+            .setHeader('🌐 Network & Security')
+            .setCollapsible(false);
 
-        apiEndpointSection.addWidget(
+        // API Endpoint Input
+        configSection.addWidget(
             CardService.newTextInput()
-                .setTitle('API Endpoint URL')
                 .setFieldName('txt_api_endpoint_url')
+                .setTitle('API Endpoint URL')
                 .setValue(data.txt_api_endpoint_url)
-                .setHint('Enter the API endpoint URL for your Telegram bot. Default is https://api.telegram.org/'));
+                .setHint('Default: https://api.telegram.org/')
+                .setMultiline(false)
+        );
 
-        cardBuilder.addSection(apiEndpointSection);
+        // Secret Key Input with Validation
+        configSection.addWidget(
+            CardService.newTextInput()
+                .setFieldName('txt_secret_private_key')
+                .setTitle('Secret Private Key')
+                .setValue(data.txt_secret_private_key)
+                .setHint('Enter your secure 256-char private key')
+                .setValidation(
+                    CardService.newValidation()
+                        .setCharacterLimit(256)
+                        .setInputType(CardService.InputType.TEXT))
+        );
 
-        const topSettingsSection = CardService.newCardSection()
-            .setHeader('General Settings')
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('Manage general settings for your Telegram bot add-on.'));
-        // Terminal Output toggle
-        topSettingsSection.addWidget(
+        cardBuilder.addSection(configSection);
+
+        // 3. Developer Tools Section
+        // Isolated section for toggles and switches
+        const devSection = CardService.newCardSection()
+            .setHeader('🛠️ Developer Console');
+
+        // Terminal Output Switch (Pro Style)
+        devSection.addWidget(
             CardService.newDecoratedText()
-                .setTopLabel('Terminal Output')
-                .setText('View the terminal output logs for debugging and monitoring.')
-                .setWrapText(true)
+                .setTopLabel('Debug Mode')
+                .setText('Terminal Logs')
+                .setBottomLabel('Write execution logs to the active spreadsheet.')
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('terminal').setFill(false)))
                 .setSwitchControl(
                     CardService.newSwitch()
                         .setFieldName('terminal_output_switch')
-                        .setSelected(data.terminal_output_switch === 'ON')
                         .setValue('ON')
+                        .setSelected(data.terminal_output_switch === 'ON')
+                        .setControlType(CardService.SwitchControlType.SWITCH)
                         .setOnChangeAction(
                             CardService.newAction()
                                 .setFunctionName('AppHandler.ViewModel.ToggleAction')
-                                .setParameters({
-                                    actionName: 'terminal_output_switch'
-                                })
+                                .setParameters({ actionName: 'terminal_output_switch' })
                         )
                 )
         );
-        cardBuilder.addSection(topSettingsSection);
 
-        // Secret private key section
-        const keySecretsSection = CardService.newCardSection()
-            .setHeader('Key Secrets')
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('Manage your secret keys securely.'));
-        // Text input for secret private key
-        keySecretsSection.addWidget(
-            CardService.newTextInput()
-                .setValidation(
-                    CardService.newValidation()
-                        .setCharacterLimit('256')
-                        .setInputType(
-                            CardService.InputType.TEXT))
-                .setTitle('Secret Private Key')
-                .setFieldName('txt_secret_private_key')
-                .setValue(data.txt_secret_private_key)
-                .setHint('Enter your secret private key here. Keep it secure!'));
+        cardBuilder.addSection(devSection);
 
-        cardBuilder.addSection(keySecretsSection);
-
-        // add fixed footer with save button
-        const newFixedFooter = CardService.newFixedFooter()
+        // 4. Professional Fixed Footer
+        // High-contrast primary button for the "Save" action
+        const fixedFooter = CardService.newFixedFooter()
             .setPrimaryButton(
                 CardService.newTextButton()
-                    .setAltText('Save Settings')
-                    .setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName('save')
-                            .setFill(true)
-                            .setWeight(700)
-                            .setGrade(200))
-                    .setText('Save')
+                    .setText('Save Configuration')
+                    .setBackgroundColor(Plugins.secondaryColor())
+                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setMaterialIcon(CardService.newMaterialIcon().setName('save'))
                     .setOnClickAction(
                         CardService.newAction()
                             .setFunctionName('Plugins.Settings.OnSaveSettings')
                     )
             );
-        cardBuilder.setFixedFooter(newFixedFooter);
+
+        cardBuilder.setFixedFooter(fixedFooter);
 
         return cardBuilder.build();
     },
@@ -837,7 +831,7 @@ Plugins.UserProfile = {
 
     BuildMembershipSection: (data = {}) => {
         const isPremium = data.isPremium ?? false;
-        const statusColor = isPremium ? Plugins.primaryColor() : '#757575';
+        const statusColor = isPremium ? Plugins.secondaryColor() : '#757575';
 
         const newSection = CardService.newCardSection()
             .setHeader('Membership & Billing');
@@ -862,7 +856,7 @@ Plugins.UserProfile = {
         } else {
             newSection.addWidget(CardService.newTextButton()
                 .setText('💎 Upgrade Now')
-                .setBackgroundColor(Plugins.primaryColor())
+                .setBackgroundColor(Plugins.secondaryColor())
                 .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                 .setMaterialIcon(CardService.newMaterialIcon().setName('bolt'))
                 .setOnClickAction(CardService.newAction()
