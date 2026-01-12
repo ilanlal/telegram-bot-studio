@@ -44,55 +44,93 @@ Plugins.ViewModel = {
     name: 'Telegram Bot Studio',
     short_description: 'Plugins for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.2.0',
+    version: '1.0.0',
     imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
     BuildHomeCard: (data = {}) => {
-        //data.developer_mode_switch = PropertiesService.getUserProperties().getProperty('developer_mode_switch') || 'OFF';
         data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
         data.isConnected = !!data.txt_bot_api_token;
 
-        // Build the home card
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.ViewModel.id + '-Home')
             .setHeader(CardService.newCardHeader()
                 .setTitle(Plugins.ViewModel.name)
-                .setSubtitle(Plugins.ViewModel.short_description)
-                .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.ViewModel.imageUrl)
-                .setImageAltText(Plugins.ViewModel.name + ' Image'));
+                .setSubtitle('Complete Toolkit for Telegram Bot Management')
+                .setImageStyle(CardService.ImageStyle.CIRCLE)
+                .setImageUrl(Plugins.LOGO_PNG_URL)
+                .setImageAltText('Telegram Bot Studio Logo'));
 
-        // Add bot connection section
+        // 1. Connection & Status Section (Pinned to Top)
         cardBuilder.addSection(
             Plugins.Connection.WelcomeSection(data));
 
-        // for each plugin, add a section
+        // 2. Main Plugin Hub - Professional Grid-like feel
+        const pluginHub = CardService.newCardSection()
+            .setHeader('🛠️ Available Plugins')
+            .setCollapsible(false);
+
         Plugins.prototype.pluginList.forEach((plugin) => {
-            cardBuilder.addSection(
-                plugin.WelcomeSection({ isPremium: data.isPremium, isConnected: data.isConnected })
+            pluginHub.addWidget(
+                CardService.newDecoratedText()
+                    .setText(plugin.name)
+                    .setBottomLabel(plugin.short_description)
+                    .setStartIcon(CardService.newIconImage().setIconUrl(plugin.imageUrl))
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setText('Open')
+                            .setDisabled(!data.isConnected)
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Navigations.PushCard')
+                                    .setParameters({ path: `Plugins.${plugin.name.replace(/\s+/g, '')}.HomeCard` })
+                            )
+                    )
             );
         });
+        cardBuilder.addSection(pluginHub);
 
-        // if not premium, add upgrade footer
+        // 3. System Quick Actions (Professional Footer Section)
+        cardBuilder.addSection(CardService.newCardSection()
+            .setHeader('⚙️ Quick Access')
+            .setCollapsible(true)
+            .addWidget(CardService.newButtonSet()
+                .addButton(CardService.newTextButton()
+                    .setText('Settings')
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Navigations.PushCard')
+                        .setParameters({ path: 'Plugins.Settings.HomeCard' })))
+                .addButton(CardService.newTextButton()
+                    .setText('Help')
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Navigations.PushCard')
+                        .setParameters({ path: 'Plugins.ViewModel.BuildHelpCard' })))
+                .addButton(CardService.newTextButton()
+                    .setText('About')
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Navigations.PushCard')
+                        .setParameters({ path: 'Plugins.ViewModel.BuildAboutCard' })))
+            ));
+
+        // 4. Premium Call-to-Action (Only if not premium)
         if (!data.isPremium) {
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildActivatePremiumWithCallToActionSection(data)
-            );
-            const newFixedFooter = CardService.newFixedFooter()
-                .setPrimaryButton(
-                    CardService.newTextButton()
-                        .setText('Upgrade to Premium')
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('upgrade')
-                                .setFill(true)
-                                .setWeight(0)
-                                .setGrade(200))
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard'))
-                );
+            const premiumSection = CardService.newCardSection()
+                .addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Premium Status')
+                    .setText('Free Membership')
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('workspace_premium')))
+                    .setBottomLabel('Upgrade to unlock automation & priority support.'));
 
-            cardBuilder.setFixedFooter(newFixedFooter);
+            cardBuilder.addSection(premiumSection);
+
+            cardBuilder.setFixedFooter(CardService.newFixedFooter()
+                .setPrimaryButton(CardService.newTextButton()
+                    .setText('💎 Upgrade to Premium')
+                    .setBackgroundColor(Plugins.primaryColor())
+                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('AppHandler.ViewModel.OpenUserProfileCard')))
+            );
         }
 
         return cardBuilder.build();
@@ -162,25 +200,101 @@ Plugins.ViewModel = {
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.BIG_TIME_IMG_URL)
                 .setImageAltText('Card Image'))
-            .addSection(CardService.newCardSection()
+            .addSection(
+                CardService.newCardSection()
+                    .setHeader('App Information')
+                    .addWidget(
+                        CardService.newTextParagraph()
+                            .setText(`Name: ${Plugins.ViewModel.name}`)
+                    )
+                    .addWidget(
+                        CardService.newTextParagraph()
+                            .setText(`Version: ${Plugins.ViewModel.version}`))
+                    .addWidget(
+                        CardService.newTextParagraph()
+                            .setText(`Info: ${Plugins.ViewModel.description}`))
+                    .addWidget(
+                        CardService.newTextParagraph()
+                            .setText(`Developed by Telegram Bot Studio.`)));
+
+
+        // Add useful links section
+        cardBuilder.addSection(
+            CardService.newCardSection()
+                .setHeader('🔗 Useful Links')
                 .addWidget(
-                    CardService.newTextParagraph()
-                        .setText(`**${Plugins.ViewModel.name}** v${Plugins.ViewModel.version}\n\n${Plugins.ViewModel.description}\n\nDeveloped by Telegram Bot Studio.`)));
+                    CardService.newTextButton()
+                        .setText('📄 Documentation')
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl('https://github.com/ilanlal/telegram-bot-studio#readme')))
+                .addWidget(
+                    CardService.newTextButton()
+                        .setText('📢 Report Issues')
+                        .setOpenLink(
+                            CardService.newOpenLink()
+                                .setUrl('https://github.com/ilanlal/telegram-bot-studio/issues'))));
+
         return cardBuilder.build();
     },
     BuildHelpCard: (data = {}) => {
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.ViewModel.id + '-Help')
             .setHeader(CardService.newCardHeader()
-                .setTitle('Help - ' + Plugins.ViewModel.name)
-                .setSubtitle('Help and Support')
+                .setTitle('Help & Support')
+                .setSubtitle('Everything you need to get started')
                 .setImageStyle(CardService.ImageStyle.SQUARE)
                 .setImageUrl(Plugins.YES_IMG_URL)
-                .setImageAltText('Help Image'))
-            .addSection(CardService.newCardSection()
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText('This is the help section for the App Model plugin. Here you can find information and support.')));
+                .setImageAltText('Help Image'));
+
+        // 1. Getting Started Guide Section
+        cardBuilder.addSection(CardService.newCardSection()
+            .setHeader('🚀 Getting Started')
+            .addWidget(CardService.newTextParagraph()
+                .setText('To start building your bot, follow these simple steps:'))
+            .addWidget(CardService.newDecoratedText()
+                .setTopLabel('Step 1')
+                .setText('Connect your bot using a token from @BotFather.')
+                .setWrapText(true))
+            .addWidget(CardService.newDecoratedText()
+                .setTopLabel('Step 2')
+                .setText('Use the "Get Me" plugin to verify your connection.')
+                .setWrapText(true))
+            .addWidget(CardService.newDecoratedText()
+                .setTopLabel('Step 3')
+                .setText('Set up a Webhook to start receiving messages in real-time.')
+                .setWrapText(true)));
+
+        // 2. Common Issues / FAQ Section
+        cardBuilder.addSection(CardService.newCardSection()
+            .setHeader('💡 Quick Troubleshooting')
+            .setCollapsible(true)
+            .setNumUncollapsibleWidgets(1)
+            .addWidget(CardService.newDecoratedText()
+                .setTopLabel('Invalid Token?')
+                .setText('Ensure there are no extra spaces in your bot token.')
+                .setWrapText(true))
+            .addWidget(CardService.newDecoratedText()
+                .setTopLabel('Webhook not working?')
+                .setText('Check if your Google Sheet is published to the web or has the correct permissions.')
+                .setWrapText(true)));
+
+        // 3. Useful Links & Support Section
+        cardBuilder.addSection(CardService.newCardSection()
+            .setHeader('🔗 Resources')
+            .addWidget(CardService.newTextButton()
+                .setText('📄 Read Documentation')
+                .setOpenLink(CardService.newOpenLink()
+                    .setUrl('https://github.com/ilanlal/telegram-bot-studio#readme')))
+            .addWidget(CardService.newTextButton()
+                .setText('📢 Report a Bug')
+                .setOpenLink(CardService.newOpenLink()
+                    .setUrl('https://github.com/ilanlal/telegram-bot-studio/issues')))
+            .addWidget(CardService.newTextButton()
+                .setText('✉️ Contact Support')
+                .setOpenLink(CardService.newOpenLink()
+                    .setUrl('mailto:support@example.com'))));
+
         return cardBuilder.build();
     },
     BuildUserProfileCard: (data = {}) => {
@@ -766,9 +880,11 @@ Plugins.Settings = {
             );
     },
     HomeCard: (data = {}) => {
+        // create random secret for demonstration purposes (64 characters)
+        const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
         data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
-        // data.debug_mode_switch = PropertiesService.getUserProperties().getProperty('debug_mode_switch') || 'OFF';
         data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'ON';
+        data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty('txt_secret_private_key') || privateKeyDemo;
 
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.Settings.name + '-Home')
@@ -795,13 +911,13 @@ Plugins.Settings = {
 
         cardBuilder.addSection(apiEndpointSection);
 
-        const settingsSection = CardService.newCardSection()
+        const topSettingsSection = CardService.newCardSection()
             .setHeader('General Settings')
             .addWidget(
                 CardService.newTextParagraph()
                     .setText('Manage general settings for your Telegram bot add-on.'));
         // Terminal Output toggle
-        settingsSection.addWidget(
+        topSettingsSection.addWidget(
             CardService.newDecoratedText()
                 .setTopLabel('Terminal Output')
                 .setText('View the terminal output logs for debugging and monitoring.')
@@ -820,7 +936,28 @@ Plugins.Settings = {
                         )
                 )
         );
-        cardBuilder.addSection(settingsSection);
+        cardBuilder.addSection(topSettingsSection);
+
+        // Secret private key section
+        const keySecretsSection = CardService.newCardSection()
+            .setHeader('Key Secrets')
+            .addWidget(
+                CardService.newTextParagraph()
+                    .setText('Manage your secret keys securely.'));
+        // Text input for secret private key
+        keySecretsSection.addWidget(
+            CardService.newTextInput()
+                .setValidation(
+                    CardService.newValidation()
+                        .setCharacterLimit('256')
+                        .setInputType(
+                            CardService.InputType.TEXT))
+                .setTitle('Secret Private Key')
+                .setFieldName('txt_secret_private_key')
+                .setValue(data.txt_secret_private_key)
+                .setHint('Enter your secret private key here. Keep it secure!'));
+
+        cardBuilder.addSection(keySecretsSection);
 
         // add fixed footer with save button
         const newFixedFooter = CardService.newFixedFooter()
@@ -836,12 +973,35 @@ Plugins.Settings = {
                     .setText('Save')
                     .setOnClickAction(
                         CardService.newAction()
-                            .setFunctionName('Plugin.Settings.SaveSettings')
+                            .setFunctionName('Plugins.Settings.OnSaveSettings')
                     )
             );
         cardBuilder.setFixedFooter(newFixedFooter);
 
         return cardBuilder.build();
+    },
+    OnSaveSettings: (e) => {
+        const formInputs = e.commonEventObject?.formInputs || {};
+        // save api endpoint url
+        const apiEndpointUrlInput = formInputs['txt_api_endpoint_url'];
+        if (apiEndpointUrlInput && apiEndpointUrlInput.stringInputs) {
+            const apiEndpointUrl = apiEndpointUrlInput.stringInputs.value[0];
+            PropertiesService.getUserProperties().setProperty('txt_api_endpoint_url', apiEndpointUrl);
+        }
+        // sace secret private key
+        const secretPrivateKeyInput = formInputs['txt_secret_private_key'];
+        if (secretPrivateKeyInput && secretPrivateKeyInput.stringInputs) {
+            const secretPrivateKey = secretPrivateKeyInput.stringInputs.value[0];
+            PropertiesService.getUserProperties().setProperty('txt_secret_private_key', secretPrivateKey);
+        }
+
+        // update current card to reflect saved settings
+        return Plugins.Navigations.UpdateCard({
+            ...e,
+            parameters: {
+                path: 'Plugins.Settings.HomeCard'
+            }
+        });
     }
 };
 
