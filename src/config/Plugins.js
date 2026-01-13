@@ -1013,7 +1013,7 @@ Plugins.GetMe = {
     description: 'The GetMe plugin allows you to retrieve information about your Telegram bot using the Bot API. Simply provide your bot token to get started.',
     version: '1.0.0',
     stars: '⭐',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    imageUrl: Plugins.I_AM_THINKING_IMG_URL,
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
             //.setHeader('GetMe Extensions')
@@ -1250,7 +1250,7 @@ Plugins.GetMe = {
                             CardService.newAction()
                                 // List of widget IDs whose values are required for this action to be executed
                                 .addRequiredWidget(['txt_bot_api_token'])
-                                .setFunctionName('BotApiHandler.View.GetMe'))
+                                .setFunctionName('Plugins.GetMe.OnGetMeSubmit'))
                 )
                 // Set secondary Get Chat button
                 .setSecondaryButton(
@@ -1487,6 +1487,27 @@ Plugins.GetMe = {
         newSection.addWidget(grid);
 
         return newSection;
+    },
+    OnGetMeSubmit: (e) => {
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        // Log the submit action to Terminal Output sheet
+        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnGetMeSubmit', 'Start', e, 'User submitted GetMe request');
+        try {
+            e.parameters = {
+                path: 'Plugins.GetMe.HomeCard'
+            };
+            return Plugins.Navigations.UpdateCard(e);
+        } catch (error) {
+            // Log the error to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnGetMeSubmit', 'ERROR', e, error.toString());
+            // Show an error message to the user
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(
+                            error.toString()))
+                .build();
+        }
     }
 }
 
@@ -1497,7 +1518,7 @@ Plugins.GetChat = {
     description: 'The Get Chat plugin allows you to retrieve information about a Telegram chat (channel, group, or user) using the Bot API. Provide your bot token and the chat ID to get started.',
     version: '1.0.0',
     stars: '⭐',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    imageUrl: Plugins.PEACH_IMG_URL,
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
             //.setHeader('GetChat Extensions')
@@ -1959,7 +1980,7 @@ Plugins.Webhook = {
     description: 'The Webhook plugin allows you to set, get, and delete webhooks for your Telegram bot using the Bot API. Manage your bot\'s webhook settings easily by providing your bot token and the desired webhook URL.',
     version: '1.0.0',
     stars: '⭐✨',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    imageUrl: Plugins.BIG_TIME_IMG_URL,
     WelcomeSection: (data = {}) => {
         return CardService.newCardSection()
             //.setHeader('GetMe Extensions')

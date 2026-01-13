@@ -36,12 +36,6 @@ class BotApiHandler {
 };
 
 BotApiHandler.View = {
-    GetMe: (e) => {
-        return new BotApiHandler
-            .ControllerWrapper(
-                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
-            .handleGetMe(e);
-    },
     GetChat: (e) => {
         return new BotApiHandler
             .ControllerWrapper(
@@ -115,22 +109,6 @@ BotApiHandler.ControllerWrapper = class {
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
         this._activeSpreadsheet = activeSpreadsheet;
-    }
-
-    handleGetMe(e) {
-        try {
-            e.parameters = {
-                path: 'Plugins.GetMe.HomeCard'
-            };
-            return Plugins.Navigations.UpdateCard(e);
-        } catch (error) {
-            TerminalOutput.Write(
-                this._activeSpreadsheet,
-                'BotApiHandler.GetMe',
-                'ERROR', e, error.toString());
-            return this.handleError(error)
-                .build();
-        }
     }
 
     handleGetChat(e) {
