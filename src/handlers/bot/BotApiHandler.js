@@ -36,18 +36,6 @@ class BotApiHandler {
 };
 
 BotApiHandler.View = {
-    Login: (e) => {
-        return new BotApiHandler
-            .ControllerWrapper(
-                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
-            .handleLogin(e);
-    },
-    Logout: (e) => {
-        return new BotApiHandler
-            .ControllerWrapper(
-                BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)
-            .handleLogout(e);
-    },
     GetMe: (e) => {
         return new BotApiHandler
             .ControllerWrapper(
@@ -127,73 +115,6 @@ BotApiHandler.ControllerWrapper = class {
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
         this._activeSpreadsheet = activeSpreadsheet;
-    }
-
-    handleLogin(e) {
-        // extract parameters from event object if needed
-        // txt_bot_api_token
-        const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
-            ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
-            : null;
-
-        if (!inputToken || inputToken.trim() === '') {
-            throw new Error('Bot API token is required for login.');
-        }
-
-        try {
-            // getme to validate token
-            const client = new TelegramBotClient(inputToken);
-            const response = client.getMe();
-            // Check for errors in response
-            if (response.getResponseCode() !== 200) {
-                throw new Error(`Error fetching bot info: ${response.getResponseCode()} - ${response.getContentText()}`);
-            }
-
-            const result = JSON.parse(response.getContentText()).result;
-
-            // Log the response to Terminal Output sheet
-            TerminalOutput.Write(this._activeSpreadsheet, 'Plugins.Login', 'Response', result, `Retrieved bot info for token: ${inputToken}`);
-
-            // on success,
-            // Store the token in user properties or user properties as needed
-            this._userProperties.setProperty('txt_bot_api_token', inputToken);
-            this._userProperties.setProperty('txt_bot_friendly_name', result.first_name);
-            this._userProperties.setProperty('txt_bot_username', result.username);
-
-            // Navigate to home card
-            e.parameters = {
-                path: 'Plugins.ViewModel.BuildHomeCard'
-            };
-            return Plugins.Navigations.PopToRoot(e);
-        } catch (error) {
-            TerminalOutput.Write(
-                this._activeSpreadsheet,
-                'BotApiHandler.Login',
-                'ERROR', e, error.toString());
-            return this.handleError(error)
-                .build();
-        }
-    }
-
-    handleLogout(e) {
-        try {
-            // Clear the stored token from user properties
-            this._userProperties.deleteProperty('txt_bot_api_token');
-            e.parameters = {
-                path: 'Plugins.ViewModel.BuildHomeCard'
-            };
-
-            //Plugins.Navigations.PopToRoot(e);
-
-            return Plugins.Navigations.UpdateCard(e);
-        } catch (error) {
-            TerminalOutput.Write(
-                this._activeSpreadsheet,
-                'BotApiHandler.Logout',
-                'ERROR', e, error.toString());
-            return this.handleError(error)
-                .build();
-        }
     }
 
     handleGetMe(e) {
@@ -348,31 +269,13 @@ BotApiHandler.ControllerWrapper = class {
         }
     }
 
-    handleSendTestMessageClick(e) {
-        SheetModel.create(this._activeSpreadsheet)
-            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-            .appendRow([
-                // Created On as iso string
-                new Date().toISOString(),
-                'client', // chat side
-                'Request to send test message',
-                JSON.stringify({ e }) // placeholder
-            ]);
+    handleSendTestMessageClick(e) {  
         // Not implemented yet
         return this.handleOperationSuccess("👍 Test message sent successfully.")
             .build();
     }
 
     handleCreateInvoiceLinkClick(e) {
-        SheetModel.create(this._activeSpreadsheet)
-            .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-            .appendRow([
-                // Created On as iso string
-                new Date().toISOString(),
-                'client', // chat side
-                'Request to create invoice link',
-                JSON.stringify({ e }) // placeholder
-            ]);
         return PaymentHandler
             .ControllerWrapper(
                 BotApiHandler.prototype.activeSpreadsheet, BotApiHandler.prototype.documentProperties, BotApiHandler.prototype.userProperties, BotApiHandler.prototype.scriptProperties)

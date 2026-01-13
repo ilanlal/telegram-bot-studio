@@ -188,33 +188,6 @@ describe('BotApiHandler', () => {
         expect(JSON.stringify(data)).toContain('Error:');
     });
 
-    // login
-    test('should handle loginClick', () => {
-        const event = {
-            commonEventObject: {
-                formInputs: {
-                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } }
-                }
-            }
-        };
-        const actionResponse = BotApiHandler.View.Login(event);
-        expect(actionResponse).toBeDefined();
-        const data = actionResponse.getData();
-        expect(data).toBeDefined();
-    });
-
-    // login should throw error for empty token
-    test('should handle loginClick with empty token', () => {
-        const event = {
-            commonEventObject: {
-                formInputs: {
-                    'txt_bot_api_token': { stringInputs: { value: [''] } }
-                }
-            }
-        };
-        expect(() => BotApiHandler.View.Login(event)).toThrow('Bot API token is required for login.');
-    });
-
     describe('set bot info', () => {
         // setMyName
         test('should handle setMyNameClick', () => {

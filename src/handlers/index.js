@@ -7,7 +7,6 @@ const { AutomationHandler } = require('./bot/webhook/AutomationHandler');
 const { PostMessageHandler } = require('./bot/webhook/PostMessageHandler');
 const { PostCallbackQueryHandler } = require('./bot/webhook/PostCallbackQueryHandler');
 const { WebhookHandler } = require('./bot/webhook/WebhookHandler');
-const { MembershipHandler } = require('./core/MembershipHandler');
 const { ConnectionHandler } = require('./bot/ConnectionHandler');
 const { TerminalOutput } = require('./core/TerminalOutput')
 
@@ -21,6 +20,5 @@ global.AutomationHandler = AutomationHandler;
 global.PostMessageHandler = PostMessageHandler;
 global.PostCallbackQueryHandler = PostCallbackQueryHandler;
 global.WebhookHandler = WebhookHandler;
-global.MembershipHandler = MembershipHandler;
 global.ConnectionHandler = ConnectionHandler;
 global.TerminalOutput = TerminalOutput;

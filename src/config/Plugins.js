@@ -1,3 +1,4 @@
+// src/config/Plugins.js
 class Plugins {
     get pluginList() {
         return [
@@ -539,7 +540,7 @@ Plugins.Connection = {
                     .setOnClickAction(
                         CardService.newAction()
                             .addRequiredWidget(['txt_bot_api_token'])
-                            .setFunctionName('BotApiHandler.View.Login')))
+                            .setFunctionName('Plugins.Connection.OnConnect')))
             .setSecondaryButton(
                 CardService.newTextButton()
                     .setAltText('Forget & Disconnect')
@@ -551,7 +552,7 @@ Plugins.Connection = {
                     )
                     .setOnClickAction(
                         CardService.newAction()
-                            .setFunctionName('BotApiHandler.View.Logout')));
+                            .setFunctionName('Plugins.Connection.OnDisconnect')));
 
         // 1. Instruction Section: Visual and Brief
         const instructionSection = CardService.newCardSection()
@@ -616,10 +617,78 @@ Plugins.Connection = {
         return cardBuilder.build();
     },
     OnConnect(e) {
-        // Handle bot connection logic here
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        // extract parameters from event object if needed
+        // txt_bot_api_token
+        const inputToken = (e.commonEventObject.formInputs && e.commonEventObject.formInputs['txt_bot_api_token'])
+            ? e.commonEventObject.formInputs['txt_bot_api_token']?.stringInputs?.value?.[0]
+            : null;
+
+        if (!inputToken || inputToken.trim() === '') {
+            throw new Error('Bot API Token cannot be empty.');
+        }
+
+        try {
+            // getme to validate token
+            const client = new TelegramBotClient(inputToken);
+            const response = client.getMe();
+            // Check for errors in response
+            if (JSON.parse(response.getContentText()).ok !== true) {
+                throw new Error(`Error fetching bot info: ${response.getResponseCode()} - ${response.getContentText()}`);
+            }
+
+            const result = JSON.parse(response.getContentText()).result;
+
+            // Log the response to Terminal Output sheet
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Connection.OnConnect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
+
+            // on success,
+            // Store the token in user properties or user properties as needed
+            PropertiesService.getUserProperties().setProperty('txt_bot_api_token', inputToken);
+            PropertiesService.getUserProperties().setProperty('txt_bot_friendly_name', result.first_name);
+            PropertiesService.getUserProperties().setProperty('txt_bot_username', result.username);
+
+            // Navigate to home card
+            e.parameters = {
+                path: 'Plugins.ViewModel.BuildHomeCard'
+            };
+            return Plugins.Navigations.PopToRoot(e);
+        } catch (error) {
+            TerminalOutput.Write(
+                activeSpreadsheet,
+                'Plugins.Connection.OnConnect',
+                'ERROR', e, error.toString());
+            return this.handleError(error)
+                .build();
+        }
     },
     OnDisconnect(e) {
-        // Handle bot disconnection logic here
+        try {
+            // Clear the stored token from user properties
+            PropertiesService.getUserProperties().deleteProperty('txt_bot_api_token');
+            e.parameters = {
+                path: 'Plugins.ViewModel.BuildHomeCard'
+            };
+
+            //Plugins.Navigations.PopToRoot(e);
+
+            return Plugins.Navigations.UpdateCard(e);
+        } catch (error) {
+            TerminalOutput.Write(
+                this._activeSpreadsheet,
+                'BotApiHandler.Logout',
+                'ERROR', e, error.toString());
+            return this.handleError(error)
+                .build();
+        }
+    },
+    handleError(error) {
+        // Show an error message to the user
+        return CardService.newActionResponseBuilder()
+            .setNotification(
+                CardService.newNotification()
+                    .setText(
+                        error.toString()));
     }
 };
 
@@ -669,7 +738,8 @@ Plugins.Settings = {
 
         // Fetch properties with robust fallbacks
         data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
-        data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'ON';
+        data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'OFF';
+        data.focus_terminal_output = PropertiesService.getUserProperties().getProperty('focus_terminal_output') || 'OFF';
         data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty('txt_secret_private_key') || privateKeyDemo;
 
         const cardBuilder = CardService.newCardBuilder()
@@ -739,6 +809,29 @@ Plugins.Settings = {
                 )
         );
 
+        // Focus Terminal Output Switch
+        devSection.addWidget(
+            CardService.newDecoratedText()
+                .setVisibility(data.terminal_output_switch === 'ON' ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
+                .setTopLabel('Debug Mode')
+                .setText('Focus Terminal Output')
+                .setBottomLabel('Focus the terminal output on the last log entry.')
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('center_focus_strong').setFill(false)))
+                .setSwitchControl(
+                    CardService.newSwitch()
+                        .setFieldName('focus_terminal_output')
+                        .setValue('ON')
+                        .setSelected(data.focus_terminal_output === 'ON')
+                        .setControlType(CardService.SwitchControlType.SWITCH)
+                        .setOnChangeAction(
+                            CardService.newAction()
+                                .setFunctionName('AppHandler.ViewModel.ToggleAction')
+                                .setParameters({ actionName: 'focus_terminal_output' })
+                        )
+                )
+        );
+
         cardBuilder.addSection(devSection);
 
         // 4. Professional Fixed Footer
@@ -788,7 +881,6 @@ Plugins.Settings = {
 Plugins.UserProfile = {
     id: 'UserProfilePlugin',
     name: 'User Profile',
-
     HomeCard: (data = {}) => {
         const userEmail = Session.getActiveUser().getEmail();
         const cardBuilder = CardService.newCardBuilder()
@@ -828,7 +920,6 @@ Plugins.UserProfile = {
 
         return cardBuilder.build();
     },
-
     BuildMembershipSection: (data = {}) => {
         const isPremium = data.isPremium ?? false;
         const statusColor = isPremium ? Plugins.secondaryColor() : '#757575';
@@ -852,7 +943,7 @@ Plugins.UserProfile = {
                 .setText('Manage / Cancel Subscription')
                 .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                 .setOnClickAction(CardService.newAction()
-                    .setFunctionName('AppHandler.ViewModel.RevokeLicense')));
+                    .setFunctionName('Plugins.UserProfile.OnRevokeLicense')));
         } else {
             newSection.addWidget(CardService.newTextButton()
                 .setText('💎 Upgrade Now')
@@ -860,10 +951,58 @@ Plugins.UserProfile = {
                 .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                 .setMaterialIcon(CardService.newMaterialIcon().setName('bolt'))
                 .setOnClickAction(CardService.newAction()
-                    .setFunctionName('AppHandler.ViewModel.ActivatePremium')));
+                    .setFunctionName('Plugins.UserProfile.OnActivatePremium')));
         }
 
         return newSection;
+    },
+    OnActivatePremium(e) {
+        try {
+            // Simulate activation logic
+            // In a real implementation, you would interact with a payment gateway or licensing server here
+            const membership = {
+                licenseKey: 'SAMPLE_LICENSE_KEY',
+                type: 'premium',
+                activatedAt: new Date().toISOString(),
+                // Add one 90 days to the current date
+                expiresAt: new Date(new Date().setDate(new Date().getDate() + 90)).toISOString(),
+                balance: 0
+            }
+
+            // Save membership info to user properties
+            PropertiesService.getUserProperties().setProperty(AppModel.MEMBERSHIP_PROPERTY_KEY, JSON.stringify(membership));
+
+            // popToRoot first
+            return Plugins.Navigations.PopToRoot(e);
+        } catch (error) {
+            return this.handleOperationError(error);
+        }
+    },
+    OnRevokeLicense(e) {
+        try {
+            // Simulate revocation logic
+            PropertiesService.getUserProperties().deleteProperty(AppModel.MEMBERSHIP_PROPERTY_KEY);
+            return Plugins.Navigations.PopToRoot(e);
+        } catch (error) {
+            return this.handleOperationError(error);
+        }
+    },
+    handleOperationSuccess(message) {
+        // Show a success message to the user
+        return CardService.newActionResponseBuilder()
+            .setNotification(
+                CardService.newNotification()
+                    .setText(message))
+            .build();
+    },
+    handleOperationError(error) {
+        // Show an error message to the user
+        return CardService.newActionResponseBuilder()
+            .setNotification(
+                CardService.newNotification()
+                    .setText(
+                        error.toString()))
+            .build();
     }
 };
 

@@ -52,28 +52,6 @@ describe('AppHandler', () => {
         expect(data.cardNavigations[0].pushCard).toBeDefined();
     });
 
-    // ActivatePremium
-    it('should handle ActivatePremium', () => {
-        const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.ActivatePremium(event);
-        expect(actionResponse).toBeDefined();
-        const data = actionResponse.getData();
-        expect(data).toBeDefined();
-        // no 'error' string in data
-        expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
-    });
-
-    // RevokeLicense
-    it('should handle RevokeLicense', () => {
-        const event = {}; // Mock event object
-        const actionResponse = AppHandler.ViewModel.RevokeLicense(event);
-        expect(actionResponse).toBeDefined();
-        const data = actionResponse.getData();
-        expect(data).toBeDefined();
-        // no 'error' string in data
-        expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
-    });
-
     // ToggleAction
     it('should handle ToggleAction', () => {
         const event = {

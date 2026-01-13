@@ -50,28 +50,5 @@ describe('EventHandler', () => {
         expect(data.cardNavigations.length).toBeGreaterThan(0);
         expect(data.cardNavigations[0].pushCard).toBeDefined();
     });
-
-    // ActivatePremium
-    it('should handle ActivatePremium', () => {
-        const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.ActivatePremium(event);
-        expect(actionResponse).toBeDefined();
-        const data = actionResponse.getData();
-        expect(data).toBeDefined();
-        // no 'error' string in data
-        expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
-    });
-
-    // RevokeLicense
-    it('should handle RevokeLicense', () => {
-        const event = {}; // Mock event object
-        const actionResponse = EventHandler.ViewModel.RevokeLicense(event);
-        expect(actionResponse).toBeDefined();
-        const data = actionResponse.getData();
-        expect(data).toBeDefined();
-        // no 'error' string in data
-        expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
-    });
-
     // Additional tests for other handlers can be added similarly
 });

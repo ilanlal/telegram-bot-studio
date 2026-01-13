@@ -21,14 +21,6 @@ EventHandler.ViewModel = {
     OpenHelpCard: (e) => {
         return AppHandler.ViewModel
             .OpenHelpCard(e);
-    },
-    ActivatePremium: (e) => {
-        return MembershipHandler.ViewModel
-            .ActivatePremium(e);
-    },
-    RevokeLicense: (e) => {
-        return MembershipHandler.ViewModel
-            .RevokeLicense(e);
     }
 }
 

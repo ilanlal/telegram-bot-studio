@@ -27,14 +27,6 @@ AppHandler.ViewModel = {
             .ControllerWrapper()
             .handleOpenHelpCard(e);
     },
-    ActivatePremium: (e) => {
-        return MembershipHandler.ViewModel
-            .ActivatePremium(e);
-    },
-    RevokeLicense: (e) => {
-        return MembershipHandler.ViewModel
-            .RevokeLicense(e);
-    },
     ToggleAction(e) {
         return new AppHandler
             .ControllerWrapper()
@@ -127,15 +119,11 @@ AppHandler.ControllerWrapper = class {
 
     handleToggleAction(e) {
         try {
-            SheetModel.create(this._activeSpreadsheet)
-                .getSheet(EMD.Spreadsheet.TerminalOutput({}))
-                .appendRow([
-                    // Created On as iso string
-                    new Date().toISOString(),
-                    'client', // chat side
-                    'Toggle action',
-                    JSON.stringify({ e }) // placeholder
-                ]);
+            TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+                'AppHandler.ControllerWrapper.handleToggleAction',
+                'INFO',
+                e,
+                `-------------------------`);
             const actionName = e?.commonEventObject?.parameters?.actionName;
             // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
             const preState = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
@@ -153,6 +141,12 @@ AppHandler.ControllerWrapper = class {
     }
 
     handleOperationError(error) {
+        TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+            'AppHandler.ControllerWrapper.handleOperationError',
+            'ERROR',
+            error,
+            error.toString());
+
         // Show an error message to the user
         return CardService.newActionResponseBuilder()
             .setNotification(
