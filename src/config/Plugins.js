@@ -309,16 +309,16 @@ Plugins.Home = {
                     .setHeader('App Information')
                     .addWidget(
                         CardService.newTextParagraph()
-                            .setText(`Name: ${Plugins.ViewModel.name}`))
+                            .setText(`Name: ${Plugins.Home.name}`))
                     .addWidget(
                         CardService.newTextParagraph()
-                            .setText(`Version: ${Plugins.ViewModel.version}`))
+                            .setText(`Version: ${Plugins.Home.version}`))
                     .addWidget(
                         CardService.newTextParagraph()
-                            .setText(`Info: ${Plugins.ViewModel.description}`))
+                            .setText(`Info: ${Plugins.Home.description}`))
                     .addWidget(
                         CardService.newTextParagraph()
-                            .setText(`Developed by Telegram Bot Studio.`)));
+                            .setText(`Developed by Easy ADM (https://easyadm.com).`)));
 
 
         // Add useful links section
@@ -330,13 +330,13 @@ Plugins.Home = {
                         .setText('📄 Documentation')
                         .setOpenLink(
                             CardService.newOpenLink()
-                                .setUrl('https://github.com/ilanlal/telegram-bot-studio#readme')))
+                                .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
                 .addWidget(
                     CardService.newTextButton()
                         .setText('📢 Report Issues')
                         .setOpenLink(
                             CardService.newOpenLink()
-                                .setUrl('https://github.com/ilanlal/telegram-bot-studio/issues'))));
+                                .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
 
         return cardBuilder.build();
     },
@@ -388,15 +388,11 @@ Plugins.Home = {
             .addWidget(CardService.newTextButton()
                 .setText('📄 Read Documentation')
                 .setOpenLink(CardService.newOpenLink()
-                    .setUrl('https://github.com/ilanlal/telegram-bot-studio#readme')))
+                    .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
             .addWidget(CardService.newTextButton()
                 .setText('📢 Report a Bug')
                 .setOpenLink(CardService.newOpenLink()
-                    .setUrl('https://github.com/ilanlal/telegram-bot-studio/issues')))
-            .addWidget(CardService.newTextButton()
-                .setText('✉️ Contact Support')
-                .setOpenLink(CardService.newOpenLink()
-                    .setUrl('mailto:support@example.com'))));
+                    .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
 
         return cardBuilder.build();
     },
