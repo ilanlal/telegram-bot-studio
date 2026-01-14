@@ -10,7 +10,7 @@ describe('Plugins Navigations', () => {
     it('should handle PushCard navigation', () => {
         // mock event parameters
         const e = {
-            parameters: { path: 'Plugins.HomeCard.OnLoad' }
+            parameters: { path: 'Plugins.Home.OnLoad' }
         };
 
         const actionResponse = Plugins.Navigations.PushCard(e);

@@ -6,28 +6,22 @@ describe('Plugins.Settings', () => {
         it('should have required properties', () => {
             expect(Plugins.Settings.id).toBeDefined();
             expect(Plugins.Settings.name).toBeDefined();
+            expect(Plugins.Settings.short_description).toBeDefined();
             expect(Plugins.Settings.description).toBeDefined();
             expect(Plugins.Settings.version).toBeDefined();
-            expect(Plugins.Settings.imageUrl).toBeDefined();
         });
 
-        // WelcomeSection
-        it('should create WelcomeSection', () => {
-            const welcomeSection = Plugins.Settings['WelcomeSection']();
-            expect(welcomeSection).toBeDefined();
-            const sectionData = welcomeSection.getData();
-            expect(sectionData).toBeDefined();
-        });
 
-        // HomeCard test
-        it('should create HomeCard', () => {
+        // OnLoad
+        it('should handle OnLoad', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Settings['HomeCard'](e);
+            const homeCard = Plugins.Settings.OnLoad(e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
-            expect(cardData.name).toBe(Plugins.Settings.name + '-Home');
+            // no notification
+            expect(cardData.notification).toBeUndefined();
         });
 
         // OnSaveSettings
@@ -48,6 +42,29 @@ describe('Plugins.Settings', () => {
 
             // not notification
             expect(data.notification).toBeUndefined();
+        });
+
+        // OnToggleAction
+        it('should handle OnToggleAction', () => {
+            // mock event parameters
+            const e = {
+                commonEventObject: {
+                    parameters: {
+                        actionName: 'terminal_output_switch'
+                    },
+                    formInputs: {
+                        terminal_output_switch: { stringInputs: { value: ['OFF'] } }
+                    }
+                }
+            };
+            const actionResponse = Plugins.Settings.OnToggleAction(e);
+            expect(actionResponse).toBeDefined();
+            const data = actionResponse.getData();
+            expect(data).toBeDefined();
+
+            // check notification text not contains 'error' string
+            expect(data.notification).toBeDefined();
+            expect(data.notification.text.toLowerCase()).not.toContain('error');
         });
     });
 });

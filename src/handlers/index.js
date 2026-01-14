@@ -1,5 +1,3 @@
-const { EventHandler } = require('./core/EventHandler');
-const { AppHandler } = require('./AppHandler');
 const { NavigationHandler } = require('./core/NavigationHandler');
 const { SpreadsheetHandler } = require('./core/SpreadsheetHandler');
 const { BotApiHandler } = require('./bot/BotApiHandler');
@@ -11,8 +9,6 @@ const { ConnectionHandler } = require('./bot/ConnectionHandler');
 const { TerminalOutput } = require('./core/TerminalOutput')
 
 // Export handlers to global scope for Apps Script
-global.EventHandler = EventHandler;
-global.AppHandler = AppHandler;
 global.NavigationHandler = NavigationHandler;
 global.SpreadsheetHandler = SpreadsheetHandler;
 global.BotApiHandler = BotApiHandler;

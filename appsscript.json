@@ -32,25 +32,25 @@
         "https://api.telegram.org/"
       ],
       "homepageTrigger": {
-        "runFunction": "EventHandler.ViewModel.OpenHomeCard"
+        "runFunction": "Plugins.Home.OnLoad"
       },
       "useLocaleFromApp": true,
       "universalActions": [
         {
           "label": "Profile",
-          "runFunction": "EventHandler.ViewModel.OpenProfileCard"
+          "runFunction": "Plugins.UserProfile.OnLoad"
         },
         {
           "label": "Settings",
-          "runFunction": "EventHandler.ViewModel.OpenSettingsCard"
+          "runFunction": "Plugins.Settings.OnLoad"
         },
         {
           "label": "Help",
-          "runFunction": "EventHandler.ViewModel.OpenHelpCard"
+          "runFunction": "Plugins.Home.OnHelp"
         },
         {
           "label": "About",
-          "runFunction": "EventHandler.ViewModel.OpenAboutCard"
+          "runFunction": "Plugins.Home.OnAbout"
         },
         {
           "label": "Visit Bot Studio",

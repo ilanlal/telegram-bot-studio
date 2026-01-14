@@ -40,5 +40,17 @@ describe('Plugins.UserProfile', () => {
             // no 'error' string in data
             expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
         });
+
+        // OnLoad test
+        it('should handle OnLoad', () => {
+            // mock event parameters
+            const e = { parameters: {} };
+            const homeCard = Plugins.UserProfile.OnLoad(e);
+            expect(homeCard).toBeDefined();
+            const cardData = homeCard.getData();
+            expect(cardData).toBeDefined();
+            // no notification
+            expect(cardData.notification).toBeUndefined();
+        });
     });
 });

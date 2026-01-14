@@ -85,5 +85,6 @@ describe('Plugins.Connection', () => {
             const data = result.getData();
             expect(data).toBeDefined();
         });
+        
     });
 });
