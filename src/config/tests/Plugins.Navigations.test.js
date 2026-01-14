@@ -26,7 +26,7 @@ describe('Plugins Navigations', () => {
     it('should handle UpdateCard navigation', () => {
         // mock event parameters
         const e = {
-            parameters: { path: 'Plugins.ViewModel.BuildAboutCard' }
+            parameters: { path: 'Plugins.GetMe.HomeCard' }
         };
 
         const actionResponse = Plugins.Navigations.UpdateCard(e);
