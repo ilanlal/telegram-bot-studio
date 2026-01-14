@@ -10,19 +10,6 @@ describe('Plugins ViewModel', () => {
         expect(Plugins.ViewModel.imageUrl).toBeDefined();
     });
 
-    it('should create HomeCard', () => {
-        // mock event parameters
-        const e = { parameters: {} };
-        const homeCard = Plugins.ViewModel.BuildHomeCard(e);
-        expect(homeCard).toBeDefined();
-        const cardData = homeCard.getData();
-        expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(`${Plugins.ViewModel.id}-Home`);
-        // check if sections exist
-        expect(cardData.sections).toBeDefined();
-        expect(cardData.sections.length).toBeGreaterThan(0);
-    });
-
     // AboutCard test
     it('should create AboutCard', () => {
         const aboutCard = Plugins.ViewModel.BuildAboutCard();

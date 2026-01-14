@@ -9,7 +9,9 @@ describe('Plugins Navigations', () => {
 
     it('should handle PushCard navigation', () => {
         // mock event parameters
-        const e = { parameters: { path: 'Plugins.GetMe.HomeCard' } };
+        const e = {
+            parameters: { path: 'Plugins.HomeCard.OnLoad' }
+        };
 
         const actionResponse = Plugins.Navigations.PushCard(e);
         expect(actionResponse).toBeDefined();
@@ -24,33 +26,8 @@ describe('Plugins Navigations', () => {
     it('should handle UpdateCard navigation', () => {
         // mock event parameters
         const e = {
-            parameters: { path: 'Plugins.GetMe.HomeCard' },
-            commonEventObject: {
-                formInputs: {
-                    txt_bot_api_token: { stringInputs: { value: [sampleToken] } }
-                }
-            }
+            parameters: { path: 'Plugins.ViewModel.BuildAboutCard' }
         };
-
-        const getMeUrl = `https://api.telegram.org/bot${sampleToken}/getMe`;
-        UrlFetchAppStubConfiguration.when(getMeUrl)
-            .return(new HttpResponse()
-                .setContentText(JSON.stringify({
-                    // ChatFullInfo response structure
-                    ok: true,
-                    result: {
-                        id: -1001234567890,
-                        title: "Test Channel",
-                        type: "channel",
-                        username: "testchannel",
-                        first_name: "Test",
-                        last_name: "Channel",
-                        active_usernames: ["testchannel"],
-                        description: "This is a test channel",
-                        invite_link: "https://t.me/joinchat/testinvite",
-                        pinned_message: null
-                    }
-                })));
 
         const actionResponse = Plugins.Navigations.UpdateCard(e);
         expect(actionResponse).toBeDefined();

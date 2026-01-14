@@ -40,14 +40,7 @@ AppHandler.ControllerWrapper = class {
 
     handleOpenHomeCard(e) {
         try {
-            const data = {
-                ...AppModel.create().toJSON()
-            }
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .pushCard(Plugins.ViewModel.BuildHomeCard(data)))
-                .build();
+            return Plugins.HomeCard.OnLoad(e);
         } catch (error) {
             return this.handleOperationError(error);
         }
