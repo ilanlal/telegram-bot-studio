@@ -12,7 +12,7 @@ describe('Plugins.Home', () => {
             expect(Plugins.Home.name).toBeDefined();
             expect(Plugins.Home.description).toBeDefined();
             expect(Plugins.Home.version).toBeDefined();
-            expect(Plugins.Home.imageUrl).toBeDefined();
+            expect(Plugins.Home.short_description).toBeDefined();
         });
 
         // OnLoad test

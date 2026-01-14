@@ -174,10 +174,9 @@ Plugins.ViewModel = {
 Plugins.Home = {
     id: 'HomePlugin',
     name: 'Telegram Bot Studio',
-    short_description: 'Plugins for Telegram Bots',
+    short_description: 'A suite of tools for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.0.1',
-    imageUrl: Plugins.WELCOME_IMG_URL,
+    version: '1.0.2',
     OnLoad: (e) => {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         // Log the event for debugging
@@ -286,7 +285,7 @@ Plugins.Home = {
             cardBuilder.setFixedFooter(CardService.newFixedFooter()
                 .setPrimaryButton(CardService.newTextButton()
                     .setText('💎 Upgrade to Premium')
-                    .setBackgroundColor(Plugins.secondaryColor())
+                    .setBackgroundColor(Plugins.primaryColor())
                     //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.UserProfile.OnLoad')))
