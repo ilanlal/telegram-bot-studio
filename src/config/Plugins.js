@@ -890,7 +890,6 @@ Plugins.Settings = {
         // sace secret private key
         const secretPrivateKey = Plugins.getFormInputsStringValue(e, 'txt_secret_private_key', '');
         if (secretPrivateKey) {
-            const secretPrivateKey = secretPrivateKeyInput.stringInputs.value[0];
             PropertiesService.getUserProperties().setProperty('txt_secret_private_key', secretPrivateKey);
         }
 
