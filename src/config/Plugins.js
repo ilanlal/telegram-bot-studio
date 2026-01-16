@@ -1551,20 +1551,63 @@ Plugins.Webhook = {
      * Entry Point
      */
     OnLoad: (e) => {
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         const data = e?.commonEventObject?.parameters || {};
-        return Plugins.Webhook.HomeCard(data);
+        const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+        const isUpdate = data.update === 'true';
+        try {
+            // Log start of execution
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'INFO', e, 'Loading Webhook Manager');
+
+            if (!input_token) {
+                throw new Error('Bot API Token is not set. Please connect your bot first.');
+            }
+
+            // Logic: Fetch Data if Token Exists
+            const telegramBotClient = new TelegramBotClient(input_token);
+            // 1. API Call: getWebhookInfo
+            const response = telegramBotClient.getWebhookInfo();
+            // Log response for debugging
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
+            if (JSON.parse(response.getContentText()).ok !== true) {
+                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+            }
+
+            // Parse the result
+            const result = JSON.parse(response.getContentText()).result;
+
+            // 2. Navigation Handling
+            let navigation = CardService.newNavigation();
+            if (isUpdate) {
+                // Update the existing card in place
+                navigation.updateCard(
+                    Plugins.Webhook.HomeCard(data, result));
+            }
+            else {
+                // Push a new card onto the stack
+                navigation.pushCard(
+                    Plugins.Webhook.HomeCard(data, result));
+            }
+
+            return CardService.newActionResponseBuilder()
+                .setNavigation(navigation)
+                .build();
+        } catch (error) {
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'ERROR', e, error.toString());
+            // Return notification of error
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(
+                            error.toString()))
+                .build();
+        }
     },
 
     /**
      * Main Interface Card
      */
-    HomeCard: (data = {}, result = null) => {
-        const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-
-        // Logging
-        TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'Start', data, 'Loading Webhook Console');
-
+    HomeCard: (data = {}, result = {}) => {
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.Webhook.id + '-Home')
             .setHeader(CardService.newCardHeader()
@@ -1575,160 +1618,132 @@ Plugins.Webhook = {
 
         // --- 1. Connection Header ---
         cardBuilder.addSection(Plugins.Connection.WelcomeSection(data));
+        // --- Section A: Status Dashboard ---
+        const statusSection = CardService.newCardSection()
+            .setHeader('📡 Live Status');
+
+        // Action Buttons
+        const buttonSet = CardService.newButtonSet();
 
         // --- 2. Live Status Logic ---
-        if (token) {
-            try {
-                // Fetch fresh data if not provided
-                if (!result) {
-                    const client = new TelegramBotClient(token);
-                    const response = client.getWebhookInfo();
-                    if (response.getResponseCode() !== 200) {
-                        throw new Error(`API Error: ${response.getContentText()}`);
-                    }
-                    result = JSON.parse(response.getContentText()).result;
-                }
+        if (result.url !== '') {
+            // Delete Button (Only if active)
+            buttonSet.addButton(CardService.newTextButton()
+                .setText('Delete Webhook')
+                .setOnClickAction(CardService.newAction()
+                    .setFunctionName('Plugins.Webhook.OnDeleteWebhook')));
 
-                const currentUrl = result.url || '';
-                const hasWebhook = !!currentUrl;
-
-                // --- Section A: Status Dashboard ---
-                const statusSection = CardService.newCardSection()
-                    .setHeader('📡 Live Status');
-
-                if (hasWebhook) {
-                    // Active Status
-                    statusSection.addWidget(CardService.newDecoratedText()
-                        .setTopLabel('Status')
-                        .setText('Active')
-                        .setBottomLabel(currentUrl)
-                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('cloud_done')
-                                .setFill(false))) // Constraint 1
-                        .setWrapText(true));
-
-                    // Traffic/Pending Info
-                    if (result.pending_update_count > 0) {
-                        statusSection.addWidget(CardService.newDecoratedText()
-                            .setTopLabel('Queue')
-                            .setText(`${result.pending_update_count} Pending Updates`)
-                            .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                                CardService.newMaterialIcon()
-                                    .setName('hourglass_empty')
-                                    .setFill(false)))); // Constraint 1
-                    }
-
-                    // Error Info
-                    if (result.last_error_message) {
-                        const errorDate = result.last_error_date
-                            ? new Date(result.last_error_date * 1000).toLocaleTimeString()
-                            : 'Unknown Time';
-
-                        statusSection.addWidget(CardService.newDecoratedText()
-                            .setTopLabel(`Last Error (${errorDate})`)
-                            .setText(`⚠️ ${result.last_error_message}`)
-                            .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                                CardService.newMaterialIcon()
-                                    .setName('error_outline')
-                                    .setFill(false))) // Constraint 1
-                            .setWrapText(true));
-                    }
-                } else {
-                    // Inactive Status
-                    statusSection.addWidget(CardService.newDecoratedText()
-                        .setTopLabel('Status')
-                        .setText('Inactive')
-                        .setBottomLabel('Bot is using Long Polling (no webhook).')
-                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('cloud_off')
-                                .setFill(false)))); // Constraint 1
-                }
-                cardBuilder.addSection(statusSection);
-
-                // --- Section B: Configuration Form ---
-                const configSection = CardService.newCardSection()
-                    .setHeader('🛠️ Configuration')
-                    .setCollapsible(true); // Collapsible to save space if not needed
-
-                // 1. Webhook URL (Constraint 5)
-                configSection.addWidget(CardService.newTextInput()
-                    .setFieldName('txt_webhook_url')
-                    .setTitle('Webhook URL (Required)')
-                    .setHint('https://your-script-url/exec')
-                    .setValue(currentUrl)); // Defaults to current live URL
-
-                // 2. IP Address (Constraint 5)
-                configSection.addWidget(CardService.newTextInput()
-                    .setFieldName('txt_ip_address')
-                    .setTitle('Custom IP Address (Optional)')
-                    .setHint('Bypass DNS resolution with specific IP')
-                    .setValue(result.ip_address || ''));
-
-                // 3. Max Connections (Constraint 5)
-                configSection.addWidget(CardService.newTextInput()
-                    .setFieldName('txt_max_connections')
-                    .setTitle('Max Connections (1-100)')
-                    .setHint('Default: 40')
-                    .setValue(result.max_connections ? result.max_connections.toString() : '40'));
-
-                // 4. Secret Token (Constraint 5)
-                configSection.addWidget(CardService.newTextInput()
-                    .setFieldName('txt_secret_token')
-                    .setTitle('Secret Token (Optional)')
-                    .setHint('X-Telegram-Bot-Api-Secret-Token header')
-                    .setValue('')); // We don't get this back from API for security, so leave empty
-
-                // 5. Drop Pending Updates (Constraint 4 & 5)
-                // Fix: Using DecoratedText to label the switch
-                configSection.addWidget(CardService.newDecoratedText()
-                    .setText('Drop Pending Updates')
-                    .setBottomLabel('Skip old messages in queue upon setting webhook.')
-                    .setSwitchControl(CardService.newSwitch()
-                        .setFieldName('drop_pending_updates')
-                        .setValue('true')
-                        .setControlType(CardService.SwitchControlType.CHECK_BOX)));
-
-                // Action Buttons
-                const buttonSet = CardService.newButtonSet();
-
-                // Set/Update Button
-                buttonSet.addButton(CardService.newTextButton()
-                    .setText(hasWebhook ? 'Update Settings' : 'Set Webhook')
-                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setBackgroundColor(Plugins.secondaryColor())
-                    .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.OnSetWebhook')
-                        // Collect all inputs
-                        .addRequiredWidget([
-                            'txt_bot_api_token',
-                            'txt_webhook_url',
-                            'txt_ip_address',
-                            'txt_max_connections',
-                            'txt_secret_token',
-                            'drop_pending_updates'
-                        ])));
-
-                // Delete Button (Only if active)
-                if (hasWebhook) {
-                    buttonSet.addButton(CardService.newTextButton()
-                        .setText('Delete Webhook')
-                        .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Webhook.OnDeleteWebhook')
-                            .addRequiredWidget(['txt_bot_api_token', 'drop_pending_updates'])));
-                }
-
-                configSection.addWidget(buttonSet);
-                cardBuilder.addSection(configSection);
-
-                // --- Section: Raw Data (Debug) ---
-                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection('getWebhookInfo', result));
-            } catch (error) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.HomeCard', 'ERROR', data, error.toString());
-                cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error));
-            }
+            // Active Status
+            statusSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Status')
+                .setText('Active')
+                .setBottomLabel(String(result.url))
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('cloud_done')
+                        .setFill(false))) // Constraint 1
+                .setWrapText(true));
         }
+        else {
+            // Inactive Status
+            statusSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Status')
+                .setText('Inactive')
+                .setBottomLabel('Bot is using Long Polling (no webhook).')
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('cloud_off')
+                        .setFill(false)))); // Constraint 1
+        }
+
+        // Set/Update Button
+        buttonSet.addButton(CardService.newTextButton()
+            .setText(result.url ? 'Update Settings' : 'Set Webhook')
+            //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+            .setBackgroundColor(Plugins.secondaryColor())
+            .setOnClickAction(CardService.newAction()
+                .setFunctionName('Plugins.Webhook.OnSetWebhook')
+                // Collect all inputs
+                .addRequiredWidget(['txt_webhook_url'])
+                .addRequiredWidget(['txt_max_connections'])));
+                
+        // Traffic/Pending Info
+        if (result.pending_update_count > 0) {
+            statusSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Queue')
+                .setText(`${result.pending_update_count} Pending Updates`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('hourglass_empty')
+                        .setFill(false)))); // Constraint 1
+        }
+
+        // Error Info
+        if (result.last_error_message) {
+            const errorDate = result.last_error_date
+                ? new Date(result.last_error_date * 1000).toLocaleTimeString()
+                : 'Unknown Time';
+
+            statusSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel(`Last Error (${errorDate})`)
+                .setText(`⚠️ ${result.last_error_message}`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('error_outline')
+                        .setFill(false))) // Constraint 1
+                .setWrapText(true));
+        }
+
+        cardBuilder.addSection(statusSection);
+
+        // --- Section B: Configuration Form ---
+        const configSection = CardService.newCardSection()
+            .setHeader('🛠️ Configuration')
+            .setCollapsible(true); // Collapsible to save space if not needed
+
+        // 1. Webhook URL (Constraint 5)
+        configSection.addWidget(CardService.newTextInput()
+            .setFieldName('txt_webhook_url')
+            .setTitle('Webhook URL (Required)')
+            .setHint('https://your-script-url/exec')
+            .setValue(String(result.url))); // Defaults to current live URL
+
+        // 2. IP Address (Constraint 5)
+        configSection.addWidget(CardService.newTextInput()
+            .setFieldName('txt_ip_address')
+            .setTitle('Custom IP Address (Optional)')
+            .setHint('Bypass DNS resolution with specific IP')
+            .setValue(result.ip_address || ''));
+
+        // 3. Max Connections (Constraint 5)
+        configSection.addWidget(CardService.newTextInput()
+            .setFieldName('txt_max_connections')
+            .setTitle('Max Connections (1-100)')
+            .setHint('Default: 40')
+            .setValue(result.max_connections ? result.max_connections.toString() : '40'));
+
+        // 4. Secret Token (Constraint 5)
+        configSection.addWidget(CardService.newTextInput()
+            .setFieldName('txt_secret_token')
+            .setTitle('Secret Token (Optional)')
+            .setHint('X-Telegram-Bot-Api-Secret-Token header')
+            .setValue('')); // We don't get this back from API for security, so leave empty
+
+        // 5. Drop Pending Updates (Constraint 4 & 5)
+        // Fix: Using DecoratedText to label the switch
+        configSection.addWidget(CardService.newDecoratedText()
+            .setText('Drop Pending Updates')
+            .setBottomLabel('Skip old messages in queue upon setting webhook.')
+            .setSwitchControl(CardService.newSwitch()
+                .setFieldName('drop_pending_updates')
+                .setValue('true')
+                .setControlType(CardService.SwitchControlType.CHECK_BOX)));
+
+        configSection.addWidget(buttonSet);
+        cardBuilder.addSection(configSection);
+
+        // --- Section: Raw Data (Debug) ---
+        cardBuilder.addSection(Plugins.ViewModel.BuildResultSection('getWebhookInfo', result));
 
         // --- 3. Footer Refresh ---
         const footer = CardService.newFixedFooter()
@@ -1739,7 +1754,7 @@ Plugins.Webhook = {
                     .setFill(false)) // Constraint 1
                 .setOnClickAction(CardService.newAction()
                     .setFunctionName('Plugins.Webhook.OnLoad')
-                    .setParameters({ refresh: 'true' })));
+                    .setParameters({ update: 'true' })));
 
         cardBuilder.setFixedFooter(footer);
 
@@ -1807,22 +1822,37 @@ Plugins.Webhook = {
      * ACTION: Delete Webhook
      */
     OnDeleteWebhook: (e) => {
-        const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-        const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
-
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        const data = e?.commonEventObject?.parameters || {};
+        // Log start of execution
+        TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
         try {
+            const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+            const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
+
             const client = new TelegramBotClient(token);
             const response = client.deleteWebhook(dropPending);
-            const result = JSON.parse(response.getContentText());
 
-            if (!result.ok) throw new Error(result.description);
+            if (JSON.parse(response.getContentText()).ok !== true) {
+                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+            }
+
+            // Log response for debugging
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
+
+            const result = JSON.parse(response.getContentText()).result;
 
             return CardService.newActionResponseBuilder()
                 .setNotification(CardService.newNotification().setText("🗑️ Webhook Deleted"))
-                .setNavigation(CardService.newNavigation().updateCard(Plugins.Webhook.HomeCard()))
+                .setNavigation(
+                    CardService.newNavigation()
+                        .updateCard(
+                            Plugins.Webhook.HomeCard(data, result)))
                 .build();
 
         } catch (error) {
+            // Log error for debugging
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'ERROR', e, error.toString(), error.stack);
             return CardService.newActionResponseBuilder()
                 .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                 .build();
