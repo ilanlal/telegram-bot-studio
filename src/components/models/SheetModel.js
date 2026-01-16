@@ -68,12 +68,17 @@ class SheetModel {
         return sheet;
     }
 
-    static dumpObjectToSheet(activeSpreadsheet, sheetName, data) {
+    static dumpObjectToSheet(activeSpreadsheet, sheetName, columns, data) {
         const sheetModel = SheetModel.create(activeSpreadsheet);
-        const sheet = sheetModel.getSheet({ name: sheetName, columns: Object.keys(data) });
+        const sheet = sheetModel.getSheet({ name: sheetName, columns });
 
+        const rowValues = [
+            new Date().toISOString(),  // timestamp
+            JSON.stringify(data),      // row_data
+            ...Object.values(data)    // additional data columns
+        ]
         // append data as a new row
-        sheet.appendRow(Object.values(data));
+        sheet.appendRow(rowValues);
         return sheet;
     }
 

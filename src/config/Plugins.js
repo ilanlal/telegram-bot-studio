@@ -208,9 +208,10 @@ Plugins.ViewModel = {
         const data = e.parameters?.data || '{}';
         const result = JSON.parse(data);
 
+        const columns = ['timestamp', 'row_data', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10'];
         // Dump data to sheet
         SheetModel.dumpObjectToSheet(
-            SpreadsheetApp.getActiveSpreadsheet(), sheetName, result);
+            SpreadsheetApp.getActiveSpreadsheet(), sheetName, columns, result);
 
         // Return action response with notification
         return CardService.newActionResponseBuilder()

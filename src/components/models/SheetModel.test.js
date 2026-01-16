@@ -60,15 +60,21 @@ describe('SheetModel', () => {
                 first_name: 'Test',
                 username: 'testuser'
             };
+            const columns = ['id', 'first_name', 'username'];
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             const sheetName = 'Dumped Data';
-            const sheet = SheetModel.dumpObjectToSheet(activeSpreadsheet, sheetName, data);
+            const sheet = SheetModel.dumpObjectToSheet(activeSpreadsheet, sheetName, columns, data);
             expect(sheet).toBeDefined();
             expect(sheet.getName()).toBe(sheetName);
 
             const dataRange = sheet.getDataRange().getValues();
             expect(dataRange[0]).toEqual(Object.keys(data));
-            expect(dataRange[1]).toEqual(Object.values(data));
+
+            // The second row should contain the values after dumping
+            expect(dataRange.length).toBe(2);
+            expect(dataRange[1][2]).toBe(data.id);
+            expect(dataRange[1][3]).toBe(data.first_name);
+            expect(dataRange[1][4]).toBe(data.username);
         });
     });
 });
