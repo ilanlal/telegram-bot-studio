@@ -71,14 +71,20 @@ class SheetModel {
     static dumpObjectToSheet(activeSpreadsheet, sheetName, columns, data) {
         const sheetModel = SheetModel.create(activeSpreadsheet);
         const sheet = sheetModel.getSheet({ name: sheetName, columns });
-
-        const rowValues = [
+        const values = Object.values(data);
+        values.forEach((val, idx) => {
+            // stringify objects and arrays
+            if (typeof val === 'object') {
+                values[idx] = JSON.stringify(val);
+            }
+        });
+        const row_data = [
             new Date().toISOString(),  // timestamp
             JSON.stringify(data),      // row_data
-            ...Object.values(data)    // additional data columns
+            ...values                  // individual data fields
         ]
         // append data as a new row
-        sheet.appendRow(rowValues);
+        sheet.appendRow(row_data);
         return sheet;
     }
 

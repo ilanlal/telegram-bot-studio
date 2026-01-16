@@ -57,29 +57,31 @@ Plugins.ViewModel = {
 
         // Add decorated text widget
         section.addWidget(
-            CardService.newDecoratedText()
-                .setText('📥 Dump Result to Sheet')
-                .setWrapText(true)
-                .setBottomLabel(`The execution result will be dumped to the "${name}" sheet.`)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('table_chart')))
-                .setButton(
-                    CardService.newTextButton()
-                        .setAltText('Dump Data to Sheet')
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon().setName('table_chart'))
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.ViewModel.OnDumpToSheet')
-                                .setParameters({
-                                    sheetName: name,
-                                    data: JSON.stringify(result)
-                                })
-                        )
-                )
-        );
+            Plugins.ViewModel.BuildDumpToSheetWidget(name, result));
 
         return section;
+    },
+    BuildDumpToSheetWidget: (name = 'Dump', result = {}) => {
+        return CardService.newDecoratedText()
+            .setText('📥 Dump Result to Sheet')
+            .setWrapText(true)
+            .setBottomLabel(`The execution result will be dumped to the "${name}" sheet.`)
+            .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                CardService.newMaterialIcon().setName('table_chart')))
+            .setButton(
+                CardService.newTextButton()
+                    .setAltText('Dump Data to Sheet')
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon().setName('table_chart'))
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('Plugins.ViewModel.OnDumpToSheet')
+                            .setParameters({
+                                sheetName: name,
+                                data: JSON.stringify(result)
+                            })
+                    )
+            );
     },
     BuildResultSectionPlaceholder: () => {
         return CardService.newCardSection()
@@ -92,11 +94,15 @@ Plugins.ViewModel = {
             // add divider
             .addWidget(CardService.newDivider());
     },
-    BuildResultSection: (result = {}) => {
+    BuildResultSection: (result = {}, title = '✅ Execution Result') => {
         const newSection = CardService.newCardSection()
-            .setHeader('✅ Execution Result')
+            .setHeader(title)
             .setCollapsible(true)
             .setNumUncollapsibleWidgets(0);
+
+        // Add dump to sheet widget
+        newSection.addWidget(
+            Plugins.ViewModel.BuildDumpToSheetWidget(title, result));
 
         // Add Preview title
         newSection.addWidget(
@@ -208,7 +214,7 @@ Plugins.ViewModel = {
         const data = e.parameters?.data || '{}';
         const result = JSON.parse(data);
 
-        const columns = ['timestamp', 'row_data', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10'];
+        const columns = ['Timestamp', 'Raw Data'];
         // Dump data to sheet
         SheetModel.dumpObjectToSheet(
             SpreadsheetApp.getActiveSpreadsheet(), sheetName, columns, result);
@@ -1300,11 +1306,7 @@ Plugins.GetMe = {
 
                 cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
 
-                // --- Section: Dump bot info to sheet ---
-                cardBuilder.addSection(
-                    Plugins.ViewModel.BuildDumpToSheetSection('📦 Get Me', result));
-
-                // --- Section: Configuration Shortcuts ---
+                // --- Section: Quick Actions Shortcuts ---
                 const configSection = CardService.newCardSection()
                     .setHeader('🔧 Quick Actions')
                     .setNumUncollapsibleWidgets(0)
@@ -1319,7 +1321,8 @@ Plugins.GetMe = {
                 cardBuilder.addSection(configSection);
 
                 // --- Section: Debug/Raw Data ---
-                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
+                cardBuilder.addSection(
+                    Plugins.ViewModel.BuildResultSection(result));
 
             } catch (error) {
                 TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.HomeCard', 'ERROR', data, error.toString());
@@ -1508,7 +1511,7 @@ Plugins.GetChat = {
             }
         }
 
-        // --- 3. Footer Actions ---
+        // --- Footer Actions ---
         const footer = CardService.newFixedFooter()
             .setPrimaryButton(CardService.newTextButton()
                 .setText('Search Chat')
@@ -1517,20 +1520,8 @@ Plugins.GetChat = {
                     .setFill(false)) // Constraint: setFill(false)
                 .setOnClickAction(CardService.newAction()
                     .setFunctionName('Plugins.GetChat.OnLoad')
+                    .setParameters({ refresh: 'true' })
                     .addRequiredWidget(['txt_search_chat_id'])));
-
-        // Add a "My Info" shortcut if the search field is empty
-        if (!searchId) {
-            footer.setSecondaryButton(CardService.newTextButton()
-                .setText('Load My Bot')
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.GetMe.OnLoad')));
-        }
-        else {
-            // --- Section: Dump bot info to sheet ---
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildDumpToSheetSection('📦 Get Chat', result));
-        }
 
         cardBuilder.setFixedFooter(footer);
 
@@ -1719,10 +1710,6 @@ Plugins.Webhook = {
 
                 configSection.addWidget(buttonSet);
                 cardBuilder.addSection(configSection);
-
-                // --- Section: Dump bot info to sheet ---
-                cardBuilder.addSection(
-                    Plugins.ViewModel.BuildDumpToSheetSection('📦 Get Webhook', result));
 
                 // --- Section: Raw Data (Debug) ---
                 cardBuilder.addSection(Plugins.ViewModel.BuildResultSection(result));
