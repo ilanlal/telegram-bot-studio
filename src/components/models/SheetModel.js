@@ -68,9 +68,8 @@ class SheetModel {
         return sheet;
     }
 
-    static dumpObjectToSheet(activeSpreadsheet, sheetName, columns, data) {
-        const sheetModel = SheetModel.create(activeSpreadsheet);
-        const sheet = sheetModel.getSheet({ name: sheetName, columns });
+    dumpObjectToSheet(sheetMeta = {}, title = '.', data = {}) {
+        const sheet = this.getSheet(sheetMeta);
         const values = Object.values(data);
         values.forEach((val, idx) => {
             // stringify objects and arrays
@@ -80,6 +79,7 @@ class SheetModel {
         });
         const row_data = [
             new Date().toISOString(),  // timestamp
+            title,                     // title
             JSON.stringify(data),      // row_data
             ...values                  // individual data fields
         ]

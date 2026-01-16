@@ -5,6 +5,8 @@ describe('Plugins.GetMe', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
+        // Set the bot token in user properties
+        PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
     });
 
     it('should have required properties', () => {
@@ -20,7 +22,7 @@ describe('Plugins.GetMe', () => {
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
-        
+
         // No notification
         expect(cardData.notification).toBeUndefined();
     });

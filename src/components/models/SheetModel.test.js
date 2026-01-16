@@ -53,28 +53,30 @@ describe('SheetModel', () => {
             expect(values[2]).toEqual(sheetMeta.sample_data[1]);
         });
 
-        // Static dumpObjectToSheet method
+        // dumpObjectToSheet method
         it('should dump object data to the specified sheet', () => {
             const data = {
                 id: 123456,
                 first_name: 'Test',
                 username: 'testuser'
             };
-            const columns = ['id', 'first_name', 'username'];
-            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-            const sheetName = 'Dumped Data';
-            const sheet = SheetModel.dumpObjectToSheet(activeSpreadsheet, sheetName, columns, data);
+            const sheetMeta = {
+                name: 'Dumped Data',
+                columns: ['id', 'first_name', 'username']
+            };
+            const model = SheetModel.create(SpreadsheetApp.getActiveSpreadsheet());
+            const sheet = model.dumpObjectToSheet(sheetMeta, 'Test Title', data);
             expect(sheet).toBeDefined();
-            expect(sheet.getName()).toBe(sheetName);
+            expect(sheet.getName()).toBe(sheetMeta.name);
 
             const dataRange = sheet.getDataRange().getValues();
             expect(dataRange[0]).toEqual(Object.keys(data));
 
             // The second row should contain the values after dumping
             expect(dataRange.length).toBe(2);
-            expect(dataRange[1][2]).toBe(data.id);
-            expect(dataRange[1][3]).toBe(data.first_name);
-            expect(dataRange[1][4]).toBe(data.username);
+            expect(dataRange[1][3]).toBe(data.id);
+            expect(dataRange[1][4]).toBe(data.first_name);
+            expect(dataRange[1][5]).toBe(data.username);
         });
     });
 });
