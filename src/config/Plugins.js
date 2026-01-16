@@ -218,6 +218,17 @@ Plugins.ViewModel = {
                 CardService.newNotification()
                     .setText(`✅ Data dumped to sheet "${sheetName}" successfully.`))
             .build();
+    },
+    // Helper to generate consistent grid items with outlined icons
+    createStatusItem: (label, isEnabled) => {
+        return CardService.newGridItem()
+            .setTitle(label)
+            .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
+            .setTextAlignment(CardService.HorizontalAlignment.START)
+            .setLayout(CardService.GridItemLayout.TEXT_BELOW);
+        // Note: GridItems do not support setMaterialIcon directly in all contexts,
+        // so we rely on the text status. If icons were needed here, 
+        // we would switch to DecoratedText widgets in a Section.
     }
 };
 
@@ -1307,28 +1318,14 @@ Plugins.GetMe = {
             .setTitle('⚙️ Capabilities & Privacy')
             .setNumColumns(2);
 
-        // Helper to generate consistent grid items with outlined icons
-        const createStatusItem = (label, isEnabled) => {
-            return CardService.newGridItem()
-                .setTitle(label)
-                .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
-                .setTextAlignment(CardService.HorizontalAlignment.START)
-                .setLayout(CardService.GridItemLayout.TEXT_BELOW);
-            // Note: GridItems do not support setMaterialIcon directly in all contexts,
-            // so we rely on the text status. If icons were needed here, 
-            // we would switch to DecoratedText widgets in a Section.
-        };
-
-        settingsGrid.addItem(createStatusItem('Join Groups', result.can_join_groups));
-        settingsGrid.addItem(createStatusItem('Read Msgs', result.can_read_all_group_messages));
-        settingsGrid.addItem(createStatusItem('Inline Queries', result.supports_inline_queries));
-        settingsGrid.addItem(createStatusItem('Web App', result.has_main_web_app));
-
         // add other properties dynamically if needed
         Object.keys(result).forEach(key => {
-            if (!['id', 'first_name', 'last_name', 'username', 'can_join_groups', 'can_read_all_group_messages', 'supports_inline_queries', 'has_main_web_app'].includes(key)) {
+            if (!['id', 'username'].includes(key)) {
                 const value = result[key];
-                settingsGrid.addItem(createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                if (typeof value === 'boolean') {
+                    settingsGrid.addItem(
+                        Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                }
             }
         });
 
@@ -1439,7 +1436,7 @@ Plugins.GetChat = {
      * Main Interface Builder
      */
     HomeCard: (data = {}, result = null) => {
-        const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+        // 1. Data Initialization
         const searchId = data.txt_search_chat_id || '';
 
         const cardBuilder = CardService.newCardBuilder()
@@ -1450,7 +1447,7 @@ Plugins.GetChat = {
                 .setImageStyle(CardService.ImageStyle.CIRCLE)
                 .setImageUrl(Plugins.GetChat.imageUrl));
 
-        // --- 1. Search Section (Always Visible) ---
+        // --- Search Section ---
         const searchSection = CardService.newCardSection()
             .setHeader('🔍 Target Selector');
 
@@ -1519,80 +1516,21 @@ Plugins.GetChat = {
 
         cardBuilder.addSection(identitySection);
 
-        // --- Section: Details Dashboard (Bio, Pinned, Links) ---
-        const detailsSection = CardService.newCardSection()
-            .setHeader('ℹ️ Details & Content')
-            .setCollapsible(false);
-
-        // Bio or Description
-        const bio = result.bio || result.description;
-        if (bio) {
-            detailsSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Bio / Description')
-                .setText(bio)
-                .setWrapText(true)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('info')
-                        .setFill(false))));
-        }
-
-        // Pinned Message Indicator
-        if (result.pinned_message) {
-            detailsSection.addWidget(CardService.newDecoratedText()
-                .setText('Has Pinned Message')
-                .setBottomLabel(`ID: ${result.pinned_message.message_id}`)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('push_pin')
-                        .setFill(false))));
-        }
-
-        // Invite Link
-        if (result.invite_link) {
-            detailsSection.addWidget(CardService.newDecoratedText()
-                .setText('Invite Link Available')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('link')
-                        .setFill(false)))
-                .setButton(CardService.newTextButton()
-                    .setText('Copy / Open')
-                    .setOpenLink(CardService.newOpenLink()
-                        .setUrl(result.invite_link))));
-        }
-
-        // Add details section only if we found something to show
-        if (bio || result.pinned_message || result.invite_link) {
-            cardBuilder.addSection(detailsSection);
-        }
-
         const settingsGrid = CardService.newGrid()
             .setTitle('⚙️ Capabilities & Privacy')
             .setNumColumns(2);
 
-        // Helper to generate consistent grid items with outlined icons
-        const createStatusItem = (label, isEnabled) => {
-            return CardService.newGridItem()
-                .setTitle(label)
-                .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
-                .setTextAlignment(CardService.HorizontalAlignment.START)
-                .setLayout(CardService.GridItemLayout.TEXT_BELOW);
-            // Note: GridItems do not support setMaterialIcon directly in all contexts,
-            // so we rely on the text status. If icons were needed here, 
-            // we would switch to DecoratedText widgets in a Section.
-        };
-
-        settingsGrid.addItem(createStatusItem('Can Send Gift', result.can_send_gift));
-        settingsGrid.addItem(createStatusItem('Is Premium', result.accepted_gift_types?.premium_subscription || false));
-
         // add other properties dynamically if needed
         Object.keys(result).forEach(key => {
-            if (!['id', 'description', 'bio', 'first_name', 'last_name', 'username', 'type', 'invite_link', 'pinned_message', 'can_send_gift'].includes(key)) {
+            if (!['id', 'username', 'type', 'invite_link', 'pinned_message'].includes(key)) {
                 const value = result[key];
-                settingsGrid.addItem(createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                if (typeof value === 'boolean') {
+                    settingsGrid.addItem(
+                        Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                }
             }
         });
+
         cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
         // --- Section C: Raw Data (Debug) ---
         cardBuilder.addSection(
