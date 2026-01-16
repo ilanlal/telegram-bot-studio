@@ -795,108 +795,108 @@ Plugins.Connection = {
 
         return statusSection;
     },
+    /**
+     * Main Connection Management Interface
+     */
     HomeCard: (data = {}) => {
-        data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
-        // Build the Home Card for Connection Plugin
-        // Professional Footer with a high-visibility 'Connect' action
-        const newFixedFooter = CardService.newFixedFooter()
-            .setPrimaryButton(
-                CardService.newTextButton()
-                    .setDisabled(!!data.txt_bot_api_token)
-                    .setText('Connect')
-                    .setBackgroundColor(Plugins.secondaryColor())
-                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setMaterialIcon(CardService.newMaterialIcon().setName('check_circle'))
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .addRequiredWidget(['txt_bot_api_token'])
-                            .setFunctionName('Plugins.Connection.OnConnect')))
-            .setSecondaryButton(
-                CardService.newTextButton()
-                    .setAltText('Forget & Disconnect')
-                    .setText('Forget')
-                    .setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName('link_off')
-                            .setFill(false)
-                    )
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('Plugins.Connection.OnDisconnect')));
+        // Fetch Properties
+        const userProps = PropertiesService.getUserProperties();
+        const token = userProps.getProperty('txt_bot_api_token') || '';
+        const isConnected = !!token;
+        const username = userProps.getProperty('txt_bot_username') || 'Unknown';
 
-        // 1. Instruction Section: Visual and Brief
-        const instructionSection = CardService.newCardSection()
-            .addWidget(CardService.newTextParagraph()
-                .setText('To link your Telegram Bot to this Google Sheet, please enter your unique API token below.'))
-            .addWidget(CardService.newDecoratedText()
-                .setText('Secure Connection')
-                .setBottomLabel('Your token is stored locally in your User Properties.')
-                .setStartIcon(
-                    CardService.newIconImage()
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('lock')
-                                .setFill(false).setWeight(300).setGrade(0))));
-
-        // 2. Input Section: Professional Text Field
-        const inputSection = CardService.newCardSection()
-            .setHeader('Bot Authentication')
-            .addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(data.txt_bot_api_token, false))
-            .addWidget(CardService.newTextParagraph()
-                .setText('<font color="#757575"><i>Example: 123456789:ABCDefGh...</i></font>'));
-
-        // 3. Educational Helper Section (Collapsible)
-        const guideSection = CardService.newCardSection()
-            .setHeader('How to get a Token')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(0)
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Step 1')
-                .setText('Message @BotFather on Telegram')
-                .setStartIcon(
-                    CardService.newIconImage()
-                        .setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('chat'))))
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Step 2')
-                .setText('Send /newbot and follow instructions')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('add_circle'))))
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Step 3')
-                .setText('Copy the API Token provided')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('content_copy'))))
-            .addWidget(CardService.newTextButton()
-                .setText('Open @BotFather')
-                .setOpenLink(CardService.newOpenLink().setUrl('https://t.me/BotFather')));
-
+        // 1. Card Header
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.Connection.id + '-Home')
             .setHeader(CardService.newCardHeader()
-                .setTitle('Bot Configuration')
-                .setSubtitle('Establish a secure link with Telegram')
+                .setTitle('Bot Connection Management')
+                .setSubtitle(isConnected ? `Connected: @${username}` : 'Setup Required')
                 .setImageStyle(CardService.ImageStyle.CIRCLE)
-                .setImageUrl(Plugins.WELCOME_IMG_URL))
-            .addSection(instructionSection)
-            .addSection(inputSection)
-            .addSection(guideSection)
-            .setFixedFooter(newFixedFooter);
+                .setImageUrl(Plugins.Connection.imageUrl));
+
+        // 2. Status Section
+        const statusSection = CardService.newCardSection()
+            .setHeader('📡 Connection Status');
+
+        if (isConnected) {
+            statusSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Current State')
+                .setText('✅ Securely Connected')
+                .setBottomLabel('Your bot token is saved and active.')
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('verified_user').setFill(false))) // Constraint 1
+            );
+        } else {
+            statusSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Current State')
+                .setText('❌ Disconnected')
+                .setBottomLabel('Please enter your API token below.')
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('link_off').setFill(false))) // Constraint 1
+            );
+        }
+        cardBuilder.addSection(statusSection);
+
+        // 3. Action Section (Connect vs Disconnect)
+        const actionSection = CardService.newCardSection()
+            .setHeader(isConnected ? '⚙️ Actions' : '🔑 Authentication');
+
+        if (isConnected) {
+            // Disconnect Flow
+            actionSection.addWidget(CardService.newDecoratedText()
+                .setText('Disconnect Bot')
+                .setBottomLabel('Revoke access and clear stored token.')
+                .setButton(CardService.newTextButton()
+                    .setText('Disconnect')
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Connection.OnDisconnect')))
+            );
+        } else {
+            // Connect Flow: Input + Button
+            actionSection.addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(token, false));
+
+            // Help Hint
+            actionSection.addWidget(CardService.newDecoratedText()
+                .setText('Need a Token?')
+                .setBottomLabel('Ask @BotFather on Telegram.')
+                .setButton(CardService.newTextButton()
+                    .setText('Open BotFather')
+                    .setOpenLink(CardService.newOpenLink().setUrl('https://t.me/BotFather')))
+            );
+        }
+        cardBuilder.addSection(actionSection);
+
+        const footer = CardService.newFixedFooter()
+            .setPrimaryButton(CardService.newTextButton()
+                .setText('Verify & Connect')
+                .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                .setBackgroundColor(Plugins.primaryColor())
+                .setOnClickAction(CardService.newAction()
+                    .setFunctionName('Plugins.Connection.OnConnect')
+                    .addRequiredWidget(['txt_bot_api_token'])));
+
+        cardBuilder.setFixedFooter(footer);
 
         return cardBuilder.build();
     },
     OnConnect(e) {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        // extract parameters from event object if needed
-        // txt_bot_api_token
-        const inputToken = Plugins.getFormInputsStringValue(e, 'txt_bot_api_token', '').trim();
-
-        if (!inputToken) {
-            throw new Error('Bot API Token cannot be empty.');
-        }
-
         try {
+            // Log the event for debugging
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet,
+                'Plugins.Connection.OnConnect',
+                'INFO',
+                e,
+                'Attempting to connect with provided Bot API Token.');
+
+            // extract parameters from event object if needed
+            // txt_bot_api_token
+            const inputToken = e?.commonEventObject?.formInputs?.txt_bot_api_token?.stringInputs?.value?.[0] || '';
+
+            if (!inputToken) {
+                throw new Error('Bot API Token cannot be empty.');
+            }
+
             // getme to validate token
             const client = new TelegramBotClient(inputToken);
             const response = client.getMe();
@@ -953,7 +953,7 @@ Plugins.Connection = {
             Plugins.Modules.TerminalOutput.Write(
                 this._activeSpreadsheet,
                 'Plugins.Connection.OnDisconnect',
-                'ERROR', e, error.toString());
+                'ERROR', e, error.toString(), error.stack);
             return this.handleError(error)
                 .build();
         }

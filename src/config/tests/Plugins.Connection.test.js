@@ -65,12 +65,26 @@ describe('Plugins.Connection', () => {
                     }
                 }
             };
+        });
 
-            // should throw error for empty token
-            expect(() => {
-                Plugins.Connection['OnConnect'](event);
-            }).toThrowError('Bot API Token cannot be empty.');
+        // should get notification with error for invalid token
+        it('should handle OnConnect with invalid token', () => {
+            const invalidToken = '';
+            const event = {
+                commonEventObject: {
+                    formInputs: {
+                        'txt_bot_api_token': { stringInputs: { value: [invalidToken] } }
+                    }
+                }
+            };
+            const result = Plugins.Connection['OnConnect'](event);
+            expect(result).toBeDefined();
+            const data = result.getData();
+            expect(data).toBeDefined();
 
+            // Expect notification with error
+            expect(data.notification).toBeDefined();
+            expect(data.notification.text).toContain('Error: Bot API Token cannot be empty.');
         });
 
         // OnDisconnect test
@@ -85,6 +99,6 @@ describe('Plugins.Connection', () => {
             const data = result.getData();
             expect(data).toBeDefined();
         });
-        
+
     });
 });
