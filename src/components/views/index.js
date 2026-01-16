@@ -1,4 +1,4 @@
-const CardViewModel = require('./CardViewModel');
+//const CardViewModel = require('./CardViewModel');
 
 // Expose globally for tests and other scripts
-global.CardViewModel = CardViewModel;
+//global.CardViewModel = CardViewModel;
