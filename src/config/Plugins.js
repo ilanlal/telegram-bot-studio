@@ -1214,20 +1214,21 @@ Plugins.GetMe = {
      */
     OnLoad: (e) => {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        // Log the event for debugging
-        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
-        const data = e?.commonEventObject?.parameters || {};
-
-        // Optional: Check if we are forcing a refresh via parameters
-        const isUpdate = data.update === 'true';
-
-        const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-        if (!input_token) {
-            throw new Error('Bot API Token is not set. Please connect your bot first.');
-        }
-
-        // Logic: Fetch Data if Token Exists
         try {
+            // Log the event for debugging
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
+            const data = e?.commonEventObject?.parameters || {};
+
+            // Optional: Check if we are forcing a refresh via parameters
+            const isUpdate = data.update === 'true';
+
+            const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+            if (!input_token) {
+                throw new Error('Bot API Token is not set. Please connect your bot first.');
+            }
+
+            // Logic: Fetch Data if Token Exists
+
             const telegramBotClient = new TelegramBotClient(input_token);
             // 1. API Call: getMe
             const response = telegramBotClient.getMe();
@@ -1555,11 +1556,13 @@ Plugins.Webhook = {
     OnLoad: (e) => {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         const data = e?.commonEventObject?.parameters || {};
-        const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-        const isUpdate = data.update === 'true';
+
         try {
             // Log start of execution
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'INFO', e, 'Loading Webhook Manager');
+
+            const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+            const isUpdate = data.update === 'true';
 
             if (!input_token) {
                 throw new Error('Bot API Token is not set. Please connect your bot first.');
@@ -1828,10 +1831,11 @@ Plugins.Webhook = {
      */
     OnDeleteWebhook: (e) => {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        const data = e?.commonEventObject?.parameters || {};
-        // Log start of execution
-        TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
         try {
+            const data = e?.commonEventObject?.parameters || {};
+            // Log start of execution
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
+
             const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
             const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
 
