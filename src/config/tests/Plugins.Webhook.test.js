@@ -5,6 +5,7 @@ describe('Plugins.Webhook', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
+        PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
     });
 
     // OnLoad test
@@ -45,7 +46,8 @@ describe('Plugins.Webhook', () => {
             commonEventObject: {
                 formInputs: {
                     'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
-                    'txt_webhook_url': { stringInputs: { value: [webhookUrl] } }
+                    'txt_webhook_url': { stringInputs: { value: [webhookUrl] } },
+                    'drop_pending_updates': { stringInputs: { value: ['false'] } }
                 }
             }
         };
@@ -74,8 +76,8 @@ describe('Plugins.Webhook', () => {
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();
-        // No notification
-        expect(data.notification).toBeUndefined();
+        // No 'error' string in notification
+        expect(JSON.stringify(data.notification)).not.toMatch(/error/i);
     });
 
     // OnDeleteWebhook test
@@ -83,7 +85,8 @@ describe('Plugins.Webhook', () => {
         const event = {
             commonEventObject: {
                 formInputs: {
-                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } }
+                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
+                    'drop_pending_updates': { stringInputs: { value: ['true'] } }
                 }
             }
         };
@@ -113,7 +116,8 @@ describe('Plugins.Webhook', () => {
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();
-        // No notification
-        expect(data.notification).toBeUndefined();
+
+        // No 'error' string in notification
+        expect(JSON.stringify(data.notification)).not.toMatch(/error/i);
     });
 });

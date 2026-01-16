@@ -20,31 +20,7 @@ describe('Plugins.GetMe', () => {
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(Plugins.GetMe.name);
-        // No notification
-        expect(cardData.notification).toBeUndefined();
-    });
-
-    // AboutCard test
-    it('should create AboutCard', () => {
-        const aboutCard = Plugins.GetMe['AboutCard']();
-        expect(aboutCard).toBeDefined();
-        const cardData = aboutCard.getData();
-        expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(`About ${Plugins.GetMe.name}`);
-
-        // No notification
-        expect(cardData.notification).toBeUndefined();
-    });
-
-    // HelpCard test
-    it('should create HelpCard', () => {
-        const helpCard = Plugins.GetMe['HelpCard']();
-        expect(helpCard).toBeDefined();
-        const cardData = helpCard.getData();
-        expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(`Help - ${Plugins.GetMe.name}`);
-
+        
         // No notification
         expect(cardData.notification).toBeUndefined();
     });

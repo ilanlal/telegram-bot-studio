@@ -64,7 +64,16 @@ class SheetModel {
         // set the merged values back to the sheet
         sheet.getRange(1, 1, mergedValues.length, mergedValues[0].length)
             .setValues(mergedValues);
-            
+
+        return sheet;
+    }
+
+    static dumpObjectToSheet(activeSpreadsheet, sheetName, data) {
+        const sheetModel = SheetModel.create(activeSpreadsheet);
+        const sheet = sheetModel.getSheet({ name: sheetName, columns: Object.keys(data) });
+
+        // append data as a new row
+        sheet.appendRow(Object.values(data));
         return sheet;
     }
 

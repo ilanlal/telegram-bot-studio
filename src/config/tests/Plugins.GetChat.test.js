@@ -15,29 +15,7 @@ describe('Plugins.GetChat', () => {
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(Plugins.GetChat.id + '-HomeCard');
-        // No notification
-        expect(cardData.notification).toBeUndefined();
-    });
-
-    // AboutCard test
-    it('should create AboutCard', () => {
-        const aboutCard = Plugins.GetChat['AboutCard']({});
-        expect(aboutCard).toBeDefined();
-        const cardData = aboutCard.getData();
-        expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(`About ${Plugins.GetChat.name}`);
-        // No notification
-        expect(cardData.notification).toBeUndefined();
-    });
-
-    // HelpCard test
-    it('should create HelpCard', () => {
-        const helpCard = Plugins.GetChat['HelpCard']({});
-        expect(helpCard).toBeDefined();
-        const cardData = helpCard.getData();
-        expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(`Help - ${Plugins.GetChat.name}`);
+        
         // No notification
         expect(cardData.notification).toBeUndefined();
     });

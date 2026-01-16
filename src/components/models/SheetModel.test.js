@@ -17,11 +17,8 @@ describe('SheetModel', () => {
 
     describe('SheetModel methods', () => {
         /** @type {SheetModel} */
-        let model;
+
         beforeEach(() => {
-            model = SheetModel.create(
-                SpreadsheetApp.getActiveSpreadsheet()
-            );
         });
 
         it('should get the active sheet based on sheetMeta', () => {
@@ -29,6 +26,7 @@ describe('SheetModel', () => {
                 name: 'Test Sheet',
                 columns: ['action', 'default', 'es', 'fr', 'ar', 'de', 'it', 'pt', 'ru', 'zh', 'ja', 'ko', 'he'],
             };
+            const model = SheetModel.create(SpreadsheetApp.getActiveSpreadsheet());
             const activeSheet = model.getSheet(sheetMeta);
             expect(activeSheet).toBeDefined();
             expect(activeSheet.getName()).toBe('Test Sheet');
@@ -44,6 +42,7 @@ describe('SheetModel', () => {
                     ['action2', 'default2', 'es2', 'fr2', 'ar2', 'de2', 'it2', 'pt2', 'ru2', 'zh2', 'ja2', 'ko2', 'he2'],
                 ]
             };
+            const model = SheetModel.create(SpreadsheetApp.getActiveSpreadsheet());
             model.bindSheetSampleData(sheetMeta);
             const activeSheet = model.getSheet(sheetMeta);
             const dataRange = activeSheet.getDataRange();
@@ -52,6 +51,24 @@ describe('SheetModel', () => {
             expect(values[0]).toEqual(sheetMeta.columns);
             expect(values[1]).toEqual(sheetMeta.sample_data[0]);
             expect(values[2]).toEqual(sheetMeta.sample_data[1]);
+        });
+
+        // Static dumpObjectToSheet method
+        it('should dump object data to the specified sheet', () => {
+            const data = {
+                id: 123456,
+                first_name: 'Test',
+                username: 'testuser'
+            };
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            const sheetName = 'Dumped Data';
+            const sheet = SheetModel.dumpObjectToSheet(activeSpreadsheet, sheetName, data);
+            expect(sheet).toBeDefined();
+            expect(sheet.getName()).toBe(sheetName);
+
+            const dataRange = sheet.getDataRange().getValues();
+            expect(dataRange[0]).toEqual(Object.keys(data));
+            expect(dataRange[1]).toEqual(Object.values(data));
         });
     });
 });
