@@ -104,13 +104,14 @@ Plugins.ViewModel = {
         newSection.addWidget(CardService.newDivider());
 
         // Add each property from result to the section as decorated text
-        Object.keys(result).forEach((key) => {
-            newSection.addWidget(
-                CardService.newDecoratedText()
-                    .setText(key + ":")
-                    .setWrapText(true)
-                    .setBottomLabel(JSON.stringify(result[key])));
-        });
+        Object.keys(result)
+            .forEach((key) => {
+                newSection.addWidget(
+                    CardService.newDecoratedText()
+                        .setText(key + ":")
+                        .setWrapText(true)
+                        .setBottomLabel(JSON.stringify(result[key])));
+            });
 
         // Raw JSON view
         // Add divider
@@ -1201,10 +1202,12 @@ Plugins.GetMe = {
      * Entry point for the Get Me plugin
      */
     OnLoad: (e) => {
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        // Log the event for debugging
+        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
         const data = e?.commonEventObject?.parameters || {};
 
         // Optional: Check if we are forcing a refresh via parameters
-        const isRefresh = data.refresh === 'true';
         const isUpdate = data.update === 'true';
 
         const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
@@ -1213,49 +1216,56 @@ Plugins.GetMe = {
         }
 
         // Logic: Fetch Data if Token Exists
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        const telegramBotClient = new TelegramBotClient(input_token);
-        // 1. API Call: getMe
-        const response = telegramBotClient.getMe();
+        try {
+            const telegramBotClient = new TelegramBotClient(input_token);
+            // 1. API Call: getMe
+            const response = telegramBotClient.getMe();
 
-        // Check for errors in response
-        if (JSON.parse(response.getContentText()).ok !== true) {
-            throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+            // Log the raw response for debugging
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
+
+            // Check for errors in response
+            if (JSON.parse(response.getContentText()).ok !== true) {
+                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+            }
+
+            // Parse the result
+            const result = JSON.parse(response.getContentText()).result;
+
+            // 2. Navigation Handling
+            let navigation = CardService.newNavigation();
+
+            if (isUpdate) {
+                // Update the existing card in place
+                navigation.updateCard(
+                    Plugins.GetMe.HomeCard(data, result));
+            } else {
+                // Push a new card onto the stack
+                navigation.pushCard(
+                    Plugins.GetMe.HomeCard(data, result));
+            }
+
+            return CardService.newActionResponseBuilder()
+                .setNavigation(navigation)
+                .build();
         }
-
-        // Parse the result
-        const result = JSON.parse(response.getContentText()).result;
-
-        // 2. Navigation Handling
-        let navigation = CardService.newNavigation();
-
-        if (isUpdate || isRefresh) {
-            // Update the existing card in place
-            navigation.updateCard(
-                Plugins.GetMe.HomeCard(data, result, isRefresh));
-        } else {
-            // Push a new card onto the stack
-            navigation.pushCard(
-                Plugins.GetMe.HomeCard(data, result, isRefresh));
+        catch (error) {
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', data, error.toString());
+            // Return notification of error
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(
+                            error.toString()))
+                .build();
         }
-
-        return CardService.newActionResponseBuilder()
-            .setNavigation(navigation)
-            .build();
     },
 
     /**
      * Builds the main interface card
      */
-    HomeCard: (data = {}, result = {}, forceRefresh = false) => {
+    HomeCard: (data = {}, result = {}) => {
         // 1. Data Initialization
-        const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-
-        // Log start of execution
-        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.HomeCard', 'Start', data, `Loading Bot Info (Token present: ${!!input_token})`);
-
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.GetMe.id + '-Home')
             .setHeader(CardService.newCardHeader()
@@ -1265,74 +1275,69 @@ Plugins.GetMe = {
                 .setImageUrl(Plugins.GetMe.imageUrl));
 
         // 1. Main Section: Bot Identity & Capabilities
-        try {
-            // --- Section A: Identity Profile ---
-            const profileSection = CardService.newCardSection()
-                .setHeader('🤖 Identity Profile');
+        // --- Section A: Identity Profile ---
+        const profileSection = CardService.newCardSection()
+            .setHeader('🤖 Identity Profile');
 
-            // Display Name & ID
-            profileSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Display Name')
-                .setText(`<b>${result.first_name}${result.last_name ? ' ' + result.last_name : ''}</b>`)
-                .setBottomLabel(`Bot ID: ${result.id}`)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('badge').setFill(false)))
-                .setWrapText(true));
+        // Display Name & ID
+        profileSection.addWidget(CardService.newDecoratedText()
+            .setTopLabel('Display Name')
+            .setText(`<b>${result.first_name}${result.last_name ? ' ' + result.last_name : ''}</b>`)
+            .setBottomLabel(`Bot ID: ${result.id}`)
+            .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                CardService.newMaterialIcon().setName('badge').setFill(false)))
+            .setWrapText(true));
 
-            // Username & Link
-            profileSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Username')
-                .setText(`@${result.username}`)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('alternate_email').setFill(false)))
-                .setButton(CardService.newTextButton()
-                    .setText('Open Chat')
-                    .setOpenLink(CardService.newOpenLink()
-                        .setUrl(`https://t.me/${result.username}`))));
+        // Username & Link
+        profileSection.addWidget(CardService.newDecoratedText()
+            .setTopLabel('Username')
+            .setText(`@${result.username}`)
+            .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                CardService.newMaterialIcon().setName('alternate_email').setFill(false)))
+            .setButton(CardService.newTextButton()
+                .setText('Open Chat')
+                .setOpenLink(CardService.newOpenLink()
+                    .setUrl(`https://t.me/${result.username}`))));
 
-            cardBuilder.addSection(profileSection);
+        cardBuilder.addSection(profileSection);
 
-            // --- Section B: Capabilities (Grid Layout) ---
-            // Shows what the bot is allowed to do based on BotFather settings
-            const settingsGrid = CardService.newGrid()
-                .setTitle('⚙️ Capabilities & Privacy')
-                .setNumColumns(2);
+        // --- Section B: Capabilities (Grid Layout) ---
+        // Shows what the bot is allowed to do based on BotFather settings
+        const settingsGrid = CardService.newGrid()
+            .setTitle('⚙️ Capabilities & Privacy')
+            .setNumColumns(2);
 
-            // Helper to generate consistent grid items with outlined icons
-            const createStatusItem = (label, isEnabled) => {
-                return CardService.newGridItem()
-                    .setTitle(label)
-                    .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
-                    .setTextAlignment(CardService.HorizontalAlignment.START)
-                    .setLayout(CardService.GridItemLayout.TEXT_BELOW);
-                // Note: GridItems do not support setMaterialIcon directly in all contexts,
-                // so we rely on the text status. If icons were needed here, 
-                // we would switch to DecoratedText widgets in a Section.
-            };
+        // Helper to generate consistent grid items with outlined icons
+        const createStatusItem = (label, isEnabled) => {
+            return CardService.newGridItem()
+                .setTitle(label)
+                .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
+                .setTextAlignment(CardService.HorizontalAlignment.START)
+                .setLayout(CardService.GridItemLayout.TEXT_BELOW);
+            // Note: GridItems do not support setMaterialIcon directly in all contexts,
+            // so we rely on the text status. If icons were needed here, 
+            // we would switch to DecoratedText widgets in a Section.
+        };
 
-            settingsGrid.addItem(createStatusItem('Join Groups', result.can_join_groups));
-            settingsGrid.addItem(createStatusItem('Read Msgs', result.can_read_all_group_messages));
-            settingsGrid.addItem(createStatusItem('Inline Queries', result.supports_inline_queries));
-            settingsGrid.addItem(createStatusItem('Web App', result.has_main_web_app));
+        settingsGrid.addItem(createStatusItem('Join Groups', result.can_join_groups));
+        settingsGrid.addItem(createStatusItem('Read Msgs', result.can_read_all_group_messages));
+        settingsGrid.addItem(createStatusItem('Inline Queries', result.supports_inline_queries));
+        settingsGrid.addItem(createStatusItem('Web App', result.has_main_web_app));
 
-            // add other properties dynamically if needed
-            Object.keys(result).forEach(key => {
-                if (!['id', 'first_name', 'last_name', 'username', 'can_join_groups', 'can_read_all_group_messages', 'supports_inline_queries', 'has_main_web_app'].includes(key)) {
-                    const value = result[key];
-                    settingsGrid.addItem(createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
-                }
-            });
+        // add other properties dynamically if needed
+        Object.keys(result).forEach(key => {
+            if (!['id', 'first_name', 'last_name', 'username', 'can_join_groups', 'can_read_all_group_messages', 'supports_inline_queries', 'has_main_web_app'].includes(key)) {
+                const value = result[key];
+                settingsGrid.addItem(createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+            }
+        });
 
-            cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
+        cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
 
-            // --- Section: Debug/Raw Data ---
-            cardBuilder.addSection(
-                Plugins.ViewModel.BuildResultSection('getMe', result));
+        // --- Section: Debug/Raw Data ---
+        cardBuilder.addSection(
+            Plugins.ViewModel.BuildResultSection('getMe', result));
 
-        } catch (error) {
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.HomeCard', 'ERROR', data, error.toString());
-            cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error));
-        }
 
         // 2. Footer: Refresh Action
         const footer = CardService.newFixedFooter()
@@ -1362,14 +1367,72 @@ Plugins.GetChat = {
      * Entry Point
      */
     OnLoad: (e) => {
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        // Log start of execution
+        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
+
         const data = e?.commonEventObject?.parameters || {};
+        const isUpdate = data.update === 'true';
+        const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+        if (!input_token) {
+            throw new Error('Bot API Token is not set. Please connect your bot first.');
+        }
 
         // Extract Chat ID from form inputs if available (user clicked Search)
         // or fall back to parameters/properties
-        const formChatId = e?.commonEventObject?.formInputs?.txt_search_chat_id?.stringInputs?.value?.[0];
-        if (formChatId) data.txt_search_chat_id = formChatId;
+        const searchChatId = e?.commonEventObject?.formInputs?.txt_search_chat_id?.stringInputs?.value?.[0] || '';
+        if (searchChatId) {
+            data.txt_search_chat_id = searchChatId;
+            try {
+                // 1. API Call: getChat
+                const client = new TelegramBotClient(input_token);
+                // API Call: getChat
+                const response = client.getChat(searchChatId);
 
-        return Plugins.GetChat.HomeCard(data);
+                // Log response for debugging
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
+
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`Telegram API Error: ${response.getContentText()}`);
+                }
+                const result = JSON.parse(response.getContentText()).result;
+
+                // 2. Navigation Handling
+                let navigation = CardService.newNavigation();
+
+                if (isUpdate) {
+                    // Update the existing card in place
+                    navigation.updateCard(
+                        Plugins.GetChat.HomeCard(data, result));
+                }
+                else {
+                    // Push a new card onto the stack
+                    navigation.pushCard(
+                        Plugins.GetChat.HomeCard(data, result));
+                }
+
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(navigation)
+                    .build();
+            } catch (error) {
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', data, error.toString());
+
+                // Return notification of error
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(
+                                error.toString()))
+                    .build();
+            }
+        }
+
+        // No search ID provided, just show the Home Card
+        return CardService.newActionResponseBuilder()
+            .setNavigation(
+                CardService.newNavigation().pushCard(
+                    Plugins.GetChat.HomeCard(data, null)))
+            .build();
     },
 
     /**
@@ -1377,11 +1440,7 @@ Plugins.GetChat = {
      */
     HomeCard: (data = {}, result = null) => {
         const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         const searchId = data.txt_search_chat_id || '';
-
-        // Logging
-        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.HomeCard', 'Start', data, `Init Chat Inspector. Search ID: ${searchId}`);
 
         const cardBuilder = CardService.newCardBuilder()
             .setName(Plugins.GetChat.id + '-Home')
@@ -1403,115 +1462,6 @@ Plugins.GetChat = {
 
         cardBuilder.addSection(searchSection);
 
-        // --- 2. Fetch & Display Logic ---
-        if (token && searchId) {
-            try {
-                if (!result) {
-                    const client = new TelegramBotClient(token);
-                    // API Call: getChat
-                    const response = client.getChat(searchId);
-
-                    if (response.getResponseCode() !== 200) {
-                        throw new Error(`Telegram API Error: ${response.getContentText()}`);
-                    }
-                    result = JSON.parse(response.getContentText()).result;
-                }
-
-                // --- Section A: Identity Header ---
-                // Determine icon based on chat type
-                let typeIcon = 'help_outline'; // default
-                if (result.type === 'private') typeIcon = 'person';
-                else if (result.type === 'channel') typeIcon = 'campaign'; // broadcast
-                else if (result.type.includes('group')) typeIcon = 'groups';
-
-                // Determine Display Title (User vs Chat)
-                const title = result.title || `${result.first_name} ${result.last_name || ''}`.trim();
-
-                const identitySection = CardService.newCardSection()
-                    .setHeader('📋 Result Profile');
-
-                identitySection.addWidget(CardService.newDecoratedText()
-                    .setTopLabel(result.type.toUpperCase())
-                    .setText(`<b>${title}</b>`)
-                    .setBottomLabel(`ID: ${result.id}`)
-                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon()
-                            .setName(typeIcon)
-                            .setFill(false))) // Constraint: setFill(false)
-                    .setWrapText(true));
-
-                if (result.username) {
-                    identitySection.addWidget(CardService.newDecoratedText()
-                        .setText(`@${result.username}`)
-                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('alternate_email')
-                                .setFill(false)))
-                        .setButton(CardService.newTextButton()
-                            .setText('Open')
-                            .setOpenLink(CardService.newOpenLink()
-                                .setUrl(`https://t.me/${result.username}`))));
-                }
-
-                cardBuilder.addSection(identitySection);
-
-                // --- Section B: Details Dashboard (Bio, Pinned, Links) ---
-                const detailsSection = CardService.newCardSection()
-                    .setHeader('ℹ️ Details & Content')
-                    .setCollapsible(false);
-
-                // Bio or Description
-                const bio = result.bio || result.description;
-                if (bio) {
-                    detailsSection.addWidget(CardService.newDecoratedText()
-                        .setTopLabel('Bio / Description')
-                        .setText(bio)
-                        .setWrapText(true)
-                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('info')
-                                .setFill(false))));
-                }
-
-                // Pinned Message Indicator
-                if (result.pinned_message) {
-                    detailsSection.addWidget(CardService.newDecoratedText()
-                        .setText('Has Pinned Message')
-                        .setBottomLabel(`ID: ${result.pinned_message.message_id}`)
-                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('push_pin')
-                                .setFill(false))));
-                }
-
-                // Invite Link
-                if (result.invite_link) {
-                    detailsSection.addWidget(CardService.newDecoratedText()
-                        .setText('Invite Link Available')
-                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon()
-                                .setName('link')
-                                .setFill(false)))
-                        .setButton(CardService.newTextButton()
-                            .setText('Copy / Open')
-                            .setOpenLink(CardService.newOpenLink()
-                                .setUrl(result.invite_link))));
-                }
-
-                // Add details section only if we found something to show
-                if (bio || result.pinned_message || result.invite_link) {
-                    cardBuilder.addSection(detailsSection);
-                }
-
-                // --- Section C: Raw Data (Debug) ---
-                cardBuilder.addSection(Plugins.ViewModel.BuildResultSection('getChat', result));
-
-            } catch (error) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.HomeCard', 'ERROR', data, error.toString());
-                cardBuilder.addSection(Plugins.ViewModel.BuildErrorSection(error));
-            }
-        }
-
         // --- Footer Actions ---
         const footer = CardService.newFixedFooter()
             .setPrimaryButton(CardService.newTextButton()
@@ -1521,10 +1471,132 @@ Plugins.GetChat = {
                     .setFill(false)) // Constraint: setFill(false)
                 .setOnClickAction(CardService.newAction()
                     .setFunctionName('Plugins.GetChat.OnLoad')
-                    .setParameters({ refresh: 'true' })
+                    .setParameters({ update: 'true' })
                     .addRequiredWidget(['txt_search_chat_id'])));
 
         cardBuilder.setFixedFooter(footer);
+
+        // ---  ---
+        if (!result) {
+            return cardBuilder.build();
+        }
+
+        // --- Section A: Identity Header ---
+        // Determine icon based on chat type
+        let typeIcon = 'help_outline'; // default
+        if (result.type === 'private') typeIcon = 'person';
+        else if (result.type === 'channel') typeIcon = 'campaign'; // broadcast
+        else if (result.type.includes('group')) typeIcon = 'groups';
+
+        // Determine Display Title (User vs Chat)
+        const title = result.title || `${result.first_name} ${result.last_name || ''}`.trim();
+
+        const identitySection = CardService.newCardSection()
+            .setHeader('📋 Result Profile');
+
+        identitySection.addWidget(CardService.newDecoratedText()
+            .setTopLabel(result.type.toUpperCase())
+            .setText(`<b>${title}</b>`)
+            .setBottomLabel(`ID: ${result.id}`)
+            .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                CardService.newMaterialIcon()
+                    .setName(typeIcon)
+                    .setFill(false))) // Constraint: setFill(false)
+            .setWrapText(true));
+
+        if (result.username) {
+            identitySection.addWidget(CardService.newDecoratedText()
+                .setText(`@${result.username}`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('alternate_email')
+                        .setFill(false)))
+                .setButton(CardService.newTextButton()
+                    .setText('Open')
+                    .setOpenLink(CardService.newOpenLink()
+                        .setUrl(`https://t.me/${result.username}`))));
+        }
+
+        cardBuilder.addSection(identitySection);
+
+        // --- Section: Details Dashboard (Bio, Pinned, Links) ---
+        const detailsSection = CardService.newCardSection()
+            .setHeader('ℹ️ Details & Content')
+            .setCollapsible(false);
+
+        // Bio or Description
+        const bio = result.bio || result.description;
+        if (bio) {
+            detailsSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Bio / Description')
+                .setText(bio)
+                .setWrapText(true)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('info')
+                        .setFill(false))));
+        }
+
+        // Pinned Message Indicator
+        if (result.pinned_message) {
+            detailsSection.addWidget(CardService.newDecoratedText()
+                .setText('Has Pinned Message')
+                .setBottomLabel(`ID: ${result.pinned_message.message_id}`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('push_pin')
+                        .setFill(false))));
+        }
+
+        // Invite Link
+        if (result.invite_link) {
+            detailsSection.addWidget(CardService.newDecoratedText()
+                .setText('Invite Link Available')
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName('link')
+                        .setFill(false)))
+                .setButton(CardService.newTextButton()
+                    .setText('Copy / Open')
+                    .setOpenLink(CardService.newOpenLink()
+                        .setUrl(result.invite_link))));
+        }
+
+        // Add details section only if we found something to show
+        if (bio || result.pinned_message || result.invite_link) {
+            cardBuilder.addSection(detailsSection);
+        }
+
+        const settingsGrid = CardService.newGrid()
+            .setTitle('⚙️ Capabilities & Privacy')
+            .setNumColumns(2);
+
+        // Helper to generate consistent grid items with outlined icons
+        const createStatusItem = (label, isEnabled) => {
+            return CardService.newGridItem()
+                .setTitle(label)
+                .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
+                .setTextAlignment(CardService.HorizontalAlignment.START)
+                .setLayout(CardService.GridItemLayout.TEXT_BELOW);
+            // Note: GridItems do not support setMaterialIcon directly in all contexts,
+            // so we rely on the text status. If icons were needed here, 
+            // we would switch to DecoratedText widgets in a Section.
+        };
+
+        settingsGrid.addItem(createStatusItem('Can Send Gift', result.can_send_gift));
+        settingsGrid.addItem(createStatusItem('Is Premium', result.accepted_gift_types?.premium_subscription || false));
+
+        // add other properties dynamically if needed
+        Object.keys(result).forEach(key => {
+            if (!['id', 'description', 'bio', 'first_name', 'last_name', 'username', 'type', 'invite_link', 'pinned_message', 'can_send_gift'].includes(key)) {
+                const value = result[key];
+                settingsGrid.addItem(createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+            }
+        });
+        cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
+        // --- Section C: Raw Data (Debug) ---
+        cardBuilder.addSection(
+            Plugins.ViewModel.BuildResultSection('getChat', result));
 
         return cardBuilder.build();
     }

@@ -15,14 +15,15 @@ describe('Plugins.GetChat', () => {
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
-        
+
         // No notification
         expect(cardData.notification).toBeUndefined();
     });
 
     // OnLoad test
     it('should handle OnLoad', () => {
-    const chatId = '123456789';
+        PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
+        const chatId = '123456789';
         const event = {
             commonEventObject: {
                 formInputs: {
