@@ -45,6 +45,114 @@ Plugins.BLINK_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-
 Plugins.LOGO_PNG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/240x240.png';
 Plugins.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-studio';
 
+Plugins.Modules = {
+    Sheet: class {
+        static INVALID_MODEL_ERROR() {
+            return 'Sheet model must have a valid name property';
+        }
+
+        static create(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet()) {
+            return new Plugins.Modules.Sheet(activeSpreadsheet);
+        }
+
+        constructor(activeSpreadsheet) {
+            this._activeSpreadsheet = activeSpreadsheet;
+            this._columns = [];
+            this._sheetName = null;
+            this._sheet = null;
+        }
+
+        initializeSheet(sheetMeta = {}) {
+            if (!sheetMeta.name) {
+                throw new Error(Plugins.Modules.Sheet.INVALID_MODEL_ERROR());
+            }
+            this._sheetName = sheetMeta.name;
+            this._columns = sheetMeta.columns || [];
+            let sheet = this._activeSpreadsheet.getSheetByName(this._sheetName);
+            if (!sheet) {
+                sheet = this._activeSpreadsheet.insertSheet(this._sheetName);
+
+                if (this._columns.length > 0) {
+                    sheet.appendRow(this._columns);
+                }
+            }
+            this._sheet = sheet;
+            return sheet;
+        }
+
+        setActiveSheet(sheetMeta = {}) {
+            return this._activeSpreadsheet
+                .setActiveSheet(this.getSheet(sheetMeta));
+        }
+
+        getSheet(sheetMeta = {}) {
+            return this._sheet = this.initializeSheet(sheetMeta);
+        }
+
+        bindSheetSampleData(sheetMeta = {}) {
+            const sampleData = sheetMeta.sample_data || [];
+            if (sampleData.length === 0) {
+                return;
+            }
+
+            const sheet = this.getSheet(sheetMeta);
+            const existingValues = sheet.getDataRange().getValues() || [];
+
+            // merge existing values with sample data (existing values first)
+            const mergedValues = existingValues.concat(sampleData);
+
+            // pad rows to match columns length
+            const columnsLength = this._columns.length;
+            for (let row = 0; row < mergedValues.length; row++) {
+                while (mergedValues[row].length < columnsLength) {
+                    mergedValues[row].push('');
+                }
+            }
+
+            // set the merged values back to the sheet
+            sheet.getRange(1, 1, mergedValues.length, mergedValues[0].length)
+                .setValues(mergedValues);
+
+            return sheet;
+        }
+
+        dumpObjectToSheet(sheetMeta = {}, title = '.', data = {}) {
+            const sheet = this.getSheet(sheetMeta);
+            const values = Object.values(data);
+            values.forEach((val, idx) => {
+                // stringify objects and arrays
+                if (typeof val === 'object') {
+                    values[idx] = JSON.stringify(val);
+                }
+            });
+            const row_data = [
+                new Date().toISOString(),  // timestamp
+                title,                     // title
+                JSON.stringify(data),      // row_data
+                ...values                  // individual data fields
+            ]
+            // append data as a new row
+            sheet.appendRow(row_data);
+            return sheet;
+        }
+
+        get columns() {
+            return this._columns;
+        }
+
+        get sheet() {
+            return this._sheet;
+        }
+
+        get activeSpreadsheet() {
+            return this._activeSpreadsheet;
+        }
+        get sheetName() {
+            return this._sheetName;
+        }
+    }
+};
+
 Plugins.ViewModel = {
     id: 'AppModelPlugin',
     name: 'Telegram Bot Studio',
@@ -206,7 +314,7 @@ Plugins.ViewModel = {
         const data = e.parameters?.data || '{}';
         const result = JSON.parse(data);
         // Create SheetModel instance
-        const sheetModel = SheetModel.create(SpreadsheetApp.getActiveSpreadsheet());
+        const sheetModel = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
         const columns = ['timestamp', 'title', 'data'];
         // Dump data to sheet
         sheetModel.dumpObjectToSheet(
