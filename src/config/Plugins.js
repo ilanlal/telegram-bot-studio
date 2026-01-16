@@ -1365,33 +1365,35 @@ Plugins.GetChat = {
      */
     OnLoad: (e) => {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        // Log start of execution
-        TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
+        try {
+            // Log start of execution
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
 
-        const data = e?.commonEventObject?.parameters || {};
-        const isUpdate = data.update === 'true';
-        const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-        if (!input_token) {
-            throw new Error('Bot API Token is not set. Please connect your bot first.');
-        }
+            const data = e?.commonEventObject?.parameters || {};
+            const isUpdate = data.update === 'true';
+            const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+            if (!input_token) {
+                throw new Error('Bot API Token is not set. Please connect your bot first.');
+            }
 
-        // Extract Chat ID from form inputs if available (user clicked Search)
-        // or fall back to parameters/properties
-        const searchChatId = e?.commonEventObject?.formInputs?.txt_search_chat_id?.stringInputs?.value?.[0] || '';
-        if (searchChatId) {
-            data.txt_search_chat_id = searchChatId;
-            try {
+            // Extract Chat ID from form inputs if available (user clicked Search)
+            // or fall back to parameters/properties
+            const searchChatId = e?.commonEventObject?.formInputs?.txt_search_chat_id?.stringInputs?.value?.[0] || '';
+            if (searchChatId) {
+                data.txt_search_chat_id = searchChatId;
+
                 // 1. API Call: getChat
                 const client = new TelegramBotClient(input_token);
                 // API Call: getChat
                 const response = client.getChat(searchChatId);
 
-                // Log response for debugging
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
-
                 if (JSON.parse(response.getContentText()).ok !== true) {
                     throw new Error(`Telegram API Error: ${response.getContentText()}`);
                 }
+
+                // Log response for debugging
+                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
+
                 const result = JSON.parse(response.getContentText()).result;
 
                 // 2. Navigation Handling
@@ -1411,25 +1413,25 @@ Plugins.GetChat = {
                 return CardService.newActionResponseBuilder()
                     .setNavigation(navigation)
                     .build();
-            } catch (error) {
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', data, error.toString());
-
-                // Return notification of error
-                return CardService.newActionResponseBuilder()
-                    .setNotification(
-                        CardService.newNotification()
-                            .setText(
-                                error.toString()))
-                    .build();
             }
-        }
 
-        // No search ID provided, just show the Home Card
-        return CardService.newActionResponseBuilder()
-            .setNavigation(
-                CardService.newNavigation().pushCard(
-                    Plugins.GetChat.HomeCard(data, null)))
-            .build();
+            // No search ID provided, just show the Home Card
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation().pushCard(
+                        Plugins.GetChat.HomeCard(data, null)))
+                .build();
+        } catch (error) {
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', data, error.toString());
+
+            // Return notification of error
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(
+                            error.toString()))
+                .build();
+        }
     },
 
     /**
@@ -1811,8 +1813,7 @@ Plugins.Webhook = {
             // Log response for debugging
 
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
-
-            return Plugins.Webhook.OnLoad(e);
+            return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
         } catch (error) {
             // Log error for debugging
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'ERROR', e, error.toString(), error.stack);
@@ -1845,9 +1846,7 @@ Plugins.Webhook = {
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
 
             const result = JSON.parse(response.getContentText()).result;
-
-            return Plugins.Webhook.OnLoad(e);
-
+            return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
         } catch (error) {
             // Log error for debugging
             TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'ERROR', e, error.toString(), error.stack);
