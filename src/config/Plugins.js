@@ -1666,7 +1666,7 @@ Plugins.Webhook = {
                 // Collect all inputs
                 .addRequiredWidget(['txt_webhook_url'])
                 .addRequiredWidget(['txt_max_connections'])));
-                
+
         // Traffic/Pending Info
         if (result.pending_update_count > 0) {
             statusSection.addWidget(CardService.newDecoratedText()
@@ -1765,24 +1765,27 @@ Plugins.Webhook = {
      * ACTION: Set Webhook with Full Options
      */
     OnSetWebhook: (e) => {
-        const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-        const inputs = e?.commonEventObject?.formInputs || {};
-
-        // Extract Inputs
-        const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
-        const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
-        const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
-        const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
-        const dropPending = inputs.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
-
-        // Validation
-        if (!urlInput || !urlInput.startsWith('https://')) {
-            return CardService.newActionResponseBuilder()
-                .setNotification(CardService.newNotification().setText("❌ Valid HTTPS URL required."))
-                .build();
-        }
-
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
+            // Log start of execution
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'INFO', e, 'Setting Webhook...');
+            const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+            const inputs = e?.commonEventObject?.formInputs || {};
+
+            // Extract Inputs
+            const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
+            const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
+            const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
+            const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
+            const dropPending = inputs.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
+
+            // Validation
+            if (!urlInput || !urlInput.startsWith('https://')) {
+                return CardService.newActionResponseBuilder()
+                    .setNotification(CardService.newNotification().setText("❌ Valid HTTPS URL required."))
+                    .build();
+            }
+
             const client = new TelegramBotClient(token);
 
             // Build Options Object
@@ -1802,16 +1805,17 @@ Plugins.Webhook = {
 
             // Call API
             const response = client.setWebhook(urlInput, options);
-            const result = JSON.parse(response.getContentText());
+            if (JSON.parse(response.getContentText()).ok !== true) {
+                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+            }
+            // Log response for debugging
 
-            if (!result.ok) throw new Error(result.description);
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
 
-            return CardService.newActionResponseBuilder()
-                .setNotification(CardService.newNotification().setText("✅ Webhook Configured Successfully"))
-                .setNavigation(CardService.newNavigation().updateCard(Plugins.Webhook.HomeCard()))
-                .build();
-
+            return Plugins.Webhook.OnLoad(e);
         } catch (error) {
+            // Log error for debugging
+            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'ERROR', e, error.toString(), error.stack);
             return CardService.newActionResponseBuilder()
                 .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                 .build();
@@ -1842,13 +1846,7 @@ Plugins.Webhook = {
 
             const result = JSON.parse(response.getContentText()).result;
 
-            return CardService.newActionResponseBuilder()
-                .setNotification(CardService.newNotification().setText("🗑️ Webhook Deleted"))
-                .setNavigation(
-                    CardService.newNavigation()
-                        .updateCard(
-                            Plugins.Webhook.HomeCard(data, result)))
-                .build();
+            return Plugins.Webhook.OnLoad(e);
 
         } catch (error) {
             // Log error for debugging

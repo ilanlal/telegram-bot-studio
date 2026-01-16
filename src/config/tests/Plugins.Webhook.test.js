@@ -76,8 +76,8 @@ describe('Plugins.Webhook', () => {
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();
-        // No 'error' string in notification
-        expect(JSON.stringify(data.notification)).not.toMatch(/error/i);
+        // no notification
+        expect(data.notification).toBeUndefined();
     });
 
     // OnDeleteWebhook test
@@ -117,7 +117,7 @@ describe('Plugins.Webhook', () => {
         const data = result.getData();
         expect(data).toBeDefined();
 
-        // No 'error' string in notification
-        expect(JSON.stringify(data.notification)).not.toMatch(/error/i);
+        // no notification
+        expect(data.notification).toBeUndefined();
     });
 });
