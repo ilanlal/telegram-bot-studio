@@ -1421,7 +1421,7 @@ Plugins.GetMe = {
                 .build();
         }
         catch (error) {
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', data, error.toString());
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', e, error.toString(), error.stack);
             // Return notification of error
             return CardService.newActionResponseBuilder()
                 .setNotification(
@@ -1582,7 +1582,7 @@ Plugins.GetChat = {
                         Plugins.GetChat.HomeCard(data, null)))
                 .build();
         } catch (error) {
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', data, error.toString());
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', e, error.toString(), error.stack);
 
             // Return notification of error
             return CardService.newActionResponseBuilder()
