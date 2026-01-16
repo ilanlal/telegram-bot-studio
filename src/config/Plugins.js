@@ -150,6 +150,57 @@ Plugins.Modules = {
         get sheetName() {
             return this._sheetName;
         }
+    },
+    TerminalOutput: class {
+        static get SHEET_META() {
+            return {
+                name: '💻 Terminal Output',
+                columns: ['Timestamp', 'Source', 'Message', 'Event Object', 'More Info']
+            };
+        }
+
+        static Write(
+            activeSpreadsheet,
+            { source, message, e, param1, param2, param3 } = {}) {
+
+            const terminalOutputEnabled = PropertiesService.getUserProperties()
+                .getProperty('terminal_output_switch') || 'OFF';
+            const focusTerminalOutput = PropertiesService.getUserProperties()
+                .getProperty('focus_terminal_output') || 'OFF';
+
+            if (terminalOutputEnabled !== 'ON') {
+                return;
+            }
+
+            const sheet = Plugins.Modules.Sheet.create(activeSpreadsheet)
+                .getSheet(Plugins.Modules.TerminalOutput.SHEET_META);
+
+            sheet.appendRow([
+                // Created On as iso string
+                new Date().toISOString(),
+                // source
+                source, // chat side
+                // Message
+                (typeof message === 'object' || Array.isArray(message)) ? JSON.stringify(message) : String(message || ''),
+                // Event Object
+                (typeof e === 'object' || Array.isArray(e)) ? JSON.stringify(e) : String(e || ''),
+                // Details 
+                (typeof param1 === 'object' || Array.isArray(param1)) ? JSON.stringify(param1) : String(param1 || ''),
+                (typeof param2 === 'object' || Array.isArray(param2)) ? JSON.stringify(param2) : String(param2 || ''),
+                (typeof param3 === 'object' || Array.isArray(param3)) ? JSON.stringify(param3) : String(param3 || '')
+            ]);
+
+            // Focus the last row if enabled
+            if (focusTerminalOutput !== 'ON') {
+                return sheet;
+            }
+
+            // Set active selection to the last row
+            const lastRow = sheet.getLastRow();
+            const lastRowA1Notation = `A${lastRow}:G${lastRow}`;
+            sheet.setActiveSelection(lastRowA1Notation);
+            return sheet;
+        }
     }
 };
 
@@ -537,7 +588,7 @@ Plugins.Home = {
     OnLoad: (e) => {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         // Log the event for debugging
-        TerminalOutput.Write(activeSpreadsheet,
+        Plugins.Modules.TerminalOutput.Write(activeSpreadsheet,
             'Plugins.Home',
             'OnLoad',
             e,
@@ -588,7 +639,7 @@ Plugins.Home = {
 
 Plugins.Navigations = {
     PushCard: (e) => {
-        TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+        Plugins.Modules.TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
             'Plugins.Navigations',
             'PushCard',
             e,
@@ -618,7 +669,7 @@ Plugins.Navigations = {
         throw new Error(`Plugin path "${path}" not found.`);
     },
     UpdateCard: (e) => {
-        TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+        Plugins.Modules.TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
             'Plugins.Navigations',
             'UpdateCard',
             e,
@@ -857,7 +908,7 @@ Plugins.Connection = {
             const result = JSON.parse(response.getContentText()).result;
 
             // Log the response to Terminal Output sheet
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Connection.OnConnect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Connection.OnConnect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
 
             // on success,
             // Store the token in user properties or user properties as needed
@@ -877,7 +928,7 @@ Plugins.Connection = {
                         .updateCard(Plugins.Home.HomeCard({ ...appModelData }))
                 ).build();
         } catch (error) {
-            TerminalOutput.Write(
+            Plugins.Modules.TerminalOutput.Write(
                 activeSpreadsheet,
                 'Plugins.Connection.OnConnect',
                 'ERROR', e, error.toString(), error.stack);
@@ -899,9 +950,9 @@ Plugins.Connection = {
                         .updateCard(Plugins.Home.HomeCard({ ...appModelData }))
                 ).build();
         } catch (error) {
-            TerminalOutput.Write(
+            Plugins.Modules.TerminalOutput.Write(
                 this._activeSpreadsheet,
-                'BotApiHandler.Logout',
+                'Plugins.Connection.OnDisconnect',
                 'ERROR', e, error.toString());
             return this.handleError(error)
                 .build();
@@ -1111,7 +1162,7 @@ Plugins.Settings = {
     },
     OnToggleAction(e) {
         try {
-            TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+            Plugins.Modules.TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
                 'Plugins.Settings.OnToggleAction',
                 'INFO',
                 e,
@@ -1129,7 +1180,7 @@ Plugins.Settings = {
                 .build();
         } catch (error) {
             // log error to terminal output
-            TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+            Plugins.Modules.TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
                 'Plugins.Settings.OnToggleAction',
                 'ERROR',
                 e,
@@ -1324,7 +1375,7 @@ Plugins.GetMe = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
             // Log the event for debugging
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
             const data = e?.commonEventObject?.parameters || {};
 
             // Optional: Check if we are forcing a refresh via parameters
@@ -1342,7 +1393,7 @@ Plugins.GetMe = {
             const response = telegramBotClient.getMe();
 
             // Log the raw response for debugging
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
 
             // Check for errors in response
             if (JSON.parse(response.getContentText()).ok !== true) {
@@ -1370,7 +1421,7 @@ Plugins.GetMe = {
                 .build();
         }
         catch (error) {
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', data, error.toString());
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', data, error.toString());
             // Return notification of error
             return CardService.newActionResponseBuilder()
                 .setNotification(
@@ -1476,7 +1527,7 @@ Plugins.GetChat = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
             // Log start of execution
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
 
             const data = e?.commonEventObject?.parameters || {};
             const isUpdate = data.update === 'true';
@@ -1501,7 +1552,7 @@ Plugins.GetChat = {
                 }
 
                 // Log response for debugging
-                TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
+                Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
 
                 const result = JSON.parse(response.getContentText()).result;
 
@@ -1531,7 +1582,7 @@ Plugins.GetChat = {
                         Plugins.GetChat.HomeCard(data, null)))
                 .build();
         } catch (error) {
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', data, error.toString());
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', data, error.toString());
 
             // Return notification of error
             return CardService.newActionResponseBuilder()
@@ -1667,7 +1718,7 @@ Plugins.Webhook = {
 
         try {
             // Log start of execution
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'INFO', e, 'Loading Webhook Manager');
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'INFO', e, 'Loading Webhook Manager');
 
             const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
             const isUpdate = data.update === 'true';
@@ -1681,7 +1732,7 @@ Plugins.Webhook = {
             // 1. API Call: getWebhookInfo
             const response = telegramBotClient.getWebhookInfo();
             // Log response for debugging
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
             if (JSON.parse(response.getContentText()).ok !== true) {
                 throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
             }
@@ -1706,7 +1757,7 @@ Plugins.Webhook = {
                 .setNavigation(navigation)
                 .build();
         } catch (error) {
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'ERROR', e, error.toString());
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'ERROR', e, error.toString());
             // Return notification of error
             return CardService.newActionResponseBuilder()
                 .setNotification(
@@ -1881,7 +1932,7 @@ Plugins.Webhook = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
             // Log start of execution
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'INFO', e, 'Setting Webhook...');
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'INFO', e, 'Setting Webhook...');
             const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
             const inputs = e?.commonEventObject?.formInputs || {};
 
@@ -1923,11 +1974,11 @@ Plugins.Webhook = {
             }
             // Log response for debugging
 
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
             return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
         } catch (error) {
             // Log error for debugging
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'ERROR', e, error.toString(), error.stack);
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'ERROR', e, error.toString(), error.stack);
             return CardService.newActionResponseBuilder()
                 .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                 .build();
@@ -1942,7 +1993,7 @@ Plugins.Webhook = {
         try {
             const data = e?.commonEventObject?.parameters || {};
             // Log start of execution
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
 
             const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
             const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
@@ -1955,13 +2006,13 @@ Plugins.Webhook = {
             }
 
             // Log response for debugging
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
 
             const result = JSON.parse(response.getContentText()).result;
             return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
         } catch (error) {
             // Log error for debugging
-            TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'ERROR', e, error.toString(), error.stack);
+            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'ERROR', e, error.toString(), error.stack);
             return CardService.newActionResponseBuilder()
                 .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                 .build();
