@@ -773,7 +773,7 @@ Plugins.Connection = {
         } else {
             xButton = CardService.newTextButton()
                 .setText('Link Bot')
-                .setBackgroundColor(Plugins.secondaryColor())
+                .setBackgroundColor(Plugins.primaryColor())
                 .setOnClickAction(executeAction);
         }
 
@@ -1115,8 +1115,8 @@ Plugins.Settings = {
             .setPrimaryButton(
                 CardService.newTextButton()
                     .setText('Save Configuration')
-                    .setBackgroundColor(Plugins.secondaryColor())
-                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setBackgroundColor(Plugins.primaryColor())
+                    //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                     .setMaterialIcon(CardService.newMaterialIcon().setName('save'))
                     .setOnClickAction(
                         CardService.newAction()
@@ -1245,7 +1245,6 @@ Plugins.UserProfile = {
     },
     buildMembershipSection: (data = {}) => {
         const isPremium = data.isPremium ?? false;
-        const statusColor = isPremium ? Plugins.secondaryColor() : '#757575';
 
         const newSection = CardService.newCardSection()
             .setHeader('Membership & Billing');
@@ -1263,15 +1262,15 @@ Plugins.UserProfile = {
 
         if (isPremium) {
             newSection.addWidget(CardService.newTextButton()
-                .setText('Manage / Cancel Subscription')
+                .setText('Cancel Subscription')
                 .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                 .setOnClickAction(CardService.newAction()
                     .setFunctionName('Plugins.UserProfile.OnRevokeLicense')));
         } else {
             newSection.addWidget(CardService.newTextButton()
                 .setText('💎 Upgrade Now')
-                .setBackgroundColor(Plugins.secondaryColor())
-                .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                .setBackgroundColor(Plugins.primaryColor())
+                .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                 .setMaterialIcon(CardService.newMaterialIcon().setName('bolt'))
                 .setOnClickAction(CardService.newAction()
                     .setFunctionName('Plugins.UserProfile.OnActivatePremium')));
@@ -1824,7 +1823,7 @@ Plugins.Webhook = {
         buttonSet.addButton(CardService.newTextButton()
             .setText(result.url ? 'Update Settings' : 'Set Webhook')
             //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-            .setBackgroundColor(Plugins.secondaryColor())
+            .setBackgroundColor(Plugins.primaryColor())
             .setOnClickAction(CardService.newAction()
                 .setFunctionName('Plugins.Webhook.OnSetWebhook')
                 // Collect all inputs
