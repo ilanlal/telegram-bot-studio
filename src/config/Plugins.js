@@ -10,15 +10,15 @@ class Plugins {
     }
 
     static primaryColor() {
-        return '#8a46d8';
+        return '#1976d2';
     }
 
     static secondaryColor() {
-        return '#0a7fad';
+        return '#0f9d58';
     }
 
     static accentColor() {
-        return '#ff5722';
+        return '#f4b400';
     }
 
     static getFormInputsStringValue(e, key, defaultValue = '') {
