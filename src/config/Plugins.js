@@ -415,6 +415,55 @@ Plugins.Home = {
     short_description: 'A suite of tools for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.3',
+    Controller: {
+        Load: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            // Log the event for debugging
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet,
+                'Plugins.Home',
+                'OnLoad',
+                e,
+                'Loading Home Card with AppModel data.');
+
+            // Build and return the Home Card
+            const appModelData = Plugins.Modules.App.getData();
+
+            // Build and return the Home Card
+            const homeCard = Plugins.Home.View.HomeCard({ ...appModelData });
+
+            let cardNavigation = null;
+            if (e.parameters && e.parameters.refresh === 'true') {
+                cardNavigation = CardService.newNavigation()
+                    .updateCard(homeCard);
+            } else {
+                cardNavigation = CardService.newNavigation()
+                    .pushCard(homeCard);
+            }
+
+            // Return action response to update card
+            return CardService.newActionResponseBuilder()
+                .setNavigation(cardNavigation)
+                .build();
+        },
+        About: (e) => {
+            // Build and return the About Card
+            const appModelData = Plugins.Modules.App.getData();
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(Plugins.Home.View.AboutCard({ ...appModelData }))
+                ).build();
+        },
+        Help: (e) => {
+            // Build and return the Help Card
+            const appModelData = Plugins.Modules.App.getData();
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(Plugins.Home.View.HelpCard({ ...appModelData }))
+                ).build();
+        }
+    },
     View: {
         HomeCard: (data = {}) => {
             data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
@@ -603,55 +652,6 @@ Plugins.Home = {
                         .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
 
             return cardBuilder.build();
-        }
-    },
-    Controller: {
-        Load: (e) => {
-            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-            // Log the event for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet,
-                'Plugins.Home',
-                'OnLoad',
-                e,
-                'Loading Home Card with AppModel data.');
-
-            // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.getData();
-
-            // Build and return the Home Card
-            const homeCard = Plugins.Home.View.HomeCard({ ...appModelData });
-
-            let cardNavigation = null;
-            if (e.parameters && e.parameters.refresh === 'true') {
-                cardNavigation = CardService.newNavigation()
-                    .updateCard(homeCard);
-            } else {
-                cardNavigation = CardService.newNavigation()
-                    .pushCard(homeCard);
-            }
-
-            // Return action response to update card
-            return CardService.newActionResponseBuilder()
-                .setNavigation(cardNavigation)
-                .build();
-        },
-        About: (e) => {
-            // Build and return the About Card
-            const appModelData = Plugins.Modules.App.getData();
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .pushCard(Plugins.Home.View.AboutCard({ ...appModelData }))
-                ).build();
-        },
-        Help: (e) => {
-            // Build and return the Help Card
-            const appModelData = Plugins.Modules.App.getData();
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .pushCard(Plugins.Home.View.HelpCard({ ...appModelData }))
-                ).build();
         }
     }
 };
@@ -1067,7 +1067,7 @@ Plugins.Settings = {
         if (apiEndpointUrl) {
             PropertiesService.getUserProperties().setProperty('txt_api_endpoint_url', apiEndpointUrl);
         }
-        // sace secret private key
+        // save secret private key
         const secretPrivateKey = Plugins.getFormInputsStringValue(e, 'txt_secret_private_key', '');
         if (secretPrivateKey) {
             PropertiesService.getUserProperties().setProperty('txt_secret_private_key', secretPrivateKey);
