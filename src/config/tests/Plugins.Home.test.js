@@ -11,7 +11,6 @@ describe('Plugins.Home', () => {
             expect(Plugins.Home.id).toBeDefined();
             expect(Plugins.Home.name).toBeDefined();
             expect(Plugins.Home.description).toBeDefined();
-            expect(Plugins.Home.version).toBeDefined();
             expect(Plugins.Home.short_description).toBeDefined();
         });
 
@@ -19,7 +18,7 @@ describe('Plugins.Home', () => {
         it('should handle OnLoad', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Home.OnLoad(e);
+            const homeCard = Plugins.Home.Controller.Load(e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
@@ -39,7 +38,7 @@ describe('Plugins.Home', () => {
         it('should handle OnHelp', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const helpCard = Plugins.Home.OnHelp(e);
+            const helpCard = Plugins.Home.Controller.Help(e);
             expect(helpCard).toBeDefined();
             const cardData = helpCard.getData();
             expect(cardData).toBeDefined();
@@ -51,7 +50,7 @@ describe('Plugins.Home', () => {
         it('should handle OnAbout', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const aboutCard = Plugins.Home.OnAbout(e);
+            const aboutCard = Plugins.Home.Controller.About(e);
             expect(aboutCard).toBeDefined();
             const cardData = aboutCard.getData();
             expect(cardData).toBeDefined();

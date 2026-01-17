@@ -32,7 +32,7 @@
         "https://api.telegram.org/"
       ],
       "homepageTrigger": {
-        "runFunction": "Plugins.Home.OnLoad"
+        "runFunction": "Plugins.Home.Controller.Load"
       },
       "useLocaleFromApp": true,
       "universalActions": [
@@ -46,11 +46,11 @@
         },
         {
           "label": "Help",
-          "runFunction": "Plugins.Home.OnHelp"
+          "runFunction": "Plugins.Home.Controller.Help"
         },
         {
           "label": "About",
-          "runFunction": "Plugins.Home.OnAbout"
+          "runFunction": "Plugins.Home.Controller.About"
         },
         {
           "label": "Visit Bot Studio",

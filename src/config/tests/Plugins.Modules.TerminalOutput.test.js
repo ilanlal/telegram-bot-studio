@@ -16,7 +16,7 @@ describe('Plugins Modules TerminalOutput', () => {
         const moreInfo1 = 'Additional Info 1';
         const moreInfo2 = { info: 'Additional Info 2' };
         const moreInfo3 = ['Additional', 'Info', 3];
-        const sheet = Plugins.Modules.TerminalOutput.Write(
+        const sheet = Plugins.Modules.TerminalOutput.write(
             activeSpreadsheet,
             {
                 source,

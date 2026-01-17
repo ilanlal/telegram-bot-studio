@@ -46,44 +46,12 @@ Plugins.LOGO_PNG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-s
 Plugins.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-studio';
 
 Plugins.Modules = {
-    App: class {
-        static get MEMBERSHIP_PROPERTY_KEY() {
+    App: {
+        get MEMBERSHIP_PROPERTY_KEY() {
             return 'membership';
-        }
-
-        get documentProperties() {
-            if (!this._documentProperties) {
-                this._documentProperties = PropertiesService.getDocumentProperties();
-            }
-            return this._documentProperties;
-        }
-
-        get userProperties() {
-            if (!this._userProperties) {
-                this._userProperties = PropertiesService.getUserProperties();
-            }
-            return this._userProperties;
-        }
-
-        get scriptProperties() {
-            if (!this._scriptProperties) {
-                this._scriptProperties = PropertiesService.getScriptProperties();
-            }
-            return this._scriptProperties;
-        }
-
-        static create() {
-            return new Plugins.Modules.App();
-        }
-
-        constructor() {
-            this._documentProperties = null;
-            this._userProperties = null;
-            this._scriptProperties = null;
-        }
-
+        },
         getData() {
-            const rawData = this.userProperties.getProperty(Plugins.Modules.App.MEMBERSHIP_PROPERTY_KEY);
+            const rawData = PropertiesService.getUserProperties().getProperty(Plugins.Modules.App.MEMBERSHIP_PROPERTY_KEY);
             const membershipInfo = rawData ? JSON.parse(rawData) : {};
             const expiresAt = membershipInfo.expiresAt ? new Date(membershipInfo.expiresAt) : null;
             const balance = membershipInfo.balance || 0;
@@ -216,7 +184,7 @@ Plugins.Modules = {
             };
         }
 
-        static Write(
+        static write(
             activeSpreadsheet,
             { source, message, e, param1, param2, param3 } = {}) {
 
@@ -447,243 +415,244 @@ Plugins.Home = {
     short_description: 'A suite of tools for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.3',
-    HomeCard: (data = {}) => {
-        data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
-        data.isConnected = !!data.txt_bot_api_token;
+    View: {
+        HomeCard: (data = {}) => {
+            data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
+            data.isConnected = !!data.txt_bot_api_token;
 
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.Home.id + '-Home')
-            .setHeader(CardService.newCardHeader()
-                .setTitle(Plugins.Home.name)
-                .setSubtitle(Plugins.Home.short_description)
-                .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.WELCOME_IMG_URL)
-                .setImageAltText('Telegram Bot Studio Logo'));
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.Home.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle(Plugins.Home.name)
+                    .setSubtitle(Plugins.Home.short_description)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
+                    .setImageUrl(Plugins.WELCOME_IMG_URL)
+                    .setImageAltText('Telegram Bot Studio Logo'));
 
-        // 1. Connection & Status Section (Pinned to Top)
-        cardBuilder.addSection(
-            Plugins.Connection.WelcomeSection(data));
+            // 1. Connection & Status Section (Pinned to Top)
+            cardBuilder.addSection(
+                Plugins.Connection.WelcomeSection(data));
 
-        // 2. Main Plugin Hub - Professional Grid-like feel
-        const pluginHub = CardService.newCardSection()
-            .setHeader('🛠️ Available Plugins')
-            .setCollapsible(false);
+            // 2. Main Plugin Hub - Professional Grid-like feel
+            const pluginHub = CardService.newCardSection()
+                .setHeader('🛠️ Available Plugins')
+                .setCollapsible(false);
 
-        Plugins.prototype.pluginList.forEach((PluginPath) => {
-            const plugin = Plugins[PluginPath.split('.')[1]];
-            const decoratedText = CardService.newDecoratedText()
-                .setText(plugin.name)
-                .setBottomLabel(plugin.short_description)
-                .setStartIcon(CardService.newIconImage().setIconUrl(plugin.imageUrl))
-                .setWrapText(true)
-                .setButton(
-                    CardService.newTextButton()
-                        .setText('Open')
-                        .setDisabled(!data.isConnected)
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName(`${PluginPath}.OnLoad`)
-                        )
+            Plugins.prototype.pluginList.forEach((PluginPath) => {
+                const plugin = Plugins[PluginPath.split('.')[1]];
+                const decoratedText = CardService.newDecoratedText()
+                    .setText(plugin.name)
+                    .setBottomLabel(plugin.short_description)
+                    .setStartIcon(CardService.newIconImage().setIconUrl(plugin.imageUrl))
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setText('Open')
+                            .setDisabled(!data.isConnected)
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName(`${PluginPath}.OnLoad`)
+                            )
+                    );
+
+                pluginHub.addWidget(decoratedText);
+            });
+
+            cardBuilder.addSection(pluginHub);
+
+            // 3. System Quick Actions (Professional Footer Section)
+            cardBuilder.addSection(CardService.newCardSection()
+                .setHeader('⚙️ Quick Access')
+                .setCollapsible(true)
+                .addWidget(CardService.newButtonSet()
+                    .addButton(CardService.newTextButton()
+                        .setText('Settings')
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.Settings.OnLoad')))
+                    .addButton(CardService.newTextButton()
+                        .setText('Help')
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.Home.Controller.Help')))
+                    .addButton(CardService.newTextButton()
+                        .setText('About')
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.Home.Controller.About')))
+                ));
+
+            // 4. Premium Call-to-Action (Only if not premium)
+            if (!data.isPremium) {
+                const premiumSection = CardService.newCardSection()
+                    .addWidget(CardService.newDecoratedText()
+                        .setTopLabel('Premium Status')
+                        .setText('Free Membership')
+                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('workspace_premium')))
+                        .setBottomLabel('Upgrade to unlock automation & priority support.'));
+
+                cardBuilder.addSection(premiumSection);
+
+                cardBuilder.setFixedFooter(CardService.newFixedFooter()
+                    .setPrimaryButton(CardService.newTextButton()
+                        .setText('💎 Upgrade to Premium')
+                        .setBackgroundColor(Plugins.primaryColor())
+                        //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.UserProfile.OnLoad')))
                 );
+            }
 
-            pluginHub.addWidget(decoratedText);
-        });
+            return cardBuilder.build();
+        },
+        AboutCard: (data = {}) => {
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.Home.id + '-About')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('About ' + Plugins.Home.name)
+                    .setSubtitle(Plugins.Home.short_description)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
+                    .setImageUrl(Plugins.BIG_TIME_IMG_URL)
+                    .setImageAltText('Card Image'))
+                .addSection(
+                    CardService.newCardSection()
+                        .setHeader('App Information')
+                        .addWidget(
+                            CardService.newTextParagraph()
+                                .setText(`Name: ${Plugins.Home.name}`))
+                        .addWidget(
+                            CardService.newTextParagraph()
+                                .setText(`Version: ${Plugins.Home.version}`))
+                        .addWidget(
+                            CardService.newTextParagraph()
+                                .setText(`Info: ${Plugins.Home.description}`))
+                        .addWidget(
+                            CardService.newTextParagraph()
+                                .setText(`Developed by Easy ADM (https://easyadm.com).`)));
 
-        cardBuilder.addSection(pluginHub);
 
-        // 3. System Quick Actions (Professional Footer Section)
-        cardBuilder.addSection(CardService.newCardSection()
-            .setHeader('⚙️ Quick Access')
-            .setCollapsible(true)
-            .addWidget(CardService.newButtonSet()
-                .addButton(CardService.newTextButton()
-                    .setText('Settings')
-                    .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Settings.OnLoad')))
-                .addButton(CardService.newTextButton()
-                    .setText('Help')
-                    .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Home.OnHelp')))
-                .addButton(CardService.newTextButton()
-                    .setText('About')
-                    .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Home.OnAbout')))
-            ));
-
-        // 4. Premium Call-to-Action (Only if not premium)
-        if (!data.isPremium) {
-            const premiumSection = CardService.newCardSection()
-                .addWidget(CardService.newDecoratedText()
-                    .setTopLabel('Premium Status')
-                    .setText('Free Membership')
-                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('workspace_premium')))
-                    .setBottomLabel('Upgrade to unlock automation & priority support.'));
-
-            cardBuilder.addSection(premiumSection);
-
-            cardBuilder.setFixedFooter(CardService.newFixedFooter()
-                .setPrimaryButton(CardService.newTextButton()
-                    .setText('💎 Upgrade to Premium')
-                    .setBackgroundColor(Plugins.primaryColor())
-                    //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.UserProfile.OnLoad')))
-            );
-        }
-
-        return cardBuilder.build();
-    },
-    AboutCard: (data = {}) => {
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.Home.id + '-About')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('About ' + Plugins.Home.name)
-                .setSubtitle(Plugins.Home.short_description)
-                .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.BIG_TIME_IMG_URL)
-                .setImageAltText('Card Image'))
-            .addSection(
+            // Add useful links section
+            cardBuilder.addSection(
                 CardService.newCardSection()
-                    .setHeader('App Information')
+                    .setHeader('🔗 Useful Links')
                     .addWidget(
-                        CardService.newTextParagraph()
-                            .setText(`Name: ${Plugins.Home.name}`))
+                        CardService.newTextButton()
+                            .setText('📄 Documentation')
+                            .setOpenLink(
+                                CardService.newOpenLink()
+                                    .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
                     .addWidget(
-                        CardService.newTextParagraph()
-                            .setText(`Version: ${Plugins.Home.version}`))
-                    .addWidget(
-                        CardService.newTextParagraph()
-                            .setText(`Info: ${Plugins.Home.description}`))
-                    .addWidget(
-                        CardService.newTextParagraph()
-                            .setText(`Developed by Easy ADM (https://easyadm.com).`)));
+                        CardService.newTextButton()
+                            .setText('📢 Report Issues')
+                            .setOpenLink(
+                                CardService.newOpenLink()
+                                    .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
 
+            return cardBuilder.build();
+        },
+        HelpCard: (data = {}) => {
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.Home.id + '-Help')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('Help & Support')
+                    .setSubtitle(Plugins.Home.short_description)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
+                    .setImageUrl(Plugins.YES_IMG_URL)
+                    .setImageAltText('Help Image'));
 
-        // Add useful links section
-        cardBuilder.addSection(
-            CardService.newCardSection()
-                .setHeader('🔗 Useful Links')
-                .addWidget(
-                    CardService.newTextButton()
-                        .setText('📄 Documentation')
-                        .setOpenLink(
-                            CardService.newOpenLink()
-                                .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
-                .addWidget(
-                    CardService.newTextButton()
-                        .setText('📢 Report Issues')
-                        .setOpenLink(
-                            CardService.newOpenLink()
-                                .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
+            // 1. Getting Started Guide Section
+            cardBuilder.addSection(CardService.newCardSection()
+                .setHeader('🚀 Getting Started')
+                .addWidget(CardService.newTextParagraph()
+                    .setText('To start building your bot, follow these simple steps:'))
+                .addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Step 1')
+                    .setText('Connect your bot using a token from @BotFather.')
+                    .setWrapText(true))
+                .addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Step 2')
+                    .setText('Use the "Get Me" plugin to verify your connection.')
+                    .setWrapText(true))
+                .addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Step 3')
+                    .setText('Set up a Webhook to start receiving messages in real-time.')
+                    .setWrapText(true)));
 
-        return cardBuilder.build();
-    },
-    HelpCard: (data = {}) => {
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.Home.id + '-Help')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Help & Support')
-                .setSubtitle(Plugins.Home.short_description)
-                .setImageStyle(CardService.ImageStyle.SQUARE)
-                .setImageUrl(Plugins.YES_IMG_URL)
-                .setImageAltText('Help Image'));
+            // 2. Common Issues / FAQ Section
+            cardBuilder.addSection(CardService.newCardSection()
+                .setHeader('💡 Quick Troubleshooting')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(1)
+                .addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Invalid Token?')
+                    .setText('Ensure there are no extra spaces in your bot token.')
+                    .setWrapText(true))
+                .addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Webhook not working?')
+                    .setText('Check if your Google Sheet is published to the web or has the correct permissions.')
+                    .setWrapText(true)));
 
-        // 1. Getting Started Guide Section
-        cardBuilder.addSection(CardService.newCardSection()
-            .setHeader('🚀 Getting Started')
-            .addWidget(CardService.newTextParagraph()
-                .setText('To start building your bot, follow these simple steps:'))
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Step 1')
-                .setText('Connect your bot using a token from @BotFather.')
-                .setWrapText(true))
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Step 2')
-                .setText('Use the "Get Me" plugin to verify your connection.')
-                .setWrapText(true))
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Step 3')
-                .setText('Set up a Webhook to start receiving messages in real-time.')
-                .setWrapText(true)));
+            // 3. Useful Links & Support Section
+            cardBuilder.addSection(CardService.newCardSection()
+                .setHeader('🔗 Resources')
+                .addWidget(CardService.newTextButton()
+                    .setText('📄 Read Documentation')
+                    .setOpenLink(CardService.newOpenLink()
+                        .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
+                .addWidget(CardService.newTextButton()
+                    .setText('📢 Report a Bug')
+                    .setOpenLink(CardService.newOpenLink()
+                        .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
 
-        // 2. Common Issues / FAQ Section
-        cardBuilder.addSection(CardService.newCardSection()
-            .setHeader('💡 Quick Troubleshooting')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1)
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Invalid Token?')
-                .setText('Ensure there are no extra spaces in your bot token.')
-                .setWrapText(true))
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel('Webhook not working?')
-                .setText('Check if your Google Sheet is published to the web or has the correct permissions.')
-                .setWrapText(true)));
-
-        // 3. Useful Links & Support Section
-        cardBuilder.addSection(CardService.newCardSection()
-            .setHeader('🔗 Resources')
-            .addWidget(CardService.newTextButton()
-                .setText('📄 Read Documentation')
-                .setOpenLink(CardService.newOpenLink()
-                    .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
-            .addWidget(CardService.newTextButton()
-                .setText('📢 Report a Bug')
-                .setOpenLink(CardService.newOpenLink()
-                    .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
-
-        return cardBuilder.build();
-    },
-    OnLoad: (e) => {
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        // Log the event for debugging
-        Plugins.Modules.TerminalOutput.Write(activeSpreadsheet,
-            'Plugins.Home',
-            'OnLoad',
-            e,
-            'Loading Home Card with AppModel data.');
-
-        // Build and return the Home Card
-        const appModelData = Plugins.Modules.App.create()
-            .getData();
-
-        // Build and return the Home Card
-        const homeCard = Plugins.Home.HomeCard({ ...appModelData });
-
-        let cardNavigation = null;
-        if (e.parameters && e.parameters.refresh === 'true') {
-            cardNavigation = CardService.newNavigation()
-                .updateCard(homeCard);
-        } else {
-            cardNavigation = CardService.newNavigation()
-                .pushCard(homeCard);
+            return cardBuilder.build();
         }
+    },
+    Controller: {
+        Load: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            // Log the event for debugging
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet,
+                'Plugins.Home',
+                'OnLoad',
+                e,
+                'Loading Home Card with AppModel data.');
 
-        // Return action response to update card
-        return CardService.newActionResponseBuilder()
-            .setNavigation(cardNavigation)
-            .build();
-    },
-    OnAbout: (e) => {
-        // Build and return the About Card
-        const appModelData = Plugins.Modules.App.create()
-            .getData();
-        return CardService.newActionResponseBuilder()
-            .setNavigation(
-                CardService.newNavigation()
-                    .pushCard(Plugins.Home.AboutCard({ ...appModelData }))
-            ).build();
-    },
-    OnHelp: (e) => {
-        // Build and return the Help Card
-        const appModelData = Plugins.Modules.App.create()
-            .getData();
-        return CardService.newActionResponseBuilder()
-            .setNavigation(
-                CardService.newNavigation()
-                    .pushCard(Plugins.Home.HelpCard({ ...appModelData }))
-            ).build();
+            // Build and return the Home Card
+            const appModelData = Plugins.Modules.App.getData();
+
+            // Build and return the Home Card
+            const homeCard = Plugins.Home.View.HomeCard({ ...appModelData });
+
+            let cardNavigation = null;
+            if (e.parameters && e.parameters.refresh === 'true') {
+                cardNavigation = CardService.newNavigation()
+                    .updateCard(homeCard);
+            } else {
+                cardNavigation = CardService.newNavigation()
+                    .pushCard(homeCard);
+            }
+
+            // Return action response to update card
+            return CardService.newActionResponseBuilder()
+                .setNavigation(cardNavigation)
+                .build();
+        },
+        About: (e) => {
+            // Build and return the About Card
+            const appModelData = Plugins.Modules.App.getData();
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(Plugins.Home.View.AboutCard({ ...appModelData }))
+                ).build();
+        },
+        Help: (e) => {
+            // Build and return the Help Card
+            const appModelData = Plugins.Modules.App.getData();
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(Plugins.Home.View.HelpCard({ ...appModelData }))
+                ).build();
+        }
     }
 };
 
@@ -840,7 +809,7 @@ Plugins.Connection = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
             // Log the event for debugging
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet,
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet,
                 'Plugins.Connection.OnConnect',
                 'INFO',
                 e,
@@ -865,7 +834,7 @@ Plugins.Connection = {
             const result = JSON.parse(response.getContentText()).result;
 
             // Log the response to Terminal Output sheet
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Connection.OnConnect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Connection.OnConnect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
 
             // on success,
             // Store the token in user properties or user properties as needed
@@ -876,16 +845,15 @@ Plugins.Connection = {
                 refresh: 'true'
             };
             // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.create()
-                .getData();
+            const appModelData = Plugins.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .popToRoot()
-                        .updateCard(Plugins.Home.HomeCard({ ...appModelData }))
+                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
                 ).build();
         } catch (error) {
-            Plugins.Modules.TerminalOutput.Write(
+            Plugins.Modules.TerminalOutput.write(
                 activeSpreadsheet,
                 'Plugins.Connection.OnConnect',
                 'ERROR', e, error.toString(), error.stack);
@@ -898,16 +866,15 @@ Plugins.Connection = {
             // Clear the stored token from user properties
             PropertiesService.getUserProperties().deleteProperty('txt_bot_api_token');
             // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.create()
-                .getData();
+            const appModelData = Plugins.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .popToRoot()
-                        .updateCard(Plugins.Home.HomeCard({ ...appModelData }))
+                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
                 ).build();
         } catch (error) {
-            Plugins.Modules.TerminalOutput.Write(
+            Plugins.Modules.TerminalOutput.write(
                 this._activeSpreadsheet,
                 'Plugins.Connection.OnDisconnect',
                 'ERROR', e, error.toString(), error.stack);
@@ -1087,8 +1054,7 @@ Plugins.Settings = {
     },
     OnLoad: (e) => {
         // Build and return the Settings Home Card
-        const appModelData = Plugins.Modules.App.create()
-            .getData();
+        const appModelData = Plugins.Modules.App.getData();
         return CardService.newActionResponseBuilder()
             .setNavigation(
                 CardService.newNavigation()
@@ -1108,18 +1074,17 @@ Plugins.Settings = {
         }
 
         // Build and return the Home Card
-        const appModelData = Plugins.Modules.App.create()
-            .getData();
+        const appModelData = Plugins.Modules.App.getData();
         return CardService.newActionResponseBuilder()
             .setNavigation(
                 CardService.newNavigation()
                     .popToRoot()
-                    .updateCard(Plugins.Home.HomeCard({ ...appModelData }))
+                    .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
             ).build();
     },
     OnToggleAction(e) {
         try {
-            Plugins.Modules.TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+            Plugins.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
                 'Plugins.Settings.OnToggleAction',
                 'INFO',
                 e,
@@ -1137,7 +1102,7 @@ Plugins.Settings = {
                 .build();
         } catch (error) {
             // log error to terminal output
-            Plugins.Modules.TerminalOutput.Write(SpreadsheetApp.getActiveSpreadsheet(),
+            Plugins.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
                 'Plugins.Settings.OnToggleAction',
                 'ERROR',
                 e,
@@ -1241,8 +1206,7 @@ Plugins.UserProfile = {
             const membership = membershipStr ? JSON.parse(membershipStr) : null;
             const isPremium = membership && membership.type === 'premium' && new Date(membership.expiresAt) > new Date();
 
-            const appModelData = Plugins.Modules.App.create()
-                .getData();
+            const appModelData = Plugins.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1269,13 +1233,12 @@ Plugins.UserProfile = {
             PropertiesService.getUserProperties().setProperty('membership', JSON.stringify(membership));
 
             // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.create()
-                .getData();
+            const appModelData = Plugins.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .popToRoot()
-                        .updateCard(Plugins.Home.HomeCard({ ...appModelData }))
+                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
                 ).build();
         } catch (error) {
             return this.handleOperationError(error);
@@ -1286,13 +1249,12 @@ Plugins.UserProfile = {
             // Simulate revocation logic
             PropertiesService.getUserProperties().deleteProperty('membership');
             // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.create()
-                .getData();
+            const appModelData = Plugins.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .popToRoot()
-                        .updateCard(Plugins.Home.HomeCard({ ...appModelData }))
+                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
                 ).build();
         } catch (error) {
             return this.handleOperationError(error);
@@ -1331,7 +1293,7 @@ Plugins.GetMe = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
             // Log the event for debugging
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
             const data = e?.commonEventObject?.parameters || {};
 
             // Optional: Check if we are forcing a refresh via parameters
@@ -1349,7 +1311,7 @@ Plugins.GetMe = {
             const response = telegramBotClient.getMe();
 
             // Log the raw response for debugging
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
 
             // Check for errors in response
             if (JSON.parse(response.getContentText()).ok !== true) {
@@ -1377,7 +1339,7 @@ Plugins.GetMe = {
                 .build();
         }
         catch (error) {
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', e, error.toString(), error.stack);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', e, error.toString(), error.stack);
             // Return notification of error
             return CardService.newActionResponseBuilder()
                 .setNotification(
@@ -1483,7 +1445,7 @@ Plugins.GetChat = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
             // Log start of execution
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
 
             const data = e?.commonEventObject?.parameters || {};
             const isUpdate = data.update === 'true';
@@ -1508,7 +1470,7 @@ Plugins.GetChat = {
                 }
 
                 // Log response for debugging
-                Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
 
                 const result = JSON.parse(response.getContentText()).result;
 
@@ -1538,7 +1500,7 @@ Plugins.GetChat = {
                         Plugins.GetChat.HomeCard(data, null)))
                 .build();
         } catch (error) {
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', e, error.toString(), error.stack);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', e, error.toString(), error.stack);
 
             // Return notification of error
             return CardService.newActionResponseBuilder()
@@ -1674,7 +1636,7 @@ Plugins.Webhook = {
 
         try {
             // Log start of execution
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'INFO', e, 'Loading Webhook Manager');
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'INFO', e, 'Loading Webhook Manager');
 
             const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
             const isUpdate = data.update === 'true';
@@ -1688,7 +1650,7 @@ Plugins.Webhook = {
             // 1. API Call: getWebhookInfo
             const response = telegramBotClient.getWebhookInfo();
             // Log response for debugging
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
             if (JSON.parse(response.getContentText()).ok !== true) {
                 throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
             }
@@ -1713,7 +1675,7 @@ Plugins.Webhook = {
                 .setNavigation(navigation)
                 .build();
         } catch (error) {
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'ERROR', e, error.toString());
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'ERROR', e, error.toString());
             // Return notification of error
             return CardService.newActionResponseBuilder()
                 .setNotification(
@@ -1888,7 +1850,7 @@ Plugins.Webhook = {
         const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
         try {
             // Log start of execution
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'INFO', e, 'Setting Webhook...');
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'INFO', e, 'Setting Webhook...');
             const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
             const inputs = e?.commonEventObject?.formInputs || {};
 
@@ -1930,11 +1892,11 @@ Plugins.Webhook = {
             }
             // Log response for debugging
 
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
             return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
         } catch (error) {
             // Log error for debugging
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'ERROR', e, error.toString(), error.stack);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'ERROR', e, error.toString(), error.stack);
             return CardService.newActionResponseBuilder()
                 .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                 .build();
@@ -1949,7 +1911,7 @@ Plugins.Webhook = {
         try {
             const data = e?.commonEventObject?.parameters || {};
             // Log start of execution
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
 
             const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
             const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
@@ -1962,13 +1924,13 @@ Plugins.Webhook = {
             }
 
             // Log response for debugging
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
 
             const result = JSON.parse(response.getContentText()).result;
             return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
         } catch (error) {
             // Log error for debugging
-            Plugins.Modules.TerminalOutput.Write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'ERROR', e, error.toString(), error.stack);
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'ERROR', e, error.toString(), error.stack);
             return CardService.newActionResponseBuilder()
                 .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                 .build();
