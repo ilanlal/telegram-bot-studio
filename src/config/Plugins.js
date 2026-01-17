@@ -232,17 +232,6 @@ Plugins.ViewModel = {
                     )
             );
     },
-    BuildResultSectionPlaceholder: () => {
-        return CardService.newCardSection()
-            .setHeader('☑️ Execution Result')
-            // add placeholder decorated text widget
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('Execution result will be displayed here.')
-            )
-            // add divider
-            .addWidget(CardService.newDivider());
-    },
     BuildResultSection: (title = '.', result = {}) => {
         const newSection = CardService.newCardSection()
             .setHeader('✅ Execution Result')
