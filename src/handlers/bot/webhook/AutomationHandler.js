@@ -1,6 +1,5 @@
 class AutomationHandler {
     constructor(activeSpreadsheet, documentProperties, userProperties, scriptProperties) {
-        this._automationModel = AutomationModel.create(activeSpreadsheet);
         const token = scriptProperties.getProperty(EnvironmentModel.InputMeta.BOT_API_TOKEN);
         if (!token) {
             throw new Error(`Bot API token is not set in script properties. Please set ${EnvironmentModel.InputMeta.BOT_API_TOKEN} property.`);
@@ -11,6 +10,9 @@ class AutomationHandler {
         this._userProperties = userProperties;
         this._scriptProperties = scriptProperties;
         this._activeSpreadsheet = activeSpreadsheet;
+
+        this.sheetModel = SheetModel.create(activeSpreadsheet);
+        this.sheet = this.sheetModel.initializeSheet(EMD.Spreadsheet.Automation({}));
     }
 
     static create(
@@ -167,21 +169,21 @@ class AutomationHandler {
     findActionsForQuery(query, language_code = 'none') {
         // array of actions like [{method: 'sendMessage', payload: {...}}] to execute (as string)
         // Try to find actions for the given language code
-        let apiActionsToDoList = this._automationModel.findData(query, language_code);
+        let apiActionsToDoList = this.findData(query, language_code);
 
         // Fallback to default language if not found
         if (!apiActionsToDoList) {
-            apiActionsToDoList = this._automationModel.findData(query, this._defaultLanguageCode);
+            apiActionsToDoList = this.findData(query, this._defaultLanguageCode);
         }
 
         // Fallback to '_action_not_found_' key if still not found
         if (!apiActionsToDoList) {
-            apiActionsToDoList = this._automationModel.findData('_action_not_found_', language_code);
+            apiActionsToDoList = this.findData('_action_not_found_', language_code);
         }
 
         // Fallback to default language '_action_not_found_' if still not found
         if (!apiActionsToDoList) {
-            apiActionsToDoList = this._automationModel.findData('_action_not_found_', this._defaultLanguageCode);
+            apiActionsToDoList = this.findData('_action_not_found_', this._defaultLanguageCode);
         }
 
         if (!apiActionsToDoList) {
@@ -190,6 +192,35 @@ class AutomationHandler {
 
         const actions = JSON.parse(apiActionsToDoList);
         return actions;
+    }
+
+    findData(key, language_code) {
+        const range = this.sheet.getDataRange();
+        const values = range.getValues() || [];
+        let langColIndex = this.findLanguageColumnIndex(language_code);
+
+        if (langColIndex === -1) {
+            // throw new Error(`Language code "${language_code}" not found in Replies sheet.`);
+            langColIndex = 1; // Default to second column if language not found
+        }
+        for (let row = 1; row < values.length; row++) { // Skip header row
+            if (values[row][0] === key) {
+                return values[row][langColIndex];
+            }
+        }
+        return null;
+    }
+
+    findLanguageColumnIndex(language_code) {
+        const range = this.sheet.getDataRange();
+        const values = range.getValues();
+
+        for (let col = 0; col < values[0].length; col++) {
+            if (values[0][col] === language_code) {
+                return col;
+            }
+        }
+        return 1; // default to second column
     }
 }
 

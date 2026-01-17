@@ -46,6 +46,63 @@ Plugins.LOGO_PNG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-s
 Plugins.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-studio';
 
 Plugins.Modules = {
+    App: class {
+        static get MEMBERSHIP_PROPERTY_KEY() {
+            return 'membership';
+        }
+
+        get documentProperties() {
+            if (!this._documentProperties) {
+                this._documentProperties = PropertiesService.getDocumentProperties();
+            }
+            return this._documentProperties;
+        }
+
+        get userProperties() {
+            if (!this._userProperties) {
+                this._userProperties = PropertiesService.getUserProperties();
+            }
+            return this._userProperties;
+        }
+
+        get scriptProperties() {
+            if (!this._scriptProperties) {
+                this._scriptProperties = PropertiesService.getScriptProperties();
+            }
+            return this._scriptProperties;
+        }
+
+        static create() {
+            return new Plugins.Modules.App();
+        }
+
+        constructor() {
+            this._documentProperties = null;
+            this._userProperties = null;
+            this._scriptProperties = null;
+        }
+
+        getData() {
+            const rawData = this.userProperties.getProperty(Plugins.Modules.App.MEMBERSHIP_PROPERTY_KEY);
+            const membershipInfo = rawData ? JSON.parse(rawData) : {};
+            const expiresAt = membershipInfo.expiresAt ? new Date(membershipInfo.expiresAt) : null;
+            const balance = membershipInfo.balance || 0;
+            const isPremium = (expiresAt && expiresAt > new Date()) || balance > 0;
+
+            return {
+                // Membership Info
+                isPremium: isPremium,
+                balance: balance,
+                expiresAt: expiresAt,
+                // Package Info
+                version: Plugins.ViewModel.version,
+                build: Plugins.ViewModel.build,
+                author: Plugins.ViewModel.author,
+                license: Plugins.ViewModel.license,
+                gitRepository: Plugins.ViewModel.gitRepository
+            }
+        }
+    },
     Sheet: class {
         static INVALID_MODEL_ERROR() {
             return 'Sheet model must have a valid name property';
@@ -210,6 +267,10 @@ Plugins.ViewModel = {
     short_description: 'Plugins for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.2',
+    build: '20240610',
+    author: 'Ilan Laloum',
+    license: 'MIT',
+    gitRepository: 'https://github.com/ilanlaloum/telegram-bot-studio',
     imageUrl: Plugins.DEFAULT_IMAGE_URL,
     BuildDumpToSheetWidget: (apiAction = '.', result = {}) => {
         return CardService.newDecoratedText()
@@ -584,8 +645,8 @@ Plugins.Home = {
             'Loading Home Card with AppModel data.');
 
         // Build and return the Home Card
-        const appModelData = AppModel.create()
-            .toJSON();
+        const appModelData = Plugins.Modules.App.create()
+            .getData();
 
         // Build and return the Home Card
         const homeCard = Plugins.Home.HomeCard({ ...appModelData });
@@ -606,8 +667,8 @@ Plugins.Home = {
     },
     OnAbout: (e) => {
         // Build and return the About Card
-        const appModelData = AppModel.create()
-            .toJSON();
+        const appModelData = Plugins.Modules.App.create()
+            .getData();
         return CardService.newActionResponseBuilder()
             .setNavigation(
                 CardService.newNavigation()
@@ -616,8 +677,8 @@ Plugins.Home = {
     },
     OnHelp: (e) => {
         // Build and return the Help Card
-        const appModelData = AppModel.create()
-            .toJSON();
+        const appModelData = Plugins.Modules.App.create()
+            .getData();
         return CardService.newActionResponseBuilder()
             .setNavigation(
                 CardService.newNavigation()
@@ -648,8 +709,8 @@ Plugins.Navigations = {
         const action = splitPath[2];
 
         if (Plugins[plugin] && typeof Plugins[plugin][action] === 'function') {
-            const appModelData = AppModel.create()
-                .toJSON();
+            const appModelData = Plugins.Modules.App.create()
+                .getData();
             // Call the plugin action to get the card
             return Plugins[plugin][action](e);
 
@@ -908,8 +969,8 @@ Plugins.Connection = {
                 refresh: 'true'
             };
             // Build and return the Home Card
-            const appModelData = AppModel.create()
-                .toJSON();
+            const appModelData = Plugins.Modules.App.create()
+                .getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -930,8 +991,8 @@ Plugins.Connection = {
             // Clear the stored token from user properties
             PropertiesService.getUserProperties().deleteProperty('txt_bot_api_token');
             // Build and return the Home Card
-            const appModelData = AppModel.create()
-                .toJSON();
+            const appModelData = Plugins.Modules.App.create()
+                .getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1119,8 +1180,8 @@ Plugins.Settings = {
     },
     OnLoad: (e) => {
         // Build and return the Settings Home Card
-        const appModelData = AppModel.create()
-            .toJSON();
+        const appModelData = Plugins.Modules.App.create()
+            .getData();
         return CardService.newActionResponseBuilder()
             .setNavigation(
                 CardService.newNavigation()
@@ -1140,8 +1201,8 @@ Plugins.Settings = {
         }
 
         // Build and return the Home Card
-        const appModelData = AppModel.create()
-            .toJSON();
+        const appModelData = Plugins.Modules.App.create()
+            .getData();
         return CardService.newActionResponseBuilder()
             .setNavigation(
                 CardService.newNavigation()
@@ -1273,8 +1334,8 @@ Plugins.UserProfile = {
             const membership = membershipStr ? JSON.parse(membershipStr) : null;
             const isPremium = membership && membership.type === 'premium' && new Date(membership.expiresAt) > new Date();
 
-            const appModelData = AppModel.create()
-                .toJSON();
+            const appModelData = Plugins.Modules.App.create()
+                .getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1301,8 +1362,8 @@ Plugins.UserProfile = {
             PropertiesService.getUserProperties().setProperty('membership', JSON.stringify(membership));
 
             // Build and return the Home Card
-            const appModelData = AppModel.create()
-                .toJSON();
+            const appModelData = Plugins.Modules.App.create()
+                .getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1318,8 +1379,8 @@ Plugins.UserProfile = {
             // Simulate revocation logic
             PropertiesService.getUserProperties().deleteProperty('membership');
             // Build and return the Home Card
-            const appModelData = AppModel.create()
-                .toJSON();
+            const appModelData = Plugins.Modules.App.create()
+                .getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
