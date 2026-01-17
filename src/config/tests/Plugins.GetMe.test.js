@@ -18,7 +18,7 @@ describe('Plugins.GetMe', () => {
     it('should create HomeCard', () => {
         // mock event parameters
         const e = { parameters: {} };
-        const homeCard = Plugins.GetMe['HomeCard'](e);
+        const homeCard = Plugins.GetMe.View['HomeCard'](e);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
@@ -46,7 +46,7 @@ describe('Plugins.GetMe', () => {
                         ok: true,
                         result: { id: 123456789, is_bot: true, first_name: "TestBot", username: "test_bot" }
                     })));
-        const result = Plugins.GetMe['OnLoad'](event);
+        const result = Plugins.GetMe.Controller['Load'](event);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();

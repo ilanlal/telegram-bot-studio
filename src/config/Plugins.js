@@ -1285,149 +1285,150 @@ Plugins.GetMe = {
     imageUrl: Plugins.DEFAULT_IMAGE_URL, // Falls back to default if specific icon isn't set
     description: 'Verify your bot connection and view identity details.',
     short_description: 'Bot identity & capabilities',
+    Controller: {
 
-    /**
-     * Entry point for the Get Me plugin
-     */
-    OnLoad: (e) => {
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        try {
-            // Log the event for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'INFO', e, 'Loading GetMe plugin...');
-            const data = e?.commonEventObject?.parameters || {};
+        /**
+         * Entry point for the Get Me plugin
+         */
+        Load: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                // Log the event for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.Load', 'INFO', e, 'Loading GetMe plugin...');
+                const data = e?.commonEventObject?.parameters || {};
 
-            // Optional: Check if we are forcing a refresh via parameters
-            const isUpdate = data.update === 'true';
+                // Optional: Check if we are forcing a refresh via parameters
+                const isUpdate = data.update === 'true';
 
-            const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-            if (!input_token) {
-                throw new Error('Bot API Token is not set. Please connect your bot first.');
+                const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                if (!input_token) {
+                    throw new Error('Bot API Token is not set. Please connect your bot first.');
+                }
+
+                // Initialize Telegram Bot Client
+                const telegramBotClient = new TelegramBotClient(input_token);
+                // 1. API Call: getMe
+                const response = telegramBotClient.getMe();
+                // Log the raw response for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.Load', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
+
+                // Check for errors in response
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+                }
+
+                // Parse the result
+                const result = JSON.parse(response.getContentText()).result;
+
+                // 2. Navigation Handling
+                let navigation = CardService.newNavigation();
+
+                if (isUpdate) {
+                    // Update the existing card in place
+                    navigation.updateCard(
+                        Plugins.GetMe.View.HomeCard(data, result));
+                } else {
+                    // Push a new card onto the stack
+                    navigation.pushCard(
+                        Plugins.GetMe.View.HomeCard(data, result));
+                }
+
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(navigation)
+                    .build();
             }
-
-            // Logic: Fetch Data if Token Exists
-
-            const telegramBotClient = new TelegramBotClient(input_token);
-            // 1. API Call: getMe
-            const response = telegramBotClient.getMe();
-
-            // Log the raw response for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
-
-            // Check for errors in response
-            if (JSON.parse(response.getContentText()).ok !== true) {
-                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+            catch (error) {
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.Load', 'ERROR', e, error.toString(), error.stack);
+                // Return notification of error
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(
+                                error.toString()))
+                    .build();
             }
-
-            // Parse the result
-            const result = JSON.parse(response.getContentText()).result;
-
-            // 2. Navigation Handling
-            let navigation = CardService.newNavigation();
-
-            if (isUpdate) {
-                // Update the existing card in place
-                navigation.updateCard(
-                    Plugins.GetMe.HomeCard(data, result));
-            } else {
-                // Push a new card onto the stack
-                navigation.pushCard(
-                    Plugins.GetMe.HomeCard(data, result));
-            }
-
-            return CardService.newActionResponseBuilder()
-                .setNavigation(navigation)
-                .build();
-        }
-        catch (error) {
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.OnLoad', 'ERROR', e, error.toString(), error.stack);
-            // Return notification of error
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(
-                            error.toString()))
-                .build();
         }
     },
+    View: {
+        /**
+         * Builds the main interface card
+         */
+        HomeCard: (data = {}, result = {}) => {
+            // 1. Data Initialization
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.GetMe.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('Bot Dashboard')
+                    .setSubtitle('Identity & Feature Configuration')
+                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageUrl(Plugins.GetMe.imageUrl));
 
-    /**
-     * Builds the main interface card
-     */
-    HomeCard: (data = {}, result = {}) => {
-        // 1. Data Initialization
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.GetMe.id + '-Home')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Bot Dashboard')
-                .setSubtitle('Identity & Feature Configuration')
-                .setImageStyle(CardService.ImageStyle.CIRCLE)
-                .setImageUrl(Plugins.GetMe.imageUrl));
+            // 1. Main Section: Bot Identity & Capabilities
+            // --- Section A: Identity Profile ---
+            const profileSection = CardService.newCardSection()
+                .setHeader('🤖 Identity Profile');
 
-        // 1. Main Section: Bot Identity & Capabilities
-        // --- Section A: Identity Profile ---
-        const profileSection = CardService.newCardSection()
-            .setHeader('🤖 Identity Profile');
+            // Display Name & ID
+            profileSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Display Name')
+                .setText(`<b>${result.first_name}${result.last_name ? ' ' + result.last_name : ''}</b>`)
+                .setBottomLabel(`Bot ID: ${result.id}`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('badge').setFill(false)))
+                .setWrapText(true));
 
-        // Display Name & ID
-        profileSection.addWidget(CardService.newDecoratedText()
-            .setTopLabel('Display Name')
-            .setText(`<b>${result.first_name}${result.last_name ? ' ' + result.last_name : ''}</b>`)
-            .setBottomLabel(`Bot ID: ${result.id}`)
-            .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                CardService.newMaterialIcon().setName('badge').setFill(false)))
-            .setWrapText(true));
+            // Username & Link
+            profileSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Username')
+                .setText(`@${result.username}`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('alternate_email').setFill(false)))
+                .setButton(CardService.newTextButton()
+                    .setText('Open Chat')
+                    .setOpenLink(CardService.newOpenLink()
+                        .setUrl(`https://t.me/${result.username}`))));
 
-        // Username & Link
-        profileSection.addWidget(CardService.newDecoratedText()
-            .setTopLabel('Username')
-            .setText(`@${result.username}`)
-            .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                CardService.newMaterialIcon().setName('alternate_email').setFill(false)))
-            .setButton(CardService.newTextButton()
-                .setText('Open Chat')
-                .setOpenLink(CardService.newOpenLink()
-                    .setUrl(`https://t.me/${result.username}`))));
+            cardBuilder.addSection(profileSection);
 
-        cardBuilder.addSection(profileSection);
+            // --- Section B: Capabilities (Grid Layout) ---
+            // Shows what the bot is allowed to do based on BotFather settings
+            const settingsGrid = CardService.newGrid()
+                .setTitle('⚙️ Capabilities & Privacy')
+                .setNumColumns(2);
 
-        // --- Section B: Capabilities (Grid Layout) ---
-        // Shows what the bot is allowed to do based on BotFather settings
-        const settingsGrid = CardService.newGrid()
-            .setTitle('⚙️ Capabilities & Privacy')
-            .setNumColumns(2);
-
-        // add other properties dynamically if needed
-        Object.keys(result).forEach(key => {
-            if (!['id', 'username'].includes(key)) {
-                const value = result[key];
-                if (typeof value === 'boolean') {
-                    settingsGrid.addItem(
-                        Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+            // add other properties dynamically if needed
+            Object.keys(result).forEach(key => {
+                if (!['id', 'username'].includes(key)) {
+                    const value = result[key];
+                    if (typeof value === 'boolean') {
+                        settingsGrid.addItem(
+                            Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                    }
                 }
-            }
-        });
+            });
 
-        cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
+            cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
 
-        // --- Section: Debug/Raw Data ---
-        cardBuilder.addSection(
-            Plugins.ViewModel.BuildResultSection('getMe', result));
+            // --- Section: Debug/Raw Data ---
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildResultSection('getMe', result));
 
 
-        // 2. Footer: Refresh Action
-        const footer = CardService.newFixedFooter()
-            .setPrimaryButton(CardService.newTextButton()
-                .setText('Refresh Data')
-                .setMaterialIcon(CardService.newMaterialIcon()
-                    .setName('refresh')
-                    .setFill(false)) // Constraint check: setFill(false)
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.GetMe.OnLoad')
-                    .setParameters({ update: 'true' })));
+            // 2. Footer: Refresh Action
+            const footer = CardService.newFixedFooter()
+                .setPrimaryButton(CardService.newTextButton()
+                    .setText('Refresh Data')
+                    .setMaterialIcon(CardService.newMaterialIcon()
+                        .setName('refresh')
+                        .setFill(false)) // Constraint check: setFill(false)
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.GetMe.Controller.Load')
+                        .setParameters({ update: 'true' })));
 
-        cardBuilder.setFixedFooter(footer);
+            cardBuilder.setFixedFooter(footer);
 
-        return cardBuilder.build();
+            return cardBuilder.build();
+        }
     }
 };
 
