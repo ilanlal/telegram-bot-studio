@@ -1337,8 +1337,8 @@ Plugins.GetMe = {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
-                // Fetch bot username for logging purposes
-                data.username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+                // Fetch bot current bot name for logging purposes
+                data.currentBotName = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
 
                 // Initialize Telegram Bot Client
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1490,8 +1490,8 @@ Plugins.GetChat = {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
-                // Fetch bot username for logging purposes
-                data.username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+                // Fetch bot current bot name for logging purposes
+                data.currentBotName = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
 
                 // Extract Chat ID from form inputs if available (user clicked Search)
                 // or fall back to parameters/properties
@@ -1655,7 +1655,7 @@ Plugins.GetChat = {
             cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
             // --- Section C: Raw Data (Debug) ---
             cardBuilder.addSection(
-                Plugins.Helper.View.BuildResultSection(data.username, 'getChat', result));
+                Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getChat', result));
 
             return cardBuilder.build();
         }
@@ -1686,8 +1686,9 @@ Plugins.Webhook = {
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
-                // Fetch bot username for logging purposes
-                data.username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+                
+                // Fetch bot current bot name for logging purposes
+                data.currentBotName = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
 
                 // Logic: Fetch Data if Token Exists
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1965,7 +1966,7 @@ Plugins.Webhook = {
             cardBuilder.addSection(configSection);
 
             // --- Section: Raw Data (Debug) ---
-            cardBuilder.addSection(Plugins.Helper.View.BuildResultSection(data.username, 'getWebhookInfo', result));
+            cardBuilder.addSection(Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getWebhookInfo', result));
 
             // --- 3. Footer Refresh ---
             const footer = CardService.newFixedFooter()
