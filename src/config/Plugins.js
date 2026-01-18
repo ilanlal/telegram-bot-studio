@@ -1156,12 +1156,7 @@ Plugins.Settings = {
                             .setFieldName('terminal_output_switch')
                             .setValue('ON')
                             .setSelected(data.terminal_output_switch === 'ON')
-                            .setControlType(CardService.SwitchControlType.SWITCH)
-                            .setOnChangeAction(
-                                CardService.newAction()
-                                    .setFunctionName('Plugins.Settings.Controller.ToggleAction')
-                                    .setParameters({ actionName: 'terminal_output_switch' })
-                            )
+                            .setControlType(CardService.SwitchControlType.CHECK_BOX)
                     )
             );
 
@@ -1179,12 +1174,7 @@ Plugins.Settings = {
                             .setFieldName('focus_terminal_output')
                             .setValue('ON')
                             .setSelected(data.focus_terminal_output === 'ON')
-                            .setControlType(CardService.SwitchControlType.SWITCH)
-                            .setOnChangeAction(
-                                CardService.newAction()
-                                    .setFunctionName('Plugins.Settings.Controller.ToggleAction')
-                                    .setParameters({ actionName: 'focus_terminal_output' })
-                            )
+                            .setControlType(CardService.SwitchControlType.CHECK_BOX)
                     )
             );
 
