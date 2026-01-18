@@ -3,26 +3,13 @@ const { Plugins } = require('../Plugins');
 
 describe('Plugins.Helpper', () => {
     describe('Helpper Plugin Controller', () => {
-        // DumpApiResultToSheet test
-        it('should handle OnDumpToSheet', () => {
-            // mock event parameters
-            const e = {
-                commonEventObject: {
-                    parameters: {
-                        sheetName: 'TestDumpSheet',
-                        bot: 'TestBot',
-                        action: 'TestAction'
-                    },
-                    formInputs: {
-                        txt_json_data: { stringInputs: { value: ['{"key1":"value1","key2":"value2"}'] } }
-                    }
-                }
-            };
-
-            const actionResponse = Plugins.Helper.Controller['DumpApiResultToSheet'](e);
-            expect(actionResponse).toBeDefined();
-            const data = actionResponse.getData();
-            expect(data).toBeDefined();
+        // createStatusItem test
+        it('should createStatusItem', () => {
+            const statusItem = Plugins.Helper.View['createStatusItem']('Test Status', 'This is a test status item.');
+            expect(statusItem).toBeDefined();
+            const statusItemData = statusItem.getData();
+            expect(statusItemData).toBeDefined();
+            expect(statusItemData.title).toBe('Test Status');
         });
     });
 });

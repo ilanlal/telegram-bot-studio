@@ -8,13 +8,11 @@ describe('Plugins Modules Sheet', () => {
 
     it('should throw error when initializing Sheet module without name', () => {
         expect(() => {
-            const sheetModule = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
-            sheetModule.initializeSheet({}); // No name provided
-        }).toThrow(Plugins.Modules.Sheet.INVALID_MODEL_ERROR());
+            const sheetModule = Plugins.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), {}); // No name provided
+        }).toThrow(Plugins.Modules.Sheet.INVALID_MODEL_ERROR);
     });
 
     it('should create and initialize Sheet module correctly', () => {
-        const sheetModule = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
         const sheetMeta = {
             name: 'TestSheet',
             columns: ['id', 'first_name', 'username'],
@@ -22,7 +20,7 @@ describe('Plugins Modules Sheet', () => {
                 [1, 'Test', 'testuser']
             ]
         };
-        const sheet = sheetModule.initializeSheet(sheetMeta);
+        const sheet = Plugins.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), sheetMeta);
         expect(sheet).toBeDefined();
         expect(sheet.getName()).toBe('TestSheet');
     });
@@ -33,12 +31,12 @@ describe('Plugins Modules Sheet', () => {
             first_name: 'Test',
             username: 'testuser'
         };
-        const sheetModule = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
+
         const sheetMeta = {
             name: 'TestSheet',
             columns: ['id', 'first_name', 'username']
         };
-        const sheet = sheetModule.dumpObjectToSheet(sheetMeta, 'Test Dump', data);
+        const sheet = Plugins.Modules.Sheet.dumpObjectToSheet(SpreadsheetApp.getActiveSpreadsheet(), sheetMeta, 'Test Dump', data);
         expect(sheet).toBeDefined();
         expect(sheet.getName()).toBe('TestSheet');
     });
@@ -48,8 +46,8 @@ describe('Plugins Modules Sheet', () => {
             name: 'ActiveSheet',
             columns: ['id', 'first_name', 'username'],
         };
-        const sheetModule = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
-        const activeSheet = sheetModule.getSheet(sheetMeta);
+
+        const activeSheet = Plugins.Modules.Sheet.getSheet(SpreadsheetApp.getActiveSpreadsheet(), sheetMeta);
         expect(activeSheet).toBeDefined();
         expect(activeSheet.getName()).toBe('ActiveSheet');
     });

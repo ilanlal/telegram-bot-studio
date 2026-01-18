@@ -84,63 +84,49 @@ Plugins.Modules = {
             }
         }
     },
-    Sheet: class {
-        static INVALID_MODEL_ERROR() {
-            return 'Sheet model must have a valid name property';
-        }
+    Sheet: {
+        INVALID_MODEL_ERROR: 'Sheet model must have a valid name property',
 
-        static create(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet()) {
-            return new Plugins.Modules.Sheet(activeSpreadsheet);
-        }
-
-        constructor(activeSpreadsheet) {
-            this._activeSpreadsheet = activeSpreadsheet;
-            this._columns = [];
-            this._sheetName = null;
-            this._sheet = null;
-        }
-
-        initializeSheet(sheetMeta = {}) {
+        initializeSheet(activeSpreadsheet, sheetMeta = {}) {
             if (!sheetMeta.name) {
-                throw new Error(Plugins.Modules.Sheet.INVALID_MODEL_ERROR());
+                throw new Error(Plugins.Modules.Sheet.INVALID_MODEL_ERROR);
             }
-            this._sheetName = sheetMeta.name;
-            this._columns = sheetMeta.columns || [];
-            let sheet = this._activeSpreadsheet.getSheetByName(this._sheetName);
-            if (!sheet) {
-                sheet = this._activeSpreadsheet.insertSheet(this._sheetName);
 
-                if (this._columns.length > 0) {
-                    sheet.appendRow(this._columns);
+            let sheet = activeSpreadsheet.getSheetByName(sheetMeta.name);
+            if (!sheet) {
+                sheet = activeSpreadsheet.insertSheet(sheetMeta.name);
+
+                if ((sheetMeta.columns || []).length > 0) {
+                    sheet.appendRow(sheetMeta.columns);
                 }
             }
-            this._sheet = sheet;
+
             return sheet;
-        }
+        },
 
-        setActiveSheet(sheetMeta = {}) {
-            return this._activeSpreadsheet
-                .setActiveSheet(this.getSheet(sheetMeta));
-        }
+        setActiveSheet(activeSpreadsheet, sheetMeta = {}) {
+            return activeSpreadsheet
+                .setActiveSheet(this.getSheet(activeSpreadsheet, sheetMeta));
+        },
 
-        getSheet(sheetMeta = {}) {
-            return this._sheet = this.initializeSheet(sheetMeta);
-        }
+        getSheet(activeSpreadsheet, sheetMeta = {}) {
+            return this._sheet = this.initializeSheet(activeSpreadsheet, sheetMeta);
+        },
 
-        bindSheetSampleData(sheetMeta = {}) {
+        bindSheetSampleData(activeSpreadsheet, sheetMeta = {}) {
             const sampleData = sheetMeta.sample_data || [];
             if (sampleData.length === 0) {
                 return;
             }
 
-            const sheet = this.getSheet(sheetMeta);
+            const sheet = this.getSheet(activeSpreadsheet, sheetMeta);
             const existingValues = sheet.getDataRange().getValues() || [];
 
             // merge existing values with sample data (existing values first)
             const mergedValues = existingValues.concat(sampleData);
 
             // pad rows to match columns length
-            const columnsLength = this._columns.length;
+            const columnsLength = (sheetMeta.columns || []).length;
             for (let row = 0; row < mergedValues.length; row++) {
                 while (mergedValues[row].length < columnsLength) {
                     mergedValues[row].push('');
@@ -152,10 +138,10 @@ Plugins.Modules = {
                 .setValues(mergedValues);
 
             return sheet;
-        }
+        },
 
-        dumpObjectToSheet(sheetMeta = {}, bot = '', action = '.', obj = {}) {
-            const sheet = this.getSheet(sheetMeta);
+        dumpObjectToSheet(activeSpreadsheet, sheetMeta = {}, bot = '', action = '.', obj = {}) {
+            const sheet = this.getSheet(activeSpreadsheet, sheetMeta);
             const values = Object.values(obj);
             values.forEach((val, idx) => {
                 // stringify objects and arrays
@@ -177,23 +163,8 @@ Plugins.Modules = {
             const lastRow = sheet.getLastRow();
             const lastRowA1Notation = `A${lastRow}:G${lastRow}`;
             sheet.setActiveSelection(lastRowA1Notation);
-            
+
             return sheet;
-        }
-
-        get columns() {
-            return this._columns;
-        }
-
-        get sheet() {
-            return this._sheet;
-        }
-
-        get activeSpreadsheet() {
-            return this._activeSpreadsheet;
-        }
-        get sheetName() {
-            return this._sheetName;
         }
     },
     TerminalOutput: class {
@@ -217,8 +188,8 @@ Plugins.Modules = {
                 return;
             }
 
-            const sheet = Plugins.Modules.Sheet.create(activeSpreadsheet)
-                .getSheet(Plugins.Modules.TerminalOutput.SHEET_META);
+            const sheet = Plugins.Modules.Sheet
+                .getSheet(activeSpreadsheet, Plugins.Modules.TerminalOutput.SHEET_META);
 
             sheet.appendRow([
                 // Created On as iso string
@@ -251,51 +222,8 @@ Plugins.Modules = {
 
 Plugins.Helper = {
     Controller: {
-        DumpApiResultToSheet: (e) => {
-            // extract parameters
-            const sheetName = e.parameters?.sheetName || 'Dump';
-            const action = e.parameters?.action || 'Dump';
-            const botName = e.parameters?.botName || 'Unknown Bot';
-            const data = e.parameters?.data || '{}';
-            const result = JSON.parse(data);
-            // Create SheetModel instance
-            const sheetModel = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
-            const columns = ['timestamp', 'bot', 'action', 'object_data'];
-            // Dump data to sheet
-            sheetModel.dumpObjectToSheet(
-                { name: sheetName, columns }, botName, action, result);
-
-            // Return action response with notification
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(`✅ Data dumped to sheet "${sheetName}" successfully.`))
-                .build();
-        }
     },
     View: {
-        BuildExportWidget: (botName = '', apiAction = '.', result = {}) => {
-            return CardService.newDecoratedText()
-                .setText('📥 Export to Sheet')
-                .setWrapText(true)
-                .setBottomLabel(`Click to export the ${apiAction} response data to a Google Sheet.`)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('save_alt')))
-                .setButton(
-                    CardService.newTextButton()
-                        .setText('Export')
-                        .setOnClickAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.Helper.Controller.DumpApiResultToSheet')
-                                .setParameters({
-                                    sheetName: '📦 API Dumps',
-                                    botName: botName,
-                                    action: apiAction,
-                                    data: JSON.stringify(result)
-                                })
-                        )
-                );
-        },
         BuildResultSection: (botName = '', action = '.', result = {}) => {
             const newSection = CardService.newCardSection()
                 .setHeader('✅ Execution Result')
@@ -763,6 +691,61 @@ Plugins.ConfirmationCard = {
     }
 };
 
+Plugins.ExportApiResultWidget = {
+    id: 'ExportApiResultWidget',
+    name: 'Export Widget',
+    short_description: 'Widget to export API results to Google Sheets',
+    description: 'A reusable widget that allows users to export API result data to a Google Sheet for further analysis and record-keeping.',
+    version: '1.0.0',
+    imageUrl: Plugins.Media.YOU_GOT_IT_IMG_URL,
+    Controller: {
+        DumpApiResultToSheet: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            // extract parameters
+            const sheetName = e?.commonEventObject?.parameters?.sheetName || 'Dump';
+            const action = e?.commonEventObject?.parameters?.action || 'Dump';
+            const botName = e?.commonEventObject?.parameters?.botName || 'Unknown Bot';
+            const data = e?.commonEventObject?.parameters?.data || '{}';
+            const result = JSON.parse(data);
+
+            const columns = ['timestamp', 'bot', 'action', 'object_data'];
+            // Dump data to sheet
+            Plugins.Modules.Sheet.dumpObjectToSheet(activeSpreadsheet,
+                { name: sheetName, columns }, botName, action, result);
+
+            // Return action response with notification
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(`✅ Data dumped to sheet "${sheetName}" successfully.`))
+                .build();
+        }
+    },
+    View: {
+        BuildExportWidget: (botName = '', apiAction = '.', result = {}) => {
+            return CardService.newDecoratedText()
+                .setText('📥 Export to Sheet')
+                .setWrapText(true)
+                .setBottomLabel(`Click to export the ${apiAction} response data to a Google Sheet.`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('save_alt')))
+                .setButton(
+                    CardService.newTextButton()
+                        .setText('Export')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.ExportApiResultWidget.Controller.DumpApiResultToSheet')
+                                .setParameters({
+                                    sheetName: '📦 API Dumps',
+                                    botName: botName,
+                                    action: apiAction,
+                                    data: JSON.stringify(result)
+                                })
+                        )
+                );
+        }
+    }
+};
 Plugins.Connection = {
     id: 'ConnectionPlugin',
     name: 'Connection',
@@ -1552,7 +1535,7 @@ Plugins.GetMe = {
 
             // Add dump to result to sheet widget
             profileSection.addWidget(
-                Plugins.Helper.View.BuildExportWidget(data.currentBotName, 'getMe', result));
+                Plugins.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getMe', result));
 
             cardBuilder.addSection(profileSection);
 
@@ -1768,7 +1751,7 @@ Plugins.GetChat = {
 
             // Add dump to result to sheet widget
             identitySection.addWidget(
-                Plugins.Helper.View.BuildExportWidget(data.currentBotName, 'getMe', result));
+                Plugins.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getMe', result));
 
             cardBuilder.addSection(identitySection);
 
@@ -2073,7 +2056,7 @@ Plugins.Webhook = {
 
             // Add dump to result to sheet widget
             statusSection.addWidget(
-                Plugins.Helper.View.BuildExportWidget(data.currentBotName, 'getWebhookInfo', result));
+                Plugins.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getWebhookInfo', result));
 
             cardBuilder.addSection(statusSection);
 
