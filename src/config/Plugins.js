@@ -172,6 +172,12 @@ Plugins.Modules = {
             ]
             // append data as a new row
             sheet.appendRow(row_data);
+
+            // Set active selection to the last row
+            const lastRow = sheet.getLastRow();
+            const lastRowA1Notation = `A${lastRow}:G${lastRow}`;
+            sheet.setActiveSelection(lastRowA1Notation);
+            
             return sheet;
         }
 
@@ -245,15 +251,11 @@ Plugins.Modules = {
 
 Plugins.Helper = {
     Controller: {
-        GetFormInputValue: (e, key, defaultValue = '') => {
-            const formInputs = e?.commonEventObject?.formInputs;
-            return formInputs?.[key]?.stringInputs?.value?.[0] || defaultValue;
-        },
         DumpApiResultToSheet: (e) => {
             // extract parameters
             const sheetName = e.parameters?.sheetName || 'Dump';
             const action = e.parameters?.action || 'Dump';
-            const bot = e.parameters?.bot || 'Unknown Bot';
+            const botName = e.parameters?.botName || 'Unknown Bot';
             const data = e.parameters?.data || '{}';
             const result = JSON.parse(data);
             // Create SheetModel instance
@@ -261,7 +263,7 @@ Plugins.Helper = {
             const columns = ['timestamp', 'bot', 'action', 'object_data'];
             // Dump data to sheet
             sheetModel.dumpObjectToSheet(
-                { name: sheetName, columns }, bot, action, result);
+                { name: sheetName, columns }, botName, action, result);
 
             // Return action response with notification
             return CardService.newActionResponseBuilder()
@@ -272,7 +274,7 @@ Plugins.Helper = {
         }
     },
     View: {
-        BuildExportWidget: (bot = '', apiAction = '.', result = {}) => {
+        BuildExportWidget: (botName = '', apiAction = '.', result = {}) => {
             return CardService.newDecoratedText()
                 .setText('📥 Export to Sheet')
                 .setWrapText(true)
@@ -287,22 +289,18 @@ Plugins.Helper = {
                                 .setFunctionName('Plugins.Helper.Controller.DumpApiResultToSheet')
                                 .setParameters({
                                     sheetName: '📦 API Dumps',
-                                    bot: bot,
+                                    botName: botName,
                                     action: apiAction,
                                     data: JSON.stringify(result)
                                 })
                         )
                 );
         },
-        BuildResultSection: (bot = '', action = '.', result = {}) => {
+        BuildResultSection: (botName = '', action = '.', result = {}) => {
             const newSection = CardService.newCardSection()
                 .setHeader('✅ Execution Result')
                 .setCollapsible(true)
                 .setNumUncollapsibleWidgets(0);
-
-            // Add dump to sheet widget
-            newSection.addWidget(
-                Plugins.Helper.View.BuildExportWidget(bot, action, result));
 
             // Add Preview title
             newSection.addWidget(
@@ -661,6 +659,110 @@ Plugins.Home = {
     }
 };
 
+Plugins.ConfirmationCard = {
+    id: 'ConfirmationCardPlugin',
+    name: 'Confirmation Card',
+    short_description: 'Standardized confirmation dialog',
+    description: 'A reusable confirmation dialog plugin to standardize user confirmations across various actions within the Telegram Bot Studio environment.',
+    version: '1.0.0',
+    imageUrl: Plugins.Media.PAY_ATTENTION_IMG_URL,
+    Controller: {
+        Load: (e) => {
+            const title = e?.commonEventObject?.parameters?.title || 'Confirm Action';
+            const message = e?.commonEventObject?.parameters?.message || 'Are you sure you want to proceed?';
+            const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
+            const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
+
+            if (!onClickFunctionName) {
+                throw new Error('Missing required parameters: message, onClickFunctionName');
+            }
+
+            // Push the confirmation card
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(
+                            Plugins.ConfirmationCard.View.HomeCard({
+                                title: title,
+                                message: message,
+                                onClickFunctionName: onClickFunctionName,
+                                onClickParameters: onClickParameters
+                            })
+                        )
+                )
+                .build();
+        },
+        Confirm: (e) => {
+            // extract parameters from event object onClickFunctionName = 'Plugins['Name'].Controller['Function']', onClickParameters={}
+            const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
+            const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
+
+            if (!onClickFunctionName) {
+                throw new Error('Missing required parameters: message, onClickFunctionName');
+            }
+
+            // Resolve the function from the string name 
+            // onClickFunctionName = 'Plugins.Name.Controller.Function'
+            const functionPathParts = onClickFunctionName.split('.');
+            let actionResult = null;
+            try {
+                let func = Plugins;
+                for (let i = 1; i < functionPathParts.length; i++) {
+                    func = func[functionPathParts[i]];
+                }
+                actionResult = func(e);
+            } catch (error) {
+                throw new Error(`Error executing function "${onClickFunctionName}": ${error.message}`);
+            }
+
+            return actionResult;
+        },
+        Cancel: (e) => {
+            // Simply pop the card on cancel
+            return CardService.newActionResponseBuilder()
+                .setNavigation(CardService.newNavigation().popCard())
+                .build();
+        },
+    },
+    View: {
+        HomeCard: (data = {}) => {
+            // Build the Confirmation Card.
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.ConfirmationCard.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle(data.title || 'Confirm Action')
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
+                    .setImageUrl(Plugins.ConfirmationCard.imageUrl)
+                    .setImageAltText('Confirmation Image'));
+
+            // Build the main section
+            const mainSection = CardService.newCardSection()
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(data.message || 'Are you sure you want to proceed?'));
+
+            cardBuilder.addSection(mainSection);
+
+            // Add Confirm and Cancel buttons to the footer
+            cardBuilder.setFixedFooter(
+                CardService.newFixedFooter()
+                    .setPrimaryButton(
+                        CardService.newTextButton()
+                            .setText('Confirm')
+                            .setOnClickAction(CardService.newAction()
+                                .setFunctionName('Plugins.ConfirmationCard.Controller.Confirm')
+                                .setParameters({ onClickFunctionName: data.onClickFunctionName, onClickParameters: JSON.stringify(data.onClickParameters || {}) })))
+                    .setSecondaryButton(
+                        CardService.newTextButton()
+                            .setText('Cancel')
+                            .setOnClickAction(CardService.newAction()
+                                .setFunctionName('Plugins.ConfirmationCard.Controller.Cancel'))));
+
+            return cardBuilder.build();
+        }
+    }
+};
+
 Plugins.Connection = {
     id: 'ConnectionPlugin',
     name: 'Connection',
@@ -676,25 +778,7 @@ Plugins.Connection = {
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Load', 'INFO', e, 'Loading Connection plugin...');
                 const data = e?.commonEventObject?.parameters || {};
 
-                // Determine if this is an update or a new push
-                const isUpdate = data.update === 'true';
-
-                // Build navigation response
-                let navigation = CardService.newNavigation();
-
-                if (isUpdate) {
-                    // Update the existing card in place
-                    navigation.updateCard(
-                        Plugins.Connection.View.HomeCard(data));
-                } else {
-                    // Push a new card onto the stack
-                    navigation.pushCard(
-                        Plugins.Connection.View.HomeCard(data));
-                }
-
-                return CardService.newActionResponseBuilder()
-                    .setNavigation(navigation)
-                    .build();
+                return Plugins.Connection.View.HomeCard(data);
             }
             catch (error) {
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Load', 'ERROR', e, error.toString(), error.stack);
@@ -763,8 +847,39 @@ Plugins.Connection = {
                     .build();
             }
         },
+        ConfirmDisconnect(e) {
+            // Show confirmation card before disconnecting
+            const title = 'Disconnect Bot';
+            const message = 'Are you sure you want to disconnect your bot? This will remove the stored bot token.';
+            const onClickFunctionName = 'Plugins.Connection.Controller.Disconnect';
+            const onClickParameters = e?.commonEventObject?.parameters || {};
+
+            // Push Confirmation Card
+            return Plugins.ConfirmationCard.Controller.Load({
+                commonEventObject: {
+                    parameters: { title, message, onClickFunctionName, onClickParameters }
+                }
+            });
+        },
         Disconnect(e) {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
+                // Show confirmation card before disconnecting
+                const title = 'Disconnect Bot';
+                const message = 'Are you sure you want to disconnect your bot? This will remove the stored bot token.';
+                const onClickFunctionName = 'Plugins.Connection.Controller.Disconnect';
+                const onClickParameters = e?.commonEventObject?.parameters || {};
+
+                // Push Confirmation Card
+                const confirmationCard = Plugins.ConfirmationCard.Controller.Load({
+                    commonEventObject: {
+                        parameters: { title, message, onClickFunctionName, onClickParameters }
+                    }
+                });
+
+                // Log the event for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Disconnect', 'INFO', e, 'Disconnecting bot');
+
                 // Clear the stored token from user properties
                 PropertiesService.getUserProperties().deleteProperty('txt_bot_api_token');
                 // Build and return the Home Card
@@ -806,7 +921,7 @@ Plugins.Connection = {
             if (isConnected) {
                 // Disconnect action
                 executeAction = CardService.newAction()
-                    .setFunctionName('Plugins.Connection.Controller.Disconnect');
+                    .setFunctionName('Plugins.Connection.Controller.ConfirmDisconnect');
             } else {
                 // Connect action
                 executeAction = CardService.newAction()
@@ -906,7 +1021,7 @@ Plugins.Connection = {
                     .setButton(CardService.newTextButton()
                         .setText('Disconnect')
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Connection.Controller.Disconnect')))
+                            .setFunctionName('Plugins.Connection.Controller.ConfirmDisconnect')))
                 );
             } else {
                 // Connect Flow: Input + Button
@@ -1199,8 +1314,25 @@ Plugins.UserProfile = {
                 return this.handleOperationError(error);
             }
         },
+        ConfirmRevokeLicense(e) {
+            // Show confirmation card before revoking license
+            const title = 'Cancel Subscription';
+            const message = 'Are you sure you want to cancel your premium subscription? You will lose access to premium features.';
+            const onClickFunctionName = 'Plugins.UserProfile.Controller.RevokeLicense';
+            const onClickParameters = e?.commonEventObject?.parameters || {};
+
+            // Push Confirmation Card
+            return Plugins.ConfirmationCard.Controller.Load({
+                commonEventObject: {
+                    parameters: { title, message, onClickFunctionName, onClickParameters }
+                }
+            });
+        },
         RevokeLicense(e) {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
+                // Log the event for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'UserProfile.RevokeLicense', 'INFO', e, 'Revoking premium membership');
                 // Simulate revocation logic
                 PropertiesService.getUserProperties().deleteProperty('membership');
                 // Build and return the Home Card
@@ -1212,16 +1344,11 @@ Plugins.UserProfile = {
                             .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
                     ).build();
             } catch (error) {
+                // Log the error for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'UserProfile.RevokeLicense', 'ERROR', error, 'Error revoking premium membership');
+                // Return error notification
                 return this.handleOperationError(error);
             }
-        },
-        handleOperationSuccess(message) {
-            // Show a success message to the user
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(message))
-                .build();
         },
         handleOperationError(error) {
             // Show an error message to the user
@@ -1295,7 +1422,7 @@ Plugins.UserProfile = {
                     .setText('Cancel Subscription')
                     .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.UserProfile.Controller.RevokeLicense')));
+                        .setFunctionName('Plugins.UserProfile.Controller.ConfirmRevokeLicense')));
             } else {
                 newSection.addWidget(CardService.newTextButton()
                     .setText('💎 Upgrade Now')
@@ -1422,6 +1549,10 @@ Plugins.GetMe = {
                     .setText('Open Chat')
                     .setOpenLink(CardService.newOpenLink()
                         .setUrl(`https://t.me/${result.username}`))));
+
+            // Add dump to result to sheet widget
+            profileSection.addWidget(
+                Plugins.Helper.View.BuildExportWidget(data.currentBotName, 'getMe', result));
 
             cardBuilder.addSection(profileSection);
 
@@ -1635,6 +1766,10 @@ Plugins.GetChat = {
                             .setUrl(`https://t.me/${result.username}`))));
             }
 
+            // Add dump to result to sheet widget
+            identitySection.addWidget(
+                Plugins.Helper.View.BuildExportWidget(data.currentBotName, 'getMe', result));
+
             cardBuilder.addSection(identitySection);
 
             const settingsGrid = CardService.newGrid()
@@ -1682,11 +1817,12 @@ Plugins.Webhook = {
 
                 const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
                 const isUpdate = data.update === 'true';
+                const isPop = data.popCard === 'true';
 
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
-                
+
                 // Fetch bot current bot name for logging purposes
                 data.currentBotName = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
 
@@ -1705,6 +1841,9 @@ Plugins.Webhook = {
 
                 // 2. Navigation Handling
                 let navigation = CardService.newNavigation();
+                if (isPop) {
+                    navigation.popCard();
+                }
                 if (isUpdate) {
                     // Update the existing card in place
                     navigation.updateCard(
@@ -1791,9 +1930,24 @@ Plugins.Webhook = {
             }
         },
 
+        ConfirmDeleteWebhook: (e) => {
+            // Show confirmation card before disconnecting
+            const title = 'Confirm Webhook Deletion';
+            const message = 'Are you sure you want to delete the webhook? This will switch the bot to Long Polling mode.';
+            const onClickFunctionName = 'Plugins.Webhook.Controller.DeleteWebhook';
+            const onClickParameters = {};
+
+            // Push Confirmation Card
+            return Plugins.ConfirmationCard.Controller.Load({
+                commonEventObject: {
+                    parameters: { title, message, onClickFunctionName, onClickParameters }
+                }
+            });
+        },
+
         /**
-         * ACTION: Delete Webhook
-         */
+        * ACTION: Delete Webhook
+        */
         DeleteWebhook: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
@@ -1815,7 +1969,7 @@ Plugins.Webhook = {
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
 
                 const result = JSON.parse(response.getContentText()).result;
-                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
+                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true', popCard: 'true' } } });
             } catch (error) {
                 // Log error for debugging
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DeleteWebhook', 'ERROR', e, error.toString(), error.stack);
@@ -1854,7 +2008,7 @@ Plugins.Webhook = {
                 buttonSet.addButton(CardService.newTextButton()
                     .setText('Delete Webhook')
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.Controller.DeleteWebhook')));
+                        .setFunctionName('Plugins.Webhook.Controller.ConfirmDeleteWebhook')));
 
                 // Active Status
                 statusSection.addWidget(CardService.newDecoratedText()
@@ -1916,6 +2070,10 @@ Plugins.Webhook = {
                             .setFill(false))) // Constraint 1
                     .setWrapText(true));
             }
+
+            // Add dump to result to sheet widget
+            statusSection.addWidget(
+                Plugins.Helper.View.BuildExportWidget(data.currentBotName, 'getWebhookInfo', result));
 
             cardBuilder.addSection(statusSection);
 
