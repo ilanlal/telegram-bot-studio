@@ -746,6 +746,7 @@ Plugins.ExportApiResultWidget = {
         }
     }
 };
+
 Plugins.Connection = {
     id: 'ConnectionPlugin',
     name: 'Connection',
@@ -969,62 +970,28 @@ Plugins.Connection = {
                     .setImageStyle(CardService.ImageStyle.CIRCLE)
                     .setImageUrl(Plugins.Connection.imageUrl));
 
-            // 2. Status Section
-            const statusSection = CardService.newCardSection()
-                .setHeader('📡 Connection Status');
-
-            if (isConnected) {
-                statusSection.addWidget(CardService.newDecoratedText()
-                    .setTopLabel('Current State')
-                    .setText('✅ Securely Connected')
-                    .setBottomLabel('Your bot token is saved and active.')
-                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('verified_user').setFill(false))) // Constraint 1
-                );
-            } else {
-                statusSection.addWidget(CardService.newDecoratedText()
-                    .setTopLabel('Current State')
-                    .setText('❌ Disconnected')
-                    .setBottomLabel('Please enter your API token below.')
-                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('link_off').setFill(false))) // Constraint 1
-                );
-            }
-            cardBuilder.addSection(statusSection);
-
-            // 3. Action Section (Connect vs Disconnect)
+            // 2. Welcome & Status Section
             const actionSection = CardService.newCardSection()
                 .setHeader(isConnected ? '⚙️ Actions' : '🔑 Authentication');
 
-            if (isConnected) {
-                // Disconnect Flow
-                actionSection.addWidget(CardService.newDecoratedText()
-                    .setText('Disconnect Bot')
-                    .setBottomLabel('Revoke access and clear stored token.')
-                    .setButton(CardService.newTextButton()
-                        .setText('Disconnect')
-                        .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Connection.Controller.ConfirmDisconnect')))
-                );
-            } else {
-                // Connect Flow: Input + Button
-                actionSection.addWidget(Plugins.Helper.View.BuildTokenTextInputWidget(token, false));
+            // Connect Flow: Input + Button
+            actionSection.addWidget(Plugins.Helper.View.BuildTokenTextInputWidget(token, false));
 
-                // Help Hint
-                actionSection.addWidget(CardService.newDecoratedText()
-                    .setText('Need a Token?')
-                    .setBottomLabel('Ask @BotFather on Telegram.')
-                    .setButton(CardService.newTextButton()
-                        .setText('Open BotFather')
-                        .setOpenLink(CardService.newOpenLink().setUrl('https://t.me/BotFather')))
-                );
-            }
+            // Help Hint
+            actionSection.addWidget(CardService.newDecoratedText()
+                .setText('Need a Token?')
+                .setBottomLabel('Ask @BotFather on Telegram.')
+                .setButton(CardService.newTextButton()
+                    .setText('Open BotFather')
+                    .setOpenLink(CardService.newOpenLink().setUrl('https://t.me/BotFather')))
+            );
+
             cardBuilder.addSection(actionSection);
 
             const footer = CardService.newFixedFooter()
                 .setPrimaryButton(CardService.newTextButton()
-                    .setText('Verify & Connect')
-                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setText('Connect')
+                    //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                     .setBackgroundColor(Plugins.primaryColor())
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.Connection.Controller.Connect')
