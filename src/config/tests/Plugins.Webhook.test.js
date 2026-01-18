@@ -31,7 +31,7 @@ describe('Plugins.Webhook', () => {
                 })));
 
         // Call OnLoad without result
-        const homeCard = Plugins.Webhook['OnLoad'](e);
+        const homeCard = Plugins.Webhook.Controller['Load'](e);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
@@ -72,7 +72,7 @@ describe('Plugins.Webhook', () => {
                         allowed_updates: []
                     }
                 })));
-        const result = Plugins.Webhook['OnSetWebhook'](event);
+        const result = Plugins.Webhook.Controller['SetWebhook'](event);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();
@@ -112,7 +112,7 @@ describe('Plugins.Webhook', () => {
                         allowed_updates: []
                     }
                 })));
-        const result = Plugins.Webhook['OnDeleteWebhook'](event);
+        const result = Plugins.Webhook.Controller['DeleteWebhook'](event);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();

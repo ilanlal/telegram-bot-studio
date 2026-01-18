@@ -17,7 +17,7 @@ describe('Plugins.Connection', () => {
         it('should create HomeCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Connection['HomeCard'](e);
+            const homeCard = Plugins.Connection.View['HomeCard'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
@@ -47,7 +47,7 @@ describe('Plugins.Connection', () => {
                             result: { id: 123456789, is_bot: true, first_name: "TestBot", username: "test_bot" }
                         })));
 
-            const result = Plugins.Connection['OnConnect'](event);
+            const result = Plugins.Connection.Controller['Connect'](event);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -77,7 +77,7 @@ describe('Plugins.Connection', () => {
                     }
                 }
             };
-            const result = Plugins.Connection['OnConnect'](event);
+            const result = Plugins.Connection.Controller['Connect'](event);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -94,7 +94,7 @@ describe('Plugins.Connection', () => {
             };
 
 
-            const result = Plugins.Connection['OnDisconnect'](event);
+            const result = Plugins.Connection.Controller['Disconnect'](event);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();

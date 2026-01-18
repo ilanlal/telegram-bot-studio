@@ -11,7 +11,7 @@ describe('Plugins.GetChat', () => {
     it('should create HomeCard', () => {
         // mock event parameters
         const data = {};
-        const homeCard = Plugins.GetChat['HomeCard'](data);
+        const homeCard = Plugins.GetChat.View['HomeCard'](data);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
@@ -47,7 +47,7 @@ describe('Plugins.GetChat', () => {
                             username: "testuser"
                         }
                     })));
-        const result = Plugins.GetChat['OnLoad'](event);
+        const result = Plugins.GetChat.Controller['Load'](event);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();

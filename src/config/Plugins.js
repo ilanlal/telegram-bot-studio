@@ -234,8 +234,8 @@ Plugins.ViewModel = {
     name: 'Telegram Bot Studio',
     short_description: 'Plugins for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.0.2',
-    build: '20240610',
+    version: '1.0.0',
+    build: '20260118.174900',
     author: 'Ilan Laloum',
     license: 'MIT',
     gitRepository: 'https://github.com/ilanlaloum/telegram-bot-studio',
@@ -480,7 +480,7 @@ Plugins.Home = {
 
             // 1. Connection & Status Section (Pinned to Top)
             cardBuilder.addSection(
-                Plugins.Connection.WelcomeSection(data));
+                Plugins.Connection.View.WelcomeSection(data));
 
             // 2. Main Plugin Hub - Professional Grid-like feel
             const pluginHub = CardService.newCardSection()
@@ -663,232 +663,275 @@ Plugins.Connection = {
     description: 'The Connection plugin allows you to manage and configure the connection settings for your Telegram bot. You can set up your bot token, test the connection, and ensure that your bot is properly connected to the Telegram API.',
     version: '1.0.0',
     imageUrl: Plugins.WELCOME_IMG_URL,
-    WelcomeSection: (data = {}) => {
-        const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
-        const isConnected = !!token;
-        const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
-        const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Telegram Bot';
+    Controller: {
+        Load: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                // Log the event for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Load', 'INFO', e, 'Loading Connection plugin...');
+                const data = e?.commonEventObject?.parameters || {};
 
-        // Professional Status Section
-        const statusSection = CardService.newCardSection();
-        let executeAction;
-        if (isConnected) {
-            // Disconnect action
-            executeAction = CardService.newAction()
-                .setFunctionName('Plugins.Connection.OnDisconnect');
-        } else {
-            // Connect action
-            executeAction = CardService.newAction()
-                .setParameters({
-                    path: 'Plugins.Connection.HomeCard'
-                })
-                .setFunctionName('Plugins.Navigations.PushCard');
+                // Optional: Check if we are forcing a refresh via parameters
+                const isUpdate = data.update === 'true';
+
+
+
+                let navigation = CardService.newNavigation();
+
+                if (isUpdate) {
+                    // Update the existing card in place
+                    navigation.updateCard(
+                        Plugins.Connection.View.HomeCard(data));
+                } else {
+                    // Push a new card onto the stack
+                    navigation.pushCard(
+                        Plugins.Connection.View.HomeCard(data));
+                }
+
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(navigation)
+                    .build();
+            }
+            catch (error) {
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Load', 'ERROR', e, error.toString(), error.stack);
+                // Return notification of error
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(
+                                error.toString()))
+                    .build();
+            }
+        },
+        Connect(e) {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                // Log the event for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet,
+                    'Connection.Connect',
+                    'INFO',
+                    e,
+                    'Attempting to connect with provided Bot API Token.');
+
+                // extract parameters from event object if needed
+                // txt_bot_api_token
+                const inputToken = e?.commonEventObject?.formInputs?.txt_bot_api_token?.stringInputs?.value?.[0] || '';
+
+                if (!inputToken) {
+                    throw new Error('Bot API Token cannot be empty.');
+                }
+
+                // getme to validate token
+                const client = new TelegramBotClient(inputToken);
+                const response = client.getMe();
+                // Check for errors in response
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`Error fetching bot info: ${response.getResponseCode()} - ${response.getContentText()}`);
+                }
+
+                const result = JSON.parse(response.getContentText()).result;
+
+                // Log the response to Terminal Output sheet
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Connect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
+
+                // on success,
+                // Store the token in user properties or user properties as needed
+                PropertiesService.getUserProperties().setProperty('txt_bot_api_token', inputToken);
+                PropertiesService.getUserProperties().setProperty('txt_bot_friendly_name', result.first_name);
+                PropertiesService.getUserProperties().setProperty('txt_bot_username', result.username);
+                e.parameters = {
+                    refresh: 'true'
+                };
+                // Build and return the Home Card
+                const appModelData = Plugins.Modules.App.getData();
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(
+                        CardService.newNavigation()
+                            .popToRoot()
+                            .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
+                    ).build();
+            } catch (error) {
+                Plugins.Modules.TerminalOutput.write(
+                    activeSpreadsheet,
+                    'Connection.Connect',
+                    'ERROR', e, error.toString(), error.stack);
+                return this.handleError(error)
+                    .build();
+            }
+        },
+        Disconnect(e) {
+            try {
+                // Clear the stored token from user properties
+                PropertiesService.getUserProperties().deleteProperty('txt_bot_api_token');
+                // Build and return the Home Card
+                const appModelData = Plugins.Modules.App.getData();
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(
+                        CardService.newNavigation()
+                            .popToRoot()
+                            .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
+                    ).build();
+            } catch (error) {
+                Plugins.Modules.TerminalOutput.write(
+                    this._activeSpreadsheet,
+                    'Connection.Disconnect',
+                    'ERROR', e, error.toString(), error.stack);
+                return this.handleError(error)
+                    .build();
+            }
+        },
+        handleError(error) {
+            // Show an error message to the user
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(
+                            error.toString()));
         }
+    },
+    View: {
+        WelcomeSection: (data = {}) => {
+            const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
+            const isConnected = !!token;
+            const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+            const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Telegram Bot';
 
-        let xButton;
+            // Professional Status Section
+            const statusSection = CardService.newCardSection();
+            let executeAction;
+            if (isConnected) {
+                // Disconnect action
+                executeAction = CardService.newAction()
+                    .setFunctionName('Plugins.Connection.Controller.Disconnect');
+            } else {
+                // Connect action
+                executeAction = CardService.newAction()
+                    .setParameters({
+                        path: 'Plugins.Connection.View.HomeCard'
+                    })
+                    .setFunctionName('Plugins.Connection.Controller.Load');
+            }
 
-        if (isConnected) {
-            xButton = CardService.newTextButton()
-                .setAltText('Unlink Bot')
-                //.setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                .setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('link_off')
-                        .setFill(false))
-                .setOnClickAction(executeAction);
-        } else {
-            xButton = CardService.newTextButton()
-                .setText('Link Bot')
-                .setBackgroundColor(Plugins.primaryColor())
-                .setOnClickAction(executeAction);
-        }
+            let xButton;
 
-        statusSection.addWidget(CardService.newDecoratedText()
-            .setTopLabel('Network Status')
-            .setText(isConnected ? `LIVE: ${friendlyName}` : 'OFFLINE: No Bot Linked')
-            .setBottomLabel(isConnected ? `@${username}` : 'Establish a secure connection to start.')
-            .setStartIcon(
-                CardService.newIconImage()
+            if (isConnected) {
+                xButton = CardService.newTextButton()
+                    .setAltText('Unlink Bot')
+                    //.setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                     .setMaterialIcon(
                         CardService.newMaterialIcon()
-                            .setName(isConnected ? 'sensors' : 'sensors_off')
-                            .setFill(false)))
-            .setButton(
-                xButton));
+                            .setName('link_off')
+                            .setFill(false))
+                    .setOnClickAction(executeAction);
+            } else {
+                xButton = CardService.newTextButton()
+                    .setText('Link Bot')
+                    .setBackgroundColor(Plugins.primaryColor())
+                    .setOnClickAction(executeAction);
+            }
 
-        // Bot Token Input Widget (hidden for post-connection)
-        statusSection.addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(token, true));
-
-        return statusSection;
-    },
-    /**
-     * Main Connection Management Interface
-     */
-    HomeCard: (data = {}) => {
-        // Fetch Properties
-        const userProps = PropertiesService.getUserProperties();
-        const token = userProps.getProperty('txt_bot_api_token') || '';
-        const isConnected = !!token;
-        const username = userProps.getProperty('txt_bot_username') || 'Unknown';
-
-        // 1. Card Header
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.Connection.id + '-Home')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Bot Connection Management')
-                .setSubtitle(isConnected ? `Connected: @${username}` : 'Setup Required')
-                .setImageStyle(CardService.ImageStyle.CIRCLE)
-                .setImageUrl(Plugins.Connection.imageUrl));
-
-        // 2. Status Section
-        const statusSection = CardService.newCardSection()
-            .setHeader('📡 Connection Status');
-
-        if (isConnected) {
             statusSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Current State')
-                .setText('✅ Securely Connected')
-                .setBottomLabel('Your bot token is saved and active.')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('verified_user').setFill(false))) // Constraint 1
-            );
-        } else {
-            statusSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Current State')
-                .setText('❌ Disconnected')
-                .setBottomLabel('Please enter your API token below.')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('link_off').setFill(false))) // Constraint 1
-            );
-        }
-        cardBuilder.addSection(statusSection);
+                .setTopLabel('Network Status')
+                .setText(isConnected ? `LIVE: ${friendlyName}` : 'OFFLINE: No Bot Linked')
+                .setBottomLabel(isConnected ? `@${username}` : 'Establish a secure connection to start.')
+                .setStartIcon(
+                    CardService.newIconImage()
+                        .setMaterialIcon(
+                            CardService.newMaterialIcon()
+                                .setName(isConnected ? 'sensors' : 'sensors_off')
+                                .setFill(false)))
+                .setButton(
+                    xButton));
 
-        // 3. Action Section (Connect vs Disconnect)
-        const actionSection = CardService.newCardSection()
-            .setHeader(isConnected ? '⚙️ Actions' : '🔑 Authentication');
+            // Bot Token Input Widget (hidden for post-connection)
+            statusSection.addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(token, true));
 
-        if (isConnected) {
-            // Disconnect Flow
-            actionSection.addWidget(CardService.newDecoratedText()
-                .setText('Disconnect Bot')
-                .setBottomLabel('Revoke access and clear stored token.')
-                .setButton(CardService.newTextButton()
-                    .setText('Disconnect')
+            return statusSection;
+        },
+        /**
+         * Main Connection Management Interface
+         */
+        HomeCard: (data = {}) => {
+            // Fetch Properties
+            const userProps = PropertiesService.getUserProperties();
+            const token = userProps.getProperty('txt_bot_api_token') || '';
+            const isConnected = !!token;
+            const username = userProps.getProperty('txt_bot_username') || 'Unknown';
+
+            // 1. Card Header
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.Connection.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('Bot Connection Management')
+                    .setSubtitle(isConnected ? `Connected: @${username}` : 'Setup Required')
+                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageUrl(Plugins.Connection.imageUrl));
+
+            // 2. Status Section
+            const statusSection = CardService.newCardSection()
+                .setHeader('📡 Connection Status');
+
+            if (isConnected) {
+                statusSection.addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Current State')
+                    .setText('✅ Securely Connected')
+                    .setBottomLabel('Your bot token is saved and active.')
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('verified_user').setFill(false))) // Constraint 1
+                );
+            } else {
+                statusSection.addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Current State')
+                    .setText('❌ Disconnected')
+                    .setBottomLabel('Please enter your API token below.')
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('link_off').setFill(false))) // Constraint 1
+                );
+            }
+            cardBuilder.addSection(statusSection);
+
+            // 3. Action Section (Connect vs Disconnect)
+            const actionSection = CardService.newCardSection()
+                .setHeader(isConnected ? '⚙️ Actions' : '🔑 Authentication');
+
+            if (isConnected) {
+                // Disconnect Flow
+                actionSection.addWidget(CardService.newDecoratedText()
+                    .setText('Disconnect Bot')
+                    .setBottomLabel('Revoke access and clear stored token.')
+                    .setButton(CardService.newTextButton()
+                        .setText('Disconnect')
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.Connection.Controller.Disconnect')))
+                );
+            } else {
+                // Connect Flow: Input + Button
+                actionSection.addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(token, false));
+
+                // Help Hint
+                actionSection.addWidget(CardService.newDecoratedText()
+                    .setText('Need a Token?')
+                    .setBottomLabel('Ask @BotFather on Telegram.')
+                    .setButton(CardService.newTextButton()
+                        .setText('Open BotFather')
+                        .setOpenLink(CardService.newOpenLink().setUrl('https://t.me/BotFather')))
+                );
+            }
+            cardBuilder.addSection(actionSection);
+
+            const footer = CardService.newFixedFooter()
+                .setPrimaryButton(CardService.newTextButton()
+                    .setText('Verify & Connect')
+                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setBackgroundColor(Plugins.primaryColor())
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Connection.OnDisconnect')))
-            );
-        } else {
-            // Connect Flow: Input + Button
-            actionSection.addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(token, false));
+                        .setFunctionName('Plugins.Connection.Controller.Connect')
+                        .addRequiredWidget(['txt_bot_api_token'])));
 
-            // Help Hint
-            actionSection.addWidget(CardService.newDecoratedText()
-                .setText('Need a Token?')
-                .setBottomLabel('Ask @BotFather on Telegram.')
-                .setButton(CardService.newTextButton()
-                    .setText('Open BotFather')
-                    .setOpenLink(CardService.newOpenLink().setUrl('https://t.me/BotFather')))
-            );
+            cardBuilder.setFixedFooter(footer);
+
+            return cardBuilder.build();
         }
-        cardBuilder.addSection(actionSection);
-
-        const footer = CardService.newFixedFooter()
-            .setPrimaryButton(CardService.newTextButton()
-                .setText('Verify & Connect')
-                .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                .setBackgroundColor(Plugins.primaryColor())
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.Connection.OnConnect')
-                    .addRequiredWidget(['txt_bot_api_token'])));
-
-        cardBuilder.setFixedFooter(footer);
-
-        return cardBuilder.build();
-    },
-    OnConnect(e) {
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        try {
-            // Log the event for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet,
-                'Plugins.Connection.OnConnect',
-                'INFO',
-                e,
-                'Attempting to connect with provided Bot API Token.');
-
-            // extract parameters from event object if needed
-            // txt_bot_api_token
-            const inputToken = e?.commonEventObject?.formInputs?.txt_bot_api_token?.stringInputs?.value?.[0] || '';
-
-            if (!inputToken) {
-                throw new Error('Bot API Token cannot be empty.');
-            }
-
-            // getme to validate token
-            const client = new TelegramBotClient(inputToken);
-            const response = client.getMe();
-            // Check for errors in response
-            if (JSON.parse(response.getContentText()).ok !== true) {
-                throw new Error(`Error fetching bot info: ${response.getResponseCode()} - ${response.getContentText()}`);
-            }
-
-            const result = JSON.parse(response.getContentText()).result;
-
-            // Log the response to Terminal Output sheet
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Connection.OnConnect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
-
-            // on success,
-            // Store the token in user properties or user properties as needed
-            PropertiesService.getUserProperties().setProperty('txt_bot_api_token', inputToken);
-            PropertiesService.getUserProperties().setProperty('txt_bot_friendly_name', result.first_name);
-            PropertiesService.getUserProperties().setProperty('txt_bot_username', result.username);
-            e.parameters = {
-                refresh: 'true'
-            };
-            // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.getData();
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .popToRoot()
-                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
-                ).build();
-        } catch (error) {
-            Plugins.Modules.TerminalOutput.write(
-                activeSpreadsheet,
-                'Plugins.Connection.OnConnect',
-                'ERROR', e, error.toString(), error.stack);
-            return this.handleError(error)
-                .build();
-        }
-    },
-    OnDisconnect(e) {
-        try {
-            // Clear the stored token from user properties
-            PropertiesService.getUserProperties().deleteProperty('txt_bot_api_token');
-            // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.getData();
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .popToRoot()
-                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
-                ).build();
-        } catch (error) {
-            Plugins.Modules.TerminalOutput.write(
-                this._activeSpreadsheet,
-                'Plugins.Connection.OnDisconnect',
-                'ERROR', e, error.toString(), error.stack);
-            return this.handleError(error)
-                .build();
-        }
-    },
-    handleError(error) {
-        // Show an error message to the user
-        return CardService.newActionResponseBuilder()
-            .setNotification(
-                CardService.newNotification()
-                    .setText(
-                        error.toString()));
     }
 };
 
@@ -1294,7 +1337,7 @@ Plugins.GetMe = {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
                 // Log the event for debugging
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.Load', 'INFO', e, 'Loading GetMe plugin...');
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'INFO', e, 'Loading GetMe plugin...');
                 const data = e?.commonEventObject?.parameters || {};
 
                 // Optional: Check if we are forcing a refresh via parameters
@@ -1310,7 +1353,7 @@ Plugins.GetMe = {
                 // 1. API Call: getMe
                 const response = telegramBotClient.getMe();
                 // Log the raw response for debugging
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.Load', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
 
                 // Check for errors in response
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -1338,7 +1381,7 @@ Plugins.GetMe = {
                     .build();
             }
             catch (error) {
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetMe.Load', 'ERROR', e, error.toString(), error.stack);
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'ERROR', e, error.toString(), error.stack);
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -1438,186 +1481,189 @@ Plugins.GetChat = {
     imageUrl: Plugins.DEFAULT_IMAGE_URL,
     description: 'Inspect details for users, groups, or channels.',
     short_description: 'Chat & User Inspector',
+    Controller: {
+        /**
+         * Entry Point
+         */
+        Load: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                // Log start of execution
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'Start', e, 'Loading Chat Info');
 
-    /**
-     * Entry Point
-     */
-    OnLoad: (e) => {
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        try {
-            // Log start of execution
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'Start', e, 'Loading Chat Info');
-
-            const data = e?.commonEventObject?.parameters || {};
-            const isUpdate = data.update === 'true';
-            const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-            if (!input_token) {
-                throw new Error('Bot API Token is not set. Please connect your bot first.');
-            }
-
-            // Extract Chat ID from form inputs if available (user clicked Search)
-            // or fall back to parameters/properties
-            const searchChatId = e?.commonEventObject?.formInputs?.txt_search_chat_id?.stringInputs?.value?.[0] || '';
-            if (searchChatId) {
-                data.txt_search_chat_id = searchChatId;
-
-                // 1. API Call: getChat
-                const client = new TelegramBotClient(input_token);
-                // API Call: getChat
-                const response = client.getChat(searchChatId);
-
-                if (JSON.parse(response.getContentText()).ok !== true) {
-                    throw new Error(`Telegram API Error: ${response.getContentText()}`);
+                const data = e?.commonEventObject?.parameters || {};
+                const isUpdate = data.update === 'true';
+                const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                if (!input_token) {
+                    throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
-                // Log response for debugging
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'INFO', data, `getChat Response: ${response.getContentText()}`);
+                // Extract Chat ID from form inputs if available (user clicked Search)
+                // or fall back to parameters/properties
+                const searchChatId = e?.commonEventObject?.formInputs?.txt_search_chat_id?.stringInputs?.value?.[0] || '';
+                if (searchChatId) {
+                    data.txt_search_chat_id = searchChatId;
 
-                const result = JSON.parse(response.getContentText()).result;
+                    // 1. API Call: getChat
+                    const client = new TelegramBotClient(input_token);
+                    // API Call: getChat
+                    const response = client.getChat(searchChatId);
 
-                // 2. Navigation Handling
-                let navigation = CardService.newNavigation();
+                    if (JSON.parse(response.getContentText()).ok !== true) {
+                        throw new Error(`Telegram API Error: ${response.getContentText()}`);
+                    }
 
-                if (isUpdate) {
-                    // Update the existing card in place
-                    navigation.updateCard(
-                        Plugins.GetChat.HomeCard(data, result));
+                    // Log response for debugging
+                    Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'INFO', data, `getChat Response: ${response.getContentText()}`);
+
+                    const result = JSON.parse(response.getContentText()).result;
+
+                    // 2. Navigation Handling
+                    let navigation = CardService.newNavigation();
+
+                    if (isUpdate) {
+                        // Update the existing card in place
+                        navigation.updateCard(
+                            Plugins.GetChat.View.HomeCard(data, result));
+                    }
+                    else {
+                        // Push a new card onto the stack
+                        navigation.pushCard(
+                            Plugins.GetChat.View.HomeCard(data, result));
+                    }
+
+                    return CardService.newActionResponseBuilder()
+                        .setNavigation(navigation)
+                        .build();
                 }
-                else {
-                    // Push a new card onto the stack
-                    navigation.pushCard(
-                        Plugins.GetChat.HomeCard(data, result));
-                }
 
+                // No search ID provided, just show the Home Card
                 return CardService.newActionResponseBuilder()
-                    .setNavigation(navigation)
+                    .setNavigation(
+                        CardService.newNavigation().pushCard(
+                            Plugins.GetChat.View.HomeCard(data, null)))
+                    .build();
+            } catch (error) {
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'ERROR', e, error.toString(), error.stack);
+
+                // Return notification of error
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(
+                                error.toString()))
                     .build();
             }
-
-            // No search ID provided, just show the Home Card
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation().pushCard(
-                        Plugins.GetChat.HomeCard(data, null)))
-                .build();
-        } catch (error) {
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.GetChat.OnLoad', 'ERROR', e, error.toString(), error.stack);
-
-            // Return notification of error
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(
-                            error.toString()))
-                .build();
         }
     },
 
-    /**
-     * Main Interface Builder
-     */
-    HomeCard: (data = {}, result = null) => {
-        // 1. Data Initialization
-        const searchId = data.txt_search_chat_id || '';
+    View: {
+        /**
+         * Main Interface Builder
+         */
+        HomeCard: (data = {}, result = null) => {
+            // 1. Data Initialization
+            const searchId = data.txt_search_chat_id || '';
 
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.GetChat.id + '-Home')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Chat Inspector')
-                .setSubtitle('View details for Users, Groups, and Channels')
-                .setImageStyle(CardService.ImageStyle.CIRCLE)
-                .setImageUrl(Plugins.GetChat.imageUrl));
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.GetChat.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('Chat Inspector')
+                    .setSubtitle('View details for Users, Groups, and Channels')
+                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageUrl(Plugins.GetChat.imageUrl));
 
-        // --- Search Section ---
-        const searchSection = CardService.newCardSection()
-            .setHeader('🔍 Target Selector');
+            // --- Search Section ---
+            const searchSection = CardService.newCardSection()
+                .setHeader('🔍 Target Selector');
 
-        searchSection.addWidget(CardService.newTextInput()
-            .setFieldName('txt_search_chat_id')
-            .setTitle('Chat ID or Username')
-            .setHint('e.g., @mychannel or 123456789')
-            .setValue(searchId));
+            searchSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_search_chat_id')
+                .setTitle('Chat ID or Username')
+                .setHint('e.g., @mychannel or 123456789')
+                .setValue(searchId));
 
-        cardBuilder.addSection(searchSection);
+            cardBuilder.addSection(searchSection);
 
-        // --- Footer Actions ---
-        const footer = CardService.newFixedFooter()
-            .setPrimaryButton(CardService.newTextButton()
-                .setText('Search Chat')
-                .setMaterialIcon(CardService.newMaterialIcon()
-                    .setName('search')
-                    .setFill(false)) // Constraint: setFill(false)
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.GetChat.OnLoad')
-                    .setParameters({ update: 'true' })
-                    .addRequiredWidget(['txt_search_chat_id'])));
+            // --- Footer Actions ---
+            const footer = CardService.newFixedFooter()
+                .setPrimaryButton(CardService.newTextButton()
+                    .setText('Search Chat')
+                    .setMaterialIcon(CardService.newMaterialIcon()
+                        .setName('search')
+                        .setFill(false)) // Constraint: setFill(false)
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.GetChat.Controller.Load')
+                        .setParameters({ update: 'true' })
+                        .addRequiredWidget(['txt_search_chat_id'])));
 
-        cardBuilder.setFixedFooter(footer);
+            cardBuilder.setFixedFooter(footer);
 
-        // ---  ---
-        if (!result) {
-            return cardBuilder.build();
-        }
+            // ---  ---
+            if (!result) {
+                return cardBuilder.build();
+            }
 
-        // --- Section A: Identity Header ---
-        // Determine icon based on chat type
-        let typeIcon = 'help_outline'; // default
-        if (result.type === 'private') typeIcon = 'person';
-        else if (result.type === 'channel') typeIcon = 'campaign'; // broadcast
-        else if (result.type.includes('group')) typeIcon = 'groups';
+            // --- Section A: Identity Header ---
+            // Determine icon based on chat type
+            let typeIcon = 'help_outline'; // default
+            if (result.type === 'private') typeIcon = 'person';
+            else if (result.type === 'channel') typeIcon = 'campaign'; // broadcast
+            else if (result.type.includes('group')) typeIcon = 'groups';
 
-        // Determine Display Title (User vs Chat)
-        const title = result.title || `${result.first_name} ${result.last_name || ''}`.trim();
+            // Determine Display Title (User vs Chat)
+            const title = result.title || `${result.first_name} ${result.last_name || ''}`.trim();
 
-        const identitySection = CardService.newCardSection()
-            .setHeader('📋 Result Profile');
+            const identitySection = CardService.newCardSection()
+                .setHeader('📋 Result Profile');
 
-        identitySection.addWidget(CardService.newDecoratedText()
-            .setTopLabel(result.type.toUpperCase())
-            .setText(`<b>${title}</b>`)
-            .setBottomLabel(`ID: ${result.id}`)
-            .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                CardService.newMaterialIcon()
-                    .setName(typeIcon)
-                    .setFill(false))) // Constraint: setFill(false)
-            .setWrapText(true));
-
-        if (result.username) {
             identitySection.addWidget(CardService.newDecoratedText()
-                .setText(`@${result.username}`)
+                .setTopLabel(result.type.toUpperCase())
+                .setText(`<b>${title}</b>`)
+                .setBottomLabel(`ID: ${result.id}`)
                 .setStartIcon(CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon()
-                        .setName('alternate_email')
-                        .setFill(false)))
-                .setButton(CardService.newTextButton()
-                    .setText('Open')
-                    .setOpenLink(CardService.newOpenLink()
-                        .setUrl(`https://t.me/${result.username}`))));
-        }
+                        .setName(typeIcon)
+                        .setFill(false))) // Constraint: setFill(false)
+                .setWrapText(true));
 
-        cardBuilder.addSection(identitySection);
-
-        const settingsGrid = CardService.newGrid()
-            .setTitle('⚙️ Capabilities & Privacy')
-            .setNumColumns(2);
-
-        // add other properties dynamically if needed
-        Object.keys(result).forEach(key => {
-            if (!['id', 'username', 'type', 'invite_link', 'pinned_message'].includes(key)) {
-                const value = result[key];
-                if (typeof value === 'boolean') {
-                    settingsGrid.addItem(
-                        Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
-                }
+            if (result.username) {
+                identitySection.addWidget(CardService.newDecoratedText()
+                    .setText(`@${result.username}`)
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('alternate_email')
+                            .setFill(false)))
+                    .setButton(CardService.newTextButton()
+                        .setText('Open')
+                        .setOpenLink(CardService.newOpenLink()
+                            .setUrl(`https://t.me/${result.username}`))));
             }
-        });
 
-        cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
-        // --- Section C: Raw Data (Debug) ---
-        cardBuilder.addSection(
-            Plugins.ViewModel.BuildResultSection('getChat', result));
+            cardBuilder.addSection(identitySection);
 
-        return cardBuilder.build();
+            const settingsGrid = CardService.newGrid()
+                .setTitle('⚙️ Capabilities & Privacy')
+                .setNumColumns(2);
+
+            // add other properties dynamically if needed
+            Object.keys(result).forEach(key => {
+                if (!['id', 'username', 'type', 'invite_link', 'pinned_message'].includes(key)) {
+                    const value = result[key];
+                    if (typeof value === 'boolean') {
+                        settingsGrid.addItem(
+                            Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                    }
+                }
+            });
+
+            cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
+            // --- Section C: Raw Data (Debug) ---
+            cardBuilder.addSection(
+                Plugins.ViewModel.BuildResultSection('getChat', result));
+
+            return cardBuilder.build();
+        }
     }
 };
 
@@ -1627,314 +1673,316 @@ Plugins.Webhook = {
     imageUrl: Plugins.DEFAULT_IMAGE_URL,
     description: 'Advanced configuration for Bot Webhooks.',
     short_description: 'Manage Bot Webhook',
+    Controller: {
+        /**
+         * Entry Point
+         */
+        Load: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            const data = e?.commonEventObject?.parameters || {};
 
-    /**
-     * Entry Point
-     */
-    OnLoad: (e) => {
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        const data = e?.commonEventObject?.parameters || {};
+            try {
+                // Log start of execution
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.Load', 'INFO', e, 'Loading Webhook Manager');
 
-        try {
-            // Log start of execution
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'INFO', e, 'Loading Webhook Manager');
+                const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const isUpdate = data.update === 'true';
 
-            const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-            const isUpdate = data.update === 'true';
+                if (!input_token) {
+                    throw new Error('Bot API Token is not set. Please connect your bot first.');
+                }
 
-            if (!input_token) {
-                throw new Error('Bot API Token is not set. Please connect your bot first.');
-            }
+                // Logic: Fetch Data if Token Exists
+                const telegramBotClient = new TelegramBotClient(input_token);
+                // 1. API Call: getWebhookInfo
+                const response = telegramBotClient.getWebhookInfo();
+                // Log response for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.Load', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+                }
 
-            // Logic: Fetch Data if Token Exists
-            const telegramBotClient = new TelegramBotClient(input_token);
-            // 1. API Call: getWebhookInfo
-            const response = telegramBotClient.getWebhookInfo();
-            // Log response for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
-            if (JSON.parse(response.getContentText()).ok !== true) {
-                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
-            }
+                // Parse the result
+                const result = JSON.parse(response.getContentText()).result;
 
-            // Parse the result
-            const result = JSON.parse(response.getContentText()).result;
+                // 2. Navigation Handling
+                let navigation = CardService.newNavigation();
+                if (isUpdate) {
+                    // Update the existing card in place
+                    navigation.updateCard(
+                        Plugins.Webhook.View.HomeCard(data, result));
+                }
+                else {
+                    // Push a new card onto the stack
+                    navigation.pushCard(
+                        Plugins.Webhook.View.HomeCard(data, result));
+                }
 
-            // 2. Navigation Handling
-            let navigation = CardService.newNavigation();
-            if (isUpdate) {
-                // Update the existing card in place
-                navigation.updateCard(
-                    Plugins.Webhook.HomeCard(data, result));
-            }
-            else {
-                // Push a new card onto the stack
-                navigation.pushCard(
-                    Plugins.Webhook.HomeCard(data, result));
-            }
-
-            return CardService.newActionResponseBuilder()
-                .setNavigation(navigation)
-                .build();
-        } catch (error) {
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnLoad', 'ERROR', e, error.toString());
-            // Return notification of error
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(
-                            error.toString()))
-                .build();
-        }
-    },
-
-    /**
-     * Main Interface Card
-     */
-    HomeCard: (data = {}, result = {}) => {
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.Webhook.id + '-Home')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Webhook Console')
-                .setSubtitle('Manage Real-time Updates')
-                .setImageStyle(CardService.ImageStyle.CIRCLE)
-                .setImageUrl(Plugins.Webhook.imageUrl));
-
-        // --- 1. Connection Header ---
-        cardBuilder.addSection(Plugins.Connection.WelcomeSection(data));
-        // --- Section A: Status Dashboard ---
-        const statusSection = CardService.newCardSection()
-            .setHeader('📡 Live Status');
-
-        // Action Buttons
-        const buttonSet = CardService.newButtonSet();
-
-        // --- 2. Live Status Logic ---
-        if (result.url !== '') {
-            // Delete Button (Only if active)
-            buttonSet.addButton(CardService.newTextButton()
-                .setText('Delete Webhook')
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.Webhook.OnDeleteWebhook')));
-
-            // Active Status
-            statusSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Status')
-                .setText('Active')
-                .setBottomLabel(String(result.url))
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('cloud_done')
-                        .setFill(false))) // Constraint 1
-                .setWrapText(true));
-        }
-        else {
-            // Inactive Status
-            statusSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Status')
-                .setText('Inactive')
-                .setBottomLabel('Bot is using Long Polling (no webhook).')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('cloud_off')
-                        .setFill(false)))); // Constraint 1
-        }
-
-        // Set/Update Button
-        buttonSet.addButton(CardService.newTextButton()
-            .setText(result.url ? 'Update Settings' : 'Set Webhook')
-            //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-            .setBackgroundColor(Plugins.primaryColor())
-            .setOnClickAction(CardService.newAction()
-                .setFunctionName('Plugins.Webhook.OnSetWebhook')
-                // Collect all inputs
-                .addRequiredWidget(['txt_webhook_url'])
-                .addRequiredWidget(['txt_max_connections'])));
-
-        // Traffic/Pending Info
-        if (result.pending_update_count > 0) {
-            statusSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel('Queue')
-                .setText(`${result.pending_update_count} Pending Updates`)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('hourglass_empty')
-                        .setFill(false)))); // Constraint 1
-        }
-
-        // Error Info
-        if (result.last_error_message) {
-            const errorDate = result.last_error_date
-                ? new Date(result.last_error_date * 1000).toLocaleTimeString()
-                : 'Unknown Time';
-
-            statusSection.addWidget(CardService.newDecoratedText()
-                .setTopLabel(`Last Error (${errorDate})`)
-                .setText(`⚠️ ${result.last_error_message}`)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('error_outline')
-                        .setFill(false))) // Constraint 1
-                .setWrapText(true));
-        }
-
-        cardBuilder.addSection(statusSection);
-
-        // --- Section B: Configuration Form ---
-        const configSection = CardService.newCardSection()
-            .setHeader('🛠️ Configuration')
-            .setCollapsible(true); // Collapsible to save space if not needed
-
-        // 1. Webhook URL (Constraint 5)
-        configSection.addWidget(CardService.newTextInput()
-            .setFieldName('txt_webhook_url')
-            .setTitle('Webhook URL (Required)')
-            .setHint('https://your-script-url/exec')
-            .setValue(String(result.url))); // Defaults to current live URL
-
-        // 2. IP Address (Constraint 5)
-        configSection.addWidget(CardService.newTextInput()
-            .setFieldName('txt_ip_address')
-            .setTitle('Custom IP Address (Optional)')
-            .setHint('Bypass DNS resolution with specific IP')
-            .setValue(result.ip_address || ''));
-
-        // 3. Max Connections (Constraint 5)
-        configSection.addWidget(CardService.newTextInput()
-            .setFieldName('txt_max_connections')
-            .setTitle('Max Connections (1-100)')
-            .setHint('Default: 40')
-            .setValue(result.max_connections ? result.max_connections.toString() : '40'));
-
-        // 4. Secret Token (Constraint 5)
-        configSection.addWidget(CardService.newTextInput()
-            .setFieldName('txt_secret_token')
-            .setTitle('Secret Token (Optional)')
-            .setHint('X-Telegram-Bot-Api-Secret-Token header')
-            .setValue('')); // We don't get this back from API for security, so leave empty
-
-        // 5. Drop Pending Updates (Constraint 4 & 5)
-        // Fix: Using DecoratedText to label the switch
-        configSection.addWidget(CardService.newDecoratedText()
-            .setText('Drop Pending Updates')
-            .setBottomLabel('Skip old messages in queue upon setting webhook.')
-            .setSwitchControl(CardService.newSwitch()
-                .setFieldName('drop_pending_updates')
-                .setValue('true')
-                .setControlType(CardService.SwitchControlType.CHECK_BOX)));
-
-        configSection.addWidget(buttonSet);
-        cardBuilder.addSection(configSection);
-
-        // --- Section: Raw Data (Debug) ---
-        cardBuilder.addSection(Plugins.ViewModel.BuildResultSection('getWebhookInfo', result));
-
-        // --- 3. Footer Refresh ---
-        const footer = CardService.newFixedFooter()
-            .setPrimaryButton(CardService.newTextButton()
-                .setText('Refresh Status')
-                .setMaterialIcon(CardService.newMaterialIcon()
-                    .setName('refresh')
-                    .setFill(false)) // Constraint 1
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.Webhook.OnLoad')
-                    .setParameters({ update: 'true' })));
-
-        cardBuilder.setFixedFooter(footer);
-
-        return cardBuilder.build();
-    },
-
-    /**
-     * ACTION: Set Webhook with Full Options
-     */
-    OnSetWebhook: (e) => {
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        try {
-            // Log start of execution
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'INFO', e, 'Setting Webhook...');
-            const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-            const inputs = e?.commonEventObject?.formInputs || {};
-
-            // Extract Inputs
-            const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
-            const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
-            const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
-            const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
-            const dropPending = inputs.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
-
-            // Validation
-            if (!urlInput || !urlInput.startsWith('https://')) {
                 return CardService.newActionResponseBuilder()
-                    .setNotification(CardService.newNotification().setText("❌ Valid HTTPS URL required."))
+                    .setNavigation(navigation)
+                    .build();
+            } catch (error) {
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.Load', 'ERROR', e, error.toString());
+                // Return notification of error
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(
+                                error.toString()))
                     .build();
             }
+        },
+        /**
+         * ACTION: Set Webhook with Full Options
+         */
+        SetWebhook: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                // Log start of execution
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'INFO', e, 'Setting Webhook...');
+                const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const inputs = e?.commonEventObject?.formInputs || {};
 
-            const client = new TelegramBotClient(token);
+                // Extract Inputs
+                const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
+                const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
+                const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
+                const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
+                const dropPending = inputs.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
 
-            // Build Options Object
-            const options = {
-                drop_pending_updates: dropPending
-            };
-
-            if (ipInput) options.ip_address = ipInput;
-            if (secretInput) options.secret_token = secretInput;
-
-            if (maxConnInput) {
-                const maxConn = parseInt(maxConnInput, 10);
-                if (!isNaN(maxConn) && maxConn >= 1 && maxConn <= 100) {
-                    options.max_connections = maxConn;
+                // Validation
+                if (!urlInput || !urlInput.startsWith('https://')) {
+                    return CardService.newActionResponseBuilder()
+                        .setNotification(CardService.newNotification().setText("❌ Valid HTTPS URL required."))
+                        .build();
                 }
-            }
 
-            // Call API
-            const response = client.setWebhook(urlInput, options);
-            if (JSON.parse(response.getContentText()).ok !== true) {
-                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
-            }
-            // Log response for debugging
+                const client = new TelegramBotClient(token);
 
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
-            return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
-        } catch (error) {
-            // Log error for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnSetWebhook', 'ERROR', e, error.toString(), error.stack);
-            return CardService.newActionResponseBuilder()
-                .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
-                .build();
+                // Build Options Object
+                const options = {
+                    drop_pending_updates: dropPending
+                };
+
+                if (ipInput) options.ip_address = ipInput;
+                if (secretInput) options.secret_token = secretInput;
+
+                if (maxConnInput) {
+                    const maxConn = parseInt(maxConnInput, 10);
+                    if (!isNaN(maxConn) && maxConn >= 1 && maxConn <= 100) {
+                        options.max_connections = maxConn;
+                    }
+                }
+
+                // Call API
+                const response = client.setWebhook(urlInput, options);
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+                }
+                // Log response for debugging
+
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
+                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
+            } catch (error) {
+                // Log error for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'ERROR', e, error.toString(), error.stack);
+                return CardService.newActionResponseBuilder()
+                    .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
+                    .build();
+            }
+        },
+
+        /**
+         * ACTION: Delete Webhook
+         */
+        DeleteWebhook: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                const data = e?.commonEventObject?.parameters || {};
+                // Log start of execution
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DeleteWebhook', 'INFO', e, 'Deleting Webhook...');
+
+                const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
+
+                const client = new TelegramBotClient(token);
+                const response = client.deleteWebhook(dropPending);
+
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+                }
+
+                // Log response for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
+
+                const result = JSON.parse(response.getContentText()).result;
+                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
+            } catch (error) {
+                // Log error for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DeleteWebhook', 'ERROR', e, error.toString(), error.stack);
+                return CardService.newActionResponseBuilder()
+                    .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
+                    .build();
+            }
         }
     },
 
-    /**
-     * ACTION: Delete Webhook
-     */
-    OnDeleteWebhook: (e) => {
-        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-        try {
-            const data = e?.commonEventObject?.parameters || {};
-            // Log start of execution
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'INFO', e, 'Deleting Webhook...');
+    View: {
+        /**
+         * Main Interface Card
+         */
+        HomeCard: (data = {}, result = {}) => {
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.Webhook.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('Webhook Console')
+                    .setSubtitle('Manage Real-time Updates')
+                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageUrl(Plugins.Webhook.imageUrl));
 
-            const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-            const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
+            // --- 1. Connection Header ---
+            cardBuilder.addSection(Plugins.Connection.View.WelcomeSection(data));
+            // --- Section A: Status Dashboard ---
+            const statusSection = CardService.newCardSection()
+                .setHeader('📡 Live Status');
 
-            const client = new TelegramBotClient(token);
-            const response = client.deleteWebhook(dropPending);
+            // Action Buttons
+            const buttonSet = CardService.newButtonSet();
 
-            if (JSON.parse(response.getContentText()).ok !== true) {
-                throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+            // --- 2. Live Status Logic ---
+            if (result.url !== '') {
+                // Delete Button (Only if active)
+                buttonSet.addButton(CardService.newTextButton()
+                    .setText('Delete Webhook')
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Webhook.Controller.DeleteWebhook')));
+
+                // Active Status
+                statusSection.addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Status')
+                    .setText('Active')
+                    .setBottomLabel(String(result.url))
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('cloud_done')
+                            .setFill(false))) // Constraint 1
+                    .setWrapText(true));
+            }
+            else {
+                // Inactive Status
+                statusSection.addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Status')
+                    .setText('Inactive')
+                    .setBottomLabel('Bot is using Long Polling (no webhook).')
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('cloud_off')
+                            .setFill(false)))); // Constraint 1
             }
 
-            // Log response for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'DEBUG', e, `deleteWebhook Response: ${response.getContentText()}`);
+            // Set/Update Button
+            buttonSet.addButton(CardService.newTextButton()
+                .setText(result.url ? 'Update Settings' : 'Set Webhook')
+                //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                .setBackgroundColor(Plugins.primaryColor())
+                .setOnClickAction(CardService.newAction()
+                    .setFunctionName('Plugins.Webhook.Controller.SetWebhook')
+                    // Collect all inputs
+                    .addRequiredWidget(['txt_webhook_url'])
+                    .addRequiredWidget(['txt_max_connections'])));
 
-            const result = JSON.parse(response.getContentText()).result;
-            return Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
-        } catch (error) {
-            // Log error for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Plugins.Webhook.OnDeleteWebhook', 'ERROR', e, error.toString(), error.stack);
-            return CardService.newActionResponseBuilder()
-                .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
-                .build();
+            // Traffic/Pending Info
+            if (result.pending_update_count > 0) {
+                statusSection.addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Queue')
+                    .setText(`${result.pending_update_count} Pending Updates`)
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('hourglass_empty')
+                            .setFill(false)))); // Constraint 1
+            }
+
+            // Error Info
+            if (result.last_error_message) {
+                const errorDate = result.last_error_date
+                    ? new Date(result.last_error_date * 1000).toLocaleTimeString()
+                    : 'Unknown Time';
+
+                statusSection.addWidget(CardService.newDecoratedText()
+                    .setTopLabel(`Last Error (${errorDate})`)
+                    .setText(`⚠️ ${result.last_error_message}`)
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('error_outline')
+                            .setFill(false))) // Constraint 1
+                    .setWrapText(true));
+            }
+
+            cardBuilder.addSection(statusSection);
+
+            // --- Section B: Configuration Form ---
+            const configSection = CardService.newCardSection()
+                .setHeader('🛠️ Configuration')
+                .setCollapsible(true); // Collapsible to save space if not needed
+
+            // 1. Webhook URL (Constraint 5)
+            configSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_webhook_url')
+                .setTitle('Webhook URL (Required)')
+                .setHint('https://your-script-url/exec')
+                .setValue(String(result.url))); // Defaults to current live URL
+
+            // 2. IP Address (Constraint 5)
+            configSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_ip_address')
+                .setTitle('Custom IP Address (Optional)')
+                .setHint('Bypass DNS resolution with specific IP')
+                .setValue(result.ip_address || ''));
+
+            // 3. Max Connections (Constraint 5)
+            configSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_max_connections')
+                .setTitle('Max Connections (1-100)')
+                .setHint('Default: 40')
+                .setValue(result.max_connections ? result.max_connections.toString() : '40'));
+
+            // 4. Secret Token (Constraint 5)
+            configSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_secret_token')
+                .setTitle('Secret Token (Optional)')
+                .setHint('X-Telegram-Bot-Api-Secret-Token header')
+                .setValue('')); // We don't get this back from API for security, so leave empty
+
+            // 5. Drop Pending Updates (Constraint 4 & 5)
+            // Fix: Using DecoratedText to label the switch
+            configSection.addWidget(CardService.newDecoratedText()
+                .setText('Drop Pending Updates')
+                .setBottomLabel('Skip old messages in queue upon setting webhook.')
+                .setSwitchControl(CardService.newSwitch()
+                    .setFieldName('drop_pending_updates')
+                    .setValue('true')
+                    .setControlType(CardService.SwitchControlType.CHECK_BOX)));
+
+            configSection.addWidget(buttonSet);
+            cardBuilder.addSection(configSection);
+
+            // --- Section: Raw Data (Debug) ---
+            cardBuilder.addSection(Plugins.ViewModel.BuildResultSection('getWebhookInfo', result));
+
+            // --- 3. Footer Refresh ---
+            const footer = CardService.newFixedFooter()
+                .setPrimaryButton(CardService.newTextButton()
+                    .setText('Refresh Status')
+                    .setMaterialIcon(CardService.newMaterialIcon()
+                        .setName('refresh')
+                        .setFill(false)) // Constraint 1
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Webhook.OnLoad')
+                        .setParameters({ update: 'true' })));
+
+            cardBuilder.setFixedFooter(footer);
+
+            return cardBuilder.build();
         }
     }
 };
