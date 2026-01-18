@@ -255,7 +255,7 @@ Plugins.Helper = {
                     .setText('Export')
                     .setOnClickAction(
                         CardService.newAction()
-                            .setFunctionName('Plugins.ViewModel.OnDumpToSheet')
+                            .setFunctionName('Plugins.Helper.OnDumpToSheet')
                             .setParameters({
                                 sheetName: '📦 API Dumps',
                                 title: apiAction,
