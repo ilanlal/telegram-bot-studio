@@ -16,7 +16,7 @@ describe('Plugins.Settings', () => {
         it('should handle OnLoad', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Settings.OnLoad(e);
+            const homeCard = Plugins.Settings.Controller.Load(e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
@@ -35,7 +35,7 @@ describe('Plugins.Settings', () => {
                 }
             };
 
-            const actionResponse = Plugins.Settings.OnSaveSettings(e);
+            const actionResponse = Plugins.Settings.Controller.SaveSettings(e);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -57,7 +57,7 @@ describe('Plugins.Settings', () => {
                     }
                 }
             };
-            const actionResponse = Plugins.Settings.OnToggleAction(e);
+            const actionResponse = Plugins.Settings.Controller.ToggleAction(e);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();

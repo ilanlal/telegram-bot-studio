@@ -38,11 +38,11 @@
       "universalActions": [
         {
           "label": "Profile",
-          "runFunction": "Plugins.UserProfile.OnLoad"
+          "runFunction": "Plugins.UserProfile.Controller.Load"
         },
         {
           "label": "Settings",
-          "runFunction": "Plugins.Settings.OnLoad"
+          "runFunction": "Plugins.Settings.Controller.Load"
         },
         {
           "label": "Help",

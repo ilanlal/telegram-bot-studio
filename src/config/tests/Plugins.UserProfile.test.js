@@ -12,7 +12,7 @@ describe('Plugins.UserProfile', () => {
         it('should create HomeCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.UserProfile['HomeCard'](e);
+            const homeCard = Plugins.UserProfile.View['HomeCard'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
@@ -22,7 +22,7 @@ describe('Plugins.UserProfile', () => {
         // OnActivatePremium test
         it('should handle OnActivatePremium', () => {
             const event = {}; // Mock event object
-            const actionResponse = Plugins.UserProfile['OnActivatePremium'](event);
+            const actionResponse = Plugins.UserProfile.Controller['ActivatePremium'](event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -33,7 +33,7 @@ describe('Plugins.UserProfile', () => {
         // OnRevokeLicense test
         it('should handle OnRevokeLicense', () => {
             const event = {}; // Mock event object
-            const actionResponse = Plugins.UserProfile['OnRevokeLicense'](event);
+            const actionResponse = Plugins.UserProfile.Controller['RevokeLicense'](event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -45,7 +45,7 @@ describe('Plugins.UserProfile', () => {
         it('should handle OnLoad', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.UserProfile.OnLoad(e);
+            const homeCard = Plugins.UserProfile.Controller['Load'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();

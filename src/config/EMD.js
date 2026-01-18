@@ -1,4 +1,4 @@
-// Entity Metadata Configuration Class
+// Obsolete: EMD.js is deprecated. Use Plugins.js instead.
 class EMD {
     constructor(model = {}) {
         this.model = model;

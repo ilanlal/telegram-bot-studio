@@ -27,23 +27,36 @@ class Plugins {
     }
 };
 
-Plugins.DEFAULT_IMAGE_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png';
-Plugins.WELCOME_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/480x480_welcome.png';
-Plugins.MATH_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-math.webp';
-Plugins.THANK_YOU_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-thank-you.webp';
-Plugins.YOU_GOT_IT_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-you-got-it.webp';
-Plugins.BIG_TIME_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-big-time.webp';
-Plugins.PEACH_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-peach.webp';
-Plugins.HAVE_A_NICE_DAY_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-have-a-nice-day.webp';
-Plugins.I_AM_THINKING_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-i-am-thinking.webp';
-Plugins.WAIT_FOR_IT_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-wait-for-it.webp';
-Plugins.YES_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-yes.webp';
-Plugins.PAY_ATTENTION_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-pay-attention.webp';
-Plugins.KISS_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-kiss.webp';
-Plugins.CHEERS_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-cheers.webp';
-Plugins.BLINK_IMG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-blink.webp';
-Plugins.LOGO_PNG_URL = 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/240x240.png';
-Plugins.GIT_REPO_URL = 'https://github.com/ilanlal/telegram-bot-studio';
+Plugins.Media = {
+    DEFAULT_IMAGE_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    WELCOME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/480x480_welcome.png',
+    MATH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-math.webp',
+    THANK_YOU_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-thank-you.webp',
+    YOU_GOT_IT_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-you-got-it.webp',
+    BIG_TIME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-big-time.webp',
+    PEACH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-peach.webp',
+    HAVE_A_NICE_DAY_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-have-a-nice-day.webp',
+    I_AM_THINKING_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-i-am-thinking.webp',
+    WAIT_FOR_IT_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-wait-for-it.webp',
+    YES_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-yes.webp',
+    PAY_ATTENTION_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-pay-attention.webp',
+    KISS_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-kiss.webp',
+    CHEERS_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-cheers.webp',
+    BLINK_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-blink.webp',
+    LOGO_PNG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/240x240.png'
+};
+
+Plugins.Package = {
+    name: 'Telegram Bot Studio',
+    short_description: 'A suite of plugins for building Telegram Bots on Google Workspace.',
+    description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
+    version: '1.0.0',
+    build: '20260118.174900',
+    author: 'Ilan Laloum',
+    license: 'MIT',
+    imageUrl: Plugins.Media.LOGO_PNG_URL,
+    gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
+};
 
 Plugins.Modules = {
     App: {
@@ -63,11 +76,11 @@ Plugins.Modules = {
                 balance: balance,
                 expiresAt: expiresAt,
                 // Package Info
-                version: Plugins.ViewModel.version,
-                build: Plugins.ViewModel.build,
-                author: Plugins.ViewModel.author,
-                license: Plugins.ViewModel.license,
-                gitRepository: Plugins.ViewModel.gitRepository
+                version: Plugins.Package.version,
+                build: Plugins.Package.build,
+                author: Plugins.Package.author,
+                license: Plugins.Package.license,
+                gitRepository: Plugins.Package.gitRepository
             }
         }
     },
@@ -229,17 +242,7 @@ Plugins.Modules = {
     }
 };
 
-Plugins.ViewModel = {
-    id: 'AppModelPlugin',
-    name: 'Telegram Bot Studio',
-    short_description: 'Plugins for Telegram Bots',
-    description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.0.0',
-    build: '20260118.174900',
-    author: 'Ilan Laloum',
-    license: 'MIT',
-    gitRepository: 'https://github.com/ilanlaloum/telegram-bot-studio',
-    imageUrl: Plugins.DEFAULT_IMAGE_URL,
+Plugins.Helper = {
     BuildDumpToSheetWidget: (apiAction = '.', result = {}) => {
         return CardService.newDecoratedText()
             .setText('📥 Export to Sheet')
@@ -269,7 +272,7 @@ Plugins.ViewModel = {
 
         // Add dump to sheet widget
         newSection.addWidget(
-            Plugins.ViewModel.BuildDumpToSheetWidget(title, result));
+            Plugins.Helper.BuildDumpToSheetWidget(title, result));
 
         // Add Preview title
         newSection.addWidget(
@@ -367,7 +370,7 @@ Plugins.ViewModel = {
                 )
                 .setOnClickAction(
                     CardService.newAction()
-                        .setFunctionName('Plugins.UserProfile.OnLoad')
+                        .setFunctionName('Plugins.UserProfile.Controller.Load')
                 )
         );
         return newSection;
@@ -414,7 +417,7 @@ Plugins.Home = {
     name: 'Telegram Bot Studio',
     short_description: 'A suite of tools for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.0.3',
+    version: '1.0.0',
     Controller: {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -475,7 +478,7 @@ Plugins.Home = {
                     .setTitle(Plugins.Home.name)
                     .setSubtitle(Plugins.Home.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.WELCOME_IMG_URL)
+                    .setImageUrl(Plugins.Media.WELCOME_IMG_URL)
                     .setImageAltText('Telegram Bot Studio Logo'));
 
             // 1. Connection & Status Section (Pinned to Top)
@@ -517,7 +520,7 @@ Plugins.Home = {
                     .addButton(CardService.newTextButton()
                         .setText('Settings')
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Settings.OnLoad')))
+                            .setFunctionName('Plugins.Settings.Controller.Load')))
                     .addButton(CardService.newTextButton()
                         .setText('Help')
                         .setOnClickAction(CardService.newAction()
@@ -546,7 +549,7 @@ Plugins.Home = {
                         .setBackgroundColor(Plugins.primaryColor())
                         //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.UserProfile.OnLoad')))
+                            .setFunctionName('Plugins.UserProfile.Controller.Load')))
                 );
             }
 
@@ -559,7 +562,7 @@ Plugins.Home = {
                     .setTitle('About ' + Plugins.Home.name)
                     .setSubtitle(Plugins.Home.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.BIG_TIME_IMG_URL)
+                    .setImageUrl(Plugins.Media.BIG_TIME_IMG_URL)
                     .setImageAltText('Card Image'))
                 .addSection(
                     CardService.newCardSection()
@@ -587,13 +590,13 @@ Plugins.Home = {
                             .setText('📄 Documentation')
                             .setOpenLink(
                                 CardService.newOpenLink()
-                                    .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
+                                    .setUrl(`${Plugins.Package.gitRepository}#readme`)))
                     .addWidget(
                         CardService.newTextButton()
                             .setText('📢 Report Issues')
                             .setOpenLink(
                                 CardService.newOpenLink()
-                                    .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
+                                    .setUrl(`${Plugins.Package.gitRepository}/issues`))));
 
             return cardBuilder.build();
         },
@@ -604,7 +607,7 @@ Plugins.Home = {
                     .setTitle('Help & Support')
                     .setSubtitle(Plugins.Home.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.YES_IMG_URL)
+                    .setImageUrl(Plugins.Media.YES_IMG_URL)
                     .setImageAltText('Help Image'));
 
             // 1. Getting Started Guide Section
@@ -645,12 +648,11 @@ Plugins.Home = {
                 .addWidget(CardService.newTextButton()
                     .setText('📄 Read Documentation')
                     .setOpenLink(CardService.newOpenLink()
-                        .setUrl(`${Plugins.GIT_REPO_URL}#readme`)))
+                        .setUrl(`${Plugins.Package.gitRepository}#readme`)))
                 .addWidget(CardService.newTextButton()
                     .setText('📢 Report a Bug')
                     .setOpenLink(CardService.newOpenLink()
-                        .setUrl(`${Plugins.GIT_REPO_URL}/issues`))));
-
+                        .setUrl(`${Plugins.Package.gitRepository}/issues`))));
             return cardBuilder.build();
         }
     }
@@ -662,7 +664,7 @@ Plugins.Connection = {
     short_description: 'Manage bot connection settings',
     description: 'The Connection plugin allows you to manage and configure the connection settings for your Telegram bot. You can set up your bot token, test the connection, and ensure that your bot is properly connected to the Telegram API.',
     version: '1.0.0',
-    imageUrl: Plugins.WELCOME_IMG_URL,
+    imageUrl: Plugins.Media.WELCOME_IMG_URL,
     Controller: {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -844,7 +846,7 @@ Plugins.Connection = {
                     xButton));
 
             // Bot Token Input Widget (hidden for post-connection)
-            statusSection.addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(token, true));
+            statusSection.addWidget(Plugins.Helper.BuildTokenTextInputWidget(token, true));
 
             return statusSection;
         },
@@ -906,7 +908,7 @@ Plugins.Connection = {
                 );
             } else {
                 // Connect Flow: Input + Button
-                actionSection.addWidget(Plugins.ViewModel.BuildTokenTextInputWidget(token, false));
+                actionSection.addWidget(Plugins.Helper.BuildTokenTextInputWidget(token, false));
 
                 // Help Hint
                 actionSection.addWidget(CardService.newDecoratedText()
@@ -941,223 +943,204 @@ Plugins.Settings = {
     short_description: 'Manage add-on settings',
     description: 'The Settings card allows you to manage and configure settings for your Telegram bot add-on. You can adjust preferences, set up integrations, and customize the behavior of your bot to suit your needs.',
     version: '1.0.0',
-    imageUrl: Plugins.YOU_GOT_IT_IMG_URL,
-    WelcomeSection: (data = {}) => {
-        return CardService.newCardSection()
-            //.setHeader('Settings Extensions')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1)
-            // add main decorated text widget
-            .addWidget(
+    imageUrl: Plugins.Media.YOU_GOT_IT_IMG_URL,
+    Controller: {
+        Load: (e) => {
+            // Build and return the Settings Home Card
+            const appModelData = Plugins.Modules.App.getData();
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(Plugins.Settings.View.HomeCard({ ...appModelData }))
+                ).build();
+        },
+        SaveSettings: (e) => {
+            // extract and save API endpoint URL
+            const apiEndpointUrl = e?.commonEventObject?.formInputs?.txt_api_endpoint_url?.stringInputs?.value?.[0] || '';
+            if (apiEndpointUrl) {
+                PropertiesService.getUserProperties().setProperty('txt_api_endpoint_url', apiEndpointUrl);
+            }
+            // extract and save secret private key
+            const secretPrivateKey = e?.commonEventObject?.formInputs?.txt_secret_private_key?.stringInputs?.value?.[0] || '';
+            if (secretPrivateKey) {
+                PropertiesService.getUserProperties().setProperty('txt_secret_private_key', secretPrivateKey);
+            }
+
+            // focus_terminal_output
+            const focusTerminalOutput = e?.commonEventObject?.formInputs?.focus_terminal_output?.stringInputs?.value?.[0] || 'OFF';
+            PropertiesService.getUserProperties().setProperty('focus_terminal_output', focusTerminalOutput === 'ON' ? 'ON' : 'OFF');
+
+            // terminal_output_switch
+            const terminalOutputSwitch = e?.commonEventObject?.formInputs?.terminal_output_switch?.stringInputs?.value?.[0] || 'OFF';
+            PropertiesService.getUserProperties().setProperty('terminal_output_switch', terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
+
+            // Build and return the Home Card
+            const appModelData = Plugins.Modules.App.getData();
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .popToRoot()
+                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
+                ).build();
+        },
+        ToggleAction(e) {
+            try {
+                Plugins.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
+                    'Settings.ToggleAction',
+                    'INFO',
+                    e,
+                    `-------------------------`);
+                const actionName = e?.commonEventObject?.parameters?.actionName;
+                // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
+                const preState = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
+                // store the new state within user properties or perform necessary actions
+                PropertiesService.getUserProperties().setProperty(actionName, preState === 'ON' ? 'ON' : 'OFF');
+                // return success notification
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(`${actionName} set to ${preState}`))
+                    .build();
+            } catch (error) {
+                // log error to terminal output
+                Plugins.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
+                    'Settings.ToggleAction',
+                    'ERROR',
+                    e,
+                    error.toString(),
+                    error.stack);
+
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(
+                                error.toString()))
+                    .build();
+            }
+        }
+    },
+    View: {
+        HomeCard: (data = {}) => {
+            // 1. Data Initialization
+            // Create a random demo key if none exists (for display purposes)
+            const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
+
+            // Fetch properties with robust fallbacks
+            data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
+            data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'OFF';
+            data.focus_terminal_output = PropertiesService.getUserProperties().getProperty('focus_terminal_output') || 'OFF';
+            data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty('txt_secret_private_key') || privateKeyDemo;
+
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.Settings.name + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('System Configuration')
+                    .setSubtitle('Manage endpoints, security keys, and debugging')
+                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageUrl(Plugins.Settings.imageUrl)
+                    .setImageAltText('Settings Logo'));
+
+            // 2. Network & Security Section (Compact Grouping)
+            // Groups the API URL and Secret Key together as they are both core config items
+            const configSection = CardService.newCardSection()
+                .setHeader('🌐 Network & Security')
+                .setCollapsible(false);
+
+            // API Endpoint Input
+            configSection.addWidget(
+                CardService.newTextInput()
+                    .setFieldName('txt_api_endpoint_url')
+                    .setTitle('API Endpoint URL')
+                    .setValue(data.txt_api_endpoint_url)
+                    .setHint('Default: https://api.telegram.org/')
+                    .setMultiline(false)
+            );
+
+            // Secret Key Input with Validation
+            configSection.addWidget(
+                CardService.newTextInput()
+                    .setFieldName('txt_secret_private_key')
+                    .setTitle('Secret Private Key')
+                    .setValue(data.txt_secret_private_key)
+                    .setHint('Enter your secure 256-char private key')
+                    .setValidation(
+                        CardService.newValidation()
+                            .setCharacterLimit(256)
+                            .setInputType(CardService.InputType.TEXT))
+            );
+
+            cardBuilder.addSection(configSection);
+
+            // 3. Developer Tools Section
+            // Isolated section for toggles and switches
+            const devSection = CardService.newCardSection()
+                .setHeader('🛠️ Developer Console');
+
+            // Terminal Output Switch (Pro Style)
+            devSection.addWidget(
                 CardService.newDecoratedText()
-                    .setStartIcon(
-                        CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('settings')))
-                    .setText(Plugins.Settings.name)
-                    .setBottomLabel(Plugins.Settings.short_description)
-                    .setWrapText(false)
-                    .setButton(
-                        CardService.newTextButton()
-                            .setAltText('Open Settings Plugin')
-                            .setMaterialIcon(
-                                CardService.newMaterialIcon()
-                                    .setName('settings')
-                                    .setFill(false)
-                                    .setWeight(300)
-                                    .setGrade(0)
-                            )
-                            .setOnClickAction(
+                    .setTopLabel('Debug Mode')
+                    .setText('Terminal Logs')
+                    .setBottomLabel('Write execution logs to the active spreadsheet.')
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('terminal').setFill(false)))
+                    .setSwitchControl(
+                        CardService.newSwitch()
+                            .setFieldName('terminal_output_switch')
+                            .setValue('ON')
+                            .setSelected(data.terminal_output_switch === 'ON')
+                            .setControlType(CardService.SwitchControlType.SWITCH)
+                            .setOnChangeAction(
                                 CardService.newAction()
-                                    .setFunctionName('Plugins.Settings.OnLoad')
+                                    .setFunctionName('Plugins.Settings.Controller.ToggleAction')
+                                    .setParameters({ actionName: 'terminal_output_switch' })
                             )
                     )
             );
-    },
-    HomeCard: (data = {}) => {
-        // 1. Data Initialization
-        // Create a random demo key if none exists (for display purposes)
-        const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
 
-        // Fetch properties with robust fallbacks
-        data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
-        data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'OFF';
-        data.focus_terminal_output = PropertiesService.getUserProperties().getProperty('focus_terminal_output') || 'OFF';
-        data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty('txt_secret_private_key') || privateKeyDemo;
-
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.Settings.name + '-Home')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('System Configuration')
-                .setSubtitle('Manage endpoints, security keys, and debugging')
-                .setImageStyle(CardService.ImageStyle.CIRCLE)
-                .setImageUrl(Plugins.Settings.imageUrl)
-                .setImageAltText('Settings Logo'));
-
-        // 2. Network & Security Section (Compact Grouping)
-        // Groups the API URL and Secret Key together as they are both core config items
-        const configSection = CardService.newCardSection()
-            .setHeader('🌐 Network & Security')
-            .setCollapsible(false);
-
-        // API Endpoint Input
-        configSection.addWidget(
-            CardService.newTextInput()
-                .setFieldName('txt_api_endpoint_url')
-                .setTitle('API Endpoint URL')
-                .setValue(data.txt_api_endpoint_url)
-                .setHint('Default: https://api.telegram.org/')
-                .setMultiline(false)
-        );
-
-        // Secret Key Input with Validation
-        configSection.addWidget(
-            CardService.newTextInput()
-                .setFieldName('txt_secret_private_key')
-                .setTitle('Secret Private Key')
-                .setValue(data.txt_secret_private_key)
-                .setHint('Enter your secure 256-char private key')
-                .setValidation(
-                    CardService.newValidation()
-                        .setCharacterLimit(256)
-                        .setInputType(CardService.InputType.TEXT))
-        );
-
-        cardBuilder.addSection(configSection);
-
-        // 3. Developer Tools Section
-        // Isolated section for toggles and switches
-        const devSection = CardService.newCardSection()
-            .setHeader('🛠️ Developer Console');
-
-        // Terminal Output Switch (Pro Style)
-        devSection.addWidget(
-            CardService.newDecoratedText()
-                .setTopLabel('Debug Mode')
-                .setText('Terminal Logs')
-                .setBottomLabel('Write execution logs to the active spreadsheet.')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('terminal').setFill(false)))
-                .setSwitchControl(
-                    CardService.newSwitch()
-                        .setFieldName('terminal_output_switch')
-                        .setValue('ON')
-                        .setSelected(data.terminal_output_switch === 'ON')
-                        .setControlType(CardService.SwitchControlType.SWITCH)
-                        .setOnChangeAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.Settings.OnToggleAction')
-                                .setParameters({ actionName: 'terminal_output_switch' })
-                        )
-                )
-        );
-
-        // Focus Terminal Output Switch
-        devSection.addWidget(
-            CardService.newDecoratedText()
-                .setVisibility(data.terminal_output_switch === 'ON' ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
-                .setTopLabel('Debug Mode')
-                .setText('Focus Terminal Output')
-                .setBottomLabel('Focus the terminal output on the last log entry.')
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('center_focus_strong').setFill(false)))
-                .setSwitchControl(
-                    CardService.newSwitch()
-                        .setFieldName('focus_terminal_output')
-                        .setValue('ON')
-                        .setSelected(data.focus_terminal_output === 'ON')
-                        .setControlType(CardService.SwitchControlType.SWITCH)
-                        .setOnChangeAction(
-                            CardService.newAction()
-                                .setFunctionName('Plugins.Settings.OnToggleAction')
-                                .setParameters({ actionName: 'focus_terminal_output' })
-                        )
-                )
-        );
-
-        cardBuilder.addSection(devSection);
-
-        // 4. Professional Fixed Footer
-        // High-contrast primary button for the "Save" action
-        const fixedFooter = CardService.newFixedFooter()
-            .setPrimaryButton(
-                CardService.newTextButton()
-                    .setText('Save Configuration')
-                    .setBackgroundColor(Plugins.primaryColor())
-                    //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setMaterialIcon(CardService.newMaterialIcon().setName('save'))
-                    .setOnClickAction(
-                        CardService.newAction()
-                            .setFunctionName('Plugins.Settings.OnSaveSettings')
+            // Focus Terminal Output Switch
+            devSection.addWidget(
+                CardService.newDecoratedText()
+                    .setVisibility(data.terminal_output_switch === 'ON' ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
+                    .setTopLabel('Debug Mode')
+                    .setText('Focus Terminal Output')
+                    .setBottomLabel('Focus the terminal output on the last log entry.')
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('center_focus_strong').setFill(false)))
+                    .setSwitchControl(
+                        CardService.newSwitch()
+                            .setFieldName('focus_terminal_output')
+                            .setValue('ON')
+                            .setSelected(data.focus_terminal_output === 'ON')
+                            .setControlType(CardService.SwitchControlType.SWITCH)
+                            .setOnChangeAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Settings.Controller.ToggleAction')
+                                    .setParameters({ actionName: 'focus_terminal_output' })
+                            )
                     )
             );
 
-        cardBuilder.setFixedFooter(fixedFooter);
+            cardBuilder.addSection(devSection);
 
-        return cardBuilder.build();
-    },
-    OnLoad: (e) => {
-        // Build and return the Settings Home Card
-        const appModelData = Plugins.Modules.App.getData();
-        return CardService.newActionResponseBuilder()
-            .setNavigation(
-                CardService.newNavigation()
-                    .pushCard(Plugins.Settings.HomeCard({ ...appModelData }))
-            ).build();
-    },
-    OnSaveSettings: (e) => {
-        // save api endpoint url
-        const apiEndpointUrl = Plugins.getFormInputsStringValue(e, 'txt_api_endpoint_url', '');
-        if (apiEndpointUrl) {
-            PropertiesService.getUserProperties().setProperty('txt_api_endpoint_url', apiEndpointUrl);
-        }
-        // save secret private key
-        const secretPrivateKey = Plugins.getFormInputsStringValue(e, 'txt_secret_private_key', '');
-        if (secretPrivateKey) {
-            PropertiesService.getUserProperties().setProperty('txt_secret_private_key', secretPrivateKey);
-        }
+            // 4. Professional Fixed Footer
+            // High-contrast primary button for the "Save" action
+            const fixedFooter = CardService.newFixedFooter()
+                .setPrimaryButton(
+                    CardService.newTextButton()
+                        .setText('Save Configuration')
+                        .setBackgroundColor(Plugins.primaryColor())
+                        //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                        .setMaterialIcon(CardService.newMaterialIcon().setName('save'))
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Settings.Controller.SaveSettings')
+                        )
+                );
 
-        // Build and return the Home Card
-        const appModelData = Plugins.Modules.App.getData();
-        return CardService.newActionResponseBuilder()
-            .setNavigation(
-                CardService.newNavigation()
-                    .popToRoot()
-                    .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
-            ).build();
-    },
-    OnToggleAction(e) {
-        try {
-            Plugins.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
-                'Plugins.Settings.OnToggleAction',
-                'INFO',
-                e,
-                `-------------------------`);
-            const actionName = e?.commonEventObject?.parameters?.actionName;
-            // actionName like: 'debug_mode_switch' or 'form_input_switch_key'
-            const preState = e?.commonEventObject?.formInputs?.[actionName]?.stringInputs?.value?.[0];
-            // store the new state within user properties or perform necessary actions
-            PropertiesService.getUserProperties().setProperty(actionName, preState === 'ON' ? 'ON' : 'OFF');
-            // return success notification
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(`${actionName} set to ${preState}`))
-                .build();
-        } catch (error) {
-            // log error to terminal output
-            Plugins.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
-                'Plugins.Settings.OnToggleAction',
-                'ERROR',
-                e,
-                error.toString(),
-                error.stack);
+            cardBuilder.setFixedFooter(fixedFooter);
 
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(
-                            error.toString()))
-                .build();
+            return cardBuilder.build();
         }
     }
 };
@@ -1168,164 +1151,168 @@ Plugins.UserProfile = {
     short_description: 'Manage your account and membership',
     description: 'The User Profile plugin allows you to manage your account information, view your membership status, and upgrade to premium features. You can easily access your profile details and make changes to your subscription directly from this card.',
     version: '1.0.0',
-    imageUrl: Plugins.YOU_GOT_IT_IMG_URL,
-    HomeCard: (data = {}) => {
-        const userEmail = Session.getActiveUser().getEmail();
-        const cardBuilder = CardService.newCardBuilder()
-            .setName(Plugins.UserProfile.id + '-Home')
-            .setHeader(CardService.newCardHeader()
-                .setTitle('Account Overview')
-                .setSubtitle(userEmail)
-                .setImageStyle(CardService.ImageStyle.CIRCLE)
-                .setImageUrl(Plugins.YOU_GOT_IT_IMG_URL)
-                .setImageAltText('User Profile Avatar'));
+    imageUrl: Plugins.Media.YOU_GOT_IT_IMG_URL,
+    Controller: {
+        Load(e) {
+            try {
+                const membershipStr = PropertiesService.getUserProperties().getProperty('membership') || null;
+                const membership = membershipStr ? JSON.parse(membershipStr) : null;
+                const isPremium = membership && membership.type === 'premium' && new Date(membership.expiresAt) > new Date();
 
-        // 1. Membership Status Section
-        cardBuilder.addSection(Plugins.UserProfile.buildMembershipSection(data));
+                const appModelData = Plugins.Modules.App.getData();
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(
+                        CardService.newNavigation()
+                            .pushCard(Plugins.UserProfile.View.HomeCard({ ...appModelData, isPremium }))
+                    ).build();
+            } catch (error) {
+                return this.handleOperationError(error);
+            }
+        },
+        ActivatePremium(e) {
+            try {
+                // Simulate activation logic
+                // In a real implementation, you would interact with a payment gateway or licensing server here
+                const membership = {
+                    licenseKey: 'SAMPLE_LICENSE_KEY',
+                    type: 'premium',
+                    activatedAt: new Date().toISOString(),
+                    // Add one 90 days to the current date
+                    expiresAt: new Date(new Date().setDate(new Date().getDate() + 90)).toISOString(),
+                    balance: 0
+                }
 
-        // 2. Feature Comparison Section (Professional Touch)
-        const featureSection = CardService.newCardSection()
-            .setHeader('🚀 Premium Features')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1);
+                // Save membership info to user properties
+                PropertiesService.getUserProperties().setProperty('membership', JSON.stringify(membership));
 
-        const features = [
-            { name: 'Unlimited Webhooks', premium: true },
-            { name: 'Real-time Log Monitoring', premium: true },
-            { name: 'Priority Support', premium: true },
-            { name: 'Ad-free Experience', premium: true }
-        ];
-
-        features.forEach(f => {
-            featureSection.addWidget(CardService.newDecoratedText()
-                .setText(f.name)
-                .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                    CardService.newMaterialIcon().setName('check_circle').setFill(false)))
-                .setBottomLabel(data.isPremium ? 'Active' : 'Premium Only'));
-        });
-
-        cardBuilder.addSection(featureSection);
-
-        return cardBuilder.build();
-    },
-    buildMembershipSection: (data = {}) => {
-        const isPremium = data.isPremium ?? false;
-
-        const newSection = CardService.newCardSection()
-            .setHeader('Membership & Billing');
-
-        // Professional Membership Badge
-        newSection.addWidget(CardService.newDecoratedText()
-            .setTopLabel('Current Plan')
-            .setText(isPremium ? '💎 PREMIUM ACCESS' : '🆓 FREE TIER')
-            .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                CardService.newMaterialIcon()
-                    .setName(isPremium ? 'workspace_premium' : 'person')
-                    .setFill(false)))
-            .setBottomLabel(isPremium ? 'Your pro subscription is active.' : 'Upgrade to unlock advanced bot tools.')
-            .setWrapText(true));
-
-        if (isPremium) {
-            newSection.addWidget(CardService.newTextButton()
-                .setText('Cancel Subscription')
-                .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.UserProfile.OnRevokeLicense')));
-        } else {
-            newSection.addWidget(CardService.newTextButton()
-                .setText('💎 Upgrade Now')
-                .setBackgroundColor(Plugins.primaryColor())
-                .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
-                .setMaterialIcon(CardService.newMaterialIcon().setName('bolt'))
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.UserProfile.OnActivatePremium')));
-        }
-
-        return newSection;
-    },
-    OnLoad(e) {
-        try {
-            const membershipStr = PropertiesService.getUserProperties().getProperty('membership') || null;
-            const membership = membershipStr ? JSON.parse(membershipStr) : null;
-            const isPremium = membership && membership.type === 'premium' && new Date(membership.expiresAt) > new Date();
-
-            const appModelData = Plugins.Modules.App.getData();
+                // Build and return the Home Card
+                const appModelData = Plugins.Modules.App.getData();
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(
+                        CardService.newNavigation()
+                            .popToRoot()
+                            .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
+                    ).build();
+            } catch (error) {
+                return this.handleOperationError(error);
+            }
+        },
+        RevokeLicense(e) {
+            try {
+                // Simulate revocation logic
+                PropertiesService.getUserProperties().deleteProperty('membership');
+                // Build and return the Home Card
+                const appModelData = Plugins.Modules.App.getData();
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(
+                        CardService.newNavigation()
+                            .popToRoot()
+                            .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
+                    ).build();
+            } catch (error) {
+                return this.handleOperationError(error);
+            }
+        },
+        handleOperationSuccess(message) {
+            // Show a success message to the user
             return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .pushCard(Plugins.UserProfile.HomeCard({ ...appModelData, isPremium }))
-                ).build();
-        } catch (error) {
-            return this.handleOperationError(error);
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(message))
+                .build();
+        },
+        handleOperationError(error) {
+            // Show an error message to the user
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(
+                            error.toString()))
+                .build();
         }
     },
-    OnActivatePremium(e) {
-        try {
-            // Simulate activation logic
-            // In a real implementation, you would interact with a payment gateway or licensing server here
-            const membership = {
-                licenseKey: 'SAMPLE_LICENSE_KEY',
-                type: 'premium',
-                activatedAt: new Date().toISOString(),
-                // Add one 90 days to the current date
-                expiresAt: new Date(new Date().setDate(new Date().getDate() + 90)).toISOString(),
-                balance: 0
+    View: {
+        HomeCard: (data = {}) => {
+            const userEmail = Session.getActiveUser().getEmail();
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.UserProfile.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('Account Overview')
+                    .setSubtitle(userEmail)
+                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageUrl(Plugins.Media.YOU_GOT_IT_IMG_URL)
+                    .setImageAltText('User Profile Avatar'));
+
+            // 1. Membership Status Section
+            cardBuilder.addSection(Plugins.UserProfile.View.buildMembershipSection(data));
+
+            // 2. Feature Comparison Section (Professional Touch)
+            const featureSection = CardService.newCardSection()
+                .setHeader('🚀 Premium Features')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(1);
+
+            const features = [
+                { name: 'Unlimited Webhooks', premium: true },
+                { name: 'Real-time Log Monitoring', premium: true },
+                { name: 'Priority Support', premium: true },
+                { name: 'Ad-free Experience', premium: true }
+            ];
+
+            features.forEach(f => {
+                featureSection.addWidget(CardService.newDecoratedText()
+                    .setText(f.name)
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('check_circle').setFill(false)))
+                    .setBottomLabel(data.isPremium ? 'Active' : 'Premium Only'));
+            });
+
+            cardBuilder.addSection(featureSection);
+
+            return cardBuilder.build();
+        },
+        buildMembershipSection: (data = {}) => {
+            const isPremium = data.isPremium ?? false;
+
+            const newSection = CardService.newCardSection()
+                .setHeader('Membership & Billing');
+
+            // Professional Membership Badge
+            newSection.addWidget(CardService.newDecoratedText()
+                .setTopLabel('Current Plan')
+                .setText(isPremium ? '💎 PREMIUM ACCESS' : '🆓 FREE TIER')
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon()
+                        .setName(isPremium ? 'workspace_premium' : 'person')
+                        .setFill(false)))
+                .setBottomLabel(isPremium ? 'Your pro subscription is active.' : 'Upgrade to unlock advanced bot tools.')
+                .setWrapText(true));
+
+            if (isPremium) {
+                newSection.addWidget(CardService.newTextButton()
+                    .setText('Cancel Subscription')
+                    .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.UserProfile.Controller.RevokeLicense')));
+            } else {
+                newSection.addWidget(CardService.newTextButton()
+                    .setText('💎 Upgrade Now')
+                    .setBackgroundColor(Plugins.primaryColor())
+                    .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
+                    .setMaterialIcon(CardService.newMaterialIcon().setName('bolt'))
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.UserProfile.Controller.ActivatePremium')));
             }
 
-            // Save membership info to user properties
-            PropertiesService.getUserProperties().setProperty('membership', JSON.stringify(membership));
-
-            // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.getData();
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .popToRoot()
-                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
-                ).build();
-        } catch (error) {
-            return this.handleOperationError(error);
+            return newSection;
         }
-    },
-    OnRevokeLicense(e) {
-        try {
-            // Simulate revocation logic
-            PropertiesService.getUserProperties().deleteProperty('membership');
-            // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.getData();
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .popToRoot()
-                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
-                ).build();
-        } catch (error) {
-            return this.handleOperationError(error);
-        }
-    },
-    handleOperationSuccess(message) {
-        // Show a success message to the user
-        return CardService.newActionResponseBuilder()
-            .setNotification(
-                CardService.newNotification()
-                    .setText(message))
-            .build();
-    },
-    handleOperationError(error) {
-        // Show an error message to the user
-        return CardService.newActionResponseBuilder()
-            .setNotification(
-                CardService.newNotification()
-                    .setText(
-                        error.toString()))
-            .build();
     }
 };
 
 Plugins.GetMe = {
     id: 'GetMePlugin',
     name: 'Get Me',
-    imageUrl: Plugins.DEFAULT_IMAGE_URL, // Falls back to default if specific icon isn't set
+    imageUrl: Plugins.Media.DEFAULT_IMAGE_URL, // Falls back to default if specific icon isn't set
     description: 'Verify your bot connection and view identity details.',
     short_description: 'Bot identity & capabilities',
     Controller: {
@@ -1445,7 +1432,7 @@ Plugins.GetMe = {
                     const value = result[key];
                     if (typeof value === 'boolean') {
                         settingsGrid.addItem(
-                            Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                            Plugins.Helper.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
                     }
                 }
             });
@@ -1454,7 +1441,7 @@ Plugins.GetMe = {
 
             // --- Section: Debug/Raw Data ---
             cardBuilder.addSection(
-                Plugins.ViewModel.BuildResultSection('getMe', result));
+                Plugins.Helper.BuildResultSection('getMe', result));
 
 
             // 2. Footer: Refresh Action
@@ -1478,7 +1465,7 @@ Plugins.GetMe = {
 Plugins.GetChat = {
     id: 'GetChatPlugin',
     name: 'Get Chat Info',
-    imageUrl: Plugins.DEFAULT_IMAGE_URL,
+    imageUrl: Plugins.Media.DEFAULT_IMAGE_URL,
     description: 'Inspect details for users, groups, or channels.',
     short_description: 'Chat & User Inspector',
     Controller: {
@@ -1652,7 +1639,7 @@ Plugins.GetChat = {
                     const value = result[key];
                     if (typeof value === 'boolean') {
                         settingsGrid.addItem(
-                            Plugins.ViewModel.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                            Plugins.Helper.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
                     }
                 }
             });
@@ -1660,7 +1647,7 @@ Plugins.GetChat = {
             cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
             // --- Section C: Raw Data (Debug) ---
             cardBuilder.addSection(
-                Plugins.ViewModel.BuildResultSection('getChat', result));
+                Plugins.Helper.BuildResultSection('getChat', result));
 
             return cardBuilder.build();
         }
@@ -1670,7 +1657,7 @@ Plugins.GetChat = {
 Plugins.Webhook = {
     id: 'WebhookPlugin',
     name: 'Webhook Manager',
-    imageUrl: Plugins.DEFAULT_IMAGE_URL,
+    imageUrl: Plugins.Media.DEFAULT_IMAGE_URL,
     description: 'Advanced configuration for Bot Webhooks.',
     short_description: 'Manage Bot Webhook',
     Controller: {
@@ -1967,7 +1954,7 @@ Plugins.Webhook = {
             cardBuilder.addSection(configSection);
 
             // --- Section: Raw Data (Debug) ---
-            cardBuilder.addSection(Plugins.ViewModel.BuildResultSection('getWebhookInfo', result));
+            cardBuilder.addSection(Plugins.Helper.BuildResultSection('getWebhookInfo', result));
 
             // --- 3. Footer Refresh ---
             const footer = CardService.newFixedFooter()
