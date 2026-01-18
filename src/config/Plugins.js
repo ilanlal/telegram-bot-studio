@@ -176,8 +176,7 @@ Plugins.Modules = {
         }
 
         static write(
-            activeSpreadsheet,
-            { source, message, e, param1, param2, param3 } = {}) {
+            activeSpreadsheet, source, message, e, param1, param2, param3) {
 
             const terminalOutputEnabled = PropertiesService.getUserProperties()
                 .getProperty('terminal_output_switch') || 'OFF';
