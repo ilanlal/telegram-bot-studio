@@ -41,8 +41,8 @@ describe('Plugins.UserProfile', () => {
             expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
         });
 
-        // OnLoad test
-        it('should handle OnLoad', () => {
+        // Load test
+        it('should handle Load', () => {
             // mock event parameters
             const e = { parameters: {} };
             const homeCard = Plugins.UserProfile.Controller['Load'](e);

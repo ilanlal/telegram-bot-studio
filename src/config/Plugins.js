@@ -272,7 +272,7 @@ Plugins.Helper = {
         }
     },
     View: {
-        BuildExportWidget: (bot='', apiAction = '.', result = {}) => {
+        BuildExportWidget: (bot = '', apiAction = '.', result = {}) => {
             return CardService.newDecoratedText()
                 .setText('📥 Export to Sheet')
                 .setWrapText(true)
@@ -294,7 +294,7 @@ Plugins.Helper = {
                         )
                 );
         },
-        BuildResultSection: (title = '.', result = {}) => {
+        BuildResultSection: (bot = '', action = '.', result = {}) => {
             const newSection = CardService.newCardSection()
                 .setHeader('✅ Execution Result')
                 .setCollapsible(true)
@@ -302,7 +302,7 @@ Plugins.Helper = {
 
             // Add dump to sheet widget
             newSection.addWidget(
-                Plugins.Helper.View.BuildExportWidget(title, result));
+                Plugins.Helper.View.BuildExportWidget(bot, action, result));
 
             // Add Preview title
             newSection.addWidget(
@@ -429,11 +429,7 @@ Plugins.Home = {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             // Log the event for debugging
-            Plugins.Modules.TerminalOutput.write(activeSpreadsheet,
-                'Plugins.Home',
-                'OnLoad',
-                e,
-                'Loading Home Card with AppModel data.');
+            Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Controller.Home', 'Load', e, 'Loading Home Card with AppModel data.');
 
             // Build and return the Home Card
             const appModelData = Plugins.Modules.App.getData();
@@ -510,7 +506,7 @@ Plugins.Home = {
                             .setDisabled(!data.isConnected)
                             .setOnClickAction(
                                 CardService.newAction()
-                                    .setFunctionName(`${PluginPath}.OnLoad`)
+                                    .setFunctionName(`${PluginPath}.Controller.Load`)
                             )
                     );
 
@@ -680,11 +676,10 @@ Plugins.Connection = {
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Load', 'INFO', e, 'Loading Connection plugin...');
                 const data = e?.commonEventObject?.parameters || {};
 
-                // Optional: Check if we are forcing a refresh via parameters
+                // Determine if this is an update or a new push
                 const isUpdate = data.update === 'true';
 
-
-
+                // Build navigation response
                 let navigation = CardService.newNavigation();
 
                 if (isUpdate) {
@@ -1342,6 +1337,9 @@ Plugins.GetMe = {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
+                // Fetch bot username for logging purposes
+                data.username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+
                 // Initialize Telegram Bot Client
                 const telegramBotClient = new TelegramBotClient(input_token);
                 // 1. API Call: getMe
@@ -1448,7 +1446,7 @@ Plugins.GetMe = {
 
             // --- Section: Debug/Raw Data ---
             cardBuilder.addSection(
-                Plugins.Helper.View.BuildResultSection('getMe', result));
+                Plugins.Helper.View.BuildResultSection(result.username, 'getMe', result));
 
 
             // 2. Footer: Refresh Action
@@ -1491,6 +1489,9 @@ Plugins.GetChat = {
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
+
+                // Fetch bot username for logging purposes
+                data.username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
 
                 // Extract Chat ID from form inputs if available (user clicked Search)
                 // or fall back to parameters/properties
@@ -1654,7 +1655,7 @@ Plugins.GetChat = {
             cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
             // --- Section C: Raw Data (Debug) ---
             cardBuilder.addSection(
-                Plugins.Helper.View.BuildResultSection('getChat', result));
+                Plugins.Helper.View.BuildResultSection(data.username, 'getChat', result));
 
             return cardBuilder.build();
         }
@@ -1685,6 +1686,8 @@ Plugins.Webhook = {
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
+                // Fetch bot username for logging purposes
+                data.username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
 
                 // Logic: Fetch Data if Token Exists
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1726,6 +1729,7 @@ Plugins.Webhook = {
                     .build();
             }
         },
+
         /**
          * ACTION: Set Webhook with Full Options
          */
@@ -1961,7 +1965,7 @@ Plugins.Webhook = {
             cardBuilder.addSection(configSection);
 
             // --- Section: Raw Data (Debug) ---
-            cardBuilder.addSection(Plugins.Helper.View.BuildResultSection('getWebhookInfo', result));
+            cardBuilder.addSection(Plugins.Helper.View.BuildResultSection(data.username, 'getWebhookInfo', result));
 
             // --- 3. Footer Refresh ---
             const footer = CardService.newFixedFooter()
@@ -1971,7 +1975,7 @@ Plugins.Webhook = {
                         .setName('refresh')
                         .setFill(false)) // Constraint 1
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.OnLoad')
+                        .setFunctionName('Plugins.Webhook.Controller.Load')
                         .setParameters({ update: 'true' })));
 
             cardBuilder.setFixedFooter(footer);

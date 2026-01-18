@@ -14,8 +14,8 @@ describe('Plugins.Home', () => {
             expect(Plugins.Home.short_description).toBeDefined();
         });
 
-        // OnLoad test
-        it('should handle OnLoad', () => {
+        // Load test
+        it('should handle Load', () => {
             // mock event parameters
             const e = { parameters: {} };
             const homeCard = Plugins.Home.Controller.Load(e);

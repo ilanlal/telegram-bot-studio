@@ -3,7 +3,7 @@ const { Plugins } = require('../Plugins');
 
 describe('Plugins.Helpper', () => {
     describe('Helpper Plugin Controller', () => {
-        // OnDumpToSheet test
+        // DumpApiResultToSheet test
         it('should handle OnDumpToSheet', () => {
             // mock event parameters
             const e = {

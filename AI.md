@@ -20,7 +20,7 @@ Here are the specific constraints and requirements for the implementation:
 
 5. set webhook include original input (ip_address,max_connections,drop_pending_updates,secret_token)
 
-6. on set or delete webhook, after the action is done, update the current card view (OnLoad) with update=true parameter. like: Plugins.Webhook.OnLoad({ commonEventObject: { parameters: { update: 'true' } } });
+6. on set or delete webhook, after the action is done, update the current card view (Load) with update=true parameter. like: Plugins.Webhook.Load({ commonEventObject: { parameters: { update: 'true' } } });
 
 7. On telegram api execute, check for error JSON.parse(response.getContentText()).ok === false and throw error with the getContentText() message
 

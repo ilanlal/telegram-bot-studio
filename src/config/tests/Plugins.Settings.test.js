@@ -12,8 +12,8 @@ describe('Plugins.Settings', () => {
         });
 
 
-        // OnLoad
-        it('should handle OnLoad', () => {
+        // Load
+        it('should handle Load', () => {
             // mock event parameters
             const e = { parameters: {} };
             const homeCard = Plugins.Settings.Controller.Load(e);

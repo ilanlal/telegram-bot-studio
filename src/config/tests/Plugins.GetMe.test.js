@@ -27,8 +27,8 @@ describe('Plugins.GetMe', () => {
         expect(cardData.notification).toBeUndefined();
     });
 
-    // OnLoad test
-    it('should handle OnLoad', () => {
+    // Load test
+    it('should handle Load', () => {
         const event = {
             commonEventObject: {
                 formInputs: {

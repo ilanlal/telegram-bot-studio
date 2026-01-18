@@ -20,8 +20,8 @@ describe('Plugins.GetChat', () => {
         expect(cardData.notification).toBeUndefined();
     });
 
-    // OnLoad test
-    it('should handle OnLoad', () => {
+    // Load test
+    it('should handle Load', () => {
         PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
         const chatId = '123456789';
         const event = {

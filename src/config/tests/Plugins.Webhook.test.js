@@ -8,8 +8,8 @@ describe('Plugins.Webhook', () => {
         PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
     });
 
-    // OnLoad test
-    it('should create OnLoad', () => {
+    // Load test
+    it('should create Load', () => {
         // mock event parameters
         const e = {
             commonEventObject: {
@@ -30,7 +30,7 @@ describe('Plugins.Webhook', () => {
                     }
                 })));
 
-        // Call OnLoad without result
+        // Call Load without result
         const homeCard = Plugins.Webhook.Controller['Load'](e);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
