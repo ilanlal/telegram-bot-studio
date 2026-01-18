@@ -154,9 +154,9 @@ Plugins.Modules = {
             return sheet;
         }
 
-        dumpObjectToSheet(sheetMeta = {}, title = '.', data = {}) {
+        dumpObjectToSheet(sheetMeta = {}, bot = '', action = '.', obj = {}) {
             const sheet = this.getSheet(sheetMeta);
-            const values = Object.values(data);
+            const values = Object.values(obj);
             values.forEach((val, idx) => {
                 // stringify objects and arrays
                 if (typeof val === 'object') {
@@ -164,10 +164,11 @@ Plugins.Modules = {
                 }
             });
             const row_data = [
-                new Date().toISOString(),  // timestamp
-                title,                     // title
-                JSON.stringify(data),      // row_data
-                ...values                  // individual data fields
+                new Date().toISOString(),   // timestamp
+                bot,                        // bot
+                action,                     // action
+                JSON.stringify(obj),        // raw object data
+                ...values                   // individual data fields
             ]
             // append data as a new row
             sheet.appendRow(row_data);
@@ -243,172 +244,178 @@ Plugins.Modules = {
 };
 
 Plugins.Helper = {
-    BuildDumpToSheetWidget: (apiAction = '.', result = {}) => {
-        return CardService.newDecoratedText()
-            .setText('📥 Export to Sheet')
-            .setWrapText(true)
-            .setBottomLabel(`Click to export the ${apiAction} response data to a Google Sheet.`)
-            .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                CardService.newMaterialIcon().setName('save_alt')))
-            .setButton(
+    Controller: {
+        GetFormInputValue: (e, key, defaultValue = '') => {
+            const formInputs = e?.commonEventObject?.formInputs;
+            return formInputs?.[key]?.stringInputs?.value?.[0] || defaultValue;
+        },
+        DumpApiResultToSheet: (e) => {
+            // extract parameters
+            const sheetName = e.parameters?.sheetName || 'Dump';
+            const action = e.parameters?.action || 'Dump';
+            const bot = e.parameters?.bot || 'Unknown Bot';
+            const data = e.parameters?.data || '{}';
+            const result = JSON.parse(data);
+            // Create SheetModel instance
+            const sheetModel = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
+            const columns = ['timestamp', 'bot', 'action', 'object_data'];
+            // Dump data to sheet
+            sheetModel.dumpObjectToSheet(
+                { name: sheetName, columns }, bot, action, result);
+
+            // Return action response with notification
+            return CardService.newActionResponseBuilder()
+                .setNotification(
+                    CardService.newNotification()
+                        .setText(`✅ Data dumped to sheet "${sheetName}" successfully.`))
+                .build();
+        }
+    },
+    View: {
+        BuildExportWidget: (bot='', apiAction = '.', result = {}) => {
+            return CardService.newDecoratedText()
+                .setText('📥 Export to Sheet')
+                .setWrapText(true)
+                .setBottomLabel(`Click to export the ${apiAction} response data to a Google Sheet.`)
+                .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                    CardService.newMaterialIcon().setName('save_alt')))
+                .setButton(
+                    CardService.newTextButton()
+                        .setText('Export')
+                        .setOnClickAction(
+                            CardService.newAction()
+                                .setFunctionName('Plugins.Helper.Controller.DumpApiResultToSheet')
+                                .setParameters({
+                                    sheetName: '📦 API Dumps',
+                                    bot: bot,
+                                    action: apiAction,
+                                    data: JSON.stringify(result)
+                                })
+                        )
+                );
+        },
+        BuildResultSection: (title = '.', result = {}) => {
+            const newSection = CardService.newCardSection()
+                .setHeader('✅ Execution Result')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(0);
+
+            // Add dump to sheet widget
+            newSection.addWidget(
+                Plugins.Helper.View.BuildExportWidget(title, result));
+
+            // Add Preview title
+            newSection.addWidget(
+                CardService.newTextParagraph()
+                    .setText('Response: [Preview]')
+            );
+
+            // Add divider
+            newSection.addWidget(CardService.newDivider());
+
+            // Add each property from result to the section as decorated text
+            Object.keys(result)
+                .forEach((key) => {
+                    newSection.addWidget(
+                        CardService.newDecoratedText()
+                            .setText(key + ":")
+                            .setWrapText(true)
+                            .setBottomLabel(JSON.stringify(result[key])));
+                });
+
+            // Raw JSON view
+            // Add divider
+            newSection.addWidget(CardService.newDivider());
+
+            // Add Raw title
+            newSection.addWidget(
+                CardService.newTextParagraph()
+                    .setText('Response: [Raw JSON]'));
+
+            // Add divider
+            newSection.addWidget(CardService.newDivider());
+
+            // Add raw result text paragraph
+            newSection.addWidget(
+                CardService.newTextParagraph()
+                    .setMaxLines(1)
+                    .setText(JSON.stringify(result)));
+
+            // Build the execution result card
+            return newSection;
+        },
+        BuildErrorSection: (error = {}) => {
+            return CardService.newCardSection()
+                .setHeader('📛 Error')
+                // add divider
+                .addWidget(CardService.newDivider())
+                // add error header
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText('An error occurred during execution:')
+                )
+                // add error message
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(error.toString())
+                );
+        },
+        BuildTokenTextInputWidget: (token, hidden = true) => {
+            // Bot Token input
+            return CardService.newTextInput()
+                .setVisibility(hidden ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
+                .setValue(token || '')
+                .setId('txt_bot_api_token')
+                .setFieldName('txt_bot_api_token')
+                .setTitle('🤖 Your Bot Token')
+                .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
+        },
+        BuildActivatePremiumWithCallToActionSection: (data = {}) => {
+            const newSection = CardService.newCardSection()
+                .setHeader('💎 Upgrade to Premium Membership')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(1);
+
+            // todo: show message like 'obtain your 90-day premium membership now!'
+            newSection.addWidget(
+                CardService.newDecoratedText()
+                    .setTopLabel('Free Membership')
+                    .setText('90-day free trial available.')
+                    .setBottomLabel('Upgrade to premium to unlock all features and enhance your experience.')
+                    .setWrapText(true)
+            );
+
+            // Add upgrade button
+            newSection.addWidget(
                 CardService.newTextButton()
-                    .setText('Export')
+                    .setText('Upgrade to Premium')
+                    .setAltText('Upgrade to Premium Membership')
+                    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('upgrade')
+                            .setFill(true)
+                            .setWeight(300)
+                            .setGrade(0)
+                    )
                     .setOnClickAction(
                         CardService.newAction()
-                            .setFunctionName('Plugins.Helper.OnDumpToSheet')
-                            .setParameters({
-                                sheetName: '📦 API Dumps',
-                                title: apiAction,
-                                data: JSON.stringify(result)
-                            })
+                            .setFunctionName('Plugins.UserProfile.Controller.Load')
                     )
             );
-    },
-    BuildResultSection: (title = '.', result = {}) => {
-        const newSection = CardService.newCardSection()
-            .setHeader('✅ Execution Result')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(0);
-
-        // Add dump to sheet widget
-        newSection.addWidget(
-            Plugins.Helper.BuildDumpToSheetWidget(title, result));
-
-        // Add Preview title
-        newSection.addWidget(
-            CardService.newTextParagraph()
-                .setText('Response: [Preview]')
-        );
-
-        // Add divider
-        newSection.addWidget(CardService.newDivider());
-
-        // Add each property from result to the section as decorated text
-        Object.keys(result)
-            .forEach((key) => {
-                newSection.addWidget(
-                    CardService.newDecoratedText()
-                        .setText(key + ":")
-                        .setWrapText(true)
-                        .setBottomLabel(JSON.stringify(result[key])));
-            });
-
-        // Raw JSON view
-        // Add divider
-        newSection.addWidget(CardService.newDivider());
-
-        // Add Raw title
-        newSection.addWidget(
-            CardService.newTextParagraph()
-                .setText('Response: [Raw JSON]'));
-
-        // Add divider
-        newSection.addWidget(CardService.newDivider());
-
-        // Add raw result text paragraph
-        newSection.addWidget(
-            CardService.newTextParagraph()
-                .setMaxLines(1)
-                .setText(JSON.stringify(result)));
-
-        // Build the execution result card
-        return newSection;
-    },
-    BuildErrorSection: (error = {}) => {
-        return CardService.newCardSection()
-            .setHeader('📛 Error')
-            // add divider
-            .addWidget(CardService.newDivider())
-            // add error header
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText('An error occurred during execution:')
-            )
-            // add error message
-            .addWidget(
-                CardService.newTextParagraph()
-                    .setText(error.toString())
-            );
-    },
-    BuildTokenTextInputWidget: (token, hidden = true) => {
-        // Bot Token input
-        return CardService.newTextInput()
-            .setVisibility(hidden ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
-            .setValue(token || '')
-            .setId('txt_bot_api_token')
-            .setFieldName('txt_bot_api_token')
-            .setTitle('🤖 Your Bot Token')
-            .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
-    },
-    BuildActivatePremiumWithCallToActionSection: (data = {}) => {
-        const newSection = CardService.newCardSection()
-            .setHeader('💎 Upgrade to Premium Membership')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(1);
-
-        // todo: show message like 'obtain your 90-day premium membership now!'
-        newSection.addWidget(
-            CardService.newDecoratedText()
-                .setTopLabel('Free Membership')
-                .setText('90-day free trial available.')
-                .setBottomLabel('Upgrade to premium to unlock all features and enhance your experience.')
-                .setWrapText(true)
-        );
-
-        // Add upgrade button
-        newSection.addWidget(
-            CardService.newTextButton()
-                .setText('Upgrade to Premium')
-                .setAltText('Upgrade to Premium Membership')
-                .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                .setMaterialIcon(
-                    CardService.newMaterialIcon()
-                        .setName('upgrade')
-                        .setFill(true)
-                        .setWeight(300)
-                        .setGrade(0)
-                )
-                .setOnClickAction(
-                    CardService.newAction()
-                        .setFunctionName('Plugins.UserProfile.Controller.Load')
-                )
-        );
-        return newSection;
-    },
-    GetFormInputValue: (e, key, defaultValue = '') => {
-        const formInputs = e?.commonEventObject?.formInputs;
-        return formInputs?.[key]?.stringInputs?.value?.[0] || defaultValue;
-    },
-    OnDumpToSheet: (e) => {
-        // extract parameters
-        const sheetName = e.parameters?.sheetName || 'Dump';
-        const title = e.parameters?.title || 'Dump';
-        const data = e.parameters?.data || '{}';
-        const result = JSON.parse(data);
-        // Create SheetModel instance
-        const sheetModel = Plugins.Modules.Sheet.create(SpreadsheetApp.getActiveSpreadsheet());
-        const columns = ['timestamp', 'title', 'data'];
-        // Dump data to sheet
-        sheetModel.dumpObjectToSheet(
-            { name: sheetName, columns }, title, result);
-
-        // Return action response with notification
-        return CardService.newActionResponseBuilder()
-            .setNotification(
-                CardService.newNotification()
-                    .setText(`✅ Data dumped to sheet "${sheetName}" successfully.`))
-            .build();
-    },
-    // Helper to generate consistent grid items with outlined icons
-    createStatusItem: (label, isEnabled) => {
-        return CardService.newGridItem()
-            .setTitle(label)
-            .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
-            .setTextAlignment(CardService.HorizontalAlignment.START)
-            .setLayout(CardService.GridItemLayout.TEXT_BELOW);
-        // Note: GridItems do not support setMaterialIcon directly in all contexts,
-        // so we rely on the text status. If icons were needed here, 
-        // we would switch to DecoratedText widgets in a Section.
+            return newSection;
+        },
+        // Helper to generate consistent grid items with outlined icons
+        createStatusItem: (label, isEnabled) => {
+            return CardService.newGridItem()
+                .setTitle(label)
+                .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
+                .setTextAlignment(CardService.HorizontalAlignment.START)
+                .setLayout(CardService.GridItemLayout.TEXT_BELOW);
+            // Note: GridItems do not support setMaterialIcon directly in all contexts,
+            // so we rely on the text status. If icons were needed here, 
+            // we would switch to DecoratedText widgets in a Section.
+        }
     }
 };
 
@@ -846,7 +853,7 @@ Plugins.Connection = {
                     xButton));
 
             // Bot Token Input Widget (hidden for post-connection)
-            statusSection.addWidget(Plugins.Helper.BuildTokenTextInputWidget(token, true));
+            statusSection.addWidget(Plugins.Helper.View.BuildTokenTextInputWidget(token, true));
 
             return statusSection;
         },
@@ -908,7 +915,7 @@ Plugins.Connection = {
                 );
             } else {
                 // Connect Flow: Input + Button
-                actionSection.addWidget(Plugins.Helper.BuildTokenTextInputWidget(token, false));
+                actionSection.addWidget(Plugins.Helper.View.BuildTokenTextInputWidget(token, false));
 
                 // Help Hint
                 actionSection.addWidget(CardService.newDecoratedText()
@@ -1432,7 +1439,7 @@ Plugins.GetMe = {
                     const value = result[key];
                     if (typeof value === 'boolean') {
                         settingsGrid.addItem(
-                            Plugins.Helper.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                            Plugins.Helper.View.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
                     }
                 }
             });
@@ -1441,7 +1448,7 @@ Plugins.GetMe = {
 
             // --- Section: Debug/Raw Data ---
             cardBuilder.addSection(
-                Plugins.Helper.BuildResultSection('getMe', result));
+                Plugins.Helper.View.BuildResultSection('getMe', result));
 
 
             // 2. Footer: Refresh Action
@@ -1639,7 +1646,7 @@ Plugins.GetChat = {
                     const value = result[key];
                     if (typeof value === 'boolean') {
                         settingsGrid.addItem(
-                            Plugins.Helper.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
+                            Plugins.Helper.View.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
                     }
                 }
             });
@@ -1647,7 +1654,7 @@ Plugins.GetChat = {
             cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
             // --- Section C: Raw Data (Debug) ---
             cardBuilder.addSection(
-                Plugins.Helper.BuildResultSection('getChat', result));
+                Plugins.Helper.View.BuildResultSection('getChat', result));
 
             return cardBuilder.build();
         }
@@ -1954,7 +1961,7 @@ Plugins.Webhook = {
             cardBuilder.addSection(configSection);
 
             // --- Section: Raw Data (Debug) ---
-            cardBuilder.addSection(Plugins.Helper.BuildResultSection('getWebhookInfo', result));
+            cardBuilder.addSection(Plugins.Helper.View.BuildResultSection('getWebhookInfo', result));
 
             // --- 3. Footer Refresh ---
             const footer = CardService.newFixedFooter()
