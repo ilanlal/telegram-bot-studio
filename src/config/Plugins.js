@@ -1900,6 +1900,60 @@ Plugins.Webhook = {
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
             }
+        },
+
+        DropPendingUpdates: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                // Log start of execution
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DropPendingUpdates', 'INFO', e, 'DropPendingUpdates');
+                const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const inputs = e?.commonEventObject?.formInputs || {};
+
+                // Extract Inputs
+                const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
+                const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
+                const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
+                const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
+                const dropPending = true;
+
+                // Validation
+                if (!urlInput || !urlInput.startsWith('https://')) {
+                    return CardService.newActionResponseBuilder()
+                        .setNotification(CardService.newNotification().setText("❌ Valid HTTPS URL required."))
+                        .build();
+                }
+
+                const client = new TelegramBotClient(token);
+
+                // Build Options Object
+                const options = {
+                    drop_pending_updates: dropPending
+                };
+
+                if (maxConnInput) {
+                    const maxConn = parseInt(maxConnInput, 10);
+                    if (!isNaN(maxConn) && maxConn >= 1 && maxConn <= 100) {
+                        options.max_connections = maxConn;
+                    }
+                }
+
+                // Call API
+                const response = client.setWebhook(urlInput, options);
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+                }
+                // Log response for debugging
+
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
+                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
+            } catch (error) {
+                // Log error for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'ERROR', e, error.toString(), error.stack);
+                return CardService.newActionResponseBuilder()
+                    .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
+                    .build();
+            }
         }
     },
 
@@ -1920,15 +1974,24 @@ Plugins.Webhook = {
             cardBuilder.addSection(Plugins.Connection.View.WelcomeSection(data));
             // --- Section A: Status Dashboard ---
             const statusSection = CardService.newCardSection()
-                .setHeader('📡 Live Status');
+                .setHeader('📡 Webhook Status');
 
             // Action Buttons
             const buttonSet = CardService.newButtonSet();
+            const footer = CardService.newFixedFooter()
+                .setPrimaryButton(CardService.newTextButton()
+                    .setText('Refresh Status')
+                    .setMaterialIcon(CardService.newMaterialIcon()
+                        .setName('refresh')
+                        .setFill(false)) // Constraint 1
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Webhook.Controller.Load')
+                        .setParameters({ update: 'true' })));
 
             // --- 2. Live Status Logic ---
             if (result.url !== '') {
                 // Delete Button (Only if active)
-                buttonSet.addButton(CardService.newTextButton()
+                footer.setSecondaryButton(CardService.newTextButton()
                     .setText('Delete Webhook')
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.Webhook.Controller.ConfirmDeleteWebhook')));
@@ -1957,7 +2020,7 @@ Plugins.Webhook = {
             }
 
             // Set/Update Button
-            buttonSet.addButton(CardService.newTextButton()
+            footer.setPrimaryButton(CardService.newTextButton()
                 .setText(result.url ? 'Update Settings' : 'Set Webhook')
                 //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                 .setBackgroundColor(Plugins.primaryColor())
@@ -1975,7 +2038,17 @@ Plugins.Webhook = {
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('hourglass_empty')
-                            .setFill(false)))); // Constraint 1
+                            .setFill(false)))
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setText('Drop')
+                            .setDisabled(result.ulr === '')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Webhook.Controller.DropPendingUpdates')
+                            )
+                    ));
             }
 
             // Error Info
@@ -2043,22 +2116,12 @@ Plugins.Webhook = {
                     .setValue('true')
                     .setControlType(CardService.SwitchControlType.CHECK_BOX)));
 
-            configSection.addWidget(buttonSet);
             cardBuilder.addSection(configSection);
 
             // --- Section: Raw Data (Debug) ---
             cardBuilder.addSection(Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getWebhookInfo', result));
 
             // --- 3. Footer Refresh ---
-            const footer = CardService.newFixedFooter()
-                .setPrimaryButton(CardService.newTextButton()
-                    .setText('Refresh Status')
-                    .setMaterialIcon(CardService.newMaterialIcon()
-                        .setName('refresh')
-                        .setFill(false)) // Constraint 1
-                    .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.Controller.Load')
-                        .setParameters({ update: 'true' })));
 
             cardBuilder.setFixedFooter(footer);
 
