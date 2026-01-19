@@ -2043,7 +2043,7 @@ Plugins.Webhook = {
                     .setButton(
                         CardService.newTextButton()
                             .setText('Drop')
-                            .setDisabled(result.ulr === '')
+                            .setDisabled(result.url === '')
                             .setOnClickAction(
                                 CardService.newAction()
                                     .setFunctionName('Plugins.Webhook.Controller.DropPendingUpdates')
