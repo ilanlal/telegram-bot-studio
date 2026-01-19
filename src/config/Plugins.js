@@ -269,22 +269,6 @@ Plugins.Helper = {
             // Build the execution result card
             return newSection;
         },
-        BuildErrorSection: (error = {}) => {
-            return CardService.newCardSection()
-                .setHeader('📛 Error')
-                // add divider
-                .addWidget(CardService.newDivider())
-                // add error header
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText('An error occurred during execution:')
-                )
-                // add error message
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText(error.toString())
-                );
-        },
         BuildActivatePremiumWithCallToActionSection: (data = {}) => {
             const newSection = CardService.newCardSection()
                 .setHeader('💎 Upgrade to Premium Membership')
