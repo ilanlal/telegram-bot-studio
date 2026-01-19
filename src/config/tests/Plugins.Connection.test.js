@@ -87,8 +87,8 @@ describe('Plugins.Connection', () => {
             expect(data.notification.text).toContain('Error: Bot API Token cannot be empty.');
         });
 
-        // OnDisconnect test
-        it('should handle OnDisconnect', () => {
+        // Disconnect test
+        it('should handle Disconnect', () => {
             const event = {
                 commonEventObject: {}
             };
@@ -98,6 +98,23 @@ describe('Plugins.Connection', () => {
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
+        });
+
+        // BuildTokenTextInputWidget test
+        it('should build Token Text Input Widget', () => {
+            let tokenWidget = Plugins.Connection.View.BuildTokenTextInputWidget(sampleToken, false);
+            expect(tokenWidget).toBeDefined();
+            let widgetData = tokenWidget.getData();
+            expect(widgetData).toBeDefined();
+            expect(widgetData.value).toBe(sampleToken);
+            expect(widgetData.visibility).toBe(CardService.Visibility.VISIBLE);
+
+            tokenWidget = Plugins.Connection.View.BuildTokenTextInputWidget(sampleToken, true);;
+            expect(tokenWidget).toBeDefined();
+            widgetData = tokenWidget.getData();
+            expect(widgetData).toBeDefined();
+            expect(widgetData.value).toBe(sampleToken);
+            expect(widgetData.visibility).toBe(CardService.Visibility.HIDDEN);
         });
 
     });

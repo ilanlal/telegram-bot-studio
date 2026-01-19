@@ -285,16 +285,6 @@ Plugins.Helper = {
                         .setText(error.toString())
                 );
         },
-        BuildTokenTextInputWidget: (token, hidden = true) => {
-            // Bot Token input
-            return CardService.newTextInput()
-                .setVisibility(hidden ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
-                .setValue(token || '')
-                .setId('txt_bot_api_token')
-                .setFieldName('txt_bot_api_token')
-                .setTitle('🤖 Your Bot Token')
-                .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
-        },
         BuildActivatePremiumWithCallToActionSection: (data = {}) => {
             const newSection = CardService.newCardSection()
                 .setHeader('💎 Upgrade to Premium Membership')
@@ -946,7 +936,7 @@ Plugins.Connection = {
                     xButton));
 
             // Bot Token Input Widget (hidden for post-connection)
-            statusSection.addWidget(Plugins.Helper.View.BuildTokenTextInputWidget(token, true));
+            statusSection.addWidget(Plugins.Connection.View.BuildTokenTextInputWidget(token, true));
 
             return statusSection;
         },
@@ -974,7 +964,7 @@ Plugins.Connection = {
                 .setHeader(isConnected ? '⚙️ Actions' : '🔑 Authentication');
 
             // Connect Flow: Input + Button
-            actionSection.addWidget(Plugins.Helper.View.BuildTokenTextInputWidget(token, false));
+            actionSection.addWidget(Plugins.Connection.View.BuildTokenTextInputWidget(token, false));
 
             // Help Hint
             actionSection.addWidget(CardService.newDecoratedText()
@@ -999,6 +989,16 @@ Plugins.Connection = {
             cardBuilder.setFixedFooter(footer);
 
             return cardBuilder.build();
+        },
+        BuildTokenTextInputWidget: (token, hidden = true) => {
+            // Bot Token input
+            return CardService.newTextInput()
+                .setVisibility(hidden ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
+                .setValue(token || '')
+                .setId('txt_bot_api_token')
+                .setFieldName('txt_bot_api_token')
+                .setTitle('🤖 Your Bot Token')
+                .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
         }
     }
 };
