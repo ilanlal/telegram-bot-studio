@@ -225,9 +225,9 @@ Plugins.Helper = {
     View: {
         BuildResultSection: (botName = '', action = '.', result = {}) => {
             const newSection = CardService.newCardSection()
-                .setHeader('✅ Execution Result')
+                .setHeader('📝 API Response')
                 .setCollapsible(true)
-                .setNumUncollapsibleWidgets(0);
+                .setNumUncollapsibleWidgets(2);
 
             // Add divider
             newSection.addWidget(CardService.newDivider());
@@ -262,7 +262,7 @@ Plugins.Helper = {
             // Add Raw title
             newSection.addWidget(
                 CardService.newTextParagraph()
-                    .setText('Response: [Raw JSON]'));
+                    .setText('📄 Raw Response JSON:'));
 
             // Add divider
             newSection.addWidget(CardService.newDivider());
@@ -271,7 +271,12 @@ Plugins.Helper = {
             newSection.addWidget(
                 CardService.newTextParagraph()
                     .setMaxLines(1)
-                    .setText(JSON.stringify(result)));
+                    .setText(JSON.stringify(result, null, 2)));
+
+            // Add Export to Sheet widget
+            newSection.addWidget(
+                Plugins.ExportApiResultWidget.View.BuildExportWidget(botName, action, result)
+            );
 
             // Build the execution result card
             return newSection;
@@ -711,9 +716,10 @@ Plugins.ExportApiResultWidget = {
     View: {
         BuildExportWidget: (botName = '', apiAction = '.', result = {}) => {
             return CardService.newDecoratedText()
-                .setText('📥 Export to Sheet')
+                .setTopLabel('📥 Export Data')
+                .setText('Export to Sheet')
                 .setWrapText(true)
-                .setBottomLabel(`Click to export the ${apiAction} response data to a Google Sheet.`)
+                .setBottomLabel(`${apiAction}: execution result.`)
                 .setStartIcon(CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('save_alt')))
                 .setButton(
@@ -954,7 +960,7 @@ Plugins.Connection = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Bot Connection Management')
                     .setSubtitle(isConnected ? `Connected: @${username}` : 'Setup Required')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Connection.imageUrl));
 
             // 2. Welcome & Status Section
@@ -1100,7 +1106,7 @@ Plugins.Settings = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('System Configuration')
                     .setSubtitle('Manage endpoints, security keys, and debugging')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Settings.imageUrl)
                     .setImageAltText('Settings Logo'));
 
@@ -1305,7 +1311,7 @@ Plugins.UserProfile = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Account Overview')
                     .setSubtitle(userEmail)
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Media.YOU_GOT_IT_IMG_URL)
                     .setImageAltText('User Profile Avatar'));
 
@@ -1459,7 +1465,7 @@ Plugins.GetMe = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Bot Dashboard')
                     .setSubtitle('Identity & Feature Configuration')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.GetMe.imageUrl));
 
             // 1. Main Section: Bot Identity & Capabilities
@@ -1518,10 +1524,10 @@ Plugins.GetMe = {
 
 Plugins.GetChat = {
     id: 'GetChatPlugin',
-    name: 'Get Chat Info',
+    name: 'Chat Inspector',
     imageUrl: Plugins.Media.DEFAULT_IMAGE_URL,
-    description: 'Inspect details for users, groups, or channels.',
-    short_description: 'Chat & User Inspector',
+    description: 'Retrieve detailed information about users, groups, or channels your bot interacts with.',
+    short_description: 'User, Group & Channel details',
     Controller: {
         /**
          * Entry Point
@@ -1612,9 +1618,9 @@ Plugins.GetChat = {
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.GetChat.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle('Chat Inspector')
-                    .setSubtitle('View details for Users, Groups, and Channels')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setTitle(Plugins.GetChat.name)
+                    .setSubtitle(Plugins.GetChat.short_description)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.GetChat.imageUrl));
 
             // --- Search Section ---
@@ -1624,8 +1630,8 @@ Plugins.GetChat = {
             searchSection.addWidget(CardService.newTextInput()
                 .setFieldName('txt_search_chat_id')
                 .setTitle('Chat ID or Username')
-                .setHint('e.g., @mychannel or 123456789')
-                .setValue(searchId));
+                .setHint('Enter the Chat ID (e.g., -1001234567890) or Username (e.g., @channelusername)')
+                .setValue(data.txt_search_chat_id || ''));
 
             cardBuilder.addSection(searchSection);
 
@@ -1690,7 +1696,7 @@ Plugins.GetChat = {
 
             cardBuilder.addSection(identitySection);
 
-            // --- Section B: Debug/Raw Data ---
+            // --- Section B: Detailed Properties ---
             cardBuilder.addSection(
                 Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getChat', result));
 
@@ -1879,6 +1885,60 @@ Plugins.Webhook = {
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
             }
+        },
+
+        DropPendingUpdates: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            try {
+                // Log start of execution
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DropPendingUpdates', 'INFO', e, 'DropPendingUpdates');
+                const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const inputs = e?.commonEventObject?.formInputs || {};
+
+                // Extract Inputs
+                const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
+                const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
+                const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
+                const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
+                const dropPending = true;
+
+                // Validation
+                if (!urlInput || !urlInput.startsWith('https://')) {
+                    return CardService.newActionResponseBuilder()
+                        .setNotification(CardService.newNotification().setText("❌ Valid HTTPS URL required."))
+                        .build();
+                }
+
+                const client = new TelegramBotClient(token);
+
+                // Build Options Object
+                const options = {
+                    drop_pending_updates: dropPending
+                };
+
+                if (maxConnInput) {
+                    const maxConn = parseInt(maxConnInput, 10);
+                    if (!isNaN(maxConn) && maxConn >= 1 && maxConn <= 100) {
+                        options.max_connections = maxConn;
+                    }
+                }
+
+                // Call API
+                const response = client.setWebhook(urlInput, options);
+                if (JSON.parse(response.getContentText()).ok !== true) {
+                    throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
+                }
+                // Log response for debugging
+
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'DEBUG', e, `setWebhook Response: ${response.getContentText()}`);
+                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
+            } catch (error) {
+                // Log error for debugging
+                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'ERROR', e, error.toString(), error.stack);
+                return CardService.newActionResponseBuilder()
+                    .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
+                    .build();
+            }
         }
     },
 
@@ -1892,22 +1952,31 @@ Plugins.Webhook = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Webhook Console')
                     .setSubtitle('Manage Real-time Updates')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Webhook.imageUrl));
 
             // --- 1. Connection Header ---
             cardBuilder.addSection(Plugins.Connection.View.WelcomeSection(data));
             // --- Section A: Status Dashboard ---
             const statusSection = CardService.newCardSection()
-                .setHeader('📡 Live Status');
+                .setHeader('📡 Webhook Status');
 
             // Action Buttons
             const buttonSet = CardService.newButtonSet();
+            const footer = CardService.newFixedFooter()
+                .setPrimaryButton(CardService.newTextButton()
+                    .setText('Refresh Status')
+                    .setMaterialIcon(CardService.newMaterialIcon()
+                        .setName('refresh')
+                        .setFill(false)) // Constraint 1
+                    .setOnClickAction(CardService.newAction()
+                        .setFunctionName('Plugins.Webhook.Controller.Load')
+                        .setParameters({ update: 'true' })));
 
             // --- 2. Live Status Logic ---
             if (result.url !== '') {
                 // Delete Button (Only if active)
-                buttonSet.addButton(CardService.newTextButton()
+                footer.setSecondaryButton(CardService.newTextButton()
                     .setText('Delete Webhook')
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.Webhook.Controller.ConfirmDeleteWebhook')));
@@ -1936,7 +2005,7 @@ Plugins.Webhook = {
             }
 
             // Set/Update Button
-            buttonSet.addButton(CardService.newTextButton()
+            footer.setPrimaryButton(CardService.newTextButton()
                 .setText(result.url ? 'Update Settings' : 'Set Webhook')
                 //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                 .setBackgroundColor(Plugins.primaryColor())
@@ -1954,7 +2023,17 @@ Plugins.Webhook = {
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('hourglass_empty')
-                            .setFill(false)))); // Constraint 1
+                            .setFill(false)))
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setText('Drop')
+                            .setDisabled(result.url === '')
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName('Plugins.Webhook.Controller.DropPendingUpdates')
+                            )
+                    ));
             }
 
             // Error Info
@@ -2022,22 +2101,12 @@ Plugins.Webhook = {
                     .setValue('true')
                     .setControlType(CardService.SwitchControlType.CHECK_BOX)));
 
-            configSection.addWidget(buttonSet);
             cardBuilder.addSection(configSection);
 
             // --- Section: Raw Data (Debug) ---
             cardBuilder.addSection(Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getWebhookInfo', result));
 
             // --- 3. Footer Refresh ---
-            const footer = CardService.newFixedFooter()
-                .setPrimaryButton(CardService.newTextButton()
-                    .setText('Refresh Status')
-                    .setMaterialIcon(CardService.newMaterialIcon()
-                        .setName('refresh')
-                        .setFill(false)) // Constraint 1
-                    .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.Controller.Load')
-                        .setParameters({ update: 'true' })));
 
             cardBuilder.setFixedFooter(footer);
 
