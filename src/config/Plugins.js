@@ -229,24 +229,31 @@ Plugins.Helper = {
                 .setCollapsible(true)
                 .setNumUncollapsibleWidgets(0);
 
-            // Add Preview title
-            newSection.addWidget(
-                CardService.newTextParagraph()
-                    .setText('Response: [Preview]')
-            );
-
             // Add divider
             newSection.addWidget(CardService.newDivider());
 
-            // Add each property from result to the section as decorated text
-            Object.keys(result)
-                .forEach((key) => {
-                    newSection.addWidget(
-                        CardService.newDecoratedText()
-                            .setText(key + ":")
-                            .setWrapText(true)
-                            .setBottomLabel(JSON.stringify(result[key])));
-                });
+            // --- Section B: Capabilities (Grid Layout) ---
+            // Shows what the bot is allowed to do based on BotFather settings
+            const settingsGrid = CardService.newGrid()
+                .setTitle('⚙️ Capabilities & Privacy')
+                .setNumColumns(2);
+
+            // add other properties dynamically if needed
+            Object.keys(result).forEach(key => {
+                if (!['id', 'username'].includes(key)) {
+                    const value = result[key];
+                    if (typeof value === 'boolean') {
+                        settingsGrid.addItem(
+                            Plugins.Helper.View.createBooleanItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
+                    }
+                    if (typeof value === 'number') {
+                        settingsGrid.addItem(
+                            Plugins.Helper.View.createNumberItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
+                    }
+                }
+            });
+
+            newSection.addWidget(settingsGrid);
 
             // Raw JSON view
             // Add divider
@@ -304,16 +311,23 @@ Plugins.Helper = {
             );
             return newSection;
         },
-        // Helper to generate consistent grid items with outlined icons
-        createStatusItem: (label, isEnabled) => {
+        // Helper to create a boolean status grid item
+        createBooleanItem: (title, isEnabled) => {
             return CardService.newGridItem()
-                .setTitle(label)
-                .setSubtitle(isEnabled ? 'Enabled' : 'Disabled')
+                .setTitle(isEnabled ? '🟢 Yes' : '🔘 No')
+                .setSubtitle(title)
                 .setTextAlignment(CardService.HorizontalAlignment.START)
                 .setLayout(CardService.GridItemLayout.TEXT_BELOW);
             // Note: GridItems do not support setMaterialIcon directly in all contexts,
             // so we rely on the text status. If icons were needed here, 
             // we would switch to DecoratedText widgets in a Section.
+        },
+        createNumberItem: (title, number) => {
+            return CardService.newGridItem()
+                .setTitle(String(number))
+                .setSubtitle(title)
+                .setTextAlignment(CardService.HorizontalAlignment.START)
+                .setLayout(CardService.GridItemLayout.TEXT_BELOW);
         }
     }
 };
@@ -1479,25 +1493,6 @@ Plugins.GetMe = {
 
             cardBuilder.addSection(profileSection);
 
-            // --- Section B: Capabilities (Grid Layout) ---
-            // Shows what the bot is allowed to do based on BotFather settings
-            const settingsGrid = CardService.newGrid()
-                .setTitle('⚙️ Capabilities & Privacy')
-                .setNumColumns(2);
-
-            // add other properties dynamically if needed
-            Object.keys(result).forEach(key => {
-                if (!['id', 'username'].includes(key)) {
-                    const value = result[key];
-                    if (typeof value === 'boolean') {
-                        settingsGrid.addItem(
-                            Plugins.Helper.View.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
-                    }
-                }
-            });
-
-            cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
-
             // --- Section: Debug/Raw Data ---
             cardBuilder.addSection(
                 Plugins.Helper.View.BuildResultSection(result.username, 'getMe', result));
@@ -1695,23 +1690,7 @@ Plugins.GetChat = {
 
             cardBuilder.addSection(identitySection);
 
-            const settingsGrid = CardService.newGrid()
-                .setTitle('⚙️ Capabilities & Privacy')
-                .setNumColumns(2);
-
-            // add other properties dynamically if needed
-            Object.keys(result).forEach(key => {
-                if (!['id', 'username', 'type', 'invite_link', 'pinned_message'].includes(key)) {
-                    const value = result[key];
-                    if (typeof value === 'boolean') {
-                        settingsGrid.addItem(
-                            Plugins.Helper.View.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
-                    }
-                }
-            });
-
-            cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
-            // --- Section C: Raw Data (Debug) ---
+            // --- Section B: Debug/Raw Data ---
             cardBuilder.addSection(
                 Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getChat', result));
 
