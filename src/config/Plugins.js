@@ -225,15 +225,9 @@ Plugins.Helper = {
     View: {
         BuildResultSection: (botName = '', action = '.', result = {}) => {
             const newSection = CardService.newCardSection()
-                .setHeader('✅ Execution Result')
+                .setHeader('📝 API Response')
                 .setCollapsible(true)
-                .setNumUncollapsibleWidgets(0);
-
-            // Add Preview title
-            newSection.addWidget(
-                CardService.newTextParagraph()
-                    .setText('Response: [Preview]')
-            );
+                .setNumUncollapsibleWidgets(2);
 
             // Add divider
             newSection.addWidget(CardService.newDivider());
@@ -255,7 +249,7 @@ Plugins.Helper = {
             // Add Raw title
             newSection.addWidget(
                 CardService.newTextParagraph()
-                    .setText('Response: [Raw JSON]'));
+                    .setText('📄 Raw Response JSON:'));
 
             // Add divider
             newSection.addWidget(CardService.newDivider());
@@ -264,7 +258,12 @@ Plugins.Helper = {
             newSection.addWidget(
                 CardService.newTextParagraph()
                     .setMaxLines(1)
-                    .setText(JSON.stringify(result)));
+                    .setText(JSON.stringify(result, null, 2)));
+
+            // Add Export to Sheet widget
+            newSection.addWidget(
+                Plugins.ExportApiResultWidget.View.BuildExportWidget(botName, action, result)
+            );
 
             // Build the execution result card
             return newSection;
@@ -697,9 +696,10 @@ Plugins.ExportApiResultWidget = {
     View: {
         BuildExportWidget: (botName = '', apiAction = '.', result = {}) => {
             return CardService.newDecoratedText()
-                .setText('📥 Export to Sheet')
+                .setTopLabel('📥 Export Data')
+                .setText('Export to Sheet')
                 .setWrapText(true)
-                .setBottomLabel(`Click to export the ${apiAction} response data to a Google Sheet.`)
+                .setBottomLabel(`${apiAction}: execution result.`)
                 .setStartIcon(CardService.newIconImage().setMaterialIcon(
                     CardService.newMaterialIcon().setName('save_alt')))
                 .setButton(
@@ -940,7 +940,7 @@ Plugins.Connection = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Bot Connection Management')
                     .setSubtitle(isConnected ? `Connected: @${username}` : 'Setup Required')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Connection.imageUrl));
 
             // 2. Welcome & Status Section
@@ -1086,7 +1086,7 @@ Plugins.Settings = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('System Configuration')
                     .setSubtitle('Manage endpoints, security keys, and debugging')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Settings.imageUrl)
                     .setImageAltText('Settings Logo'));
 
@@ -1291,7 +1291,7 @@ Plugins.UserProfile = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Account Overview')
                     .setSubtitle(userEmail)
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Media.YOU_GOT_IT_IMG_URL)
                     .setImageAltText('User Profile Avatar'));
 
@@ -1445,7 +1445,7 @@ Plugins.GetMe = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Bot Dashboard')
                     .setSubtitle('Identity & Feature Configuration')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.GetMe.imageUrl));
 
             // 1. Main Section: Bot Identity & Capabilities
@@ -1523,10 +1523,10 @@ Plugins.GetMe = {
 
 Plugins.GetChat = {
     id: 'GetChatPlugin',
-    name: 'Get Chat Info',
+    name: 'Chat Inspector',
     imageUrl: Plugins.Media.DEFAULT_IMAGE_URL,
-    description: 'Inspect details for users, groups, or channels.',
-    short_description: 'Chat & User Inspector',
+    description: 'Retrieve detailed information about users, groups, or channels your bot interacts with.',
+    short_description: 'User, Group & Channel details',
     Controller: {
         /**
          * Entry Point
@@ -1617,9 +1617,9 @@ Plugins.GetChat = {
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.GetChat.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle('Chat Inspector')
-                    .setSubtitle('View details for Users, Groups, and Channels')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setTitle(Plugins.GetChat.name)
+                    .setSubtitle(Plugins.GetChat.short_description)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.GetChat.imageUrl));
 
             // --- Search Section ---
@@ -1629,8 +1629,8 @@ Plugins.GetChat = {
             searchSection.addWidget(CardService.newTextInput()
                 .setFieldName('txt_search_chat_id')
                 .setTitle('Chat ID or Username')
-                .setHint('e.g., @mychannel or 123456789')
-                .setValue(searchId));
+                .setHint('Enter the Chat ID (e.g., -1001234567890) or Username (e.g., @channelusername)')
+                .setValue(data.txt_search_chat_id || ''));
 
             cardBuilder.addSection(searchSection);
 
@@ -1695,23 +1695,7 @@ Plugins.GetChat = {
 
             cardBuilder.addSection(identitySection);
 
-            const settingsGrid = CardService.newGrid()
-                .setTitle('⚙️ Capabilities & Privacy')
-                .setNumColumns(2);
-
-            // add other properties dynamically if needed
-            Object.keys(result).forEach(key => {
-                if (!['id', 'username', 'type', 'invite_link', 'pinned_message'].includes(key)) {
-                    const value = result[key];
-                    if (typeof value === 'boolean') {
-                        settingsGrid.addItem(
-                            Plugins.Helper.View.createStatusItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value ? 'Yes' : 'No'));
-                    }
-                }
-            });
-
-            cardBuilder.addSection(CardService.newCardSection().addWidget(settingsGrid));
-            // --- Section C: Raw Data (Debug) ---
+            // --- Section B: Detailed Properties ---
             cardBuilder.addSection(
                 Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getChat', result));
 
@@ -1967,7 +1951,7 @@ Plugins.Webhook = {
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Webhook Console')
                     .setSubtitle('Manage Real-time Updates')
-                    .setImageStyle(CardService.ImageStyle.CIRCLE)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Webhook.imageUrl));
 
             // --- 1. Connection Header ---
