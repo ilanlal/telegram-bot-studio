@@ -240,16 +240,14 @@ Plugins.Helper = {
 
             // add other properties dynamically if needed
             Object.keys(result).forEach(key => {
-                if (!['id', 'username'].includes(key)) {
-                    const value = result[key];
-                    if (typeof value === 'boolean') {
-                        settingsGrid.addItem(
-                            Plugins.Helper.View.createBooleanItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
-                    }
-                    if (typeof value === 'number') {
-                        settingsGrid.addItem(
-                            Plugins.Helper.View.createNumberItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
-                    }
+                const value = result[key];
+                if (typeof value === 'boolean') {
+                    settingsGrid.addItem(
+                        Plugins.Helper.View.createBooleanItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
+                }
+                if (typeof value === 'number') {
+                    settingsGrid.addItem(
+                        Plugins.Helper.View.createNumberItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
                 }
             });
 
