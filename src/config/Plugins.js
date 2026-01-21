@@ -7,7 +7,7 @@ class Plugins {
             'Plugins.Webhook'
             //Plugins.JsonTools
         ];
-    }
+    } 
 
     static primaryColor() {
         return '#1976d2';

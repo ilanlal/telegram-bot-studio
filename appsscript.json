@@ -10,13 +10,13 @@
     "https://www.googleapis.com/auth/script.locale",
     "https://www.googleapis.com/auth/spreadsheets.currentonly",
     "https://www.googleapis.com/auth/script.external_request",
-    "https://www.googleapis.com/auth/script.scriptapp",
-    "https://www.googleapis.com/auth/userinfo.email"
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile"
   ],
   "addOns": {
     "common": {
       "name": "Telegram Bot Studio",
-      "logoUrl": "https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/192x192.png",
+      "logoUrl": "https://lh3.googleusercontent.com/tNsZjKRqNDBKN0TH6L8Nh_sdQhke4N2SICHx-_wFuTiamNWlklom",
       "layoutProperties": {
         "primaryColor": "#1976d2",
         "secondaryColor": "#0f9d58"
@@ -28,8 +28,7 @@
         "https://www.easyadm.com",
         "https://easyadm.com",
         "https://t.me/",
-        "https://telegram.me/",
-        "https://api.telegram.org/"
+        "https://telegram.me/"
       ],
       "homepageTrigger": {
         "runFunction": "Plugins.Home.Controller.Load"
@@ -53,21 +52,14 @@
           "runFunction": "Plugins.Home.Controller.About"
         },
         {
-          "label": "Visit Bot Studio",
-          "openLink": "https://github.com/ilanlal/telegram-bot-studio#readme"
+          "label": "Visit Website",
+          "openLink": "https://www.easyadm.com/add-ons/telegram-bot-studio"
         }
       ]
     },
     "sheets": {}
   },
   "urlFetchWhitelist": [
-    "https://api.telegram.org/",
-    "https://t.me/",
-    "https://telegram.me/",
-    "https://raw.githubusercontent.com/ilanlal/",
-    "https://www.github.com/ilanlal/",
-    "https://github.com/ilanlal/",
-    "https://www.easyadm.com/",
-    "https://easyadm.com/"
+    "https://api.telegram.org/"
   ]
 }
