@@ -404,7 +404,12 @@ Plugins.Home = {
                 .setHeader('🛠️ Available Plugins')
                 .setCollapsible(false);
 
-            Plugins.prototype.pluginList.forEach((PluginPath) => {
+            [
+                'Plugins.GetMe',
+                'Plugins.GetChat',
+                'Plugins.Webhook'
+                //Plugins.JsonTools
+            ].forEach((PluginPath) => {
                 const plugin = Plugins[PluginPath.split('.')[1]];
                 const decoratedText = CardService.newDecoratedText()
                     .setText(plugin.name)
