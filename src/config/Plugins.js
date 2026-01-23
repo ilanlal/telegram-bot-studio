@@ -20,11 +20,6 @@ class Plugins {
     static accentColor() {
         return '#f4b400';
     }
-
-    static getFormInputsStringValue(e, key, defaultValue = '') {
-        const formInputs = e?.commonEventObject?.formInputs;
-        return formInputs?.[key]?.stringInputs?.value?.[0] || defaultValue;
-    }
 };
 
 Plugins.Media = {
