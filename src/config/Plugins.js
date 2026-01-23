@@ -797,8 +797,7 @@ Plugins.Connection = {
                 // Log the response to Terminal Output sheet
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Connect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
 
-                // on success,
-                // Store the token in user properties or user properties as needed
+                // on success, store the token in user properties or user properties as needed
                 PropertiesService.getUserProperties().setProperty('txt_bot_api_token', inputToken);
                 PropertiesService.getUserProperties().setProperty('txt_bot_friendly_name', result.first_name);
                 PropertiesService.getUserProperties().setProperty('txt_bot_username', result.username);

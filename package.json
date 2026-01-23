@@ -1,14 +1,14 @@
 {
   "name": "@ilanlal/template-bot-studio",
   "version": "1.0.0",
-  "description": "Telegram Bot Studio addons using Google Apps Script.",
+  "description": "A template for building Telegram Bot Studio add-ons using Google Apps Script.",
   "keywords": [
     "addons",
     "telegram bot",
     "apps script",
     "spreadsheet"
   ],
-  "license": "MIT",
+  "license": "MIT License",
   "author": "Ilan Laloum <ilanlal@gmail.com> (https://github.com/ilanlal)",
   "type": "commonjs",
   "main": "index.js",
