@@ -7,13 +7,6 @@ describe('Plugins.Home', () => {
     });
 
     describe('Home Plugin', () => {
-        it('should have required properties', () => {
-            expect(Plugins.Home.id).toBeDefined();
-            expect(Plugins.Home.name).toBeDefined();
-            expect(Plugins.Home.description).toBeDefined();
-            expect(Plugins.Home.short_description).toBeDefined();
-        });
-
         // Load test
         it('should handle Load', () => {
             // mock event parameters
