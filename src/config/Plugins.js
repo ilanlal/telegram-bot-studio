@@ -7,7 +7,7 @@ class Plugins {
             'Plugins.Webhook'
             //Plugins.JsonTools
         ];
-    } 
+    }
 
     static primaryColor() {
         return '#1976d2';
@@ -51,7 +51,7 @@ Plugins.Package = {
     short_description: 'A suite of plugins for building Telegram Bots on Google Workspace.',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.0',
-    build: '20260118.174900',
+    build: '20260123.230000',
     author: 'Ilan Laloum',
     license: 'MIT',
     imageUrl: Plugins.Media.LOGO_PNG_URL,
@@ -478,8 +478,8 @@ Plugins.Home = {
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.Home.id + '-About')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle('About ' + Plugins.Home.name)
-                    .setSubtitle(Plugins.Home.short_description)
+                    .setTitle('About ' + Plugins.Package.name)
+                    .setSubtitle(Plugins.Package.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Media.BIG_TIME_IMG_URL)
                     .setImageAltText('Card Image'))
@@ -488,13 +488,16 @@ Plugins.Home = {
                         .setHeader('App Information')
                         .addWidget(
                             CardService.newTextParagraph()
-                                .setText(`Name: ${Plugins.Home.name}`))
+                                .setText(`Name: ${Plugins.Package.name}`))
                         .addWidget(
                             CardService.newTextParagraph()
-                                .setText(`Version: ${Plugins.Home.version}`))
+                                .setText(`Version: ${Plugins.Package.version}`))
                         .addWidget(
                             CardService.newTextParagraph()
-                                .setText(`Info: ${Plugins.Home.description}`))
+                                .setText(`Build: ${Plugins.Package.build}`))
+                        .addWidget(
+                            CardService.newTextParagraph()
+                                .setText(`Description: ${Plugins.Package.description}`))
                         .addWidget(
                             CardService.newTextParagraph()
                                 .setText(`Developed by Easy ADM (https://easyadm.com).`)));
