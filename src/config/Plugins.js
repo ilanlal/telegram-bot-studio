@@ -1495,7 +1495,7 @@ Plugins.GetMe = {
 
             // --- Section: Debug/Raw Data ---
             cardBuilder.addSection(
-                Plugins.Helper.View.BuildResultSection(result.username, 'getMe', result));
+                Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getMe', result));
 
 
             // 2. Footer: Refresh Action
@@ -1658,8 +1658,7 @@ Plugins.GetChat = {
             // Determine Display Title (User vs Chat)
             const title = result.title || `${result.first_name} ${result.last_name || ''}`.trim();
 
-            const identitySection = CardService.newCardSection()
-                .setHeader('📋 Result Profile');
+            const identitySection = CardService.newCardSection();
 
             identitySection.addWidget(CardService.newDecoratedText()
                 .setTopLabel(result.type.toUpperCase())
@@ -1670,8 +1669,12 @@ Plugins.GetChat = {
                         .setName(typeIcon)
                         .setFill(false))) // Constraint: setFill(false)
                 .setWrapText(true));
+            
+            // add divider
+            identitySection.addWidget(CardService.newDivider());
 
             if (result.username) {
+                // Username & Link
                 identitySection.addWidget(CardService.newDecoratedText()
                     .setText(`@${result.username}`)
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
@@ -1682,6 +1685,9 @@ Plugins.GetChat = {
                         .setText('Open')
                         .setOpenLink(CardService.newOpenLink()
                             .setUrl(`https://t.me/${result.username}`))));
+                
+                // add divider
+                identitySection.addWidget(CardService.newDivider());
             }
 
             // Add dump to result to sheet widget
