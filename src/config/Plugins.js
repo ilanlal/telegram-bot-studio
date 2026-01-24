@@ -23,7 +23,7 @@ class Plugins {
 };
 
 Plugins.Media = {
-    DEFAULT_IMAGE_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/120x120.png',
+    DEFAULT_IMAGE_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/220x220.png',
     WELCOME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/480x480_welcome.png',
     MATH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-math.webp',
     THANK_YOU_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-thank-you.webp',
@@ -46,10 +46,10 @@ Plugins.Package = {
     short_description: 'A suite of plugins for building Telegram Bots on Google Workspace.',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.0',
-    build: '20260123.230000',
+    build: '20260124.010000',
     author: 'Ilan Laloum',
     license: 'MIT',
-    imageUrl: Plugins.Media.LOGO_PNG_URL,
+    imageUrl: Plugins.Media.CHEERS_IMG_URL,
     gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
 };
 
@@ -135,20 +135,20 @@ Plugins.Modules = {
             return sheet;
         },
 
-        dumpObjectToSheet(activeSpreadsheet, sheetMeta = {}, bot = '', action = '.', obj = {}) {
+        dumpObjectToSheet(activeSpreadsheet, sheetMeta = {}, bot = '', action = '.', obj = {}, praittfyJson = false) {
             const sheet = this.getSheet(activeSpreadsheet, sheetMeta);
             const values = Object.values(obj);
             values.forEach((val, idx) => {
                 // stringify objects and arrays
                 if (typeof val === 'object') {
-                    values[idx] = JSON.stringify(val);
+                    values[idx] = praittfyJson ? JSON.stringify(val, null, 2) : JSON.stringify(val);
                 }
             });
             const row_data = [
                 new Date().toISOString(),   // timestamp
                 bot,                        // bot
                 action,                     // action
-                JSON.stringify(obj),        // raw object data
+                praittfyJson ? JSON.stringify(obj, null, 2) : JSON.stringify(obj),        // raw object data
                 ...values                   // individual data fields
             ]
             // append data as a new row
@@ -173,8 +173,11 @@ Plugins.Modules = {
         static write(
             activeSpreadsheet, source, message, e, param1, param2, param3) {
 
+            // Check if terminal output is enabled
             const terminalOutputEnabled = PropertiesService.getUserProperties()
                 .getProperty('terminal_output_switch') || 'OFF';
+
+            // Check if terminal output is enabled
             const focusTerminalOutput = PropertiesService.getUserProperties()
                 .getProperty('focus_terminal_output') || 'OFF';
 
@@ -389,10 +392,10 @@ Plugins.Home = {
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.Home.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle(Plugins.Home.name)
-                    .setSubtitle(Plugins.Home.short_description)
+                    .setTitle(Plugins.Package.name)
+                    .setSubtitle(Plugins.Package.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.Media.WELCOME_IMG_URL)
+                    .setImageUrl(Plugins.Package.imageUrl)
                     .setImageAltText('Telegram Bot Studio Logo'));
 
             // 1. Connection & Status Section (Pinned to Top)
@@ -694,24 +697,41 @@ Plugins.ExportApiResultWidget = {
     Controller: {
         DumpApiResultToSheet: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-            // extract parameters
-            const sheetName = e?.commonEventObject?.parameters?.sheetName || 'Dump';
-            const action = e?.commonEventObject?.parameters?.action || 'Dump';
-            const botName = e?.commonEventObject?.parameters?.botName || 'Unknown Bot';
-            const data = e?.commonEventObject?.parameters?.data || '{}';
-            const result = JSON.parse(data);
 
-            const columns = ['timestamp', 'bot', 'action', 'object_data'];
-            // Dump data to sheet
-            Plugins.Modules.Sheet.dumpObjectToSheet(activeSpreadsheet,
-                { name: sheetName, columns }, botName, action, result);
+            try {
+                // Check if pretty JSON is enabled
+                const praittfyJson = PropertiesService.getUserProperties()
+                    .getProperty('praittfy_json') || 'OFF';
+                // extract parameters
+                const sheetName = e?.commonEventObject?.parameters?.sheetName || 'Dump';
+                const action = e?.commonEventObject?.parameters?.action || 'Dump';
+                const botName = e?.commonEventObject?.parameters?.botName || 'Unknown Bot';
+                const data = e?.commonEventObject?.parameters?.data || '{}';
+                const result = JSON.parse(data);
 
-            // Return action response with notification
-            return CardService.newActionResponseBuilder()
-                .setNotification(
-                    CardService.newNotification()
-                        .setText(`✅ Data dumped to sheet "${sheetName}" successfully.`))
-                .build();
+                const columns = ['timestamp', 'bot', 'action', 'object_data'];
+                // Dump data to sheet
+                Plugins.Modules.Sheet.dumpObjectToSheet(activeSpreadsheet,
+                    { name: sheetName, columns }, botName, action, result, praittfyJson === 'ON');
+
+                // Return action response with notification
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(`✅ Data dumped to sheet "${sheetName}" successfully.`))
+                    .build();
+            }
+            catch (error) {
+                Plugins.Modules.TerminalOutput.write(
+                    activeSpreadsheet,
+                    'ExportApiResultWidget.DumpApiResultToSheet',
+                    'ERROR', e, error.toString(), error.stack);
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(`❌ Error dumping data to sheet: ${error.toString()}`))
+                    .build();
+            }
         }
     },
     View: {
@@ -1010,10 +1030,10 @@ Plugins.Connection = {
 Plugins.Settings = {
     id: 'SettingsPlugin',
     name: 'Settings',
-    short_description: 'Manage add-on settings',
+    short_description: 'Manage bot settings and preferences',
     description: 'The Settings card allows you to manage and configure settings for your Telegram bot add-on. You can adjust preferences, set up integrations, and customize the behavior of your bot to suit your needs.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.YOU_GOT_IT_IMG_URL,
+    imageUrl: Plugins.Media.WELCOME_IMG_URL,
     Controller: {
         Load: (e) => {
             // Build and return the Settings Home Card
@@ -1043,6 +1063,10 @@ Plugins.Settings = {
             // terminal_output_switch
             const terminalOutputSwitch = e?.commonEventObject?.formInputs?.terminal_output_switch?.stringInputs?.value?.[0] || 'OFF';
             PropertiesService.getUserProperties().setProperty('terminal_output_switch', terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
+
+            // praittfy_json
+            const praittfyJson = e?.commonEventObject?.formInputs?.praittfy_json?.stringInputs?.value?.[0] || 'OFF';
+            PropertiesService.getUserProperties().setProperty('praittfy_json', praittfyJson === 'ON' ? 'ON' : 'OFF');
 
             // Build and return the Home Card
             const appModelData = Plugins.Modules.App.getData();
@@ -1091,7 +1115,7 @@ Plugins.Settings = {
     },
     View: {
         HomeCard: (data = {}) => {
-            // 1. Data Initialization
+            // Data Initialization
             // Create a random demo key if none exists (for display purposes)
             const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
 
@@ -1099,18 +1123,19 @@ Plugins.Settings = {
             data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
             data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'OFF';
             data.focus_terminal_output = PropertiesService.getUserProperties().getProperty('focus_terminal_output') || 'OFF';
+            data.praittfy_json = PropertiesService.getUserProperties().getProperty('praittfy_json') || 'OFF';
             data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty('txt_secret_private_key') || privateKeyDemo;
 
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.Settings.name + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle('System Configuration')
-                    .setSubtitle('Manage endpoints, security keys, and debugging')
+                    .setTitle(Plugins.Settings.name)
+                    .setSubtitle(Plugins.Settings.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Settings.imageUrl)
                     .setImageAltText('Settings Logo'));
 
-            // 2. Network & Security Section (Compact Grouping)
+            // Network & Security Section (Compact Grouping)
             // Groups the API URL and Secret Key together as they are both core config items
             const configSection = CardService.newCardSection()
                 .setHeader('🌐 Network & Security')
@@ -1126,64 +1151,33 @@ Plugins.Settings = {
                     .setMultiline(false)
             );
 
-            // Secret Key Input with Validation
-            configSection.addWidget(
-                CardService.newTextInput()
-                    .setFieldName('txt_secret_private_key')
-                    .setTitle('Secret Private Key')
-                    .setValue(data.txt_secret_private_key)
-                    .setHint('Enter your secure 256-char private key')
-                    .setValidation(
-                        CardService.newValidation()
-                            .setCharacterLimit(256)
-                            .setInputType(CardService.InputType.TEXT))
-            );
-
             cardBuilder.addSection(configSection);
 
-            // 3. Developer Tools Section
+            // Developer Tools Section
             // Isolated section for toggles and switches
             const devSection = CardService.newCardSection()
-                .setHeader('🛠️ Developer Console');
+                .setHeader('🛠️ Developer Tools');
 
-            // Terminal Output Switch (Pro Style)
+            // praittfy_json Switch
             devSection.addWidget(
                 CardService.newDecoratedText()
-                    .setTopLabel('Debug Mode')
-                    .setText('Terminal Logs')
-                    .setBottomLabel('Write execution logs to the active spreadsheet.')
+                    .setTopLabel('Response Formatting')
+                    .setText('Pretty Print JSON')
+                    .setBottomLabel('Format API JSON responses for better readability in logs.')
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('terminal').setFill(false)))
+                        CardService.newMaterialIcon().setName('format_align_left').setFill(false)))
                     .setSwitchControl(
                         CardService.newSwitch()
-                            .setFieldName('terminal_output_switch')
+                            .setFieldName('praittfy_json')
                             .setValue('ON')
-                            .setSelected(data.terminal_output_switch === 'ON')
-                            .setControlType(CardService.SwitchControlType.CHECK_BOX)
-                    )
-            );
-
-            // Focus Terminal Output Switch
-            devSection.addWidget(
-                CardService.newDecoratedText()
-                    .setVisibility(data.terminal_output_switch === 'ON' ? CardService.Visibility.VISIBLE : CardService.Visibility.HIDDEN)
-                    .setTopLabel('Debug Mode')
-                    .setText('Focus Terminal Output')
-                    .setBottomLabel('Focus the terminal output on the last log entry.')
-                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                        CardService.newMaterialIcon().setName('center_focus_strong').setFill(false)))
-                    .setSwitchControl(
-                        CardService.newSwitch()
-                            .setFieldName('focus_terminal_output')
-                            .setValue('ON')
-                            .setSelected(data.focus_terminal_output === 'ON')
+                            .setSelected(data.praittfy_json === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
                     )
             );
 
             cardBuilder.addSection(devSection);
 
-            // 4. Professional Fixed Footer
+            // Professional Fixed Footer
             // High-contrast primary button for the "Save" action
             const fixedFooter = CardService.newFixedFooter()
                 .setPrimaryButton(
@@ -1408,7 +1402,7 @@ Plugins.GetMe = {
                 }
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+                data.currentBotName = (PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Initialize Telegram Bot Client
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1546,7 +1540,7 @@ Plugins.GetChat = {
                 }
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+                data.currentBotName = (PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Extract Chat ID from form inputs if available (user clicked Search)
                 // or fall back to parameters/properties
@@ -1707,10 +1701,10 @@ Plugins.GetChat = {
 
 Plugins.Webhook = {
     id: 'WebhookPlugin',
-    name: 'Webhook Manager',
+    name: 'Webhook Configurator',
     imageUrl: Plugins.Media.DEFAULT_IMAGE_URL,
-    description: 'Advanced configuration for Bot Webhooks.',
-    short_description: 'Manage Bot Webhook',
+    description: 'Configure and manage your bot webhooks with advanced options.',
+    short_description: 'Manage bot webhooks and settings',
     Controller: {
         /**
          * Entry Point
@@ -1724,15 +1718,15 @@ Plugins.Webhook = {
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.Load', 'INFO', e, 'Loading Webhook Manager');
 
                 const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
-                const isUpdate = data.update === 'true';
-                const isPop = data.popCard === 'true';
-
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
+                const isUpdate = data.update === 'true';
+                const isPop = data.popCard === 'true';
+
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
+                data.currentBotName = (PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Logic: Fetch Data if Token Exists
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1763,6 +1757,7 @@ Plugins.Webhook = {
                         Plugins.Webhook.View.HomeCard(data, result));
                 }
 
+                // Return the navigation response
                 return CardService.newActionResponseBuilder()
                     .setNavigation(navigation)
                     .build();
@@ -1950,34 +1945,41 @@ Plugins.Webhook = {
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.Webhook.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle('Webhook Console')
-                    .setSubtitle('Manage Real-time Updates')
+                    .setTitle(Plugins.Webhook.name)
+                    .setSubtitle(Plugins.Webhook.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Webhook.imageUrl));
 
             // --- 1. Connection Header ---
             cardBuilder.addSection(Plugins.Connection.View.WelcomeSection(data));
+
             // --- Section A: Status Dashboard ---
             const statusSection = CardService.newCardSection()
                 .setHeader('📡 Webhook Status');
 
             // Action Buttons
-            const buttonSet = CardService.newButtonSet();
             const footer = CardService.newFixedFooter()
                 .setPrimaryButton(CardService.newTextButton()
-                    .setText('Refresh Status')
                     .setMaterialIcon(CardService.newMaterialIcon()
-                        .setName('refresh')
-                        .setFill(false)) // Constraint 1
+                        .setName(result.url ? 'update' : 'add')
+                        .setFill(false))
+                    .setText(result.url ? 'Update' : 'Set Webhook')
+                    //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                    .setBackgroundColor(Plugins.primaryColor())
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.Controller.Load')
-                        .setParameters({ update: 'true' })));
+                        .setFunctionName('Plugins.Webhook.Controller.SetWebhook')
+                        // Collect all inputs
+                        .addRequiredWidget(['txt_webhook_url'])
+                        .addRequiredWidget(['txt_max_connections'])));
 
             // --- 2. Live Status Logic ---
             if (result.url !== '') {
                 // Delete Button (Only if active)
                 footer.setSecondaryButton(CardService.newTextButton()
-                    .setText('Delete Webhook')
+                    .setMaterialIcon(CardService.newMaterialIcon()
+                        .setName('delete')
+                        .setFill(false))
+                    .setText('Delete')
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.Webhook.Controller.ConfirmDeleteWebhook')));
 
@@ -1985,7 +1987,7 @@ Plugins.Webhook = {
                 statusSection.addWidget(CardService.newDecoratedText()
                     .setTopLabel('Status')
                     .setText('Active')
-                    .setBottomLabel(String(result.url))
+                    .setBottomLabel(String(result.url).length > 15 ? String(result.url).substring(0, 15) + '...' : String(result.url))
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('cloud_done')
@@ -2004,19 +2006,10 @@ Plugins.Webhook = {
                             .setFill(false)))); // Constraint 1
             }
 
-            // Set/Update Button
-            footer.setPrimaryButton(CardService.newTextButton()
-                .setText(result.url ? 'Update Settings' : 'Set Webhook')
-                //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                .setBackgroundColor(Plugins.primaryColor())
-                .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.Webhook.Controller.SetWebhook')
-                    // Collect all inputs
-                    .addRequiredWidget(['txt_webhook_url'])
-                    .addRequiredWidget(['txt_max_connections'])));
-
             // Traffic/Pending Info
             if (result.pending_update_count > 0) {
+                // add divider
+                statusSection.addWidget(CardService.newDivider());
                 statusSection.addWidget(CardService.newDecoratedText()
                     .setTopLabel('Queue')
                     .setText(`${result.pending_update_count} Pending Updates`)
@@ -2042,6 +2035,9 @@ Plugins.Webhook = {
                     ? new Date(result.last_error_date * 1000).toLocaleTimeString()
                     : 'Unknown Time';
 
+                // add divider
+                statusSection.addWidget(CardService.newDivider());
+
                 statusSection.addWidget(CardService.newDecoratedText()
                     .setTopLabel(`Last Error (${errorDate})`)
                     .setText(`⚠️ ${result.last_error_message}`)
@@ -2052,47 +2048,29 @@ Plugins.Webhook = {
                     .setWrapText(true));
             }
 
+            // add divider
+            statusSection.addWidget(CardService.newDivider());
+
             // Add dump to result to sheet widget
             statusSection.addWidget(
                 Plugins.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getWebhookInfo', result));
 
             cardBuilder.addSection(statusSection);
 
-            // --- Section B: Configuration Form ---
+            // --- Section B: Input Parameters for setWebhook ---
             const configSection = CardService.newCardSection()
-                .setHeader('🛠️ Configuration')
-                .setCollapsible(true); // Collapsible to save space if not needed
+                .setHeader('⚙️ Webhook Configuration')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(2); // Collapsible to save space if not needed
 
-            // 1. Webhook URL (Constraint 5)
+            // Webhook URL (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
                 .setFieldName('txt_webhook_url')
                 .setTitle('Webhook URL (Required)')
                 .setHint('https://your-script-url/exec')
                 .setValue(String(result.url))); // Defaults to current live URL
 
-            // 2. IP Address (Constraint 5)
-            configSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_ip_address')
-                .setTitle('Custom IP Address (Optional)')
-                .setHint('Bypass DNS resolution with specific IP')
-                .setValue(result.ip_address || ''));
-
-            // 3. Max Connections (Constraint 5)
-            configSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_max_connections')
-                .setTitle('Max Connections (1-100)')
-                .setHint('Default: 40')
-                .setValue(result.max_connections ? result.max_connections.toString() : '40'));
-
-            // 4. Secret Token (Constraint 5)
-            configSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_secret_token')
-                .setTitle('Secret Token (Optional)')
-                .setHint('X-Telegram-Bot-Api-Secret-Token header')
-                .setValue('')); // We don't get this back from API for security, so leave empty
-
-            // 5. Drop Pending Updates (Constraint 4 & 5)
-            // Fix: Using DecoratedText to label the switch
+            // Drop Pending Updates (Constraint 4 & 5)
             configSection.addWidget(CardService.newDecoratedText()
                 .setText('Drop Pending Updates')
                 .setBottomLabel('Skip old messages in queue upon setting webhook.')
@@ -2100,6 +2078,27 @@ Plugins.Webhook = {
                     .setFieldName('drop_pending_updates')
                     .setValue('true')
                     .setControlType(CardService.SwitchControlType.CHECK_BOX)));
+
+            // IP Address (Constraint 5)
+            configSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_ip_address')
+                .setTitle('Custom IP Address (Optional)')
+                .setHint('Bypass DNS resolution with specific IP')
+                .setValue(''));
+
+            // Max Connections (Constraint 5)
+            configSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_max_connections')
+                .setTitle('Max Connections (1-100)')
+                .setHint('Default: 40')
+                .setValue(result.max_connections ? result.max_connections.toString() : '40'));
+
+            // Secret Token (Constraint 5)
+            configSection.addWidget(CardService.newTextInput()
+                .setFieldName('txt_secret_token')
+                .setTitle('Secret Token (Optional)')
+                .setHint('X-Telegram-Bot-Api-Secret-Token header')
+                .setValue('')); // We don't get this back from API for security, so leave empty
 
             cardBuilder.addSection(configSection);
 
