@@ -1686,7 +1686,7 @@ Plugins.GetChat = {
 
             // Add dump to result to sheet widget
             identitySection.addWidget(
-                Plugins.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getMe', result));
+                Plugins.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getChat', result));
 
             cardBuilder.addSection(identitySection);
 
@@ -1954,8 +1954,7 @@ Plugins.Webhook = {
             cardBuilder.addSection(Plugins.Connection.View.WelcomeSection(data));
 
             // --- Section A: Status Dashboard ---
-            const statusSection = CardService.newCardSection()
-                .setHeader('📡 Webhook Status');
+            const statusSection = CardService.newCardSection();
 
             // Action Buttons
             const footer = CardService.newFixedFooter()
@@ -1985,9 +1984,9 @@ Plugins.Webhook = {
 
                 // Active Status
                 statusSection.addWidget(CardService.newDecoratedText()
-                    .setTopLabel('Status')
-                    .setText('Active')
-                    .setBottomLabel(String(result.url).length > 15 ? String(result.url).substring(0, 15) + '...' : String(result.url))
+                    .setTopLabel('📡 Webhook Status')
+                    .setText('🟢 Active')
+                    .setBottomLabel(String(result.url).length > 25 ? String(result.url).slice(0, 15) + '...' + String(result.url).slice(-10) : String(result.url))
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon()
                             .setName('cloud_done')
@@ -1997,8 +1996,8 @@ Plugins.Webhook = {
             else {
                 // Inactive Status
                 statusSection.addWidget(CardService.newDecoratedText()
-                    .setTopLabel('Status')
-                    .setText('Inactive')
+                    .setTopLabel('📡 Webhook Status')
+                    .setText('🔘 Inactive')
                     .setBottomLabel('Bot is using Long Polling (no webhook).')
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon()
