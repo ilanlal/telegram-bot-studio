@@ -49,7 +49,7 @@ Plugins.Package = {
     build: '20260124.010000',
     author: 'Ilan Laloum',
     license: 'MIT',
-    imageUrl: Plugins.Media.CHEERS_IMG_URL,
+    imageUrl: Plugins.Media.LOGO_PNG_URL,
     gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
 };
 

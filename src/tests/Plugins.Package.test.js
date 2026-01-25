@@ -1,4 +1,4 @@
-require('../../../tests');
+require('../../tests');
 const { Plugins } = require('../Plugins');
 
 describe('Plugins Package', () => {
