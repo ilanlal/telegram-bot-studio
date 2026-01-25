@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | [e.g., Broadcast Message Wizard] |
-| **Module** | [e.g., Plugins.Broadcast] |
+| **Module** | [e.g., Plugins.Broadcast](../../../src/Plugins.js) |
 | **Priority** | [High / Medium / Low] |
 | **Status** | [Draft / In Progress / Completed] |
 

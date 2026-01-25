@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Get Chat Information (Inspector) |
-| **Module** | `Plugins.GetChat` |
+| **Module** | [`Plugins.GetChat`](../../../src/Plugins.js) |
 | **Telegram API** | `getChat` |
 | **Priority** | Medium |
 | **Status** | Draft |

@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Bot Connection & Authentication Manager |
-| **Module** | [`Plugins.Connection`](../../src/config/Plugins.js) |
+| **Module** | [`Plugins.Connection`](../../../src/Plugins.js) |
 | **Priority** | High |
 | **Status** | In Progress |
 
@@ -81,7 +81,7 @@ The UI is constructed using the `Plugins.Connection.View` object in `src/Plugins
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** [`Plugins.Connection.Controller`](../../src/Plugins.js)
+- **Controller:** [`Plugins.Connection.Controller`](../../../src/Plugins.js)
   - `Load(e)`: Renders the HomeCard.
   - `Connect(e)`:
         1. Extracts token from form inputs.
@@ -92,12 +92,12 @@ The UI is constructed using the `Plugins.Connection.View` object in `src/Plugins
     - `ConfirmDisconnect(e)`: Pushes `Plugins.ConfirmationCard`.
     - `Disconnect(e)`: Clears properties and reloads view.
 
-- **View:** [`Plugins.Connection.View`](../../src/Plugins.js)
+- **View:** [`Plugins.Connection.View`](../../../src/Plugins.js)
   - `HomeCard(data)`: Builds the form.
   - `WelcomeSection(data)`: Reusable widget for other plugins (Home, Webhook) to show small status banner.
   - `BuildTokenTextInputWidget(token, hidden)`: Helper for the input field.
 
-- **Service:** [`TelegramBotClient`](../../src/lib/TelegramBotClient.js)
+- **Service:** [`TelegramBotClient`](../../../src/lib/TelegramBotClient.js)
 - `getMe()`: Used for validation.
 
 ### 4.2 Data Interactions

@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Webhook Manager |
-| **Module** | `Plugins.Webhook` |
+| **Module** | [`Plugins.Webhook`](../../../src/Plugins.js) |
 | **Telegram API** | `setWebhook`, `deleteWebhook`, `getWebhookInfo` |
 | **Priority** | High |
 | **Status** | In Progress |
