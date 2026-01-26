@@ -827,15 +827,10 @@ Plugins.Connection = {
                     const sheet = Plugins.Modules.Sheet;
                     const sheetMeta = {
                         name: '🔐 Bot Tokens',
-                        columns: ['Timestamp', 'Bot Token', 'Bot Username', 'Bot Friendly Name']
+                        columns: ['Timestamp', 'Bot Token', 'Bot Username', 'getMe Response']
                     };
 
-                    sheet.dumpObjectToSheet(activeSpreadsheet, sheetMeta, {
-                        Timestamp: new Date(),
-                        "Bot Token": inputToken,
-                        "Bot Username": result.username,
-                        "Bot Friendly Name": result.first_name
-                    });
+                    sheet.dumpObjectToSheet(activeSpreadsheet, sheetMeta, inputToken, result.username, result);
                 }
 
                 // on success, store the token in user properties or user properties as needed
