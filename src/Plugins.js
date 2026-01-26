@@ -156,7 +156,7 @@ Plugins.Modules = {
 
             // Set active selection to the last row
             const lastRow = sheet.getLastRow();
-            const lastRowA1Notation = `A${lastRow}:G${lastRow}`;
+            const lastRowA1Notation = `A${lastRow}:E${lastRow}`;
             sheet.setActiveSelection(lastRowA1Notation);
 
             return sheet;
