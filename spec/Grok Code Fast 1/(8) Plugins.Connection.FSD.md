@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Plugins.Connection |
-| **Module** | [`src/Plugins.js`](../../../src/Plugins.js) |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
 | **Priority** | High |
 | **Status** | Completed |
 

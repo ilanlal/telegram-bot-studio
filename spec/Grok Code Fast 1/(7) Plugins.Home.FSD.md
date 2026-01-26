@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Plugins.Home |
-| **Module** | [`src/Plugins.js`](../../../src/Plugins.js) |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
 | **Priority** | High |
 | **Status** | Completed |
 

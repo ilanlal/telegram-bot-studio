@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Plugins.ExportApiResultWidget |
-| **Module** | [`src/Plugins.js`](../../../src/Plugins.js) |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
 | **Priority** | Medium |
 | **Status** | Completed |
 

@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Plugins |
-| **Module** | [`src/Plugins.js`](../../../src/Plugins.js) |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
 | **Priority** | High |
 | **Status** | Completed |
 
