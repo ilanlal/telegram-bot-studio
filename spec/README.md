@@ -14,5 +14,6 @@ This repository contains the Functional Specification Document (FSD) for the "AI
 8. [(13) Plugins.GetMe](./Grok%20Code%20Fast%201/(13)%20Plugins.GetMe.FSD.md) - Detailed FSD for the `Get Me` feature.
 9. [(14) Plugins.GetChat](./Grok%20Code%20Fast%201/(14)%20Plugins.GetChat.FSD.md) - Detailed FSD for the `Chat Inspector` feature.
 10. [(15) Plugins.Webhook](./Grok%20Code%20Fast%201/(15)%20Plugins.Webhook.FSD.md) - Detailed FSD for the `Webhook Configurator` feature.
+11. [(16) Plugins.JsonTools](./Grok%20Code%20Fast%201/(16)%20Plugins.JsonTools.FSD.md) - Detailed FSD for the `JSON Tools` feature.
 
 Each section provides a comprehensive overview of the respective plugin, including feature descriptions, user stories, UI/UX design, technical implementation details, configuration and security considerations, as well as edge cases and error handling strategies. This document serves as a guide for developers to implement and integrate these plugins effectively into Telegram Bot Studio.
