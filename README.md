@@ -16,12 +16,14 @@ A **open source** template for building **add-ons** for Telegram Bot Studio usin
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/ilanlal/telegram-bot-studio.git
    cd telegram-bot-studio
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -44,4 +46,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Author
 
-Ilan Laloum <ilanlal@gmail.com> (https://github.com/ilanlal)
+Ilan Laloum <ilanlal@gmail.com> (<https://github.com/ilanlal>)
