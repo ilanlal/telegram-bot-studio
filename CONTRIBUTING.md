@@ -1,4 +1,4 @@
-# Contributing to Telegram Bot Studio Add-ons Template
+# Contributing to Telegram Bot Studio (TBS) Add-ons Template
 
 Thank you for your interest in contributing to this open source project! We welcome contributions from the community to help improve and expand the Telegram Bot Studio add-ons.
 
