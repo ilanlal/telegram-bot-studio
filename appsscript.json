@@ -15,7 +15,7 @@
   ],
   "addOns": {
     "common": {
-      "name": "Telegram Bot Studio",
+      "name": "Telegram Bot Studio (TBS)",
       "logoUrl": "https://lh3.googleusercontent.com/dSbCFuDPREqPoqeGFnEYTE4Y_iTNGWtMFTIEbHKeq648a3Muh8U6",
       "layoutProperties": {
         "primaryColor": "#1976d2",

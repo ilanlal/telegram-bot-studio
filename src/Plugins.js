@@ -42,7 +42,7 @@ Plugins.Media = {
 };
 
 Plugins.Package = {
-    name: 'Telegram Bot Studio',
+    name: 'Telegram Bot Studio (TBS)',
     short_description: 'A suite of plugins for building Telegram Bots on Google Workspace.',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.0',
@@ -820,6 +820,24 @@ Plugins.Connection = {
                 // Log the response to Terminal Output sheet
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Connect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
 
+                // execute chk_export_token_to_sheet if needed
+                const exportTokenToSheet = e?.commonEventObject?.formInputs?.chk_export_token_to_sheet?.stringInputs?.value?.[0] === 'export_token';
+                if (exportTokenToSheet) {
+                    // Export the token to a designated sheet
+                    const sheet = Plugins.Modules.Sheet;
+                    const sheetMeta = {
+                        name: '🔐 Bot Tokens',
+                        columns: ['Timestamp', 'Bot Token', 'Bot Username', 'Bot Friendly Name']
+                    };
+
+                    sheet.dumpObjectToSheet(activeSpreadsheet, sheetMeta, {
+                        Timestamp: new Date(),
+                        "Bot Token": inputToken,
+                        "Bot Username": result.username,
+                        "Bot Friendly Name": result.first_name
+                    });
+                }
+
                 // on success, store the token in user properties or user properties as needed
                 PropertiesService.getUserProperties().setProperty('txt_bot_api_token', inputToken);
                 PropertiesService.getUserProperties().setProperty('txt_bot_friendly_name', result.first_name);
@@ -1000,6 +1018,26 @@ Plugins.Connection = {
             );
 
             cardBuilder.addSection(actionSection);
+
+            // Add decorated text with check box to save the token to sheet for advanced users
+            const storeToken = CardService.newCardSection()
+                .setHeader('💾 Token Storage Options')
+                .addWidget(
+                    CardService.newDecoratedText()
+                        .setTopLabel('Save Token')
+                        .setText('Save bot token to Sheet')
+                        .setBottomLabel('Save the bot token to a designated Google Sheet for advanced management.')
+                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                            CardService.newMaterialIcon().setName('save')))
+                        .setSwitchControl(
+                            CardService.newSwitch()
+                                .setFieldName('chk_export_token_to_sheet')
+                                .setValue('export_token')
+                                .setSelected(false)
+                                .setControlType(CardService.SwitchControlType.CHECK_BOX)
+                        )
+                );
+            cardBuilder.addSection(storeToken);
 
             const footer = CardService.newFixedFooter()
                 .setPrimaryButton(CardService.newTextButton()
@@ -1669,7 +1707,7 @@ Plugins.GetChat = {
                         .setName(typeIcon)
                         .setFill(false))) // Constraint: setFill(false)
                 .setWrapText(true));
-            
+
             // add divider
             identitySection.addWidget(CardService.newDivider());
 
@@ -1685,7 +1723,7 @@ Plugins.GetChat = {
                         .setText('Open')
                         .setOpenLink(CardService.newOpenLink()
                             .setUrl(`https://t.me/${result.username}`))));
-                
+
                 // add divider
                 identitySection.addWidget(CardService.newDivider());
             }

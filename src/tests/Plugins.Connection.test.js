@@ -32,7 +32,8 @@ describe('Plugins.Connection', () => {
             const event = {
                 commonEventObject: {
                     formInputs: {
-                        'txt_bot_api_token': { stringInputs: { value: [sampleToken] } }
+                        'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
+                        'chk_export_token_to_sheet': { stringInputs: { value: ['export_token'] } }
                     }
                 }
             };
