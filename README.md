@@ -10,7 +10,7 @@ A **open source** template for building **add-ons** for Telegram Bot Studio usin
 - **Modular Add-ons**: Easily create and manage plugins for Telegram Bot Studio.
 - **Google Apps Script Integration**: Leverage GAS for serverless bot development.
 - **Testing Support**: Includes Jest for unit testing your add-ons.
-- **Comprehensive Documentation**: Detailed specs for various plugins in the `spec/` folder.
+- **Comprehensive Documentation**: Detailed specs for various plugins in the [spec/](./spec/) folder.
 - **Open Source Community**: Contribute and collaborate on add-on development.
 
 ## Installation
