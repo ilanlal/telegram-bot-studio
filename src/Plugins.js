@@ -43,10 +43,10 @@ Plugins.Media = {
 
 Plugins.Package = {
     name: 'Telegram Bot Studio (TBS)',
-    short_description: 'A suite of plugins for building Telegram Bots on Google Workspace.',
+    short_description: 'A suite of tools for building Telegram Bots on Google Workspace.',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.0',
-    build: '20260124.010000',
+    build: '20260127.024600',
     author: 'Ilan Laloum',
     license: 'MIT',
     imageUrl: Plugins.Media.LOGO_PNG_URL,
