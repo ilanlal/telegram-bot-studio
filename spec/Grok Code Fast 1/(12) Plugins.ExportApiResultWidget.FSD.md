@@ -1,83 +1,98 @@
-# 12. Plugin-Specific FSD: Plugins.ExportApiResultWidget
+# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.ExportApiResultWidget
 
-## 12.1 Feature Overview
+## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Plugins.ExportApiResultWidget |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
-| **Priority** | Medium |
+| **Feature Name** | Telegram Bot Studio Export API Result Widget Plugin |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.ExportApiResultWidget` |
+| **Priority** | High |
 | **Status** | Completed |
 
-### 12.1.1 Summary
+### 1.1 Summary
 
-The `Plugins.ExportApiResultWidget` object implements a reusable widget for exporting API result data to Google Sheets. It provides a simple UI element that allows users to dump JSON responses from Telegram API calls (e.g., getMe, getChat) into a dedicated sheet for analysis and record-keeping. It integrates with the Sheet module for data persistence.
+The `Plugins.ExportApiResultWidget` object implements a reusable widget for exporting API result data to Google Sheets, enabling users to dump results for analysis and record-keeping. It integrates with PropertiesService for JSON formatting settings and uses CardService for UI.
 
 ---
 
-## 12.2 User Stories & Rationale
+## 2. User Stories & Rationale
 
 **As a** Bot Developer  
-**I want to** export API responses to sheets  
-**So that** I can analyze and archive bot data easily.
+**I want to** export API results to sheets  
+**So that** I can analyze and store bot data offline.
 
 **As a** Google Workspace User  
-**I want to** save API results with one click  
-**So that** I can keep records without manual copying.
+**I want to** dump JSON data easily  
+**So that** I can work with bot responses in spreadsheets.
 
-### 12.2.1 Acceptance Criteria
+### 2.1 Acceptance Criteria
 
-- [x] BuildExportWidget creates a DecoratedText with Export button.
-- [x] DumpApiResultToSheet appends data to "📦 API Dumps" sheet.
-- [x] Parameters include botName, action, data (JSON string).
-- [x] Success shows notification; errors logged.
-- [x] Widget appears in result sections of plugins like GetMe, GetChat.
-
----
-
-## 12.3 UI/UX Design (CardService)
-
-The UI is a small widget added to cards, using DecoratedText with a button. No full card; integrated into others.
-
-### 12.3.1 Widget Flow
-
-1. **Display:** Appears in result sections.
-2. **Action:** User clicks Export; data dumped to sheet.
-3. **Feedback:** Notification on success/failure.
-
-### 12.3.2 Widget Specifications
-
-**BuildExportWidget:**
-
-- **DecoratedText:** TopLabel: "📥 Export Data", Text: "Export to Sheet", BottomLabel: action details, StartIcon: save_alt, Button: "Export".
+- [x] Exports API results to specified sheet.
+- [x] Supports pretty-printed JSON based on settings.
+- [x] Integrates with other plugins via BuildExportWidget.
+- [x] Handles errors with notifications and logging.
 
 ---
 
-## 12.4 Technical Implementation
+## 3. UI/UX Design (CardService)
 
-### 12.4.1 Architecture (MVC Pattern)
+The UI is built using Google Apps Script's CardService, rendering a decorated text widget with an export button. It uses Material Icons and integrates into other cards. Navigation triggers export action. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
 
-- **Controller:** `DumpApiResultToSheet(e)` parses parameters, calls Sheet.dumpObjectToSheet.
-- **View:** `BuildExportWidget(botName, action, result)` returns the widget.
-- **Service/Model:** Uses Sheet module for dumping.
+### 3.1 Card Flow
 
-### 12.4.2 Data Interactions
+1. **Display**: Widget appears in result sections of other plugins.
+2. **Action**: User clicks "Export" to dump data.
+3. **Feedback**: Notification on success or error.
 
-- **Parameters:** botName, action, data (JSON).
-- **Sheet:** Appends to "📦 API Dumps" with timestamp, bot, action, JSON.
-- **No API:** Static export.
+### 3.2 Widget Specifications
+
+**BuildExportWidget (DecoratedText):**
+
+- **Top Label:** "📥 Export Data"
+- **Text:** "Export to Sheet"
+- **Bottom Label:** Action description.
+- **Start Icon:** Save icon.
+- **Button:** "Export" with onClickAction to DumpApiResultToSheet.
 
 ---
 
-## 12.5 Configuration & Security
+## 4. Technical Implementation
 
-- **Manifest:** Integrated into other plugins.
-- **Security:** No sensitive data; JSON is user-generated.
+### 4.1 Architecture (MVC Pattern)
+
+- **Controller:** `Plugins.ExportApiResultWidget.Controller` with `DumpApiResultToSheet(e)` for export logic.
+- **View:** `Plugins.ExportApiResultWidget.View` with `BuildExportWidget(botName, apiAction, result)` for widget building.
+- **Service/Model:** Integrates with `Plugins.Modules.Sheet.dumpObjectToSheet`, `PropertiesService` for settings.
+
+### 4.2 Data Interactions
+
+**Sheet Export:**
+
+- Dumps to specified sheet (e.g., "📦 API Dumps").
+- Includes timestamp, bot, action, raw data, and fields.
+
+**Properties Service:**
+
+- Retrieves `praittfy_json` for formatting.
 
 ---
 
-## 12.6 Edge Cases & Error Handling
+## 5. Configuration & Security
 
-- **Invalid JSON:** Catches parse errors.
-- **Sheet Errors:** Logged if append fails.
-- **No Data:** No-op if result empty.
+### 5.1 AppScript Manifest (`appsscript.json`)
+
+- **Scopes:** `https://www.googleapis.com/auth/spreadsheets.currentonly` for sheet access.
+
+### 5.2 Security Considerations
+
+- Data exported to user sheets; no external sharing.
+- JSON formatting optional; raw data logged securely.
+
+---
+
+## 6. Edge Cases & Error Handling
+
+- **Invalid Data:** Throws error; shows notification.
+- **Sheet Access:** Errors logged to TerminalOutput.
+- **Formatting Issues:** Falls back to raw JSON.
+- **Large Data:** Handled by Sheet API limits.

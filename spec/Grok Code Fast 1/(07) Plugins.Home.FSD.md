@@ -1,105 +1,105 @@
-# 7. Plugin-Specific FSD: Plugins.Home
+# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.Home
 
-## 7.1 Feature Overview
+## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Plugins.Home |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
+| **Feature Name** | Telegram Bot Studio Home Plugin |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.Home` |
 | **Priority** | High |
 | **Status** | Completed |
 
-### 7.1.1 Summary
+### 1.1 Summary
 
-The `Plugins.Home` object implements the main dashboard plugin for Telegram Bot Studio. It serves as the entry point, displaying connection status, available plugins, quick actions, and premium prompts. It includes sub-cards for About and Help, built using CardService for Google Workspace sidebar UI.
+The `Plugins.Home` object implements the entry-point dashboard for Telegram Bot Studio, a Google Workspace add-on. It provides a central hub for navigating to other plugins (e.g., GetMe, GetChat, Webhook), displaying bot connection status, and offering quick actions like settings and help. It integrates with the MVC pattern, using Controllers for logic, Views for CardService UI, and services for data persistence and logging.
 
 ---
 
-## 7.2 User Stories & Rationale
+## 2. User Stories & Rationale
 
 **As a** Bot Developer  
-**I want to** access a central dashboard when opening the add-on  
-**So that** I can quickly check my bot's connection, navigate to plugins, and access settings or help.
+**I want to** access a central dashboard in Google Sheets  
+**So that** I can quickly navigate to bot management features and check connection status.
 
 **As a** Google Workspace User  
-**I want to** view my bot's status and available tools in one place  
-**So that** I can efficiently manage my Telegram bot without navigating multiple menus.
+**I want to** see an overview of available plugins and my premium status  
+**So that** I can efficiently manage my Telegram bots without deep navigation.
 
-**As a** New User  
-**I want to** see getting started guidance and links to documentation  
-**So that** I can learn how to use the add-on effectively.
+### 2.1 Acceptance Criteria
 
-### 7.2.1 Acceptance Criteria
-
-- [x] HomeCard loads on add-on open, showing connection status, plugin grid, and quick actions.
-- [x] AboutCard displays app info, version, and useful links.
-- [x] HelpCard provides a getting started guide with steps.
-- [x] Navigation uses CardService pushCard for About/Help.
-- [x] Premium CTA appears if user is not premium.
-- [x] Data from `Plugins.Modules.App.getData()` is used for status.
-- [x] Logging via `TerminalOutput.write` for debugging.
+- [x] Home plugin loads as the main entry point with connection status and plugin grid.
+- [x] Displays available plugins (GetMe, GetChat, Webhook) with buttons to navigate.
+- [x] Includes quick actions for Settings, Help, and About.
+- [x] Shows premium CTA if not premium.
+- [x] Integrates with PropertiesService for token checks and App.getData() for membership.
 
 ---
 
-## 7.3 UI/UX Design (CardService)
+## 3. UI/UX Design (CardService)
 
-The UI uses CardService for sidebar cards. HomeCard is the root; About and Help are pushed cards. Icons use Material Icons. Colors from `Plugins.primaryColor()` etc.
+The UI is built using Google Apps Script's CardService, rendering the sidebar dashboard. The Home plugin uses a single HomeCard with sections for status, plugins, and actions. Navigation pushes/pops cards for other plugins. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
 
-### 7.3.1 Card Flow
+### 3.1 Card Flow
 
-1. **HomeCard:** Loads on `Load(e)`, shows status and plugins.
-2. **AboutCard:** Pushed via `About(e)`, displays metadata and links.
-3. **HelpCard:** Pushed via `Help(e)`, shows guide and FAQ.
+1. **Entry Point:** Home plugin loads the main dashboard on add-on open.
+2. **Status Display:** Shows connection status (connected/disconnected) with token info.
+3. **Plugin Navigation:** Grid of buttons to push cards for GetMe, GetChat, Webhook.
+4. **Quick Actions:** Buttons to push Help, About, or Settings cards.
+5. **Premium Check:** Conditional CTA section if not premium.
 
-### 7.3.2 Widget Specifications
+### 3.2 Widget Specifications
 
-**HomeCard (`Plugins.Home.View.HomeCard`):**
+**Home Card (`Plugins.Home.View.HomeCard`):**
 
-- **Header:** Title: Package.name, Subtitle: Package.short_description, Image: Package.imageUrl.
-- **Section 1:** `Plugins.Connection.View.WelcomeSection` (status).
-- **Section 2:** Grid of plugin buttons (GetMe, GetChat, Webhook).
-- **Section 3:** ButtonSet for Settings, Help, About.
+- **Header:** Title: "Telegram Bot Studio", Subtitle: Package short_description, Image: Logo.
+- **Section 1:** `WelcomeSection` (connection status via `Plugins.Connection.View.WelcomeSection`).
+- **Section 2:** Grid of plugin buttons (e.g., GetMe, GetChat, Webhook) as DecoratedText with Open buttons.
+- **Section 3:** Quick actions (Settings, Help, About) as ButtonSet.
 - **Section 4 (Conditional):** Premium CTA if not premium.
-
-**AboutCard (`Plugins.Home.View.AboutCard`):**
-
-- **Header:** Title: "About " + Package.name, Image: Media.BIG_TIME_IMG_URL.
-- **Section 1:** TextParagraphs for name, version, build, description, developer.
-- **Section 2:** TextButtons for Documentation and Report Issues (open links).
-
-**HelpCard (`Plugins.Home.View.HelpCard`):**
-
-- **Header:** Title: "Help & Support", Image: Media.YES_IMG_URL.
-- **Section 1:** Getting Started with steps (DecoratedText).
+- **Fixed Footer (Conditional):** "Upgrade to Premium" button if not premium.
 
 ---
 
-## 7.4 Technical Implementation
+## 4. Technical Implementation
 
-### 7.4.1 Architecture (MVC Pattern)
+### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Load(e)` builds HomeCard with app data; `About(e)` and `Help(e)` push respective cards.
-- **View:** `HomeCard(data)`, `AboutCard(data)`, `HelpCard(data)` construct cards using CardService.
-- **Service/Model:** Uses `App.getData()` for premium/status; logs to TerminalOutput.
+- **Controller:** `Plugins.Home.Controller` with methods like `Load(e)` for rendering the HomeCard, `About()` and `Help()` for pushing related cards.
+- **View:** `Plugins.Home.View` with `HomeCard(data)`, `AboutCard(data)`, `HelpCard(data)` for building cards.
+- **Service/Model:** Integrates with `Plugins.Modules.App.getData()` for membership, `PropertiesService` for tokens, and `Plugins.Connection.View.WelcomeSection` for status.
 
-### 7.4.2 Data Interactions
+### 4.2 Data Interactions
 
-- **PropertiesService:** Reads `txt_bot_api_token` for connection status.
-- **SpreadsheetApp:** Logs events to Terminal Output sheet.
-- **No API Calls:** Static UI, no Telegram API.
+**Properties Service:**
+
+- **UserProperties:** Retrieves `txt_bot_api_token`, `txt_bot_username`, etc., for connection status.
+
+**App Module:**
+
+- **getData():** Fetches membership info (isPremium, balance, expiresAt) for conditional UI.
+
+**Navigation:**
+
+- Uses `CardService.newNavigation()` to push/pop cards for plugins and actions.
 
 ---
 
-## 7.5 Configuration & Security
+## 5. Configuration & Security
 
-- **Manifest:** Universal action points to Home.Controller.Load.
-- **Security:** No sensitive data; links are external but safe.
+### 5.1 AppScript Manifest (`appsscript.json`)
+
+- **Universal Actions:** Home plugin as entry point.
+
+### 5.2 Security Considerations
+
+- No sensitive data displayed; tokens are checked but not exposed in UI.
+- Premium checks ensure gated features are handled securely.
 
 ---
 
-## 7.6 Edge Cases & Error Handling
+## 6. Edge Cases & Error Handling
 
-- **No Data:** Falls back to defaults (e.g., empty token).
-- **Premium Check:** Shows CTA if `!data.isPremium`.
-- **Navigation:** Handles refresh parameter in `Load(e)`.
-- **Errors:** Logged if app data fails to load.
+- **No Token:** Connection status shows "OFFLINE"; plugin buttons disabled.
+- **Premium Check:** CTA shown only if `isPremium` is false.
+- **Navigation Errors:** Handled by CardService; logs via TerminalOutput if issues arise.
+- **Data Fetching:** Falls back to defaults if properties are missing.

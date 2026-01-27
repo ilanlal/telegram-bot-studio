@@ -1,88 +1,100 @@
-# 13. Plugin-Specific FSD: Plugins.GetMe
+# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.GetMe
 
-## 13.1 Feature Overview
+## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Plugins.GetMe |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
+| **Feature Name** | Telegram Bot Studio GetMe Plugin |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.GetMe` |
 | **Priority** | High |
 | **Status** | Completed |
 
-### 13.1.1 Summary
+### 1.1 Summary
 
-The `Plugins.GetMe` object implements the Get Me plugin for Telegram Bot Studio. It fetches and displays the bot's identity details using the Telegram `getMe` API, allowing users to verify connection and view capabilities like username, ID, and permissions.
+The `Plugins.GetMe` object implements bot identity verification and capability display for Telegram Bot Studio, a Google Workspace add-on. It fetches bot details via the `getMe` API and presents them in a user-friendly card interface.
 
 ---
 
-## 13.2 User Stories & Rationale
+## 2. User Stories & Rationale
 
 **As a** Bot Developer  
-**I want to** verify my bot's connection and view its identity  
-**So that** I can confirm the bot is linked correctly and check its details.
+**I want to** verify my bot's connection and view its details  
+**So that** I can confirm the bot is set up correctly.
 
 **As a** Google Workspace User  
-**I want to** see my bot's username and capabilities  
-**So that** I can understand what the bot can do.
+**I want to** see bot identity and capabilities  
+**So that** I can understand what my bot can do.
 
-### 13.2.1 Acceptance Criteria
+### 2.1 Acceptance Criteria
 
-- [x] HomeCard loads on plugin access, calls `getMe` API.
-- [x] Displays bot name, username, ID, and capabilities.
-- [x] Includes export widget and raw JSON section.
-- [x] Refresh button to reload data.
-- [x] Errors logged and shown as notifications.
-- [x] Requires valid token; shows connection status.
-
----
-
-## 13.3 UI/UX Design (CardService)
-
-The UI uses CardService for a card with identity profile, capabilities grid, and raw data. Icons use Material Icons. Colors from `Plugins.primaryColor()`.
-
-### 13.3.1 Card Flow
-
-1. **Load:** Calls API, builds card with results.
-2. **Display:** Shows identity, capabilities, export, raw JSON.
-3. **Refresh:** Reloads data on button click.
-
-### 13.3.2 Widget Specifications
-
-**HomeCard (`Plugins.GetMe.View.HomeCard`):**
-
-- **Header:** Title: "Bot Dashboard", Subtitle: "Identity & Feature Configuration", Image: DEFAULT_IMAGE_URL.
-- **Section 1:** Identity Profile (name, ID, username with link).
-- **Section 2:** `BuildResultSection` (capabilities grid, raw JSON, export widget).
-- **Footer:** Primary button "Refresh Data".
+- [x] Fetches bot info via `getMe` API.
+- [x] Displays identity (name, username, ID).
+- [x] Shows capabilities in grids.
+- [x] Includes export and refresh options.
+- [x] Handles API errors gracefully.
 
 ---
 
-## 13.4 Technical Implementation
+## 3. UI/UX Design (CardService)
 
-### 13.4.1 Architecture (MVC Pattern)
+The UI is built using Google Apps Script's CardService, rendering a dashboard card. The plugin uses a single HomeCard with sections for identity and results. Navigation pushes the card and updates on refresh. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
 
-- **Controller:** `Load(e)` calls `TelegramBotClient.getMe()`, builds card with result.
-- **View:** `HomeCard(data, result)` constructs card.
-- **Service/Model:** Uses `TelegramBotClient` for API; logs to TerminalOutput.
+### 3.1 Card Flow
 
-### 13.4.2 Data Interactions
+1. **Entry Point:** User selects GetMe from home; pushes card.
+2. **Display:** Shows bot identity and capabilities.
+3. **Refresh:** Updates data in place.
+4. **Export:** Dumps results to sheet.
 
-- **Telegram API:** `getMe` to fetch bot info.
-- **PropertiesService:** Reads token for API call.
-- **SpreadsheetApp:** Logs events; exports via widget.
+### 3.2 Widget Specifications
+
+**Home Card (`Plugins.GetMe.View.HomeCard`):**
+
+- **Header:** Title: "Bot Dashboard", Subtitle: "Identity & Feature Configuration", Image: Logo.
+- **Section 1:** Identity Profile (name, ID, username).
+- **Section 2:** Capabilities grid.
+- **Section 3:** Raw JSON and export widget.
+- **Footer:** Refresh button.
 
 ---
 
-## 13.5 Configuration & Security
+## 4. Technical Implementation
 
-- **Manifest:** Accessible via Home grid.
-- **Security:** Token used securely; no sensitive data exposed.
+### 4.1 Architecture (MVC Pattern)
+
+- **Controller:** `Plugins.GetMe.Controller` with `Load(e)` for rendering and API calls.
+- **View:** `Plugins.GetMe.View` with `HomeCard(data, result)` for building the card.
+- **Service/Model:** Integrates with `TelegramBotClient` for `getMe`, `PropertiesService` for tokens.
+
+### 4.2 Data Interactions
+
+**Telegram API (`UrlFetchApp`):**
+
+- **Endpoints:** `https://api.telegram.org/bot<token>/getMe`.
+- **Response:** Parsed for bot details.
+
+**Sheet Export:**
+
+- Via `Plugins.ExportApiResultWidget`.
 
 ---
 
-## 13.6 Edge Cases & Error Handling
+## 5. Configuration & Security
 
-- **No Token:** Shows error notification.
-- **API Failure:** Logs error, shows notification.
-- **Invalid Response:** Handles missing fields gracefully.
-- **No Result:** Card still loads with empty sections.
+### 5.1 AppScript Manifest (`appsscript.json`)
+
+- **Scopes:** `https://www.googleapis.com/auth/script.external_request` for API calls.
+
+### 5.2 Security Considerations
+
+- Tokens retrieved securely from PropertiesService.
+- No sensitive data exposed in UI.
+
+---
+
+## 6. Edge Cases & Error Handling
+
+- **No Token:** Throws error; prompts connection.
+- **API Errors:** Logs to TerminalOutput; shows notification.
+- **Invalid Response:** Parses and handles gracefully.
+- **Network Failures:** Logged and notified.

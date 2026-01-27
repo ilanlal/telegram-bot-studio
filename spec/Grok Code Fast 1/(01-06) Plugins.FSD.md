@@ -11,7 +11,7 @@
 
 ### 1.1 Summary
 
-The `Plugins.js` file implements the core plugin architecture for Telegram Bot Studio, a Google Workspace add-on for managing Telegram bots. It provides a modular system of plugins (e.g., Connection, GetMe, Webhook) that handle bot authentication, API interactions, UI rendering via CardService, and data persistence. The architecture supports MVC patterns, with Controllers for logic, Views for UI, and integrated services for Telegram API calls and sheet operations.
+The `Plugins.js` file implements the core plugin architecture for Telegram Bot Studio, a Google Workspace add-on for managing Telegram bots. It provides a modular system of plugins (e.g., Connection, GetMe, GetChat, Webhook, JsonTools) that handle bot authentication, API interactions, UI rendering via CardService, and data persistence. The architecture supports MVC patterns, with Controllers for logic, Views for UI, and integrated services for Telegram API calls and sheet operations.
 
 ---
 
@@ -22,7 +22,7 @@ The `Plugins.js` file implements the core plugin architecture for Telegram Bot S
 **So that** I can easily connect, configure, and manage my Telegram bots through a visual interface.
 
 **As a** Google Workspace User  
-**I want to** access bot management features like webhook setup and chat inspection  
+**I want to** access bot management features like webhook setup, chat inspection, and JSON tools  
 **So that** I can build and monitor bots without deep coding knowledge.
 
 ### 2.1 Acceptance Criteria
@@ -43,7 +43,7 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 ### 3.1 Card Flow
 
 1. **Entry Point:** Home plugin loads the main dashboard, showing plugin list and connection status.
-2. **Plugin Access:** User selects a plugin (e.g., GetMe, Webhook) from the grid.
+2. **Plugin Access:** User selects a plugin (e.g., GetMe, GetChat, Webhook, JsonTools) from the grid.
 3. **Interaction Cards:** Each plugin has a HomeCard for input/results, with footers for actions.
 4. **Confirmation:** Destructive actions (e.g., disconnect, delete webhook) use `ConfirmationCard`.
 5. **Results:** API responses displayed in `BuildResultSection` with grids and raw JSON.
@@ -54,7 +54,7 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 - **Header:** Title: "Telegram Bot Studio", Subtitle: Package short_description, Image: Logo.
 - **Section 1:** `WelcomeSection` (connection status).
-- **Section 2:** Grid of plugin buttons (e.g., GetMe, GetChat, Webhook).
+- **Section 2:** Grid of plugin buttons (e.g., GetMe, GetChat, Webhook, JsonTools).
 - **Section 3:** Quick actions (Settings, Help, About).
 - **Section 4 (Conditional):** Premium CTA if not premium.
 
@@ -72,6 +72,8 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 - **Footer:** Set/Update or Delete button.
 
 **GetMe/GetChat Cards:** Similar, with result sections showing API data in grids.
+
+**JsonTools Card:** Provides JSON utilities (beautify, minify, validate) via buttons in a collapsible section.
 
 ---
 

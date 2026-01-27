@@ -1,84 +1,92 @@
-# 16. Plugin-Specific FSD: Plugins.JsonTools
+# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.JsonTools
 
-## 16.1 Feature Overview
+## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Plugins.JsonTools |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
-| **Priority** | Low |
-| **Status** | In Development |
+| **Feature Name** | Telegram Bot Studio JSON Tools Plugin |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.JsonTools` |
+| **Priority** | High |
+| **Status** | Completed |
 
-### 16.1.1 Summary
+### 1.1 Summary
 
-The `Plugins.JsonTools` object implements a placeholder plugin for JSON utilities in Telegram Bot Studio. It is designed to provide tools for beautifying, minifying, and validating JSON data, which can be useful for handling API responses and configurations. Currently, it serves as a stub with basic structure, awaiting full implementation.
+The `Plugins.JsonTools` object implements JSON utility functions for Telegram Bot Studio, a Google Workspace add-on. It provides tools to beautify, minify, and validate JSON data, enhancing user experience with API responses and data handling.
 
 ---
 
-## 16.2 User Stories & Rationale
+## 2. User Stories & Rationale
 
 **As a** Bot Developer  
-**I want to** format and validate JSON data  
-**So that** I can easily read and debug API responses.
+**I want to** process JSON data easily  
+**So that** I can work with API responses and debug bot interactions.
 
 **As a** Google Workspace User  
-**I want to** minify JSON for compact storage  
-**So that** I can optimize data handling in sheets.
+**I want to** beautify or validate JSON  
+**So that** I can read and ensure data integrity.
 
-### 16.2.1 Acceptance Criteria
+### 2.1 Acceptance Criteria
 
-- [ ] HomeCard loads with input textarea for JSON.
-- [ ] Buttons for Beautify, Minify, Validate.
-- [ ] Output section shows formatted/validated result.
-- [ ] Errors shown for invalid JSON.
-- [ ] Placeholder implementation in place.
-
----
-
-## 16.3 UI/UX Design (CardService)
-
-The UI uses CardService for a simple card with input, buttons, and output. Icons use Material Icons. Colors from `Plugins.primaryColor()`.
-
-### 16.3.1 Card Flow
-
-1. **Load:** Shows input area and action buttons.
-2. **Action:** User pastes JSON, clicks button; processes and displays result.
-3. **Output:** Shows formatted JSON or validation message.
-
-### 16.3.2 Widget Specifications
-
-**HomeCard (`Plugins.JsonTools.View.HomeCard`):**
-
-- **Header:** Title: "JSON Tools", Subtitle: "Beautify, Minify & Validate", Image: DEFAULT_IMAGE_URL.
-- **Section 1:** TextParagraph input for JSON.
-- **Section 2:** ButtonSet for Beautify, Minify, Validate.
-- **Section 3:** Output TextParagraph.
+- [x] Provides beautify, minify, and validate functions.
+- [x] Integrates WelcomeSection into other plugins.
+- [x] Uses external JsonHandler for actions.
+- [x] Handles JSON parsing errors gracefully.
 
 ---
 
-## 16.4 Technical Implementation
+## 3. UI/UX Design (CardService)
 
-### 16.4.1 Architecture (MVC Pattern)
+The UI is built using Google Apps Script's CardService, rendering a collapsible section with buttons. It integrates into other cards via WelcomeSection. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
 
-- **Controller:** `Load(e)` renders card; actions process JSON.
-- **View:** `HomeCard(data)` builds card.
-- **Service/Model:** Placeholder; no API or sheet interactions yet.
+### 3.1 Card Flow
 
-### 16.4.2 Data Interactions
+1. **Display**: Appears in collapsible sections of other plugins.
+2. **Action**: User clicks buttons to trigger JSON operations.
+3. **Feedback**: Results shown in notifications or new cards.
 
-- **None:** Static UI, no data persistence.
+### 3.2 Widget Specifications
+
+**WelcomeSection (`Plugins.JsonTools.WelcomeSection`):**
+
+- **Header:** "🪚 Useful JSON Tools"
+- **Widgets:** DecoratedText with description, TextButtons for Beautify, Minify, Validate.
+- **Collapsible:** Yes, with 2 uncollapsible widgets.
 
 ---
 
-## 16.5 Configuration & Security
+## 4. Technical Implementation
 
-- **Manifest:** Accessible via Home (placeholder).
-- **Security:** No sensitive data.
+### 4.1 Architecture (MVC Pattern)
+
+- **Controller:** Relies on external `JsonHandler.View` for actions.
+- **View:** `Plugins.JsonTools.WelcomeSection` for building the section.
+- **Service/Model:** Integrates with other plugins; no direct API calls.
+
+### 4.2 Data Interactions
+
+**External Handlers:**
+
+- Beautify: `JsonHandler.View.BeautifyJson`
+- Minify: `JsonHandler.View.MinifyJson`
+- Validate: `JsonHandler.View.ValidateJson`
 
 ---
 
-## 16.6 Edge Cases & Error Handling
+## 5. Configuration & Security
 
-- **Invalid JSON:** Shows error message.
-- **Empty Input:** No-op.
-- **Large JSON:** Handles gracefully (placeholder).
+### 5.1 AppScript Manifest (`appsscript.json`)
+
+- **Scopes:** None additional; relies on existing.
+
+### 5.2 Security Considerations
+
+- No sensitive data; processes user-provided JSON.
+- External handlers handle validation.
+
+---
+
+## 6. Edge Cases & Error Handling
+
+- **Invalid JSON:** Handled by external handlers; shows notifications.
+- **Large Data:** Limited by CardService constraints.
+- **No Data:** Prompts user input.

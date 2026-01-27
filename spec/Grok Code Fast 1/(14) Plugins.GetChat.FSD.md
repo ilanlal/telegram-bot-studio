@@ -1,91 +1,101 @@
-# 14. Plugin-Specific FSD: Plugins.GetChat
+# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.GetChat
 
-## 14.1 Feature Overview
+## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Plugins.GetChat |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
+| **Feature Name** | Telegram Bot Studio GetChat Plugin |
+| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.GetChat` |
 | **Priority** | High |
 | **Status** | Completed |
 
-### 14.1.1 Summary
+### 1.1 Summary
 
-The `Plugins.GetChat` object implements the Get Chat plugin for Telegram Bot Studio. It fetches and displays detailed information about a specific chat (user, group, or channel) using the Telegram `getChat` API, allowing users to inspect chat properties and export data.
+The `Plugins.GetChat` object implements chat inspection for Telegram Bot Studio, a Google Workspace add-on. It fetches and displays details about users, groups, or channels using the `getChat` API, providing identity and properties in a user-friendly interface.
 
 ---
 
-## 14.2 User Stories & Rationale
+## 2. User Stories & Rationale
 
 **As a** Bot Developer  
-**I want to** retrieve details about a specific chat  
-**So that** I can inspect user, group, or channel information for debugging or management.
+**I want to** inspect chat details  
+**So that** I can understand user/group/channel information.
 
 **As a** Google Workspace User  
-**I want to** search chats by ID or username  
-**So that** I can easily access chat details without manual API calls.
+**I want to** view chat properties  
+**So that** I can manage bot interactions effectively.
 
-### 14.2.1 Acceptance Criteria
+### 2.1 Acceptance Criteria
 
-- [x] HomeCard loads with search input for chat ID/username.
-- [x] Search action calls `getChat` API and displays results.
-- [x] Shows chat type, title/ID, username if available.
-- [x] Includes export widget and raw JSON section.
-- [x] Refresh button to reload data.
-- [x] Errors logged and shown as notifications.
-- [x] Requires valid token; shows connection status.
+- [x] Fetches chat info via `getChat` API.
+- [x] Displays identity (name, ID, type).
+- [x] Shows properties in grids.
+- [x] Includes export and search options.
+- [x] Handles API errors gracefully.
 
 ---
 
-## 14.3 UI/UX Design (CardService)
+## 3. UI/UX Design (CardService)
 
-The UI uses CardService for a card with search input, identity section, and raw data. Icons use Material Icons. Colors from `Plugins.primaryColor()`.
+The UI is built using Google Apps Script's CardService, rendering a search and results card. The plugin uses a single HomeCard with sections for search and results. Navigation pushes the card and updates on search. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
 
-### 14.3.1 Card Flow
+### 3.1 Card Flow
 
-1. **Load:** Shows search input.
-2. **Search:** Calls API, builds result sections.
-3. **Display:** Shows identity, properties, export, raw JSON.
-4. **Refresh:** Reloads data on button click.
+1. **Entry Point:** User selects GetChat; pushes card.
+2. **Search:** User enters chat ID/username.
+3. **Display:** Shows chat identity and properties.
+4. **Export:** Dumps results to sheet.
 
-### 14.3.2 Widget Specifications
+### 3.2 Widget Specifications
 
-**HomeCard (`Plugins.GetChat.View.HomeCard`):**
+**Home Card (`Plugins.GetChat.View.HomeCard`):**
 
-- **Header:** Title: "Chat Inspector", Subtitle: short_description, Image: DEFAULT_IMAGE_URL.
+- **Header:** Title: "Chat Inspector", Subtitle: "User, Group & Channel details", Image: Logo.
 - **Section 1:** Search input for chat ID/username.
-- **Section 2 (Conditional):** Identity Profile (type, title, ID, username).
-- **Section 3 (Conditional):** `BuildResultSection` (properties grid, raw JSON, export widget).
-- **Footer:** Primary button "Search Chat".
+- **Section 2:** Identity display (name, ID, type).
+- **Section 3:** Properties grid.
+- **Section 4:** Raw JSON and export widget.
+- **Footer:** Search button.
 
 ---
 
-## 14.4 Technical Implementation
+## 4. Technical Implementation
 
-### 14.4.1 Architecture (MVC Pattern)
+### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Load(e)` calls `TelegramBotClient.getChat()`, builds card with result.
-- **View:** `HomeCard(data, result)` constructs card.
-- **Service/Model:** Uses `TelegramBotClient` for API; logs to TerminalOutput.
+- **Controller:** `Plugins.GetChat.Controller` with `Load(e)` for rendering and API calls.
+- **View:** `Plugins.GetChat.View` with `HomeCard(data, result)` for building the card.
+- **Service/Model:** Integrates with `TelegramBotClient` for `getChat`, `PropertiesService` for tokens.
 
-### 14.4.2 Data Interactions
+### 4.2 Data Interactions
 
-- **Telegram API:** `getChat` with chat ID/username.
-- **PropertiesService:** Reads token for API call.
-- **SpreadsheetApp:** Logs events; exports via widget.
+**Telegram API (`UrlFetchApp`):**
 
----
+- **Endpoints:** `https://api.telegram.org/bot<token>/getChat`.
+- **Response:** Parsed for chat details.
 
-## 14.5 Configuration & Security
+**Sheet Export:**
 
-- **Manifest:** Accessible via Home grid.
-- **Security:** Token used securely; no sensitive data exposed.
+- Via `Plugins.ExportApiResultWidget`.
 
 ---
 
-## 14.6 Edge Cases & Error Handling
+## 5. Configuration & Security
 
-- **No Token:** Shows error notification.
-- **Invalid Chat ID:** API returns error; shows notification.
-- **No Result:** Card loads with empty sections.
-- **Network Error:** Logged and notified.
+### 5.1 AppScript Manifest (`appsscript.json`)
+
+- **Scopes:** `https://www.googleapis.com/auth/script.external_request` for API calls.
+
+### 5.2 Security Considerations
+
+- Tokens retrieved securely from PropertiesService.
+- No sensitive data exposed in UI.
+
+---
+
+## 6. Edge Cases & Error Handling
+
+- **No Token:** Throws error; prompts connection.
+- **Invalid Chat ID:** API error; shows notification.
+- **Network Failures:** Logged and notified.
+- **No Results:** Shows search form only.
