@@ -1,5 +1,5 @@
-require('../../tests');
-const { Plugins } = require('../Plugins');
+require('.');
+const { Plugins } = require('../src/Plugins');
 
 describe('Plugins JsonTools', () => {
     it('should have required properties', () => {

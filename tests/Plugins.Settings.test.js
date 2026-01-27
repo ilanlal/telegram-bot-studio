@@ -1,5 +1,5 @@
-require('../../tests');
-const { Plugins } = require('../Plugins');
+require('.');
+const { Plugins } = require('../src/Plugins');
 
 describe('Plugins.Settings', () => {
     describe('Settings Plugin', () => {
