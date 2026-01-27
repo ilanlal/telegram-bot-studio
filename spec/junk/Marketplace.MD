@@ -37,13 +37,10 @@ Here is the context of the files involved:
 The appsscript.json file define the manifest for my google workspace addons.
 The src/config/Plugins.js file is the code that implement that addons.
 
-Your task is to create a demo video for the Google verification process. Verification video should be around 2-3 minutes long, clearly demonstrating:
+Your task is to create a demo video for the Google verification process. clearly demonstrating:
 
-- The installation process of the add-on from the Google Workspace Marketplace.
 - Navigating to the add-on within Google Sheets.
-- Opening the add-on sidebar.
-- Connecting a bot to prove the functionality works.
-- Showing how the add-on uses the requested OAuth scopes.
+- Setting up a bot connection within the add-on.
 - How the specific scopes are used (e.g., show the add-on writing to the sheet to justify spreadsheets.currentonly).
 
 Subtasks for screenshot creation:
