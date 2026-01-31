@@ -39,9 +39,9 @@ The src/config/Plugins.js file is the code that implement that addons.
 
 Your task is to create a demo video for the Google verification process. clearly demonstrating:
 
-- Navigating to the add-on within Google Sheets.
-- Setting up a bot connection within the add-on.
-- How the specific scopes are used (e.g., show the add-on writing to the sheet to justify spreadsheets.currentonly).
+- Navigating to the add-on within Google Sheets from sidebar.
+- Setting up a bot connection (token) within the add-on. show the add-on connecting to a Telegram bot using a token. is the justify for the script.external_requests scope.
+- Export response. How the specific scopes are used to justify spreadsheets.currentonly.
 
 Subtasks for screenshot creation:
 
