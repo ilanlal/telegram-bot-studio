@@ -2,6 +2,7 @@
 
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green)](https://opensource.org/licenses/MIT)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Verification Video (YouTube)](https://img.shields.io/badge/Video-YouTube-red)](https://youtu.be/5RoAHWJ1Ye8)
 
 A **open source** template for building **add-ons** for Telegram Bot Studio (TBS) using Google Apps Script. This project provides a structured framework to develop and integrate custom plugins into Telegram Bot Studio, enabling enhanced functionality for Telegram bots within Google Sheets.
 
@@ -35,6 +36,11 @@ A **open source** template for building **add-ons** for Telegram Bot Studio (TBS
 - Deploy to Google Apps Script as needed.
 
 Refer to the [Functional Specification Document](./spec/README.md) for detailed plugin guides.
+
+## Roadmap
+
+- Expand the library of add-ons.
+- Improve testing coverage.
 
 ## Contributing
 
