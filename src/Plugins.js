@@ -46,7 +46,7 @@ Plugins.Package = {
     short_description: 'A suite of tools for building Telegram Bots on Google Workspace.',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.0',
-    build: '20260127.024600',
+    build: '20260202.01190',
     author: 'Ilan Laloum',
     license: 'MIT',
     imageUrl: Plugins.Media.LOGO_PNG_URL,
@@ -1332,12 +1332,11 @@ Plugins.UserProfile = {
     },
     View: {
         HomeCard: (data = {}) => {
-            const userEmail = Session.getActiveUser().getEmail();
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.UserProfile.id + '-Home')
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Account Overview')
-                    .setSubtitle(userEmail)
+                    .setSubtitle('Manage your profile & membership')
                     .setImageStyle(CardService.ImageStyle.SQUARE)
                     .setImageUrl(Plugins.Media.YOU_GOT_IT_IMG_URL)
                     .setImageAltText('User Profile Avatar'));
