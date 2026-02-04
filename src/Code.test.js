@@ -1,5 +1,5 @@
 require('../tests');
-const { doGet, onOpen, onInstall, doPost } = require('./Code');
+const { doGet, onOpen, onInstall } = require('./Code');
 
 describe('doGet', () => {
     it('should run doGet message handler', () => {
