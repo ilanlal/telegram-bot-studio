@@ -20,28 +20,29 @@ Usage: This is displayed on the "User Profile" card solely to confirm which acco
 
 3. Data Protection Mechanisms
 We implement robust security measures to protect your sensitive data, including:
+
 - Encryption: All data transmissions to and from the Telegram API are conducted over HTTPS, ensuring encrypted communication. Sensitive data like Bot Tokens are stored in encrypted form within Google's secure infrastructure.
 - Access Controls: Data stored in your Google account is accessible only to you and cannot be viewed or accessed by us or third parties without your explicit authorization. We do not have access to your stored data.
 - Secure Storage: Bot Tokens and other sensitive information are stored using Google's PropertiesService, which employs industry-standard security practices to prevent unauthorized access.
 - Compliance: We adhere to Google's data security standards and do not retain sensitive data longer than necessary. All operations comply with applicable privacy laws and regulations.
 
-4. Data Sharing and Third-Party Services
+1. Data Sharing and Third-Party Services
 Telegram API: The Add-on communicates directly with <https://api.telegram.org> to fetch bot data and manage webhooks. Your Bot Token and any data you choose to send (e.g., message content) are transmitted securely to Telegram.
 Google Services: The Add-on runs on Google Apps Script infrastructure. Google collects operational data (like execution logs) as per the Google Cloud Privacy Notice.
 No Other Third Parties: We do not sell, trade, or transfer your data to outside parties.
 
-5. Data Retention
+2. Data Retention
 Bot Tokens: Your Bot Token remains stored in your User Properties until you explicitly click the "Disconnect" button in the Add-on, which deletes the property.
 Logs: Data written to the "💻 Terminal Output" sheet remains in your Google Sheet until you manually delete the rows or the sheet itself.
 
-6. User Rights and Control
+3. User Rights and Control
 Revoke Access: You can revoke the Add-on's access to your Google Account at any time via the Google Security Checkup.
 Delete Data: You can delete your stored Bot Token by using the "Disconnect" feature within the Add-on's "Connection" card.
 
-7. Changes to This Policy
+4. Changes to This Policy
 We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
 
-8. Contact Us
+5. Contact Us
 If you have any questions about this Privacy Policy, please contact us at:
 Developer: Ilan Laloum
 Website: <https://easyadm.com>
