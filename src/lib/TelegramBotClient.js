@@ -1,10 +1,8 @@
 /**
- * @version 3.0.0
+ * @version 4.0.0
  * @file TelegramBotClient.gs
  * @author Ilan Laloum <ilanlal@gmail.com> (https://github.com/ilanlal)
  * @license MIT
- * 
- * @description Telegram Bot Client for Google Apps Script
  * 
  * @see https://github.com/ilanlal/telegram-bot-studio
  */
@@ -52,8 +50,16 @@ class TelegramBotClient {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#setmycommands
-   */
+  * Set the list of the bot's commands. See https://core.telegram.org/bots/api#botcommand for details on the command structure.
+  * @param {Object} params - The parameters for setting the bot's commands.
+  * @param {Array} params.commands - The list of commands to set.
+  * @param {string} [params.language_code] - The language code for the commands.
+  * @param {Object} [params.scope] - The scope of the commands.
+  * @see https://core.telegram.org/bots/api#setmycommands
+  * @throws {Error} If the commands parameter is empty.
+  * @returns {HTTPResponse} The response from the API.
+  *
+  */
   setMyCommands({ commands = [], language_code, scope }) {
     if (commands.length === 0) {
       throw new Error("commands is required!");
@@ -134,11 +140,20 @@ class TelegramBotClient {
     return UrlFetchApp.fetch(url);
   }
 
+  /**
+   * @see https://core.telegram.org/bots/api#getbusinessconnection
+   **/
   getBusinessConnection(business_connection_id) {
     const url = `${this.getApiBaseUrl()}/getBusinessConnection?business_connection_id=${business_connection_id}`;
     return UrlFetchApp.fetch(url);
   }
 
+  /**
+   * Executes a custom API request to the Telegram Bot API.
+   * @param {string} uriAction - The API method to call.
+   * @param {Object} [payload] - The payload for the API request.
+   * @returns {HTTPResponse} The response from the API.
+   **/
   executeApiRequest(uriAction, payload) {
     const url = this.apiBaseUrl + '/' + uriAction;
 
