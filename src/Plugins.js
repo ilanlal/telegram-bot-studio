@@ -1,14 +1,5 @@
 // src/config/Plugins.js
 class Plugins {
-    get pluginList() {
-        return [
-            'Plugins.GetMe',
-            'Plugins.GetChat',
-            'Plugins.Webhook'
-            //Plugins.JsonTools
-        ];
-    }
-
     static primaryColor() {
         return '#1976d2';
     }
@@ -53,6 +44,87 @@ Plugins.Package = {
     gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
 };
 
+Plugins.PROPERTIES = {
+    get responseMimeType_selector() {
+        return 'responseMimeType_selector';
+    },
+    get topP_text_input() {
+        return 'top_p_text_input';
+    },
+    get topK_text_input() {
+        return 'top_k_text_input';
+    },
+    get temperature_text_input() {
+        return 'temperature_text_input';
+    },
+    get indentation_spaces() {
+        return 'indentation_spaces';
+    },
+    get show_errors_switch() {
+        return 'show_errors_switch';
+    },
+    get highlight_color() {
+        return 'highlight_color';
+    },
+    get terminal_output_switch() {
+        return 'terminal_output_switch';
+    },
+    get focus_terminal_output() {
+        return 'focus_terminal_output';
+    },
+    get ignore_whitespace_switch() {
+        return 'ignore_whitespace_switch';
+    },
+    get prompt_text_input() {
+        return 'prompt_text_input';
+    },
+    get gemini_api_key() {
+        return 'GEMINI_API_KEY';
+    },
+    get gemini_model_selector() {
+        return 'GEMINI_MODEL_SELECTOR';
+    },
+    get txt_bot_api_token() {
+        return 'txt_bot_api_token';
+    },
+    get chk_export_token_to_sheet() {
+        return 'chk_export_token_to_sheet';
+    },
+    get txt_bot_friendly_name() {
+        return 'txt_bot_friendly_name';
+    },
+    get txt_bot_username() {
+        return 'txt_bot_username';
+    },
+    get txt_api_endpoint_url() {
+        return 'txt_api_endpoint_url';
+    },
+    get secret_private_key() {
+        return 'secret_private_key';
+    },
+    get praittfy_json() {
+        return 'praittfy_json';
+    },
+    get txt_search_chat_id() {
+        return 'txt_search_chat_id';
+    },
+    get txt_webhook_url() {
+        return 'txt_webhook_url';
+    },
+    get txt_ip_address() {
+        return 'txt_ip_address';
+    },
+    get txt_max_connections() {
+        return 'txt_max_connections';
+    },
+    get txt_secret_token() {
+        return 'txt_secret_token';
+    },
+    get drop_pending_updates() {
+        return 'drop_pending_updates';
+    }
+};
+
 Plugins.Modules = {
     App: {
         get MEMBERSHIP_PROPERTY_KEY() {
@@ -81,6 +153,7 @@ Plugins.Modules = {
     },
     Sheet: {
         INVALID_MODEL_ERROR: 'Sheet model must have a valid name property',
+        DUMP_SHEET_NAME: '📥 Data',
 
         initializeSheet(activeSpreadsheet, sheetMeta = {}) {
             if (!sheetMeta.name) {
@@ -160,6 +233,15 @@ Plugins.Modules = {
             sheet.setActiveSelection(lastRowA1Notation);
 
             return sheet;
+        },
+
+        dumpReportToSheet(activeSpreadsheet, sheetName, range = 'A1', report = []) {
+            const sheetMeta = {
+                name: Plugins.Modules.Sheet.DUMP_SHEET_NAME,
+                columns: ['Timestamp', 'Index', 'Sheet', 'Range', 'Cell', 'Error', 'Details']
+            };
+
+            return this.dumpObjectToSheet(activeSpreadsheet, sheetMeta, 'Report Dump', `Dumping report to sheet ${sheetName} range ${range}`, report);
         }
     },
     TerminalOutput: class {
@@ -175,11 +257,11 @@ Plugins.Modules = {
 
             // Check if terminal output is enabled
             const terminalOutputEnabled = PropertiesService.getUserProperties()
-                .getProperty('terminal_output_switch') || 'OFF';
+                .getProperty(Plugins.PROPERTIES.terminal_output_switch) || 'OFF';
 
             // Check if terminal output is enabled
             const focusTerminalOutput = PropertiesService.getUserProperties()
-                .getProperty('focus_terminal_output') || 'OFF';
+                .getProperty(Plugins.PROPERTIES.focus_terminal_output) || 'OFF';
 
             if (terminalOutputEnabled !== 'ON') {
                 return;
@@ -213,6 +295,266 @@ Plugins.Modules = {
             const lastRowA1Notation = `A${lastRow}:G${lastRow}`;
             sheet.setActiveSelection(lastRowA1Notation);
             return sheet;
+        }
+    },
+    GeminiConsole: class {
+        static get SHEET_META() {
+            return {
+                name: '💻 Gemini Console',
+                columns: ['Timestamp', 'Prompt', 'Generated Text', 'Model Version',
+                    'Event Object', 'Payload', 'Response', 'Total Token Count', 'Prompt Token Count', 'Thoughts Token Count',
+                    'Cached Content Token Count', 'Candidates Token Count', 'Tool Use Prompt Token Count']
+            };
+        }
+
+        static write(
+            activeSpreadsheet, e, payload, response) {
+
+            // Check if terminal output is enabled
+            const terminalOutputEnabled = PropertiesService.getUserProperties()
+                .getProperty(Plugins.PROPERTIES.terminal_output_switch) || 'ON';
+
+            // Check if focusing terminal output is enabled
+            const focusTerminalOutput = PropertiesService.getUserProperties()
+                .getProperty(Plugins.PROPERTIES.focus_terminal_output) || 'ON';
+
+            if (terminalOutputEnabled !== 'ON') {
+                return;
+            }
+
+            const sheet = Plugins.Modules.Sheet
+                .getSheet(activeSpreadsheet, Plugins.Modules.GeminiConsole.SHEET_META);
+
+            sheet.appendRow([
+                // Created On as iso string
+                new Date().toISOString(),
+                // Prompt (if available in payload)
+                payload?.contents?.[0]?.parts?.[0]?.text || '',
+                // Generated Text (if available in response) ({"candidates":[{"content":{"parts":[{"text": "generated text here"}]}}]})
+                response?.candidates?.[0]?.content?.parts?.[0]?.text || '',
+                // Model Version (if available in response, otherwise use input model or default to 'unknown')
+                response?.modelVersion || 'unknown',
+                // Event Object
+                (typeof e === 'object' || Array.isArray(e)) ? JSON.stringify(e) : String(e || ''),
+                // Payload
+                (typeof payload === 'object' || Array.isArray(payload)) ? JSON.stringify(payload) : String(payload || ''),
+                // Response
+                (typeof response === 'object' || Array.isArray(response)) ? JSON.stringify(response) : String(response || ''),
+                // Total Token Count (if available in response.usageMetadata)
+                response?.usageMetadata?.totalTokenCount || 0,
+                // Prompt Token Count (if available in response.usageMetadata)
+                response?.usageMetadata?.promptTokenCount || 0,
+                // Thoughts Token Count (if available in response.usageMetadata)
+                response?.usageMetadata?.thoughtsTokenCount || 0,
+                // cachedContentTokenCount (if available in response.usageMetadata)
+                response?.usageMetadata?.cachedContentTokenCount || 0,
+                // candidatesTokenCount (if available in response.usageMetadata)
+                response?.usageMetadata?.candidatesTokenCount || 0,
+                // toolUsePromptTokenCount (if available in response.usageMetadata)
+                response?.usageMetadata?.toolUsePromptTokenCount || 0
+            ]);
+
+            // Focus the last row if enabled
+            if (focusTerminalOutput !== 'ON') {
+                return sheet;
+            }
+
+            // Set active selection to the last row
+            const lastRow = sheet.getLastRow();
+            const lastRowA1Notation = `A${lastRow}:${sheet.getLastColumn()}${lastRow}`;
+            sheet.setActiveSelection(lastRowA1Notation);
+            return sheet;
+        }
+    },
+    LoggerModel: class {
+        static get SHEET_META() {
+            return {
+                name: 'Event Logs',
+                columns: ['Timestamp', 'Source', 'Message', 'Event Object', 'More Info']
+            };
+        }
+
+        static write(
+            activeSpreadsheet, source, message, e, param1, param2, param3) {
+
+            // Check if webhook event logging is enabled
+            const webhookEventLoggingEnabled = PropertiesService.getUserProperties()
+                .getProperty('webhook_event_logging_switch') || 'OFF';
+
+            if (webhookEventLoggingEnabled !== 'ON') {
+                return;
+            }
+
+            const sheet = Plugins.Modules.Sheet
+                .getSheet(activeSpreadsheet, Plugins.Modules.LoggerModel.SHEET_META);
+
+            sheet.appendRow([
+                // Created On as iso string
+                new Date().toISOString(),
+                // source
+                source, // chat side
+                // Message
+                (typeof message === 'object' || Array.isArray(message)) ? JSON.stringify(message) : String(message || ''),
+                // Event Object
+                (typeof e === 'object' || Array.isArray(e)) ? JSON.stringify(e) : String(e || ''),
+                // Details 
+                (typeof param1 === 'object' || Array.isArray(param1)) ? JSON.stringify(param1) : String(param1 || ''),
+                (typeof param2 === 'object' || Array.isArray(param2)) ? JSON.stringify(param2) : String(param2 || ''),
+                (typeof param3 === 'object' || Array.isArray(param3)) ? JSON.stringify(param3) : String(param3 || '')
+            ]);
+
+            return sheet;
+        }
+    },
+    JsonStudio: class {
+        static get MAX_PROCESS_CELLS() {
+            return 100;
+        }
+
+        static beautifyActiveRange(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), indentationSpaces = 2, ignoreWhitespace = true) {
+            const activeRange = activeSpreadsheet.getActiveSheet().getActiveRange();
+            const report = [];
+
+            // Ensure we do not exceed max process cells
+            if (activeRange.getNumRows() * activeRange.getNumColumns() > this.MAX_PROCESS_CELLS) {
+                throw new Error(`Selected range exceeds the maximum allowed cells (${this.MAX_PROCESS_CELLS}). Please select a smaller range.`);
+            }
+
+            // for each cell in range, beautify JSON
+            activeRange.getValues().forEach((row, i) => {
+                row.forEach((cell, j) => {
+                    try {
+                        // if cell is empty after cleaning, skip
+                        if (ignoreWhitespace && this.trimValue(cell) === '') {
+                            return; // Skip empty cells
+                        }
+                        const beautifiedJson = JSON.stringify(
+                            JSON.parse(cell),
+                            null,
+                            indentationSpaces
+                        );
+                        activeRange.getCell(i + 1, j + 1).setValue(beautifiedJson);
+                    } catch (error) {
+                        // Handle JSON parsing error if needed
+                        report.push({
+                            a1n: activeRange.getCell(i + 1, j + 1).getA1Notation(),
+                            sheetName: activeSpreadsheet.getActiveSheet().getName(),
+                            error: error.message
+                        });
+                    }
+                });
+            });
+
+            return { range: activeRange, report };
+        }
+
+        static minifyActiveRange(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), ignoreWhitespace = true) {
+            const activeRange = activeSpreadsheet.getActiveSheet().getActiveRange();
+            const report = [];
+            // Ensure we do not exceed max process cells
+            if (activeRange.getNumRows() * activeRange.getNumColumns() > this.MAX_PROCESS_CELLS) {
+                throw new Error(`Selected range exceeds the maximum allowed cells (${this.MAX_PROCESS_CELLS}). Please select a smaller range.`);
+            }
+            // for each cell in range, minify JSON
+            activeRange.getValues().forEach((row, i) => {
+                row.forEach((cell, j) => {
+                    try {
+                        // if cell is empty after cleaning, skip
+                        if (ignoreWhitespace && this.trimValue(cell) === '') {
+                            return; // Skip empty cells
+                        }
+                        const minifiedJson = JSON.stringify(JSON.parse(cell));
+                        activeRange.getCell(i + 1, j + 1).setValue(minifiedJson);
+                    } catch (error) {
+                        // Handle JSON parsing error if needed
+                        report.push({
+                            a1n: activeRange.getCell(i + 1, j + 1).getA1Notation(),
+                            sheetName: activeSpreadsheet.getActiveSheet().getName(),
+                            error: error.message
+                        });
+                    }
+                });
+            });
+
+            return { range: activeRange, report };
+        }
+
+        static validateActiveRange(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), ignoreWhitespace = true) {
+            const activeRange = activeSpreadsheet.getActiveSheet().getActiveRange();
+            const report = [];
+            // Ensure we do not exceed max process cells
+            if (activeRange.getNumRows() * activeRange.getNumColumns() > this.MAX_PROCESS_CELLS) {
+                throw new Error(`Selected range exceeds the maximum allowed cells (${this.MAX_PROCESS_CELLS}). Please select a smaller range.`);
+            }
+            // for each cell in range, validate JSON
+            activeRange.getValues().forEach((row, i) => {
+                row.forEach((cell, j) => {
+                    try {
+                        // if cell is empty after cleaning, skip
+                        if (ignoreWhitespace && this.trimValue(cell) === '') {
+                            return; // Skip empty cells
+                        }
+                        JSON.parse(cell);
+                    } catch (error) {
+                        report.push({
+                            a1n: activeRange.getCell(i + 1, j + 1).getA1Notation(),
+                            sheetName: activeSpreadsheet.getActiveSheet().getName(),
+                            error: error.message
+                        });
+                    }
+                });
+            });
+
+            return { range: activeRange, report };
+        }
+
+        static trimValue(value) {
+            if (typeof value === 'string') {
+                return value.trim()
+                    .replace(/^\uFEFF/, '') // Remove BOM if present
+                    .replace(/\n/g, '') // Remove newlines
+                    .replace(/\s+/g, ''); // Remove all whitespace
+            }
+            return value;
+        }
+    },
+    GeminiAPI: class {
+        static get MODELS() {
+            return {
+                'gemini-3-flash-preview': 'gemini-3-flash-preview',
+                'gemini-2.5-pro': 'gemini-2.5-pro'
+            };
+        }
+
+        static get API_ENDPOINT_URL() {
+            return 'https://generativelanguage.googleapis.com/v1beta/models/';
+        }
+
+        /**
+         * Generates content using the Gemini API.
+         * @param {string} apiKey - The API key for authentication.
+         * @param {string} model - The model name to use for content generation.
+         * @param {{}} payload - The payload to send in the request.
+         * @returns {{}} - The response content from the Gemini API.
+         * @throws {Error} - If the API request fails.
+         */
+        static generateContent(apiKey, model, payload) {
+            const url = `${this.API_ENDPOINT_URL}${model}:generateContent`;
+            const options = {
+                method: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'x-goog-api-key': apiKey,
+                },
+                payload: JSON.stringify(payload)
+            };
+
+            const response = UrlFetchApp.fetch(url, options);
+            if (response.getResponseCode() === 200) {
+                return JSON.parse(response.getContentText());
+            } else {
+                throw new Error(`Gemini API request failed with status ${response.getResponseCode()}: ${response.getContentText()}`);
+            }
         }
     }
 };
@@ -386,7 +728,7 @@ Plugins.Home = {
     },
     View: {
         HomeCard: (data = {}) => {
-            data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
+            data.txt_bot_api_token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token) || '';
             data.isConnected = !!data.txt_bot_api_token;
 
             const cardBuilder = CardService.newCardBuilder()
@@ -402,77 +744,24 @@ Plugins.Home = {
             cardBuilder.addSection(
                 Plugins.Connection.View.WelcomeSection(data));
 
-            // 2. Main Plugin Hub - Professional Grid-like feel
-            const pluginHub = CardService.newCardSection()
-                .setHeader('🛠️ Available Plugins')
-                .setCollapsible(false);
+            // Advanced Sections
+            cardBuilder.addSection(Plugins.Home.View._BuildAdvancedSettingsSection(data));
 
-            [
-                'Plugins.GetMe',
-                'Plugins.GetChat',
-                'Plugins.Webhook'
-                //Plugins.JsonTools
-            ].forEach((PluginPath) => {
-                const plugin = Plugins[PluginPath.split('.')[1]];
-                const decoratedText = CardService.newDecoratedText()
-                    .setText(plugin.name)
-                    .setBottomLabel(plugin.short_description)
-                    .setStartIcon(CardService.newIconImage().setIconUrl(plugin.imageUrl))
-                    .setWrapText(true)
-                    .setButton(
-                        CardService.newTextButton()
-                            .setText('Open')
-                            .setDisabled(!data.isConnected)
-                            .setOnClickAction(
-                                CardService.newAction()
-                                    .setFunctionName(`${PluginPath}.Controller.Load`)
-                            )
-                    );
+            // Plugin Hub Section
+            cardBuilder.addSection(Plugins.Home.View._BuildPluginHubSection(data));
 
-                pluginHub.addWidget(decoratedText);
-            });
+            // Quick Access Section
+            cardBuilder.addSection(Plugins.Home.View._BuildQuickAccessSection(data));
 
-            cardBuilder.addSection(pluginHub);
-
-            // 3. System Quick Actions (Professional Footer Section)
-            cardBuilder.addSection(CardService.newCardSection()
-                .setHeader('⚙️ Quick Access')
-                .setCollapsible(true)
-                .addWidget(CardService.newButtonSet()
-                    .addButton(CardService.newTextButton()
-                        .setText('Settings')
-                        .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Settings.Controller.Load')))
-                    .addButton(CardService.newTextButton()
-                        .setText('Help')
-                        .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Home.Controller.Help')))
-                    .addButton(CardService.newTextButton()
-                        .setText('About')
-                        .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Home.Controller.About')))
-                ));
-
-            // 4. Premium Call-to-Action (Only if not premium)
+            // Premium Membership Section
             if (!data.isPremium) {
-                const premiumSection = CardService.newCardSection()
-                    .addWidget(CardService.newDecoratedText()
-                        .setTopLabel('Premium Status')
-                        .setText('Free Membership')
-                        .setStartIcon(CardService.newIconImage().setMaterialIcon(
-                            CardService.newMaterialIcon().setName('workspace_premium')))
-                        .setBottomLabel('Upgrade to unlock automation & priority support.'));
-
-                cardBuilder.addSection(premiumSection);
-
+                cardBuilder.addSection(Plugins.Home.View._BuildPremiumMembershipSection(data));
                 cardBuilder.setFixedFooter(CardService.newFixedFooter()
                     .setPrimaryButton(CardService.newTextButton()
                         .setText('💎 Upgrade to Premium')
                         .setBackgroundColor(Plugins.primaryColor())
-                        //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.UserProfile.Controller.Load')))
-                );
+                            .setFunctionName('Plugins.UserProfile.Controller.Load'))));
             }
 
             return cardBuilder.build();
@@ -579,6 +868,136 @@ Plugins.Home = {
                     .setOpenLink(CardService.newOpenLink()
                         .setUrl(`${Plugins.Package.gitRepository}/issues`))));
             return cardBuilder.build();
+        },
+        _BuildPluginHubSection: (data = {}) => {
+            const listOfTools = [
+                { name: 'Generate Content', emoji: '🎨', description: 'Create new content using AI.', icon: 'auto_awesome', action: 'Plugins.GenerateContent.Controller.Load' },
+                { name: 'Webhook', emoji: '🔗', description: 'Telegram webhook integration.', icon: 'link', action: 'Plugins.Webhook.Controller.Load' },
+                { name: 'Get Me', emoji: '👤', description: 'Verify bot connection and info.', icon: 'account_circle', action: 'Plugins.GetMe.Controller.Load' },
+                { name: 'Get Chat', emoji: '💬', description: 'Fetch chat details and status.', icon: 'chat', action: 'Plugins.GetChat.Controller.Load' }
+            ];
+            const pluginHub = CardService.newCardSection()
+                .setHeader('🛠️ Available Tools')
+                .setCollapsible(false);
+
+            // Add divider
+            pluginHub.addWidget(CardService.newDivider());
+
+            // Add each tool as a decorated text with an action button
+            listOfTools.forEach(tool => {
+                const decoratedText = CardService.newDecoratedText()
+                    .setText(`${tool.emoji} ${tool.name}`)
+                    .setBottomLabel(tool.description)
+                    .setWrapText(true)
+                    .setButton(
+                        CardService.newTextButton()
+                            .setText(tool.name)
+                            .setAltText(`${tool.name} JSON within selected cells`)
+                            .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+                            .setMaterialIcon(
+                                CardService.newMaterialIcon()
+                                    .setName(tool.icon)
+                                    .setFill(false)
+                            )
+                            .setOnClickAction(
+                                CardService.newAction()
+                                    .setFunctionName(`${tool.action}`)
+                            )
+                    );
+
+                pluginHub.addWidget(decoratedText);
+            });
+
+            // Return the completed plugin hub section
+            return pluginHub;
+        },
+        _BuildQuickAccessSection: (data = {}) => {
+            return CardService.newCardSection()
+                .setHeader('⚙️ Quick Access')
+                .setCollapsible(true)
+                // add divider
+                .addWidget(CardService.newDivider())
+                .addWidget(CardService.newButtonSet()
+                    .addButton(CardService.newTextButton()
+                        .setText('Settings')
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.Settings.Controller.Load')))
+                    .addButton(CardService.newTextButton()
+                        .setText('Help & Support')
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.Home.Controller.Help')))
+                    .addButton(CardService.newTextButton()
+                        .setText('About')
+                        .setOnClickAction(CardService.newAction()
+                            .setFunctionName('Plugins.Home.Controller.About')))
+                );
+        },
+        _BuildAdvancedSettingsSection: (data = {}) => {
+            const advancedSection = CardService.newCardSection()
+                .setHeader('🔧 Advanced Settings')
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(0);
+
+            // Add a divider
+            advancedSection.addWidget(CardService.newDivider());
+            // add short info about indentation spaces
+            advancedSection.addWidget(CardService.newTextParagraph()
+                .setText('Select the number of spaces to use for JSON indentation when beautifying.'));
+
+            // Create a selection input for indentation levels
+            const indentationLevelSelector =
+                CardService.newSelectionInput()
+                    .setType(CardService.SelectionInputType.DROPDOWN)
+                    // Enable for premium users
+                    .setTitle('Code Indentation Spaces')
+                    .setFieldName(Plugins.PROPERTIES.indentation_spaces)
+                    .addItem('1 {.}', '1', data.indentation_spaces === 1)
+                    .addItem('2 {..} (default)', '2', data.indentation_spaces === 2) // Default selected
+                    .addItem('4 {....}', '4', data.indentation_spaces === 4)
+                    .addItem('6 {......}', '6', data.indentation_spaces === 6)
+                    .addItem('8 {........}', '8', data.indentation_spaces === 8);
+
+            // Add the selection input to the card section
+            advancedSection.addWidget(indentationLevelSelector);
+
+            // add divider
+            advancedSection.addWidget(CardService.newDivider());
+
+            // Create a decorated text with a switch for "Show Errors After Validation"
+            const showErrorsDecoratedText = CardService.newDecoratedText()
+                .setTopLabel('Show Errors After Validation')
+                .setBottomLabel('Toggle to display detailed error reports after action.')
+                .setWrapText(true)
+                .setStartIcon(
+                    CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon()
+                            .setName('error_outline')
+                    )
+                )
+                .setSwitchControl(
+                    CardService.newSwitch()
+                        .setFieldName(Plugins.PROPERTIES.show_errors_switch)
+                        .setValue('ON')
+                        .setSelected(data.show_errors_switch === 'ON')
+                        .setControlType(CardService.SwitchControlType.CHECK_BOX)
+                );
+
+            advancedSection.addWidget(showErrorsDecoratedText);
+            return advancedSection;
+        },
+        _BuildPremiumMembershipSection: (data = {}) => {
+            const membershipSection = CardService.newCardSection()
+                .setHeader('💎 Premium Membership')
+                .setCollapsible(false)
+                .addWidget(CardService.newDecoratedText()
+                    .setTopLabel('Membership Status')
+                    .setText(data.isPremium ? 'Premium Member' : 'Free Member')
+                    .setStartIcon(CardService.newIconImage().setMaterialIcon(
+                        CardService.newMaterialIcon().setName('workspace_premium')))
+                    .setBottomLabel(data.isPremium
+                        ? `Expires on: ${data.expiresAt ? data.expiresAt.toDateString() : 'N/A'} | Balance: $${data.balance.toFixed(2)}`
+                        : 'Upgrade to unlock advanced AI tools.'));
+            return membershipSection;
         }
     }
 };
@@ -706,13 +1125,11 @@ Plugins.ExportApiResultWidget = {
                 const sheetName = e?.commonEventObject?.parameters?.sheetName || 'Dump';
                 const action = e?.commonEventObject?.parameters?.action || 'Dump';
                 const botName = e?.commonEventObject?.parameters?.botName || 'Unknown Bot';
-                const data = e?.commonEventObject?.parameters?.data || '{}';
+                const data = e?.commonEventObject?.parameters?.data || '[]';
                 const result = JSON.parse(data);
 
-                const columns = ['timestamp', 'bot', 'action', 'object_data'];
                 // Dump data to sheet
-                Plugins.Modules.Sheet.dumpObjectToSheet(activeSpreadsheet,
-                    { name: sheetName, columns }, botName, action, result, praittfyJson === 'ON');
+                Plugins.Modules.Sheet.dumpReportToSheet(activeSpreadsheet, sheetName, 'A1', result);
 
                 // Return action response with notification
                 return CardService.newActionResponseBuilder()
@@ -768,7 +1185,7 @@ Plugins.Connection = {
     description: 'The Connection plugin allows you to manage and configure the connection settings for your Telegram bot. You can set up your bot token, test the connection, and ensure that your bot is properly connected to the Telegram API.',
     version: '1.0.0',
     imageUrl: Plugins.Media.WELCOME_IMG_URL,
-    Controller: {
+    _Controller: {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
@@ -821,7 +1238,7 @@ Plugins.Connection = {
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Connect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
 
                 // execute chk_export_token_to_sheet if needed
-                const exportTokenToSheet = e?.commonEventObject?.formInputs?.chk_export_token_to_sheet?.stringInputs?.value?.[0] === 'export_token';
+                const exportTokenToSheet = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.chk_export_token_to_sheet]?.stringInputs?.value?.[0] === 'export_token';
                 if (exportTokenToSheet) {
                     // Export the token to a designated sheet
                     const sheet = Plugins.Modules.Sheet;
@@ -834,9 +1251,9 @@ Plugins.Connection = {
                 }
 
                 // on success, store the token in user properties or user properties as needed
-                PropertiesService.getUserProperties().setProperty('txt_bot_api_token', inputToken);
-                PropertiesService.getUserProperties().setProperty('txt_bot_friendly_name', result.first_name);
-                PropertiesService.getUserProperties().setProperty('txt_bot_username', result.username);
+                PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.txt_bot_api_token, inputToken);
+                PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.txt_bot_friendly_name, result.first_name);
+                PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.txt_bot_username, result.username);
                 e.parameters = {
                     refresh: 'true'
                 };
@@ -891,7 +1308,7 @@ Plugins.Connection = {
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Connection.Disconnect', 'INFO', e, 'Disconnecting bot');
 
                 // Clear the stored token from user properties
-                PropertiesService.getUserProperties().deleteProperty('txt_bot_api_token');
+                PropertiesService.getUserProperties().deleteProperty(Plugins.PROPERTIES.txt_bot_api_token);
                 // Build and return the Home Card
                 const appModelData = Plugins.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
@@ -918,12 +1335,18 @@ Plugins.Connection = {
                             error.toString()));
         }
     },
+    get Controller() {
+        return this._Controller;
+    },
+    set Controller(value) {
+        this._Controller = value;
+    },
     View: {
         WelcomeSection: (data = {}) => {
-            const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token') || '';
+            const token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token) || '';
             const isConnected = !!token;
-            const username = PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot';
-            const friendlyName = PropertiesService.getUserProperties().getProperty('txt_bot_friendly_name') || 'Telegram Bot';
+            const username = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_username) || 'unknown_bot';
+            const friendlyName = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_friendly_name) || 'Telegram Bot';
 
             // Professional Status Section
             const statusSection = CardService.newCardSection();
@@ -983,9 +1406,9 @@ Plugins.Connection = {
         HomeCard: (data = {}) => {
             // Fetch Properties
             const userProps = PropertiesService.getUserProperties();
-            const token = userProps.getProperty('txt_bot_api_token') || '';
+            const token = userProps.getProperty(Plugins.PROPERTIES.txt_bot_api_token) || '';
             const isConnected = !!token;
-            const username = userProps.getProperty('txt_bot_username') || 'Unknown';
+            const username = userProps.getProperty(Plugins.PROPERTIES.txt_bot_username) || 'Unknown';
 
             // 1. Card Header
             const cardBuilder = CardService.newCardBuilder()
@@ -1026,7 +1449,7 @@ Plugins.Connection = {
                             CardService.newMaterialIcon().setName('save')))
                         .setSwitchControl(
                             CardService.newSwitch()
-                                .setFieldName('chk_export_token_to_sheet')
+                                .setFieldName(Plugins.PROPERTIES.chk_export_token_to_sheet)
                                 .setValue('export_token')
                                 .setSelected(false)
                                 .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -1041,7 +1464,7 @@ Plugins.Connection = {
                     .setBackgroundColor(Plugins.primaryColor())
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.Connection.Controller.Connect')
-                        .addRequiredWidget(['txt_bot_api_token'])));
+                        .addRequiredWidget([Plugins.PROPERTIES.bot_api_token])));
 
             cardBuilder.setFixedFooter(footer);
 
@@ -1052,8 +1475,8 @@ Plugins.Connection = {
             return CardService.newTextInput()
                 .setVisibility(hidden ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
                 .setValue(token || '')
-                .setId('txt_bot_api_token')
-                .setFieldName('txt_bot_api_token')
+                .setId(Plugins.PROPERTIES.bot_api_token)
+                .setFieldName(Plugins.PROPERTIES.bot_api_token)
                 .setTitle('🤖 Your Bot Token')
                 .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
         }
@@ -1079,27 +1502,35 @@ Plugins.Settings = {
         },
         SaveSettings: (e) => {
             // extract and save API endpoint URL
-            const apiEndpointUrl = e?.commonEventObject?.formInputs?.txt_api_endpoint_url?.stringInputs?.value?.[0] || '';
+            const apiEndpointUrl = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.txt_api_endpoint_url]?.stringInputs?.value?.[0] || '';
             if (apiEndpointUrl) {
-                PropertiesService.getUserProperties().setProperty('txt_api_endpoint_url', apiEndpointUrl);
+                PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.txt_api_endpoint_url, apiEndpointUrl);
             }
             // extract and save secret private key
-            const secretPrivateKey = e?.commonEventObject?.formInputs?.txt_secret_private_key?.stringInputs?.value?.[0] || '';
+            const secretPrivateKey = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.secret_private_key]?.stringInputs?.value?.[0] || '';
             if (secretPrivateKey) {
-                PropertiesService.getUserProperties().setProperty('txt_secret_private_key', secretPrivateKey);
+                PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.secret_private_key, secretPrivateKey);
             }
 
             // focus_terminal_output
-            const focusTerminalOutput = e?.commonEventObject?.formInputs?.focus_terminal_output?.stringInputs?.value?.[0] || 'OFF';
-            PropertiesService.getUserProperties().setProperty('focus_terminal_output', focusTerminalOutput === 'ON' ? 'ON' : 'OFF');
+            const focusTerminalOutput = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.focus_terminal_output]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.focus_terminal_output, focusTerminalOutput === 'ON' ? 'ON' : 'OFF');
 
             // terminal_output_switch
-            const terminalOutputSwitch = e?.commonEventObject?.formInputs?.terminal_output_switch?.stringInputs?.value?.[0] || 'OFF';
-            PropertiesService.getUserProperties().setProperty('terminal_output_switch', terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
+            const terminalOutputSwitch = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.terminal_output_switch]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.terminal_output_switch, terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
 
             // praittfy_json
-            const praittfyJson = e?.commonEventObject?.formInputs?.praittfy_json?.stringInputs?.value?.[0] || 'OFF';
-            PropertiesService.getUserProperties().setProperty('praittfy_json', praittfyJson === 'ON' ? 'ON' : 'OFF');
+            const praittfyJson = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.praittfy_json]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.praittfy_json, praittfyJson === 'ON' ? 'ON' : 'OFF');
+
+            // indentation_spaces
+            const indentationSpaces = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.indentation_spaces]?.stringInputs?.value?.[0] || '2';
+            PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.indentation_spaces, ['1', '2', '4', '6', '8'].includes(indentationSpaces) ? indentationSpaces : '2');
+
+            // show_errors_switch
+            const showErrorsSwitch = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.show_errors_switch]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getUserProperties().setProperty(Plugins.PROPERTIES.show_errors_switch, showErrorsSwitch === 'ON' ? 'ON' : 'OFF');
 
             // Build and return the Home Card
             const appModelData = Plugins.Modules.App.getData();
@@ -1153,11 +1584,11 @@ Plugins.Settings = {
             const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
 
             // Fetch properties with robust fallbacks
-            data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty('txt_api_endpoint_url') || 'https://api.telegram.org/';
-            data.terminal_output_switch = PropertiesService.getUserProperties().getProperty('terminal_output_switch') || 'OFF';
-            data.focus_terminal_output = PropertiesService.getUserProperties().getProperty('focus_terminal_output') || 'OFF';
-            data.praittfy_json = PropertiesService.getUserProperties().getProperty('praittfy_json') || 'OFF';
-            data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty('txt_secret_private_key') || privateKeyDemo;
+            data.txt_api_endpoint_url = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_api_endpoint_url) || 'https://api.telegram.org/';
+            data.terminal_output_switch = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.terminal_output_switch) || 'OFF';
+            data.focus_terminal_output = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.focus_terminal_output) || 'OFF';
+            data.praittfy_json = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.praittfy_json) || 'OFF';
+            data.txt_secret_private_key = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.secret_private_key) || privateKeyDemo;
 
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Plugins.Settings.name + '-Home')
@@ -1177,7 +1608,7 @@ Plugins.Settings = {
             // API Endpoint Input
             configSection.addWidget(
                 CardService.newTextInput()
-                    .setFieldName('txt_api_endpoint_url')
+                    .setFieldName(Plugins.PROPERTIES.txt_api_endpoint_url)
                     .setTitle('API Endpoint URL')
                     .setValue(data.txt_api_endpoint_url)
                     .setHint('Default: https://api.telegram.org/')
@@ -1201,7 +1632,7 @@ Plugins.Settings = {
                         CardService.newMaterialIcon().setName('format_align_left').setFill(false)))
                     .setSwitchControl(
                         CardService.newSwitch()
-                            .setFieldName('praittfy_json')
+                            .setFieldName(Plugins.PROPERTIES.praittfy_json)
                             .setValue('ON')
                             .setSelected(data.praittfy_json === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -1428,13 +1859,13 @@ Plugins.GetMe = {
                 // Optional: Check if we are forcing a refresh via parameters
                 const isUpdate = data.update === 'true';
 
-                const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const input_token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token);
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = (PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot') + '_***' + input_token.slice(-6);
+                data.currentBotName = (PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_username) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Initialize Telegram Bot Client
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1566,13 +1997,13 @@ Plugins.GetChat = {
 
                 const data = e?.commonEventObject?.parameters || {};
                 const isUpdate = data.update === 'true';
-                const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const input_token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token);
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = (PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot') + '_***' + input_token.slice(-6);
+                data.currentBotName = (PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_username) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Extract Chat ID from form inputs if available (user clicked Search)
                 // or fall back to parameters/properties
@@ -1654,7 +2085,7 @@ Plugins.GetChat = {
                 .setHeader('🔍 Target Selector');
 
             searchSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_search_chat_id')
+                .setFieldName(Plugins.PROPERTIES.txt_search_chat_id)
                 .setTitle('Chat ID or Username')
                 .setHint('Enter the Chat ID (e.g., -1001234567890) or Username (e.g., @channelusername)')
                 .setValue(data.txt_search_chat_id || ''));
@@ -1671,7 +2102,7 @@ Plugins.GetChat = {
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.GetChat.Controller.Load')
                         .setParameters({ update: 'true' })
-                        .addRequiredWidget(['txt_search_chat_id'])));
+                        .addRequiredWidget([Plugins.PROPERTIES.txt_search_chat_id])));
 
             cardBuilder.setFixedFooter(footer);
 
@@ -1755,7 +2186,7 @@ Plugins.Webhook = {
                 // Log start of execution
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.Load', 'INFO', e, 'Loading Webhook Manager');
 
-                const input_token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const input_token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token);
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
@@ -1764,7 +2195,7 @@ Plugins.Webhook = {
                 const isPop = data.popCard === 'true';
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = (PropertiesService.getUserProperties().getProperty('txt_bot_username') || 'unknown_bot') + '_***' + input_token.slice(-6);
+                data.currentBotName = (PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_username) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Logic: Fetch Data if Token Exists
                 const telegramBotClient = new TelegramBotClient(input_token);
@@ -1819,15 +2250,15 @@ Plugins.Webhook = {
             try {
                 // Log start of execution
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.SetWebhook', 'INFO', e, 'Setting Webhook...');
-                const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token);
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
-                const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
-                const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
-                const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
-                const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
-                const dropPending = inputs.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
+                const urlInput = inputs?.[Plugins.PROPERTIES.txt_webhook_url]?.stringInputs?.value?.[0];
+                const ipInput = inputs?.[Plugins.PROPERTIES.txt_ip_address]?.stringInputs?.value?.[0];
+                const maxConnInput = inputs?.[Plugins.PROPERTIES.txt_max_connections]?.stringInputs?.value?.[0];
+                const secretInput = inputs?.[Plugins.PROPERTIES.txt_secret_token]?.stringInputs?.value?.[0];
+                const dropPending = inputs?.[Plugins.PROPERTIES.drop_pending_updates]?.stringInputs?.value?.[0] === 'true';
 
                 // Validation
                 if (!urlInput || !urlInput.startsWith('https://')) {
@@ -1896,7 +2327,7 @@ Plugins.Webhook = {
                 // Log start of execution
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DeleteWebhook', 'INFO', e, 'Deleting Webhook...');
 
-                const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token);
                 const dropPending = e?.commonEventObject?.formInputs?.drop_pending_updates?.stringInputs?.value?.[0] === 'true';
 
                 const client = new TelegramBotClient(token);
@@ -1925,14 +2356,14 @@ Plugins.Webhook = {
             try {
                 // Log start of execution
                 Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'Webhook.DropPendingUpdates', 'INFO', e, 'DropPendingUpdates');
-                const token = PropertiesService.getUserProperties().getProperty('txt_bot_api_token');
+                const token = PropertiesService.getUserProperties().getProperty(Plugins.PROPERTIES.txt_bot_api_token);
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
-                const urlInput = inputs.txt_webhook_url?.stringInputs?.value?.[0];
-                const ipInput = inputs.txt_ip_address?.stringInputs?.value?.[0];
-                const maxConnInput = inputs.txt_max_connections?.stringInputs?.value?.[0];
-                const secretInput = inputs.txt_secret_token?.stringInputs?.value?.[0];
+                const urlInput = inputs[Plugins.PROPERTIES.txt_webhook_url]?.stringInputs?.value?.[0];
+                const ipInput = inputs[Plugins.PROPERTIES.txt_ip_address]?.stringInputs?.value?.[0];
+                const maxConnInput = inputs[Plugins.PROPERTIES.txt_max_connections]?.stringInputs?.value?.[0];
+                const secretInput = inputs[Plugins.PROPERTIES.txt_secret_token]?.stringInputs?.value?.[0];
                 const dropPending = true;
 
                 // Validation
@@ -2006,8 +2437,8 @@ Plugins.Webhook = {
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Plugins.Webhook.Controller.SetWebhook')
                         // Collect all inputs
-                        .addRequiredWidget(['txt_webhook_url'])
-                        .addRequiredWidget(['txt_max_connections'])));
+                        .addRequiredWidget([Plugins.PROPERTIES.txt_webhook_url])
+                        .addRequiredWidget([Plugins.PROPERTIES.txt_max_connections])));
 
             // --- 2. Live Status Logic ---
             if (result.url !== '') {
@@ -2102,7 +2533,7 @@ Plugins.Webhook = {
 
             // Webhook URL (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_webhook_url')
+                .setFieldName(Plugins.PROPERTIES.txt_webhook_url)
                 .setTitle('Webhook URL (Required)')
                 .setHint('https://your-script-url/exec')
                 .setValue(String(result.url))); // Defaults to current live URL
@@ -2112,27 +2543,27 @@ Plugins.Webhook = {
                 .setText('Drop Pending Updates')
                 .setBottomLabel('Skip old messages in queue upon setting webhook.')
                 .setSwitchControl(CardService.newSwitch()
-                    .setFieldName('drop_pending_updates')
+                    .setFieldName(Plugins.PROPERTIES.drop_pending_updates)
                     .setValue('true')
                     .setControlType(CardService.SwitchControlType.CHECK_BOX)));
 
             // IP Address (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_ip_address')
+                .setFieldName(Plugins.PROPERTIES.txt_ip_address)
                 .setTitle('Custom IP Address (Optional)')
                 .setHint('Bypass DNS resolution with specific IP')
                 .setValue(''));
 
             // Max Connections (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_max_connections')
+                .setFieldName(Plugins.PROPERTIES.txt_max_connections)
                 .setTitle('Max Connections (1-100)')
                 .setHint('Default: 40')
                 .setValue(result.max_connections ? result.max_connections.toString() : '40'));
 
             // Secret Token (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName('txt_secret_token')
+                .setFieldName(Plugins.PROPERTIES.txt_secret_token)
                 .setTitle('Secret Token (Optional)')
                 .setHint('X-Telegram-Bot-Api-Secret-Token header')
                 .setValue('')); // We don't get this back from API for security, so leave empty
@@ -2151,52 +2582,235 @@ Plugins.Webhook = {
     }
 };
 
-Plugins.JsonTools = {
-    id: 'JsonToolsPlugin',
-    name: 'JSON Tools Plugin',
-    description: 'A set of tools to make working with JSON data easier.',
-    version: '1.1.0',
-    imageUrl: 'https://raw.githubusercontent.com/ilanlal/ss-json-editor/main/assets/logo120.png',
-    WelcomeSection: (data = {}) => {
-        return CardService.newCardSection()
-            .setHeader('🪚 Useful JSON Tools')
-            .setCollapsible(true)
-            .setNumUncollapsibleWidgets(2)
-            // Add decorated text widget
-            .addWidget(CardService.newDecoratedText()
-                .setTopLabel(Plugins.JsonTools.version)
-                .setText(Plugins.JsonTools.name + ':')
-                .setBottomLabel(Plugins.JsonTools.description)
-                .setWrapText(false))
-            // Add button set for JSON Tools
-            .addWidget(CardService.newTextButton()
-                .setText('🎨 Beautify')
-                .setOnClickAction(
-                    CardService.newAction()
-                        .setFunctionName('JsonHandler.View.BeautifyJson')
-                ))
-            // Add Minify JSON button
-            .addWidget(CardService.newTextButton()
-                .setText('🗜️ Minify')
-                .setOnClickAction(
-                    CardService.newAction()
-                        .setFunctionName('JsonHandler.View.MinifyJson')
-                ))
-            // Add Validate JSON button
-            .addWidget(CardService.newTextButton()
-                .setText('✅ Validate')
-                .setOnClickAction(
-                    CardService.newAction()
-                        .setFunctionName('JsonHandler.View.ValidateJson')
-                )
-                // Add basic help about JSON Tools plugin
-            ).addWidget(
-                CardService.newTextParagraph()
-                    .setMaxLines(2)
-                    .setText('Use these tools to beautify, minify, or validate your JSON data easily within Google Workspace.\n\n'
-                        + 'Simply click on the desired action button to get started.'
+Plugins.GenerateContent = {
+    id: 'GenerateContentPlugin',
+    name: 'Content Generator',
+    short_description: 'Generate content using AI models',
+    description: 'A plugin that allows users to generate content using AI models directly from the add-on interface. Users can input prompts and receive generated content that can be inserted into their spreadsheets.',
+    version: '1.0.0',
+    imageUrl: Plugins.Media.YOU_GOT_IT_IMG_URL,
+    Controller: {
+        Load: (e) => {
+            const data = e?.commonEventObject?.parameters || {};
+            const isUpdate = data.update === 'true';
+            const isPop = data.popCard === 'true';
+
+            try {
+
+                // Build and return the Home Card
+                const appModelData = Plugins.Modules.App.getData();
+                appModelData.prompt_text_input = 'You are a cat. \nYour name is Neko. \nWrite a short poem about your day.';
+                appModelData.gemini_model_selector = 'gemini-3-flash-preview';
+                appModelData.temperature_text_input = 1;
+                appModelData.topP_text_input = 0.95;
+                appModelData.topK_text_input = 40;
+                appModelData.responseMimeType_selector = 'text/plain';
+
+                // Build and return the Home Card
+                const card = Plugins.GenerateContent.View.HomeCard(appModelData);
+
+                let cardNavigation = null;
+
+                if (isPop) {
+                    cardNavigation = CardService.newNavigation()
+                        .popCard();
+                } else {
+                    if (isUpdate) {
+                        cardNavigation = CardService.newNavigation()
+                            .updateCard(card);
+                    } else {
+                        cardNavigation = CardService.newNavigation()
+                            .pushCard(card);
+                    }
+                }
+
+
+                // Return action response to update card
+                return CardService.newActionResponseBuilder()
+                    .setNavigation(cardNavigation)
+                    .build();
+            }
+            catch (error) {
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(`❌ Error loading content generator: ${error.toString()}`))
+                    .build();
+            }
+        },
+        GenerateContent: (e) => {
+            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+            const source = 'Plugins.GenerateContent';
+
+            const prompt = e?.commonEventObject
+                ?.formInputs?.[Plugins.PROPERTIES.prompt_text_input]
+                ?.stringInputs?.value[0] || 'Hello, world!';
+            const geminiModel = e?.commonEventObject
+                ?.formInputs?.[Plugins.PROPERTIES.gemini_model_selector]
+                ?.stringInputs?.value[0] || 'gemini-3-flash-preview';
+            const temperature = parseFloat(e?.commonEventObject
+                ?.formInputs?.[Plugins.PROPERTIES.temperature_text_input]
+                ?.stringInputs?.value[0] || '1');
+            const topP = parseFloat(e?.commonEventObject
+                ?.formInputs?.[Plugins.PROPERTIES.topP_text_input]
+                ?.stringInputs?.value[0] || '0.95');
+            const topK = parseInt(e?.commonEventObject
+                ?.formInputs?.[Plugins.PROPERTIES.topK_text_input]
+                ?.stringInputs?.value[0] || '40', 10);
+            const responseMimeType = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.responseMimeType_selector]
+                ?.stringInputs?.value[0] || 'text/plain';
+            const gemini_api_key = PropertiesService.getScriptProperties().getProperty(Plugins.PROPERTIES.gemini_api_key) || '[YOUR_API_KEY]';
+            const generationConfig = {
+                thinkingConfig: {
+                    thinkingLevel: 'low'
+                },
+                temperature: temperature,
+                topP: topP,
+                topK: topK,
+                responseMimeType: responseMimeType
+            };
+
+            const systemInstruction = {
+                parts: [{
+                    text: prompt
+                }]
+            };
+
+            const payload = {
+                generationConfig,
+                systemInstruction,
+                contents: [
+                    {
+                        parts: [{ text: prompt }]
+                    }
+                ]
+            };
+
+            try {
+                const content = Plugins.Modules.GeminiAPI.generateContent(gemini_api_key, geminiModel, payload);
+                // Insert generated content into Gemini Console sheet for logging and debugging
+                Plugins.Modules.GeminiConsole.write(activeSpreadsheet, e, payload, content);
+
+                // Return action response with notification
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(`🟢 Content generated successfully! Check the Gemini Console sheet for details.`))
+                    .build();
+            }
+            catch (error) {
+                Plugins.Modules.GeminiConsole.write(activeSpreadsheet, e, 'Error', error.toString());
+                return CardService.newActionResponseBuilder()
+                    .setNotification(
+                        CardService.newNotification()
+                            .setText(`🔴 Error: ${error.toString()}`))
+                    .build();
+            }
+        }
+    },
+    View: {
+        HomeCard: (data = {}) => {
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Plugins.GenerateContent.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle(Plugins.GenerateContent.name)
+                    .setSubtitle(Plugins.GenerateContent.short_description)
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
+                    .setImageUrl(Plugins.GenerateContent.imageUrl)
+                    .setImageAltText(Plugins.GenerateContent.name + ' Logo'));
+
+            // Add a section with a text input for the prompt and a button to generate content
+            const inputSection = CardService.newCardSection()
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(3);
+
+            // Add a multiline text input for the prompt with a default value and a hint
+            inputSection.addWidget(
+                CardService.newTextInput()
+                    //.setVisibility(hidden ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
+                    .setValue(data.prompt_text_input || 'You are a cat. Your name is Neko. Write a short poem about your day.')
+                    .setId(Plugins.PROPERTIES.prompt_text_input)
+                    .setFieldName(Plugins.PROPERTIES.prompt_text_input)
+                    .setTitle('📝 Your Prompt')
+                    .setHint('Enter your prompt for the AI model, for example: "Write a poem about a sunset."')
+                    .setMultiline(true)
+            );
+
+            // Add a dropdown to select the Gemini model
+            const geminiModelSelector =
+                CardService.newSelectionInput()
+                    .setType(CardService.SelectionInputType.DROPDOWN)
+                    // Enable for premium users
+                    .setTitle('🤖 Gemini Model')
+                    .setFieldName(Plugins.PROPERTIES.gemini_model_selector);
+            // Add available Gemini models as options
+            const geminiModels = Plugins.Modules.GeminiAPI.MODELS;
+            // Loop through the models and add them as options to the selector
+            for (const modelKey in geminiModels) {
+                if (geminiModels.hasOwnProperty(modelKey)) {
+                    const modelName = geminiModels[modelKey];
+                    geminiModelSelector.addItem(modelName, modelKey, data.gemini_model_selector === modelKey);
+                }
+            }
+
+            // Add the selection input to the card section
+            inputSection.addWidget(geminiModelSelector);
+
+            // Add temperature text input (number input with step of 0.1) for content generation creativity control
+            inputSection.addWidget(
+                CardService.newTextInput()
+                    .setValue(data.temperature_text_input || '1')
+                    .setId(Plugins.PROPERTIES.temperature_text_input)
+                    .setFieldName(Plugins.PROPERTIES.temperature_text_input)
+                    .setTitle('🌡️ Temperature')
+                    .setHint('Enter a value between 0 and 1. Controls the randomness of the output.')
+            );
+
+            // topP: Optional. The maximum cumulative probability of tokens to consider when sampling.
+            inputSection.addWidget(
+                CardService.newTextInput()
+                    .setValue(data.topP_text_input || '1')
+                    .setId(Plugins.PROPERTIES.topP_text_input)
+                    .setFieldName(Plugins.PROPERTIES.topP_text_input)
+                    .setTitle('🎯 Top P')
+                    .setHint('Enter a top P value (e.g., 0.9). The maximum cumulative probability of tokens to consider when sampling.')
+            );
+
+            // topK: Optional. The maximum number of tokens to consider when sampling.
+            inputSection.addWidget(
+                CardService.newTextInput()
+                    .setValue(data.topK_text_input || '40')
+                    .setId(Plugins.PROPERTIES.topK_text_input)
+                    .setFieldName(Plugins.PROPERTIES.topK_text_input)
+                    .setTitle('🎯 Top K')
+                    .setHint('Enter a top K value (e.g., 40). The maximum number of tokens to consider when sampling.')
+            );
+
+            // responseMimeType selector for output format control (e.g., text/plain, application/json)
+            inputSection.addWidget(
+                CardService.newSelectionInput()
+                    .setType(CardService.SelectionInputType.DROPDOWN)
+                    .setTitle('📄 Response Format')
+                    .setFieldName(Plugins.PROPERTIES.responseMimeType_selector)
+                    .addItem('Text', 'text/plain', data.responseMimeType_selector === 'text/plain')
+                    .addItem('JSON', 'application/json', data.responseMimeType_selector === 'application/json')
+                    .addItem('ENUM', 'text/x.enum', data.responseMimeType_selector === 'text/x.enum')
+            );
+
+            // Add the generate button
+            inputSection.addWidget(
+                CardService.newTextButton()
+                    .setText('Generate Content')
+                    .setOnClickAction(
+                        CardService.newAction()
+                            .setFunctionName('Plugins.GenerateContent.Controller.GenerateContent')
+                            .setParameters({ update: 'true' })
                     )
             );
+
+            cardBuilder.addSection(inputSection);
+            return cardBuilder.build();
+        }
     }
 };
 

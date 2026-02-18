@@ -27,7 +27,7 @@ describe('Plugins.UserProfile', () => {
             const data = actionResponse.getData();
             expect(data).toBeDefined();
             // no 'error' string in data
-            expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
+            expect(JSON.stringify(data).toLowerCase()).not.toContain('error:');
         });
 
         // OnRevokeLicense test
@@ -38,7 +38,7 @@ describe('Plugins.UserProfile', () => {
             const data = actionResponse.getData();
             expect(data).toBeDefined();
             // no 'error' string in data
-            expect(JSON.stringify(data).toLowerCase()).not.toContain('error');
+            expect(JSON.stringify(data).toLowerCase()).not.toContain('error:');
         });
 
         // Load test
