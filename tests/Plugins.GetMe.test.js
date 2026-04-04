@@ -6,7 +6,7 @@ describe('Plugins.GetMe', () => {
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
         // Set the bot token in user properties
-        PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
+        PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     it('should have required properties', () => {

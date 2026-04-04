@@ -45,7 +45,7 @@ describe('Plugins.UserProfile', () => {
         it('should handle Load', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.UserProfile.Controller['Load'](e);
+            const homeCard = Plugins.UserProfile.Controller['PushHomeCard'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();

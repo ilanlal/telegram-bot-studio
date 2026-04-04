@@ -1,17 +1,22 @@
 require('.');
 const { Plugins } = require('../src/Plugins');
 
-describe('Plugins.Home', () => {
+describe('Plugins.Home tests', () => {
     beforeEach(() => {
         // UrlFetchAppStubConfiguration.reset();
     });
 
-    describe('Home Plugin', () => {
-        // Load test
-        it('should handle Load', () => {
+    describe('Controller', () => {
+        const Controller = Plugins.Home.Controller;
+        beforeEach(() => {
+            // UrlFetchAppStubConfiguration.reset();
+        });
+
+        // PushHomeCard test
+        it('should handle PushHomeCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Home.Controller.Load(e);
+            const homeCard = Controller.PushHomeCard(e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
@@ -20,18 +25,16 @@ describe('Plugins.Home', () => {
             expect(cardData.cardNavigations[0].pushCard).toBeDefined();
             // No notification
             expect(cardData.notification).toBeUndefined();
-
             // pushCard data
             const pushCardData = cardData.cardNavigations[0].pushCard;
             expect(pushCardData.name).toBe(Plugins.Home.id + '-Home');
-
         });
 
-        // OnHelp test
-        it('should handle OnHelp', () => {
+        // PushHelpCard test
+        it('should handle PushHelpCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const helpCard = Plugins.Home.Controller.Help(e);
+            const helpCard = Controller.PushHelpCard(e);
             expect(helpCard).toBeDefined();
             const cardData = helpCard.getData();
             expect(cardData).toBeDefined();
@@ -39,17 +42,63 @@ describe('Plugins.Home', () => {
             expect(cardData.notification).toBeUndefined();
         });
 
-        // OnAbout test
-        it('should handle OnAbout', () => {
+        // PushAboutCard test
+        it('should handle PushAboutCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const aboutCard = Plugins.Home.Controller.About(e);
+            const aboutCard = Controller.PushAboutCard(e);
             expect(aboutCard).toBeDefined();
             const cardData = aboutCard.getData();
             expect(cardData).toBeDefined();
-
             // no notification
             expect(cardData.notification).toBeUndefined();
+        });
+
+    });
+
+    describe('View', () => {
+        const View = Plugins.Home.View;
+
+        beforeEach(() => {
+            PropertiesService.getScriptProperties().deleteAllProperties();
+
+            // UrlFetchAppStubConfiguration.reset();
+        });
+
+        describe('HomeCard', () => {
+            // HomeCard test 1 - should build Home Card with Welcome to Gemini Assistant section if API key is not present
+            it('should build Home Card with Welcome to Gemini Assistant section', () => {
+                const data = Plugins.Modules.App.getData();
+
+                const homeCard = View.HomeCard(data);
+                expect(homeCard).toBeDefined();
+                const cardData = homeCard.getData();
+                expect(cardData).toBeDefined();
+                expect(cardData.name).toBe(Plugins.Home.id + '-Home');
+            });
+        });
+
+        // HelpCard test
+        it('should handle HelpCard', () => {
+            // mock event parameters
+            const data = {};
+            const helpCard = View.HelpCard(data);
+
+            expect(helpCard).toBeDefined();
+            const cardData = helpCard.getData();
+            expect(cardData).toBeDefined();
+        });
+
+        // AboutCard test
+        it('should handle AboutCard', () => {
+            // mock event parameters
+            const data = {};
+            const aboutCard = View.AboutCard(data);
+            expect(aboutCard).toBeDefined();
+            const cardData = aboutCard.getData();
+            expect(cardData).toBeDefined();
+            // check for more than 1 sections
+            expect(cardData.sections.length).toBeGreaterThan(1);
         });
     });
 });

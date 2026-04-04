@@ -13,8 +13,8 @@
   ],
   "addOns": {
     "common": {
-      "name": "Telegram Bot Studio (TBS)",
-      "logoUrl": "https://lh3.googleusercontent.com/dSbCFuDPREqPoqeGFnEYTE4Y_iTNGWtMFTIEbHKeq648a3Muh8U6",
+      "name": "TBS - My Server",
+      "logoUrl": "https://raw.githubusercontent.com/ilanlal/basic-telegram-bot-remastered/main/assets/logo24.png",
       "layoutProperties": {
         "primaryColor": "#1976d2",
         "secondaryColor": "#0f9d58"
@@ -29,25 +29,25 @@
         "https://telegram.me/"
       ],
       "homepageTrigger": {
-        "runFunction": "Plugins.Home.Controller.Load"
+        "runFunction": "Plugins.Home.Controller.PushHomeCard"
       },
       "useLocaleFromApp": true,
       "universalActions": [
         {
           "label": "Profile",
-          "runFunction": "Plugins.UserProfile.Controller.Load"
+          "runFunction": "Plugins.UserProfile.Controller.PushHomeCard"
         },
         {
           "label": "Settings",
-          "runFunction": "Plugins.Settings.Controller.Load"
+          "runFunction": "Plugins.Settings.Controller.PushHomeCard"
         },
         {
           "label": "Help",
-          "runFunction": "Plugins.Home.Controller.Help"
+          "runFunction": "Plugins.Home.Controller.PushHelpCard"
         },
         {
           "label": "About",
-          "runFunction": "Plugins.Home.Controller.About"
+          "runFunction": "Plugins.Home.Controller.PushAboutCard"
         },
         {
           "label": "Visit Website",
@@ -58,6 +58,8 @@
     "sheets": {}
   },
   "urlFetchWhitelist": [
-    "https://api.telegram.org/"
+    "https://api.telegram.org/",
+    "https://generativelanguage.googleapis.com/",
+    "https://www.googleapis.com/"
   ]
 }

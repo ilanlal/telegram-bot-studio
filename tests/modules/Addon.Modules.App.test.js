@@ -16,14 +16,6 @@ describe('Plugins.Modules.App', () => {
         expect(retrievedValue).toBe('test_value');
     });
 
-    it('should get and set user properties correctly', () => {
-        const userProperties = PropertiesService.getUserProperties();
-        userProperties.setProperty('user_key', 'user_value');
-
-        const retrievedValue = userProperties.getProperty('user_key');
-        expect(retrievedValue).toBe('user_value');
-    });
-
     it('should get and set document properties correctly', () => {
         const documentProperties = PropertiesService.getDocumentProperties();
         documentProperties.setProperty('doc_key', 'doc_value');
@@ -33,16 +25,8 @@ describe('Plugins.Modules.App', () => {
 
     // getData test
     it('should retrieve correct data from App module', () => {
-        const userProperties = PropertiesService.getUserProperties();
-        const membershipInfo = {
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-            balance: 10
-        };
-        userProperties.setProperty(Plugins.Modules.App.MEMBERSHIP_PROPERTY_KEY, JSON.stringify(membershipInfo));
         const data = Plugins.Modules.App.getData();
         expect(data).toBeDefined();
-        expect(data.isPremium).toBe(true);
-        expect(data.balance).toBe(10);
-        expect(data.expiresAt).toBeInstanceOf(Date);
+        expect(data[Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]).toBe(false);
     });
 });

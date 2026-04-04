@@ -1,11 +1,16 @@
-require('.');
-const { Plugins } = require('../src/Plugins');
+require('..');
+const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
+const { Plugins } = require('../../src/Plugins.js');
+const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
+const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 
 describe('Plugins.Webhook', () => {
+    const Controller = Plugins.Webhook.Controller;
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
+
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
-        PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
+        PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     // Load test
@@ -14,7 +19,7 @@ describe('Plugins.Webhook', () => {
         const e = {
             commonEventObject: {
                 formInputs: {
-                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } }
+                    [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } }
                 }
             }
         };
@@ -31,7 +36,7 @@ describe('Plugins.Webhook', () => {
                 })));
 
         // Call Load without result
-        const homeCard = Plugins.Webhook.Controller['Load'](e);
+        const homeCard = Controller['Load'](e);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
@@ -42,12 +47,12 @@ describe('Plugins.Webhook', () => {
     // OnSetWebhook test
     it('should handle OnSetWebhook', () => {
         const webhookUrl = 'https://example.com/webhook';
-        const event = {
+        const e = {
             commonEventObject: {
                 formInputs: {
-                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
-                    'txt_webhook_url': { stringInputs: { value: [webhookUrl] } },
-                    'drop_pending_updates': { stringInputs: { value: ['false'] } }
+                    [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
+                    [Plugins.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]: { stringInputs: { value: [webhookUrl] } },
+                    [Plugins.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['false'] } }
                 }
             }
         };
@@ -72,7 +77,7 @@ describe('Plugins.Webhook', () => {
                         allowed_updates: []
                     }
                 })));
-        const result = Plugins.Webhook.Controller['SetWebhook'](event);
+        const result = Controller['SetWebhook'](e);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();
@@ -82,11 +87,11 @@ describe('Plugins.Webhook', () => {
 
     // OnDeleteWebhook test
     it('should handle OnDeleteWebhook', () => {
-        const event = {
+        const e = {
             commonEventObject: {
                 formInputs: {
-                    'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
-                    'drop_pending_updates': { stringInputs: { value: ['true'] } }
+                    [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
+                    [Plugins.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['true'] } }
                 }
             }
         };
@@ -112,7 +117,7 @@ describe('Plugins.Webhook', () => {
                         allowed_updates: []
                     }
                 })));
-        const result = Plugins.Webhook.Controller['DeleteWebhook'](event);
+        const result = Controller['DeleteWebhook'](e);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();

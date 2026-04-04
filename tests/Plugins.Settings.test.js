@@ -16,7 +16,7 @@ describe('Plugins.Settings', () => {
         it('should handle Load', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Settings.Controller.Load(e);
+            const homeCard = Plugins.Settings.Controller.PushHomeCard(e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();

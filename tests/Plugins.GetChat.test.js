@@ -5,6 +5,13 @@ describe('Plugins.GetChat', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
+        // Clear properties before each test
+        PropertiesService.getScriptProperties().deleteAllProperties();
+        PropertiesService.getUserProperties().deleteAllProperties();
+        PropertiesService.getDocumentProperties().deleteAllProperties();
+        
+        // 
+        PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     // HomeCard test
@@ -22,7 +29,7 @@ describe('Plugins.GetChat', () => {
 
     // Load test
     it('should handle Load', () => {
-        PropertiesService.getUserProperties().setProperty('txt_bot_api_token', sampleToken);
+
         const chatId = '123456789';
         const event = {
             commonEventObject: {

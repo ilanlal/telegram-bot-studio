@@ -1,26 +1,27 @@
-require('.');
-const { Plugins } = require('../src/Plugins');
+require('..');
+const SpreadsheetStubConfiguration = require('@ilanlal/gasmocks/src/spreadsheetapp/classes/SpreadsheetStubConfiguration');
+const { Plugins } = require('../../src/Plugins.js');
 
-describe('Plugins.ExportApiResultWidget', () => {
+describe('Plugins.ResultWidget', () => {
     beforeEach(() => {
         SpreadsheetStubConfiguration.reset();
     });
 
-    describe('ExportApiResultWidget Plugin', () => {
+    describe('ResultWidget Plugin', () => {
         it('should have required properties', () => {
-            expect(Plugins.ExportApiResultWidget.id).toBeDefined();
-            expect(Plugins.ExportApiResultWidget.name).toBeDefined();
+            expect(Plugins.ResultWidget.id).toBeDefined();
+            expect(Plugins.ResultWidget.name).toBeDefined();
         });
 
-        // DumpApiResultToSheet test
-        it('should handle DumpApiResultToSheet', () => {
+        // DumpResultToSheet test
+        it('should handle DumpResultToSheet', () => {
             const data = {
                 timestamp: new Date().toISOString(),
                 bot: 'TestBot',
                 action: 'getMe',
                 object_data: { id: 123456789, is_bot: true, first_name: "TestBot", username: "test_bot" }
             };
-            const event = {
+            const e = {
                 commonEventObject: {
                     parameters: {
                         sheetName: 'Dump',
@@ -30,7 +31,7 @@ describe('Plugins.ExportApiResultWidget', () => {
                     }
                 }
             };
-            const result = Plugins.ExportApiResultWidget.Controller['DumpApiResultToSheet'](event);
+            const result = Plugins.ResultWidget.Controller['DumpResultToSheet'](e);
             expect(result).toBeDefined();
             const resultData = result.getData();
             expect(resultData).toBeDefined();

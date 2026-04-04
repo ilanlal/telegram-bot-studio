@@ -4,8 +4,8 @@ const { Plugins } = require('../src/Plugins');
 describe('Plugins Modules TerminalOutput', () => {
     beforeEach(() => {
         SpreadsheetStubConfiguration.reset();
-        PropertiesService.getUserProperties().setProperty('terminal_output_switch', 'ON');
-        PropertiesService.getUserProperties().setProperty('focus_terminal_output', 'ON');
+        PropertiesService.getDocumentProperties().setProperty('terminal_output_switch', 'ON');
+        PropertiesService.getDocumentProperties().setProperty('focus_terminal_output', 'ON');
     });
 
     it('should write terminal output to the specified sheet', () => {

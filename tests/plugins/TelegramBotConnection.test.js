@@ -1,7 +1,10 @@
-require('.');
-const { Plugins } = require('../src/Plugins');
+require('..');
+const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
+const { Plugins } = require('../../src/Plugins.js');
+const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
+const CardService = require('@ilanlal/gasmocks/src/card/CardService');
 
-describe('Plugins.Connection', () => {
+describe('Plugins.TelegramBotConnection', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
@@ -9,19 +12,19 @@ describe('Plugins.Connection', () => {
 
     describe('Connection Plugin', () => {
         it('should have required properties', () => {
-            expect(Plugins.Connection.id).toBeDefined();
-            expect(Plugins.Connection.name).toBeDefined();
+            expect(Plugins.TelegramBotConnection.id).toBeDefined();
+            expect(Plugins.TelegramBotConnection.name).toBeDefined();
         });
 
         // HomeCard test
         it('should create HomeCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Connection.View['HomeCard'](e);
+            const homeCard = Plugins.TelegramBotConnection.View['HomeCard'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
-            expect(cardData.name).toBe(Plugins.Connection.id + '-Home');
+            expect(cardData.name).toBe(Plugins.TelegramBotConnection.id + '-Home');
 
             // No notification
             expect(cardData.notification).toBeUndefined();
@@ -32,7 +35,7 @@ describe('Plugins.Connection', () => {
             const event = {
                 commonEventObject: {
                     formInputs: {
-                        'txt_bot_api_token': { stringInputs: { value: [sampleToken] } },
+                        [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
                         'chk_export_token_to_sheet': { stringInputs: { value: ['export_token'] } }
                     }
                 }
@@ -47,8 +50,23 @@ describe('Plugins.Connection', () => {
                             ok: true,
                             result: { id: 123456789, is_bot: true, first_name: "TestBot", username: "test_bot" }
                         })));
-
-            const result = Plugins.Connection.Controller['Connect'](event);
+            // Mock the getWebhookInfo API response
+            const getWebhookInfoUrl = `https://api.telegram.org/bot${sampleToken}/getWebhookInfo`;
+            UrlFetchAppStubConfiguration.when(getWebhookInfoUrl)
+                .return(new HttpResponse()
+                    .setContentText(JSON.stringify({
+                        ok: true,
+                        result: {
+                            url: 'https://example.com/webhook',
+                            has_custom_certificate: false,
+                            pending_update_count: 0,
+                            last_error_date: 0,
+                            last_error_message: '',
+                            max_connections: 40,
+                            allowed_updates: []
+                        }
+                    })));
+            const result = Plugins.TelegramBotConnection.Controller['Connect'](event);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -57,28 +75,17 @@ describe('Plugins.Connection', () => {
             expect(data.notification).toBeUndefined();
         });
 
-        // should throw error for empty token
-        it('should handle OnConnect with empty token', () => {
-            const event = {
-                commonEventObject: {
-                    formInputs: {
-                        'txt_bot_api_token': { stringInputs: { value: [''] } }
-                    }
-                }
-            };
-        });
-
         // should get notification with error for invalid token
         it('should handle OnConnect with invalid token', () => {
             const invalidToken = '';
-            const event = {
+            const e = {
                 commonEventObject: {
                     formInputs: {
-                        'txt_bot_api_token': { stringInputs: { value: [invalidToken] } }
+                        [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [invalidToken] } }
                     }
                 }
             };
-            const result = Plugins.Connection.Controller['Connect'](event);
+            const result = Plugins.TelegramBotConnection.Controller['Connect'](e);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -90,12 +97,12 @@ describe('Plugins.Connection', () => {
 
         // Disconnect test
         it('should handle Disconnect', () => {
-            const event = {
+            const e = {
                 commonEventObject: {}
             };
 
 
-            const result = Plugins.Connection.Controller['Disconnect'](event);
+            const result = Plugins.TelegramBotConnection.Controller['Disconnect'](e);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -103,14 +110,14 @@ describe('Plugins.Connection', () => {
 
         // BuildTokenTextInputWidget test
         it('should build Token Text Input Widget', () => {
-            let tokenWidget = Plugins.Connection.View.BuildTokenTextInputWidget(sampleToken, false);
+            let tokenWidget = Plugins.TelegramBotConnection.View.BuildTokenTextInputWidget(sampleToken, false);
             expect(tokenWidget).toBeDefined();
             let widgetData = tokenWidget.getData();
             expect(widgetData).toBeDefined();
             expect(widgetData.value).toBe(sampleToken);
             expect(widgetData.visibility).toBe(CardService.Visibility.VISIBLE);
 
-            tokenWidget = Plugins.Connection.View.BuildTokenTextInputWidget(sampleToken, true);;
+            tokenWidget = Plugins.TelegramBotConnection.View.BuildTokenTextInputWidget(sampleToken, true);;
             expect(tokenWidget).toBeDefined();
             widgetData = tokenWidget.getData();
             expect(widgetData).toBeDefined();

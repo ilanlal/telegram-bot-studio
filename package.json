@@ -1,6 +1,6 @@
 {
   "name": "@ilanlal/template-bot-studio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A template for building Telegram Bot Studio add-ons using Google Apps Script.",
   "keywords": [
     "addons",

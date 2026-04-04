@@ -9,7 +9,7 @@ Telegram Bot Studio ("we," "our," or "the Add-on") is a Google Workspace Add-on 
 The Add-on requires specific permissions to function. Here is a breakdown of what data we access and why:
 Telegram Bot Tokens:
 Collection: We collect the Telegram Bot API Token that you manually input into the "Connection" card.
-Storage: This token is stored locally within your Google account's PropertiesService.getUserProperties(). It is never sent to our servers or any third-party server other than the official Telegram API (api.telegram.org) for the purpose of authentication.
+Storage: This token is stored locally within your Google account's PropertiesService.getDocumentProperties(). It is never sent to our servers or any third-party server other than the official Telegram API (api.telegram.org) for the purpose of authentication.
 Usage: The token is used strictly to make authorized requests to Telegram (e.g., getMe, getChat, setWebhook) on your behalf.
 Google Sheets Data:
 Access: The Add-on requests the spreadsheets.currentonly scope. This means it can only access and modify the specific spreadsheet where you have activated the Add-on.
