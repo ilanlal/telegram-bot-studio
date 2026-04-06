@@ -13,8 +13,8 @@
   ],
   "addOns": {
     "common": {
-      "name": "TBS - My Server",
-      "logoUrl": "https://raw.githubusercontent.com/ilanlal/basic-telegram-bot-remastered/main/assets/logo24.png",
+      "name": "Telegram Bot Studio (TBS)",
+      "logoUrl": "https://lh3.googleusercontent.com/dSbCFuDPREqPoqeGFnEYTE4Y_iTNGWtMFTIEbHKeq648a3Muh8U6",
       "layoutProperties": {
         "primaryColor": "#1976d2",
         "secondaryColor": "#0f9d58"

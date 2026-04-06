@@ -13,6 +13,7 @@ function doGet(e) {
     return JSON.stringify({ status: 'ok' });
 }
 
+
 // Export the functions for testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
