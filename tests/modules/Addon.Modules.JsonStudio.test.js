@@ -1,14 +1,14 @@
 require('..');
-const { Plugins } = require('../../src/Plugins');
+const { Addon } = require('../../src/Addon');
 
-describe('Plugins.Modules.JsonStudio', () => {
+describe('Addon.Modules.JsonStudio', () => {
     beforeEach(() => {
         SpreadsheetStubConfiguration.reset();
     });
 
     // Add tests for JsonStudio module here
     it('should have required properties', () => {
-        expect(Plugins.Modules.JsonStudio).toBeDefined();
+        expect(Addon.Modules.JsonStudio).toBeDefined();
         // Add more property checks as needed
     });
 
@@ -25,7 +25,7 @@ describe('Plugins.Modules.JsonStudio', () => {
             activeSpreadsheet.getActiveSheet().getRange('A1')
         );
 
-        const result = Plugins.Modules.JsonStudio.beautifyActiveRange(activeSpreadsheet);
+        const result = Addon.Modules.JsonStudio.beautifyActiveRange(activeSpreadsheet);
 
         expect(result).toBeDefined();
         expect(result.range.getA1Notation()).toBe('A1');
@@ -53,7 +53,7 @@ describe('Plugins.Modules.JsonStudio', () => {
         activeSpreadsheet.getActiveSheet().setActiveRange(
             activeSpreadsheet.getActiveSheet().getRange('A1')
         );
-        const result = Plugins.Modules.JsonStudio.minifyActiveRange(activeSpreadsheet);
+        const result = Addon.Modules.JsonStudio.minifyActiveRange(activeSpreadsheet);
 
         expect(result).toBeDefined();
         expect(result.range.getA1Notation()).toBe('A1');
@@ -85,7 +85,7 @@ describe('Plugins.Modules.JsonStudio', () => {
         );
 
         // call validateActiveRange
-        const result = Plugins.Modules.JsonStudio.validateActiveRange(activeSpreadsheet);
+        const result = Addon.Modules.JsonStudio.validateActiveRange(activeSpreadsheet);
 
         expect(result).toBeDefined();
         //expect(result.range.getA1Notation()).toBe('A1:A2');

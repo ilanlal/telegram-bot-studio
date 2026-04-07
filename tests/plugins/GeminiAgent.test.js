@@ -1,19 +1,19 @@
 require('..');
 const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
-const { Plugins } = require('../../src/Plugins.js');
+const { Addon } = require('../../src/Addon.js');
 const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
 const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 const SpreadsheetStubConfiguration = require('@ilanlal/gasmocks/src/spreadsheetapp/classes/SpreadsheetStubConfiguration');
 
-describe('Plugins.GeminiAgent', () => {
+describe('Addon.GeminiAgent', () => {
     const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const geminiApiKey = 'test-gemini-api-key';
     const dummyToken = 'DUMMY_BOT_TOKEN';
     beforeEach(() => {
         // Set up any necessary mocks or spies
-        Plugins.Modules.GeminiAgent.saveApiKey(geminiApiKey);
-        PropertiesService.getScriptProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, dummyToken);
-        PropertiesService.getScriptProperties().setProperty(Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE, 'Sheet1!A3');
+        Addon.Modules.GeminiAgent.saveApiKey(geminiApiKey);
+        PropertiesService.getScriptProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, dummyToken);
+        PropertiesService.getScriptProperties().setProperty(Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE, 'Sheet1!A3');
         UrlFetchAppStubConfiguration.reset();
         SpreadsheetStubConfiguration.reset();
     });
@@ -76,7 +76,7 @@ describe('Plugins.GeminiAgent', () => {
 
     const mockGeminiApiResponse = () => {
         // Mock the Gemini API generateContent call
-        const url = Plugins.Modules.GeminiApiClient.API_ENDPOINT_URL + Plugins.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
+        const url = Addon.Modules.GeminiApiClient.API_ENDPOINT_URL + Addon.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
 
         UrlFetchAppStubConfiguration.when(url)
             .return(new HttpResponse()
@@ -99,7 +99,7 @@ describe('Plugins.GeminiAgent', () => {
     };
 
     describe('Controller', () => {
-        const Controller = Plugins.GeminiAgent.Controller;
+        const Controller = Addon.GeminiAgent.Controller;
 
         // PushHomeCard test
         it('should handle PushHomeCard', () => {
@@ -119,7 +119,7 @@ describe('Plugins.GeminiAgent', () => {
 
             const cardData = data.cardNavigations[0].pushCard;
             expect(cardData).toBeDefined();
-            expect(cardData.name).toBe(Plugins.GeminiAgent.id + '-Setup');
+            expect(cardData.name).toBe(Addon.GeminiAgent.id + '-Setup');
         });
 
         // PushSetupCard test
@@ -142,7 +142,7 @@ describe('Plugins.GeminiAgent', () => {
 
             const cardData = data.cardNavigations[0].pushCard;
             expect(cardData).toBeDefined();
-            expect(cardData.name).toBe(Plugins.GeminiAgent.id + '-Setup');
+            expect(cardData.name).toBe(Addon.GeminiAgent.id + '-Setup');
         });
 
         // SaveSettings test
@@ -170,7 +170,7 @@ describe('Plugins.GeminiAgent', () => {
 
             appendInstructionData(activeSpreadsheet);
             // Set the current cell to contain the eventObject JSON for the controller to read
-            const sheet1 = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, { name: 'Active Sheet' });
+            const sheet1 = Addon.Modules.Sheet.getSheet(activeSpreadsheet, { name: 'Active Sheet' });
             sheet1.appendRow([JSON.stringify(eventObject)]); // Add an empty row to ensure there's a cell to set the value
             sheet1.setCurrentCell(
                 sheet1.getRange('A3') // Set the current cell to the first cell (A1) where we will put the eventObject JSON
@@ -194,7 +194,7 @@ describe('Plugins.GeminiAgent', () => {
 
     // View generation test
     describe('View Generation', () => {
-        const View = Plugins.GeminiAgent.View;
+        const View = Addon.GeminiAgent.View;
 
         // SetupCard test
         it('should build Gemini Assistant Setup Card', () => {

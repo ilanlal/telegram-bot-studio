@@ -1,5 +1,5 @@
-// src/config/Plugins.js
-class Plugins {
+// src/config/Addon.js
+class Addon {
     static primaryColor() {
         return '#1976d2';
     }
@@ -13,7 +13,7 @@ class Plugins {
     }
 };
 
-Plugins.Media = {
+Addon.Media = {
     DEFAULT_IMAGE_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/220x220.png',
     WELCOME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/480x480_welcome.png',
     MATH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-math.webp',
@@ -32,7 +32,7 @@ Plugins.Media = {
     LOGO_PNG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/128x128.png'
 };
 
-Plugins.Package = {
+Addon.Package = {
     name: 'Telegram Bot Studio (TBS)',
     short_description: 'A suite of tools for building Telegram Bots on Google Workspace.',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
@@ -40,11 +40,11 @@ Plugins.Package = {
     build: '20260404.232000',
     author: 'Ilan Laloum',
     license: 'MIT',
-    imageUrl: Plugins.Media.LOGO_PNG_URL,
+    imageUrl: Addon.Media.LOGO_PNG_URL,
     gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
 };
 
-Plugins.INPUT = {
+Addon.INPUT = {
     get SYSTEM() {
         return {
             get LANGUAGE_CODE() {
@@ -136,7 +136,7 @@ Plugins.INPUT = {
     }
 };
 
-Plugins.PROPERTIES = {
+Addon.PROPERTIES = {
     get enable_event_logging() {
         return 'enable_event_logging';
     },
@@ -176,16 +176,16 @@ Plugins.PROPERTIES = {
     }
 };
 
-Plugins.Modules = {
+Addon.Modules = {
     App: {
         getData() {
-            const INP = Plugins.PROPERTIES;
-            const MDL = Plugins.Modules;
+            const INP = Addon.PROPERTIES;
+            const MDL = Addon.Modules;
             const userProperties = PropertiesService.getDocumentProperties();
-            const membershipInfo = Plugins.Modules.CRM.Membership.getMembershipInfo() || {};
+            const membershipInfo = Addon.Modules.CRM.Membership.getMembershipInfo() || {};
 
-            const expiresAt = membershipInfo[Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipInfo[Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
-            const balance = membershipInfo[Plugins.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0;
+            const expiresAt = membershipInfo[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipInfo[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
+            const balance = membershipInfo[Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0;
             const isPremium = (expiresAt && expiresAt > new Date()) || balance > 0;
             const indentationSpaces = userProperties.getProperty(INP.indentation_spaces) || '4';
             const showErrorsSwitch = userProperties.getProperty(INP.show_errors_switch) || 'OFF';
@@ -195,12 +195,12 @@ Plugins.Modules = {
             const ignoreWhitespaceSwitch = userProperties.getProperty(INP.ignore_whitespace_switch) || 'ON';
             const geminiApiKey = MDL.GeminiAgent.getApiKey();
             const apiResponseModel = MDL.GeminiAgent.getModel();
-            const instructionCellReference = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE) || '';
-            const botApiToken = Plugins.Modules.TelegramBotSettings.getUserApiKey();
+            const instructionCellReference = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE) || '';
+            const botApiToken = Addon.Modules.TelegramBotSettings.getUserApiKey();
 
             let result = { ok: false, description: 'Not connected. Please enter your bot token to fetch webhook info.' };
             if (botApiToken) {
-                const telegramBotClient = new Plugins.Modules.TelegramBotClient(botApiToken);
+                const telegramBotClient = new Addon.Modules.TelegramBotClient(botApiToken);
                 const response = telegramBotClient.getWebhookInfo();
 
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -211,7 +211,7 @@ Plugins.Modules = {
                 }
             }
 
-            const leds = Plugins.Modules.App.getLeds({
+            const leds = Addon.Modules.App.getLeds({
                 telegramApiKeySet: !!botApiToken,
                 geminiApiKeySet: !!geminiApiKey,
                 llmModelSet: !!apiResponseModel,
@@ -228,19 +228,19 @@ Plugins.Modules = {
                 focus_terminal_output: focusTerminalOutput,
                 ignore_whitespace_switch: ignoreWhitespaceSwitch,
                 // Telegram Bot Info
-                [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: botApiToken,
+                [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: botApiToken,
                 // Gemini API Info
-                [Plugins.INPUT.GEMINI.GEMINI_API_KEY]: geminiApiKey,
-                [Plugins.INPUT.GEMINI.GEMINI_MODEL]: apiResponseModel,
+                [Addon.INPUT.GEMINI.GEMINI_API_KEY]: geminiApiKey,
+                [Addon.INPUT.GEMINI.GEMINI_MODEL]: apiResponseModel,
                 // Membership Info
-                [Plugins.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY]: membershipInfo,
-                [Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]: isPremium,
-                [Plugins.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance,
-                [Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
+                [Addon.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY]: membershipInfo,
+                [Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]: isPremium,
+                [Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance,
+                [Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
                 // Gemini Instruction Cell Reference
-                [Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE]: instructionCellReference,
+                [Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE]: instructionCellReference,
                 // Package Info
-                package: Plugins.Package,
+                package: Addon.Package,
                 leds: leds,
                 webhookInfo: result
             };
@@ -272,7 +272,7 @@ Plugins.Modules = {
 
         initializeSheet(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), sheetMeta = {}) {
             if (!sheetMeta.name) {
-                throw new Error(Plugins.Modules.Sheet.INVALID_MODEL_ERROR);
+                throw new Error(Addon.Modules.Sheet.INVALID_MODEL_ERROR);
             }
 
             let sheet = activeSpreadsheet.getSheetByName(sheetMeta.name);
@@ -502,7 +502,7 @@ Plugins.Modules = {
 
             // If no payload, do a simple GET request
             if (!payload) {
-                return Plugins.Modules.TelegramBotClient.fetchApi(url);
+                return Addon.Modules.TelegramBotClient.fetchApi(url);
             }
 
             // Otherwise, do a POST request with JSON payload
@@ -512,7 +512,7 @@ Plugins.Modules = {
                 'payload': JSON.stringify(payload)
             };
 
-            return Plugins.Modules.TelegramBotClient.fetchApi(url, options);
+            return Addon.Modules.TelegramBotClient.fetchApi(url, options);
         }
 
         static fetchApi(url, options) {
@@ -524,16 +524,16 @@ Plugins.Modules = {
     },
     TelegramBotSettings: {
         getScriptApiKey() {
-            return PropertiesService.getScriptProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
+            return PropertiesService.getScriptProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
         },
         setUserApiKey(apiKey) {
-            PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, apiKey);
+            PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, apiKey);
         },
         getUserApiKey() {
-            return PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
+            return PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
         },
         clearUserApiKey() {
-            PropertiesService.getDocumentProperties().deleteProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
+            PropertiesService.getDocumentProperties().deleteProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
         }
     },
     TerminalOutput: class {
@@ -549,18 +549,18 @@ Plugins.Modules = {
 
             // Check if terminal output is enabled
             const terminalOutputEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Plugins.PROPERTIES.terminal_output_switch) || 'OFF';
+                .getProperty(Addon.PROPERTIES.terminal_output_switch) || 'OFF';
 
             // Check if terminal output is enabled
             const focusTerminalOutput = PropertiesService.getDocumentProperties()
-                .getProperty(Plugins.PROPERTIES.focus_terminal_output) || 'OFF';
+                .getProperty(Addon.PROPERTIES.focus_terminal_output) || 'OFF';
 
             if (terminalOutputEnabled !== 'ON') {
                 return;
             }
 
-            const sheet = Plugins.Modules.Sheet
-                .getSheet(activeSpreadsheet, Plugins.Modules.TerminalOutput.SHEET_META);
+            const sheet = Addon.Modules.Sheet
+                .getSheet(activeSpreadsheet, Addon.Modules.TerminalOutput.SHEET_META);
 
             sheet.appendRow([
                 // Created On as iso string
@@ -585,14 +585,14 @@ Plugins.Modules = {
 
             // Check if terminal output is enabled
             const terminalOutputEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Plugins.PROPERTIES.terminal_output_switch) || 'ON';
+                .getProperty(Addon.PROPERTIES.terminal_output_switch) || 'ON';
 
             // Check if terminal output is enabled
             if (terminalOutputEnabled !== 'ON') {
                 return;
             }
 
-            const sheet = Plugins.Modules.Sheet
+            const sheet = Addon.Modules.Sheet
                 .getSheet(activeSpreadsheet, this.SHEET_META);
             const genratedText = response?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
             sheet.appendRow([
@@ -642,14 +642,14 @@ Plugins.Modules = {
 
             // Check if webhook event logging is enabled
             const webhookEventLoggingEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Plugins.PROPERTIES.enable_event_logging) || 'OFF';
+                .getProperty(Addon.PROPERTIES.enable_event_logging) || 'OFF';
 
             if (webhookEventLoggingEnabled !== 'ON') {
                 return;
             }
 
-            const sheet = Plugins.Modules.Sheet
-                .getSheet(activeSpreadsheet, Plugins.Modules.LoggerModel.SHEET_META);
+            const sheet = Addon.Modules.Sheet
+                .getSheet(activeSpreadsheet, Addon.Modules.LoggerModel.SHEET_META);
 
             sheet.appendRow([
                 // Created On as iso string
@@ -814,7 +814,7 @@ Plugins.Modules = {
 
                 if (response && response.getResponseCode() === 200) {
                     const responseData = JSON.parse(response.getContentText());
-                    Plugins.Modules.TerminalOutput.writeGeminiResponse(SpreadsheetApp.getActiveSpreadsheet(), options, model, payload, responseData);
+                    Addon.Modules.TerminalOutput.writeGeminiResponse(SpreadsheetApp.getActiveSpreadsheet(), options, model, payload, responseData);
                     return responseData;
                 } else if (response) {
                     throw new Error(`GeminiApiClient request failed with status ${response.getResponseCode()}: ${response.getContentText()}`);
@@ -823,7 +823,7 @@ Plugins.Modules = {
                 }
             } catch (error) {
                 // Log the error for debugging purposes
-                Plugins.Modules.TerminalOutput.writeGeminiResponse(
+                Addon.Modules.TerminalOutput.writeGeminiResponse(
                     SpreadsheetApp.getActiveSpreadsheet(),
                     { url, options },
                     model,
@@ -854,31 +854,31 @@ Plugins.Modules = {
         },
         getScriptApiKey() {
             return PropertiesService.getScriptProperties()
-                .getProperty(Plugins.INPUT.GEMINI.GEMINI_API_KEY);
+                .getProperty(Addon.INPUT.GEMINI.GEMINI_API_KEY);
         },
         getScriptModel() {
-            return PropertiesService.getScriptProperties().getProperty(Plugins.INPUT.GEMINI.GEMINI_MODEL) || this.DEFAULT_MODEL;
+            return PropertiesService.getScriptProperties().getProperty(Addon.INPUT.GEMINI.GEMINI_MODEL) || this.DEFAULT_MODEL;
         },
         saveApiKey(apiKey) {
             PropertiesService.getDocumentProperties()
-                .setProperty(Plugins.INPUT.GEMINI.GEMINI_API_KEY, apiKey);
+                .setProperty(Addon.INPUT.GEMINI.GEMINI_API_KEY, apiKey);
         },
         getApiKey() {
             return PropertiesService.getDocumentProperties()
-                .getProperty(Plugins.INPUT.GEMINI.GEMINI_API_KEY);
+                .getProperty(Addon.INPUT.GEMINI.GEMINI_API_KEY);
         },
         clearApiKey() {
             PropertiesService.getDocumentProperties()
-                .deleteProperty(Plugins.INPUT.GEMINI.GEMINI_API_KEY);
+                .deleteProperty(Addon.INPUT.GEMINI.GEMINI_API_KEY);
         },
         saveModel(model) {
-            PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.GEMINI.GEMINI_MODEL, model);
+            PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.GEMINI.GEMINI_MODEL, model);
         },
         getModel() {
-            return PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.GEMINI.GEMINI_MODEL) || this.DEFAULT_MODEL;
+            return PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.GEMINI.GEMINI_MODEL) || this.DEFAULT_MODEL;
         },
         clearModel() {
-            PropertiesService.getDocumentProperties().deleteProperty(Plugins.INPUT.GEMINI.GEMINI_MODEL);
+            PropertiesService.getDocumentProperties().deleteProperty(Addon.INPUT.GEMINI.GEMINI_MODEL);
         },
         _fromRow(row = []) {
             // Convert row array into instruction object based on column order
@@ -942,7 +942,7 @@ Plugins.Modules = {
             },
 
             getCustomerByChatId(activeSpreadsheet, chat_id) {
-                const sheet = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
+                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
                 const range = sheet.getRange('B:B');
                 const textFinder = range.createTextFinder(chat_id);
                 const firstOccurrence = textFinder.findNext();
@@ -954,7 +954,7 @@ Plugins.Modules = {
             },
 
             addNewCustomer(activeSpreadsheet, customer = {}) {
-                const sheet = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
+                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
                 const range = sheet.getDataRange();
                 const values = range.getValues() || [];
 
@@ -1001,7 +1001,7 @@ Plugins.Modules = {
             },
 
             addProduct(activeSpreadsheet, product = {}) {
-                const sheet = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
                 const range = sheet.getDataRange();
 
                 // add product as a new row
@@ -1011,7 +1011,7 @@ Plugins.Modules = {
             },
 
             getProductBySN(activeSpreadsheet, sn) {
-                const sheet = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
 
                 // Search for the product by SN in the first column
                 const range = sheet.getRange('A:A');
@@ -1025,7 +1025,7 @@ Plugins.Modules = {
             },
 
             listProducts(activeSpreadsheet, category = '', subcategory = '', limit = 100, offset = 0) {
-                const sheet = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
                 const range = sheet.getDataRange();
                 const values = range.getValues() || [];
                 const products = [];
@@ -1045,7 +1045,7 @@ Plugins.Modules = {
             },
 
             listCategories(activeSpreadsheet) {
-                const sheet = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
                 const range = sheet.getDataRange();
                 const values = range.getValues() || [];
                 const categories = new Set();
@@ -1117,42 +1117,42 @@ Plugins.Modules = {
 
             revoke() {
                 // Simulate revocation logic
-                PropertiesService.getUserProperties().deleteProperty(Plugins.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY);
+                PropertiesService.getUserProperties().deleteProperty(Addon.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY);
                 return true;
             },
 
             createMembershipInfo(days = this.DEFAULT_TRIAL_DAYS, balance = this.DEFAULT_TRIAL_BALANCE, licenseKey = this.DEFAULT_LICENSE_KEY) {
                 const membership = {
-                    [Plugins.INPUT.SYSTEM.MEMBERSHIP.CREATED_ON]: new Date().toISOString(),
-                    [Plugins.INPUT.SYSTEM.MEMBERSHIP.LICENSE_KEY]: licenseKey,
+                    [Addon.INPUT.SYSTEM.MEMBERSHIP.CREATED_ON]: new Date().toISOString(),
+                    [Addon.INPUT.SYSTEM.MEMBERSHIP.LICENSE_KEY]: licenseKey,
                     // Add the specified number of days to the current date
-                    [Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString(),
-                    [Plugins.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance,
+                    [Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString(),
+                    [Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance,
                     type: licenseKey === this.DEFAULT_LICENSE_KEY ? 'trial' : 'paid'
                 }
                 return membership;
             },
 
             getMembershipInfo() {
-                const membershipData = PropertiesService.getUserProperties().getProperty(Plugins.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY);
+                const membershipData = PropertiesService.getUserProperties().getProperty(Addon.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY);
                 if (!membershipData) {
                     return null;
                 }
 
                 try {
                     const {
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.LICENSE_KEY]: licenseKey,
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.LICENSE_KEY]: licenseKey,
                         type,
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.CREATED_ON]: createdOn,
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance = 0
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.CREATED_ON]: createdOn,
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance = 0
                     } = JSON.parse(membershipData);
                     return {
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.LICENSE_KEY]: licenseKey,
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.LICENSE_KEY]: licenseKey,
                         type,
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.CREATED_ON]: createdOn,
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
-                        [Plugins.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.CREATED_ON]: createdOn,
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
+                        [Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance
                     };
                 } catch (error) {
                     console.error('Error parsing membership info:', error);
@@ -1161,14 +1161,14 @@ Plugins.Modules = {
             },
 
             setMembershipInfo(membershipInfo = {}) {
-                PropertiesService.getUserProperties().setProperty(Plugins.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY, JSON.stringify(membershipInfo));
+                PropertiesService.getUserProperties().setProperty(Addon.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY, JSON.stringify(membershipInfo));
                 return membershipInfo;
             }
         },
     }
 };
 
-Plugins.MCP = {
+Addon.MCP = {
     Host: {
         handleWebhookEvent(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), e = {}) {
             if (!e.postData || !e.postData.contents) {
@@ -1178,7 +1178,7 @@ Plugins.MCP = {
             const contents = JSON.parse(e.postData.contents);
 
 
-            const mcpServer = new Plugins.MCP.Server({
+            const mcpServer = new Addon.MCP.Server({
                 "name": 'Telegram Bot Server',
                 "description": 'Handles incoming Telegram updates, processes them using the Gemini API, and responds appropriately using the Telegram Bot API.',
                 "version": '1.0.0',
@@ -1257,16 +1257,16 @@ Plugins.MCP = {
                 }]
             });
             // Generate prompt for Gemini based on the incoming Telegram update and available data sources defined in MCP Client Roots
-            const prompt = Plugins.MCP.Host.assembleInstructionPrompt(activeSpreadsheet, contents);
+            const prompt = Addon.MCP.Host.assembleInstructionPrompt(activeSpreadsheet, contents);
             // Call the Gemini API to generate content based on the prompt and retrieve the generated response, which should include the necessary information to call the Telegram Bot API (e.g., action, chat_id, text, etc.).
-            const generatedContentJson = Plugins.MCP.Host.generateContent(activeSpreadsheet, prompt);
+            const generatedContentJson = Addon.MCP.Host.generateContent(activeSpreadsheet, prompt);
 
             // Execute the generated response action using the Telegram Bot API tools defined in MCP Server and return the result
             let telegramApiResponse;
             if (generatedContentJson.action && generatedContentJson.chat_id) {
-                telegramApiResponse = Plugins.MCP.Host.callTelegramApi(generatedContentJson);
+                telegramApiResponse = Addon.MCP.Host.callTelegramApi(generatedContentJson);
             } else if (generatedContentJson.uri) {
-                telegramApiResponse = Plugins.MCP.Host.executeTelegramApi(generatedContentJson);
+                telegramApiResponse = Addon.MCP.Host.executeTelegramApi(generatedContentJson);
             } else {
                 throw new Error('Generated content is missing required fields for Telegram API call. Expected at least "action" and "chat_id", or a "uri" for direct API call.');
             }
@@ -1278,7 +1278,7 @@ Plugins.MCP = {
             // This way, we avoid transmitting large event data through MCP and also add a layer of security by not exposing sensitive event data directly in the prompt.
             // -------------------------------- //
 
-            //const serverTransport = new Plugins.MCP.StdioServerTransport();
+            //const serverTransport = new Addon.MCP.StdioServerTransport();
             //mcpServer.connect(serverTransport);
             //return serverTransport.transmit(e);
 
@@ -1292,16 +1292,16 @@ Plugins.MCP = {
             return finalResponse;
         },
         assembleInstructionPrompt(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), contents = {}) {
-            const cellReference = PropertiesService.getScriptProperties().getProperty(Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE);
+            const cellReference = PropertiesService.getScriptProperties().getProperty(Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE);
             if (!cellReference) {
-                throw new Error(`Instruction cell reference is not set. Please set ${Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} property to the cell containing the instruction prompt template.`);
+                throw new Error(`Instruction cell reference is not set. Please set ${Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} property to the cell containing the instruction prompt template.`);
             }
 
             const sheetName = cellReference.split('!')[0];
             const cellA1Notation = cellReference.split('!')[1];
             const sheet = activeSpreadsheet.getSheetByName(sheetName);
             if (!sheet) {
-                throw new Error(`Sheet "${sheetName}" not found in the active spreadsheet. Please check the ${Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} property.`);
+                throw new Error(`Sheet "${sheetName}" not found in the active spreadsheet. Please check the ${Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} property.`);
             }
             const cell = sheet.getRange(cellA1Notation);
             const value = cell.getValue();
@@ -1335,25 +1335,25 @@ Plugins.MCP = {
             // Retrieve the Gemini API key from script properties. 
             // If the API key is not set, throw an error to inform the user to set it up before using the Gemini integration. 
             // This ensures that we have the necessary credentials to authenticate with the Gemini API and generate content based on the provided prompt.
-            const geminiApiKey = Plugins.Modules.GeminiAgent.getScriptApiKey();
+            const geminiApiKey = Addon.Modules.GeminiAgent.getScriptApiKey();
             if (!geminiApiKey) {
-                throw new Error(`Gemini API key is not set. Please set ${Plugins.INPUT.GEMINI.GEMINI_API_KEY} property.`);
+                throw new Error(`Gemini API key is not set. Please set ${Addon.INPUT.GEMINI.GEMINI_API_KEY} property.`);
             }
 
             // Determine which Gemini model to use based on user selection in the sheet or default to the predefined model. 
             // This allows for flexibility in choosing different models for different types of prompts or experiments.
-            const model = Plugins.Modules.GeminiAgent.getScriptModel() || Plugins.Modules.GeminiAgent.DEFAULT_MODEL;
+            const model = Addon.Modules.GeminiAgent.getScriptModel() || Addon.Modules.GeminiAgent.DEFAULT_MODEL;
 
             // Call the Gemini API client to generate content based on the provided prompt and selected model. 
             // The response is expected to contain the generated content in a specific format, which we will parse and return as a JSON object. 
             // We also log the prompt, model, and response for debugging purposes.
-            const response = Plugins.Modules.GeminiApiClient.generateContent(geminiApiKey, model, payload);
+            const response = Addon.Modules.GeminiApiClient.generateContent(geminiApiKey, model, payload);
 
             // Parse the Gemini response to extract the generated content. 
             const generatedContent = response?.candidates?.[0]?.content?.parts?.[0]?.text;
             const generatedContentJson = generatedContent ? JSON.parse(generatedContent) : {};
             // Log the prompt and model being sent to Gemini API for debugging purposes
-            Plugins.MCP.Host.writeGeminiResponse(activeSpreadsheet, generatedContentJson, model, payload, response);
+            Addon.MCP.Host.writeGeminiResponse(activeSpreadsheet, generatedContentJson, model, payload, response);
             return generatedContentJson;
         },
         executeTelegramApi(generatedJson = {}) {
@@ -1363,9 +1363,9 @@ Plugins.MCP = {
             }
 
             // Retrieve the Telegram API key from script properties. If the API key is not set, throw an error to inform the user to set it up before using the Telegram API integration. This ensures that we have the necessary credentials to authenticate with the Telegram API and execute the desired actions based on the Gemini response.
-            const telegramApiKey = Plugins.Modules.TelegramBotSettings.getScriptApiKey();
+            const telegramApiKey = Addon.Modules.TelegramBotSettings.getScriptApiKey();
             if (!telegramApiKey) {
-                throw new Error(`Telegram API key is not set. Please set ${Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
+                throw new Error(`Telegram API key is not set. Please set ${Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
             }
 
             // Validate that the generated JSON contains the necessary fields to make a Telegram API call. We need at least the "uri" to know which Telegram API endpoint to call, and "options.payload" to have the necessary data for the API request. If these fields are missing, we throw an error to indicate that the Gemini response is not in the expected format for making a Telegram API call.
@@ -1374,13 +1374,13 @@ Plugins.MCP = {
             }
 
             // Initialize the Telegram client with the retrieved API key. This client will be used to make API calls to Telegram based on the generated JSON from Gemini.
-            const telegramClient = new Plugins.Modules.TelegramBotClient(telegramApiKey);
+            const telegramClient = new Addon.Modules.TelegramBotClient(telegramApiKey);
 
             // Execute the Telegram API call using the generated JSON from Gemini. The "uri" field specifies which Telegram API endpoint to call (e.g., /sendMessage), and the "options" field contains the necessary parameters for the API call, including the payload with details like chat_id, text, etc. We also log the generated JSON and the response from Telegram for debugging purposes.
             const telegramResponse = telegramClient.executeApiRequest(generatedJson.uri, generatedJson.options);
 
 
-            // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, responseJson, responseText, 'Executing Telegram API request based on Gemini response');
+            // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, responseJson, responseText, 'Executing Telegram API request based on Gemini response');
             if (JSON.parse(responseText).ok !== true) {
                 throw new Error(`Telegram API request failed: ${responseText}`);
             }
@@ -1389,14 +1389,14 @@ Plugins.MCP = {
         writeGeminiResponse(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), eventObject, model, payload, response) {
             // Check if terminal output is enabled
             const terminalOutputEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Plugins.PROPERTIES.terminal_output_switch) || 'ON';
+                .getProperty(Addon.PROPERTIES.terminal_output_switch) || 'ON';
 
             // Check if terminal output is enabled
             if (terminalOutputEnabled !== 'ON') {
                 return;
             }
 
-            const sheet = Plugins.Modules.Sheet.getSheet(activeSpreadsheet, Plugins.Modules.TerminalOutput.SHEET_META);
+            const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, Addon.Modules.TerminalOutput.SHEET_META);
             const generatedText = response?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
             sheet.appendRow([
                 // Created On as iso string
@@ -1432,11 +1432,11 @@ Plugins.MCP = {
             return sheet;
         },
         callTelegramApi(generatedJson = { action: 'sendMessage', chat_id: '', text: '' }) {
-            const telegramApiKey = Plugins.Modules.TelegramBotSettings.getScriptApiKey();
+            const telegramApiKey = Addon.Modules.TelegramBotSettings.getScriptApiKey();
             if (!telegramApiKey) {
-                throw new Error(`Telegram API key is not set. Please set ${Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
+                throw new Error(`Telegram API key is not set. Please set ${Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
             }
-            const telegramClient = new Plugins.Modules.TelegramBotClient(telegramApiKey);
+            const telegramClient = new Addon.Modules.TelegramBotClient(telegramApiKey);
 
             // Execute Tool/Action via Telegram API
 
@@ -1462,7 +1462,7 @@ Plugins.MCP = {
 
             const telegramResponse = telegramClient.executeApiRequest(action, generatedJson);
             const responseText = telegramResponse.getContentText();
-            // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, responseJson, responseText, 'Executing Telegram API request based on Gemini response');
+            // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, responseJson, responseText, 'Executing Telegram API request based on Gemini response');
 
             if (JSON.parse(responseText).ok !== true) {
                 throw new Error(`Telegram API request failed: ${responseText}`);
@@ -1480,7 +1480,7 @@ Plugins.MCP = {
             this.tools = [];
         }
 
-        connect(serverTransport = new Plugins.MCP.StdioServerTransport()) {
+        connect(serverTransport = new Addon.MCP.StdioServerTransport()) {
             serverTransport.Server = this; // Pass reference of MCP Server to the transport layer
         }
 
@@ -1547,7 +1547,7 @@ Plugins.MCP = {
     }
 };
 
-Plugins.Helper = {
+Addon.Helper = {
     Controller: {},
     View: {
         BuildResultSection: (botName = '', action = '.', result = {}) => {
@@ -1570,11 +1570,11 @@ Plugins.Helper = {
                 const value = result[key];
                 if (typeof value === 'boolean') {
                     settingsGrid.addItem(
-                        Plugins.Helper.View.createBooleanItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
+                        Addon.Helper.View.createBooleanItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
                 }
                 if (typeof value === 'number') {
                     settingsGrid.addItem(
-                        Plugins.Helper.View.createNumberItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
+                        Addon.Helper.View.createNumberItem(key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), value));
                 }
             });
 
@@ -1600,7 +1600,7 @@ Plugins.Helper = {
 
             // Add Export to Sheet widget
             newSection.addWidget(
-                Plugins.ResultWidget.View.BuildExportWidget(botName, action, result)
+                Addon.ResultWidget.View.BuildExportWidget(botName, action, result)
             );
 
             // Build the execution result card
@@ -1627,7 +1627,7 @@ Plugins.Helper = {
     }
 };
 
-Plugins.Home = {
+Addon.Home = {
     id: 'HomePlugin',
     name: 'Telegram Bot Studio',
     short_description: 'A suite of tools for Telegram Bots',
@@ -1639,9 +1639,9 @@ Plugins.Home = {
             emoji: '💫',
             description: 'Create new content using AI.',
             icon: 'auto_awesome',
-            action: 'Plugins.GeminiAgent.Controller.PushHomeCard',
+            action: 'Addon.GeminiAgent.Controller.PushHomeCard',
             requires: [
-                Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN
+                Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN
             ]
         }
     ],
@@ -1649,13 +1649,13 @@ Plugins.Home = {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             // Log the event for debugging
-            //Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Controller.Home', 'Load', 'Loading Home Card with AppModel data.');
+            //Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Controller.Home', 'Load', 'Loading Home Card with AppModel data.');
 
             // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.getData();
+            const appModelData = Addon.Modules.App.getData();
 
             // Build and return the Home Card
-            const homeCard = Plugins.Home.View.HomeCard(appModelData);
+            const homeCard = Addon.Home.View.HomeCard(appModelData);
 
             let cardNavigation;
             if (e.parameters && e.parameters.refresh === 'true') {
@@ -1673,49 +1673,49 @@ Plugins.Home = {
         },
         PushHomeCard: (e) => {
             // Build and return the Home Card
-            const data = Plugins.Modules.App.getData();
+            const data = Addon.Modules.App.getData();
 
             // Return action response to update card
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.Home.View.HomeCard(data)))
+                            Addon.Home.View.HomeCard(data)))
                 .build();
         },
         UpdateHomeCard: (e) => {
             // Build and return the Home Card
-            const data = Plugins.Modules.App.getData();
+            const data = Addon.Modules.App.getData();
 
             // Return action response to update card
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .updateCard(
-                            Plugins.Home.View.HomeCard(data)))
+                            Addon.Home.View.HomeCard(data)))
                 .build();
         },
         PushAboutCard: (e) => {
             // Build and return the About Card
-            const data = Plugins.Modules.App.getData();
+            const data = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
-                        .pushCard(Plugins.Home.View.AboutCard(data))
+                        .pushCard(Addon.Home.View.AboutCard(data))
                 ).build();
         },
         PushHelpCard: (e) => {
             // Build and return the Help Card
-            const data = Plugins.Modules.App.getData();
+            const data = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
-                        .pushCard(Plugins.Home.View.HelpCard(data))
+                        .pushCard(Addon.Home.View.HelpCard(data))
                 ).build();
         },
         _HandleResultNavigation: (e, result) => {
             const formInputs = e?.commonEventObject?.formInputs || {};
-            const showErrorsState = formInputs?.[Plugins.PROPERTIES.show_errors_switch]?.stringInputs?.value[0] || "OFF";
+            const showErrorsState = formInputs?.[Addon.PROPERTIES.show_errors_switch]?.stringInputs?.value[0] || "OFF";
             if (result.report.length > 0) {
                 if (showErrorsState === 'ON') {
                     // Build and return the result card
@@ -1723,7 +1723,7 @@ Plugins.Home = {
                         .setNavigation(
                             CardService.newNavigation()
                                 .pushCard(
-                                    Plugins.ResultWidget.View
+                                    Addon.ResultWidget.View
                                         .BuildResultCard(result))
                         ).build();
                 }
@@ -1746,66 +1746,66 @@ Plugins.Home = {
     },
     View: {
         HomeCard: (data = {}) => {
-            data.isConnected = !!data[Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN];
+            data.isConnected = !!data[Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN];
 
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.Home.id + '-Home')
+                .setName(Addon.Home.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle(Plugins.Package.name)
+                    .setTitle(Addon.Package.name)
                     .setSubtitle(data.leds)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.Package.imageUrl)
+                    .setImageUrl(Addon.Package.imageUrl)
                     .setImageAltText('Telegram Bot Studio Logo'));
 
             // Build connection list section
-            Plugins.Home.View._AddConecctionListSections(cardBuilder, data);
+            Addon.Home.View._AddConecctionListSections(cardBuilder, data);
 
             // Add sections for each available tool
-            Plugins.Home.listOfTools.forEach(tool => {
+            Addon.Home.listOfTools.forEach(tool => {
                 cardBuilder.addSection(
-                    Plugins.Home.View._BuildToolSection(data, tool));
+                    Addon.Home.View._BuildToolSection(data, tool));
             });
 
             // Quick Access Section
-            cardBuilder.addSection(Plugins.Home.View._BuildQuickAccessSection(data));
+            cardBuilder.addSection(Addon.Home.View._BuildQuickAccessSection(data));
 
             // Premium Membership Section
-            if (!data[Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]) {
-                cardBuilder.addSection(Plugins.Home.View._BuildPremiumMembershipSection(data));
+            if (!data[Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]) {
+                cardBuilder.addSection(Addon.Home.View._BuildPremiumMembershipSection(data));
                 cardBuilder.setFixedFooter(CardService.newFixedFooter()
                     .setPrimaryButton(CardService.newTextButton()
                         .setText('💎 Upgrade to Premium')
-                        .setBackgroundColor(Plugins.primaryColor())
+                        .setBackgroundColor(Addon.primaryColor())
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.UserProfile.Controller.PushHomeCard'))));
+                            .setFunctionName('Addon.UserProfile.Controller.PushHomeCard'))));
             }
 
             return cardBuilder.build();
         },
         AboutCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.Home.id + '-About')
+                .setName(Addon.Home.id + '-About')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle('About ' + Plugins.Package.name)
-                    .setSubtitle(Plugins.Package.short_description)
+                    .setTitle('About ' + Addon.Package.name)
+                    .setSubtitle(Addon.Package.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.Media.BIG_TIME_IMG_URL)
+                    .setImageUrl(Addon.Media.BIG_TIME_IMG_URL)
                     .setImageAltText('Card Image'))
                 .addSection(
                     CardService.newCardSection()
                         .setHeader('App Information')
                         .addWidget(
                             CardService.newTextParagraph()
-                                .setText(`Name: ${Plugins.Package.name}`))
+                                .setText(`Name: ${Addon.Package.name}`))
                         .addWidget(
                             CardService.newTextParagraph()
-                                .setText(`Version: ${Plugins.Package.version}`))
+                                .setText(`Version: ${Addon.Package.version}`))
                         .addWidget(
                             CardService.newTextParagraph()
-                                .setText(`Build: ${Plugins.Package.build}`))
+                                .setText(`Build: ${Addon.Package.build}`))
                         .addWidget(
                             CardService.newTextParagraph()
-                                .setText(`Description: ${Plugins.Package.description}`))
+                                .setText(`Description: ${Addon.Package.description}`))
                         .addWidget(
                             CardService.newTextParagraph()
                                 .setText(`Developed by Easy ADM (https://easyadm.com).`)));
@@ -1820,24 +1820,24 @@ Plugins.Home = {
                             .setText('📄 Documentation')
                             .setOpenLink(
                                 CardService.newOpenLink()
-                                    .setUrl(`${Plugins.Package.gitRepository}#readme`)))
+                                    .setUrl(`${Addon.Package.gitRepository}#readme`)))
                     .addWidget(
                         CardService.newTextButton()
                             .setText('📢 Report Issues')
                             .setOpenLink(
                                 CardService.newOpenLink()
-                                    .setUrl(`${Plugins.Package.gitRepository}/issues`))));
+                                    .setUrl(`${Addon.Package.gitRepository}/issues`))));
 
             return cardBuilder.build();
         },
         HelpCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.Home.id + '-Help')
+                .setName(Addon.Home.id + '-Help')
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Help & Support')
-                    .setSubtitle(Plugins.Home.short_description)
+                    .setSubtitle(Addon.Home.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.Media.YES_IMG_URL)
+                    .setImageUrl(Addon.Media.YES_IMG_URL)
                     .setImageAltText('Help Image'));
 
             // 1. Getting Started Guide Section
@@ -1878,24 +1878,24 @@ Plugins.Home = {
                 .addWidget(CardService.newTextButton()
                     .setText('📄 Read Documentation')
                     .setOpenLink(CardService.newOpenLink()
-                        .setUrl(`${Plugins.Package.gitRepository}#readme`)))
+                        .setUrl(`${Addon.Package.gitRepository}#readme`)))
                 .addWidget(CardService.newTextButton()
                     .setText('📢 Report a Bug')
                     .setOpenLink(CardService.newOpenLink()
-                        .setUrl(`${Plugins.Package.gitRepository}/issues`))));
+                        .setUrl(`${Addon.Package.gitRepository}/issues`))));
             return cardBuilder.build();
         },
         _AddConecctionListSections: (cardBuilder, data = {}) => {
             // Telegram Bot Connection & Status Section (Pinned to Top)
             cardBuilder.addSection(
-                Plugins.TelegramBotConnection.View.WelcomeSection(data));
+                Addon.TelegramBotConnection.View.WelcomeSection(data));
 
             // Gemini Assistant Connection & Status Section (Pinned to Top)
             cardBuilder.addSection(
-                Plugins.GeminiAgent.View.WelcomeSection(data));
+                Addon.GeminiAgent.View.WelcomeSection(data));
 
             cardBuilder.addSection(
-                Plugins.Webhook.View.WelcomeSection(data));
+                Addon.Webhook.View.WelcomeSection(data));
 
 
 
@@ -1940,10 +1940,10 @@ Plugins.Home = {
                 // Determine which requirements are not met for the warning message
                 const unmetRequirements = tool.requires.filter(req => !data[req]);
                 const requirementMessages = {
-                    [Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]: 'Premium Membership required',
-                    [Plugins.INPUT.GEMINI.GEMINI_API_KEY]: 'Gemini API Key required',
-                    [Plugins.INPUT.GEMINI.GEMINI_MODEL]: 'Gemini Model selection required',
-                    [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: 'Telegram Bot API Token required'
+                    [Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]: 'Premium Membership required',
+                    [Addon.INPUT.GEMINI.GEMINI_API_KEY]: 'Gemini API Key required',
+                    [Addon.INPUT.GEMINI.GEMINI_MODEL]: 'Gemini Model selection required',
+                    [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: 'Telegram Bot API Token required'
                 };
                 const unmetMessages = unmetRequirements.map(req => requirementMessages[req] || 'Unknown requirement').join(' & ');
                 section.addWidget(CardService.newDecoratedText()
@@ -1966,15 +1966,15 @@ Plugins.Home = {
                     .addButton(CardService.newTextButton()
                         .setText('Settings')
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Settings.Controller.PushHomeCard')))
+                            .setFunctionName('Addon.Settings.Controller.PushHomeCard')))
                     .addButton(CardService.newTextButton()
                         .setText('Help & Support')
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Home.Controller.PushHelpCard')))
+                            .setFunctionName('Addon.Home.Controller.PushHelpCard')))
                     .addButton(CardService.newTextButton()
                         .setText('About')
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.Home.Controller.PushAboutCard')))
+                            .setFunctionName('Addon.Home.Controller.PushAboutCard')))
                 );
         },
         _BuildPremiumMembershipSection: (data = {}) => {
@@ -1983,24 +1983,24 @@ Plugins.Home = {
                 .setCollapsible(false)
                 .addWidget(CardService.newDecoratedText()
                     .setTopLabel('Membership Status')
-                    .setText(data[Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM] ? 'Premium Member' : 'Free Member')
+                    .setText(data[Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM] ? 'Premium Member' : 'Free Member')
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('workspace_premium')))
-                    .setBottomLabel(data[Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]
-                        ? `Expires on: ${data[Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(data[Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]).toDateString() : 'N/A'} | Balance: $${data[Plugins.INPUT.SYSTEM.MEMBERSHIP.BALANCE].toFixed(2)}`
+                    .setBottomLabel(data[Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]
+                        ? `Expires on: ${data[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(data[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]).toDateString() : 'N/A'} | Balance: $${data[Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE].toFixed(2)}`
                         : 'Upgrade to unlock advanced AI tools.'));
             return membershipSection;
         }
     }
 };
 
-Plugins.ConfirmationCard = {
+Addon.ConfirmationCard = {
     id: 'ConfirmationCardPlugin',
     name: 'Confirmation Card',
     short_description: 'Standardized confirmation dialog',
     description: 'A reusable confirmation dialog plugin to standardize user confirmations across various actions within the Telegram Bot Studio environment.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.PAY_ATTENTION_IMG_URL,
+    imageUrl: Addon.Media.PAY_ATTENTION_IMG_URL,
     Controller: {
         Load: (e = {}) => {
             const title = e?.commonEventObject?.parameters?.title || 'Confirm Action';
@@ -2017,7 +2017,7 @@ Plugins.ConfirmationCard = {
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.ConfirmationCard.View.HomeCard({
+                            Addon.ConfirmationCard.View.HomeCard({
                                 title: title,
                                 message: message,
                                 onClickFunctionName: onClickFunctionName,
@@ -2028,7 +2028,7 @@ Plugins.ConfirmationCard = {
                 .build();
         },
         Confirm: (e) => {
-            // extract parameters from event object onClickFunctionName = 'Plugins['Name'].Controller['Function']', onClickParameters={}
+            // extract parameters from event object onClickFunctionName = 'Addon['Name'].Controller['Function']', onClickParameters={}
             const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
             const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
 
@@ -2037,11 +2037,11 @@ Plugins.ConfirmationCard = {
             }
 
             // Resolve the function from the string name 
-            // onClickFunctionName = 'Plugins.Name.Controller.Function'
+            // onClickFunctionName = 'Addon.Name.Controller.Function'
             const functionPathParts = onClickFunctionName.split('.');
             let actionResult = null;
             try {
-                let func = Plugins;
+                let func = Addon;
                 for (let i = 1; i < functionPathParts.length; i++) {
                     func = func[functionPathParts[i]];
                 }
@@ -2063,11 +2063,11 @@ Plugins.ConfirmationCard = {
         HomeCard: (data = {}) => {
             // Build the Confirmation Card.
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.ConfirmationCard.id + '-Home')
+                .setName(Addon.ConfirmationCard.id + '-Home')
                 .setHeader(CardService.newCardHeader()
                     .setTitle(data.title || 'Confirm Action')
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.ConfirmationCard.imageUrl)
+                    .setImageUrl(Addon.ConfirmationCard.imageUrl)
                     .setImageAltText('Confirmation Image'));
 
             // Build the main section
@@ -2085,87 +2085,87 @@ Plugins.ConfirmationCard = {
                         CardService.newTextButton()
                             .setText('Confirm')
                             .setOnClickAction(CardService.newAction()
-                                .setFunctionName('Plugins.ConfirmationCard.Controller.Confirm')
+                                .setFunctionName('Addon.ConfirmationCard.Controller.Confirm')
                                 .setParameters({ onClickFunctionName: data.onClickFunctionName, onClickParameters: JSON.stringify(data.onClickParameters || {}) })))
                     .setSecondaryButton(
                         CardService.newTextButton()
                             .setText('Cancel')
                             .setOnClickAction(CardService.newAction()
-                                .setFunctionName('Plugins.ConfirmationCard.Controller.Cancel'))));
+                                .setFunctionName('Addon.ConfirmationCard.Controller.Cancel'))));
 
             return cardBuilder.build();
         }
     }
 };
 
-Plugins.Settings = {
+Addon.Settings = {
     id: 'SettingsPlugin',
     name: 'Settings',
     short_description: 'Manage bot settings and preferences',
     description: 'The Settings card allows you to manage and configure settings for your Telegram bot add-on. You can adjust preferences, set up integrations, and customize the behavior of your bot to suit your needs.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.WELCOME_IMG_URL,
+    imageUrl: Addon.Media.WELCOME_IMG_URL,
     Controller: {
         PushHomeCard: (e) => {
             // Build and return the Settings Home Card
-            const appModelData = Plugins.Modules.App.getData();
+            const appModelData = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
-                        .pushCard(Plugins.Settings.View.HomeCard({ ...appModelData }))
+                        .pushCard(Addon.Settings.View.HomeCard({ ...appModelData }))
                 ).build();
         },
         SaveSettings: (e) => {
             // extract and save API endpoint URL
-            const apiEndpointUrl = e?.commonEventObject?.formInputs?.[Plugins.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL]?.stringInputs?.value?.[0] || '';
+            const apiEndpointUrl = e?.commonEventObject?.formInputs?.[Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL]?.stringInputs?.value?.[0] || '';
             if (apiEndpointUrl) {
-                PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL, apiEndpointUrl);
+                PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL, apiEndpointUrl);
             }
             // extract and save secret private key
-            const secretPrivateKey = e?.commonEventObject?.formInputs?.[Plugins.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0] || '';
+            const secretPrivateKey = e?.commonEventObject?.formInputs?.[Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0] || '';
             if (secretPrivateKey) {
-                PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN, secretPrivateKey);
+                PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN, secretPrivateKey);
             }
 
             // focus_terminal_output
-            const focusTerminalOutput = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.focus_terminal_output]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.PROPERTIES.focus_terminal_output, focusTerminalOutput === 'ON' ? 'ON' : 'OFF');
+            const focusTerminalOutput = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.focus_terminal_output]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.focus_terminal_output, focusTerminalOutput === 'ON' ? 'ON' : 'OFF');
 
             // terminal_output_switch
-            const terminalOutputSwitch = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.terminal_output_switch]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.PROPERTIES.terminal_output_switch, terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
+            const terminalOutputSwitch = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.terminal_output_switch]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.terminal_output_switch, terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
 
             // praittfy_json
-            const praittfyJson = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.praittfy_json]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.PROPERTIES.praittfy_json, praittfyJson === 'ON' ? 'ON' : 'OFF');
+            const praittfyJson = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.praittfy_json]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.praittfy_json, praittfyJson === 'ON' ? 'ON' : 'OFF');
 
             // enable_event_logging
-            const enableEventLogging = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.enable_event_logging]?.stringInputs?.value?.[0] || 'OFF';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.PROPERTIES.enable_event_logging, enableEventLogging === 'ON' ? 'ON' : 'OFF');
+            const enableEventLogging = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.enable_event_logging]?.stringInputs?.value?.[0] || 'OFF';
+            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.enable_event_logging, enableEventLogging === 'ON' ? 'ON' : 'OFF');
 
             // indentation_spaces
-            const indentationSpaces = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.indentation_spaces]?.stringInputs?.value?.[0] || '2';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.PROPERTIES.indentation_spaces, ['1', '2', '4', '6', '8'].includes(indentationSpaces) ? indentationSpaces : '2');
+            const indentationSpaces = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.indentation_spaces]?.stringInputs?.value?.[0] || '2';
+            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.indentation_spaces, ['1', '2', '4', '6', '8'].includes(indentationSpaces) ? indentationSpaces : '2');
 
             // show_errors_switch
-            const showErrorsSwitch = e?.commonEventObject?.formInputs?.[Plugins.PROPERTIES.show_errors_switch]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.PROPERTIES.show_errors_switch, showErrorsSwitch === 'ON' ? 'ON' : 'OFF');
+            const showErrorsSwitch = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.show_errors_switch]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.show_errors_switch, showErrorsSwitch === 'ON' ? 'ON' : 'OFF');
 
             // gemini_api_key
-            const geminiApiKey = e?.commonEventObject?.formInputs?.[Plugins.INPUT.GEMINI.GEMINI_API_KEY]?.stringInputs?.value?.[0] || '[YOUR GEMINI API KEY]';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.GEMINI.GEMINI_API_KEY, geminiApiKey);
+            const geminiApiKey = e?.commonEventObject?.formInputs?.[Addon.INPUT.GEMINI.GEMINI_API_KEY]?.stringInputs?.value?.[0] || '[YOUR GEMINI API KEY]';
+            PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.GEMINI.GEMINI_API_KEY, geminiApiKey);
 
             // gemini_model_selector
-            const geminiModel = e?.commonEventObject?.formInputs?.[Plugins.INPUT.GEMINI.GEMINI_MODEL]?.stringInputs?.value?.[0] || 'gemini-3-flash-preview';
-            PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.GEMINI.GEMINI_MODEL, geminiModel);
+            const geminiModel = e?.commonEventObject?.formInputs?.[Addon.INPUT.GEMINI.GEMINI_MODEL]?.stringInputs?.value?.[0] || 'gemini-3-flash-preview';
+            PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.GEMINI.GEMINI_MODEL, geminiModel);
 
             // Build and return the Home Card
-            const appModelData = Plugins.Modules.App.getData();
+            const appModelData = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .popToRoot()
-                        .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
+                        .updateCard(Addon.Home.View.HomeCard({ ...appModelData }))
                 ).build();
         },
         ToggleAction(e) {
@@ -2183,7 +2183,7 @@ Plugins.Settings = {
                     .build();
             } catch (error) {
                 // log error to terminal output
-                Plugins.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
+                Addon.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
                     e,
                     'Settings.ToggleAction',
                     'ERROR',
@@ -2206,22 +2206,22 @@ Plugins.Settings = {
             const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
 
             // Fetch properties with robust fallbacks
-            data[Plugins.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL] = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL) || 'https://api.telegram.org/';
-            data.terminal_output_switch = PropertiesService.getDocumentProperties().getProperty(Plugins.PROPERTIES.terminal_output_switch) || 'OFF';
-            data.focus_terminal_output = PropertiesService.getDocumentProperties().getProperty(Plugins.PROPERTIES.focus_terminal_output) || 'OFF';
-            data.praittfy_json = PropertiesService.getDocumentProperties().getProperty(Plugins.PROPERTIES.praittfy_json) || 'OFF';
-            data.txt_secret_private_key = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN) || privateKeyDemo;
-            data.enable_event_logging = PropertiesService.getDocumentProperties().getProperty(Plugins.PROPERTIES.enable_event_logging) || 'OFF';
-            data.indentation_spaces = PropertiesService.getDocumentProperties().getProperty(Plugins.PROPERTIES.indentation_spaces) || '2';
-            data.show_errors_switch = PropertiesService.getDocumentProperties().getProperty(Plugins.PROPERTIES.show_errors_switch) || 'OFF';
+            data[Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL] = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL) || 'https://api.telegram.org/';
+            data.terminal_output_switch = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.terminal_output_switch) || 'OFF';
+            data.focus_terminal_output = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.focus_terminal_output) || 'OFF';
+            data.praittfy_json = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.praittfy_json) || 'OFF';
+            data.txt_secret_private_key = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN) || privateKeyDemo;
+            data.enable_event_logging = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.enable_event_logging) || 'OFF';
+            data.indentation_spaces = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.indentation_spaces) || '2';
+            data.show_errors_switch = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.show_errors_switch) || 'OFF';
 
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.Settings.name + '-Home')
+                .setName(Addon.Settings.name + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle(Plugins.Settings.name)
-                    .setSubtitle(Plugins.Settings.short_description)
+                    .setTitle(Addon.Settings.name)
+                    .setSubtitle(Addon.Settings.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.Settings.imageUrl)
+                    .setImageUrl(Addon.Settings.imageUrl)
                     .setImageAltText('Settings Logo'));
 
             // Network & Security Section (Compact Grouping)
@@ -2233,9 +2233,9 @@ Plugins.Settings = {
             // API Endpoint Input
             configSection.addWidget(
                 CardService.newTextInput()
-                    .setFieldName(Plugins.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL)
+                    .setFieldName(Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL)
                     .setTitle('API Endpoint URL')
-                    .setValue(data[Plugins.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL] || '')
+                    .setValue(data[Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL] || '')
                     .setHint('Default: https://api.telegram.org/')
                     .setMultiline(false)
             );
@@ -2250,7 +2250,7 @@ Plugins.Settings = {
             // Gemini API Key Input
             devSection.addWidget(
                 CardService.newTextInput()
-                    .setFieldName(Plugins.INPUT.GEMINI.GEMINI_API_KEY)
+                    .setFieldName(Addon.INPUT.GEMINI.GEMINI_API_KEY)
                     .setTitle('Gemini API Key')
                     .setValue(data.gemini_api_key || '')
                     .setHint('Enter your Gemini API key')
@@ -2264,9 +2264,9 @@ Plugins.Settings = {
                     .setType(CardService.SelectionInputType.DROPDOWN)
                     // Enable for premium users
                     .setTitle('🤖 Gemini Model')
-                    .setFieldName(Plugins.INPUT.GEMINI.GEMINI_MODEL);
+                    .setFieldName(Addon.INPUT.GEMINI.GEMINI_MODEL);
             // Add available Gemini models as options
-            const geminiModels = Plugins.Modules.GeminiApiClient.MODELS;
+            const geminiModels = Addon.Modules.GeminiApiClient.MODELS;
             // Loop through the models and add them as options to the selector
             for (const modelKey in geminiModels) {
                 if (Object.prototype.hasOwnProperty.call(geminiModels, modelKey)) {
@@ -2287,7 +2287,7 @@ Plugins.Settings = {
                         CardService.newMaterialIcon().setName('event_note').setFill(false)))
                     .setSwitchControl(
                         CardService.newSwitch()
-                            .setFieldName(Plugins.PROPERTIES.enable_event_logging)
+                            .setFieldName(Addon.PROPERTIES.enable_event_logging)
                             .setValue('ON')
                             .setSelected(data.enable_event_logging === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -2304,7 +2304,7 @@ Plugins.Settings = {
                         CardService.newMaterialIcon().setName('format_align_left').setFill(false)))
                     .setSwitchControl(
                         CardService.newSwitch()
-                            .setFieldName(Plugins.PROPERTIES.praittfy_json)
+                            .setFieldName(Addon.PROPERTIES.praittfy_json)
                             .setValue('ON')
                             .setSelected(data.praittfy_json === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -2319,12 +2319,12 @@ Plugins.Settings = {
                 .setPrimaryButton(
                     CardService.newTextButton()
                         .setText('Save Configuration')
-                        .setBackgroundColor(Plugins.primaryColor())
+                        .setBackgroundColor(Addon.primaryColor())
                         //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
                         .setMaterialIcon(CardService.newMaterialIcon().setName('save'))
                         .setOnClickAction(
                             CardService.newAction()
-                                .setFunctionName('Plugins.Settings.Controller.SaveSettings')
+                                .setFunctionName('Addon.Settings.Controller.SaveSettings')
                         )
                 );
 
@@ -2335,21 +2335,21 @@ Plugins.Settings = {
     }
 };
 
-Plugins.UserProfile = {
+Addon.UserProfile = {
     id: 'UserProfilePlugin',
     name: 'User Profile',
     short_description: 'Manage your account and membership',
     description: 'The User Profile plugin allows you to manage your account information, view your membership status, and upgrade to premium features. You can easily access your profile details and make changes to your subscription directly from this card.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.YOU_GOT_IT_IMG_URL,
+    imageUrl: Addon.Media.YOU_GOT_IT_IMG_URL,
     Controller: {
         PushHomeCard(e) {
             try {
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
-                            .pushCard(Plugins.UserProfile.View.HomeCard(data))
+                            .pushCard(Addon.UserProfile.View.HomeCard(data))
                     ).build();
             } catch (error) {
                 return this.handleOperationError(error);
@@ -2358,19 +2358,19 @@ Plugins.UserProfile = {
         ActivatePremium(e) {
             try {
                 // Simulate activation logic
-                Plugins.Modules.CRM.Membership.activate(
-                    Plugins.Modules.CRM.Membership.DEFAULT_TRIAL_DAYS,
-                    Plugins.Modules.CRM.Membership.DEFAULT_TRIAL_BALANCE,
+                Addon.Modules.CRM.Membership.activate(
+                    Addon.Modules.CRM.Membership.DEFAULT_TRIAL_DAYS,
+                    Addon.Modules.CRM.Membership.DEFAULT_TRIAL_BALANCE,
                     'trial');
 
                 // Build and return the Home Card
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .popToRoot()
                             .updateCard(
-                                Plugins.Home.View.HomeCard(data))
+                                Addon.Home.View.HomeCard(data))
                     ).build();
             } catch (error) {
                 return this.handleOperationError(error);
@@ -2380,11 +2380,11 @@ Plugins.UserProfile = {
             // Show confirmation card before revoking license
             const title = 'Cancel Subscription';
             const message = 'Are you sure you want to cancel your premium subscription? You will lose access to premium features.';
-            const onClickFunctionName = 'Plugins.UserProfile.Controller.RevokeLicense';
+            const onClickFunctionName = 'Addon.UserProfile.Controller.RevokeLicense';
             const onClickParameters = e?.commonEventObject?.parameters || {};
 
             // Push Confirmation Card
-            return Plugins.ConfirmationCard.Controller.Confirm({
+            return Addon.ConfirmationCard.Controller.Confirm({
                 commonEventObject: {
                     parameters: { title, message, onClickFunctionName, onClickParameters }
                 }
@@ -2393,16 +2393,16 @@ Plugins.UserProfile = {
         RevokeLicense(e) {
             try {
                 // Simulate license revocation logic
-                Plugins.Modules.CRM.Membership.revoke();
+                Addon.Modules.CRM.Membership.revoke();
 
                 // Build and return the Home Card
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .popToRoot()
                             .updateCard(
-                                Plugins.Home.View.HomeCard(data))
+                                Addon.Home.View.HomeCard(data))
                     ).build();
             } catch (error) {
                 // Return error notification
@@ -2422,16 +2422,16 @@ Plugins.UserProfile = {
     View: {
         HomeCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.UserProfile.id + '-Home')
+                .setName(Addon.UserProfile.id + '-Home')
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Account Overview')
                     .setSubtitle('Manage your profile & membership')
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.Media.YOU_GOT_IT_IMG_URL)
+                    .setImageUrl(Addon.Media.YOU_GOT_IT_IMG_URL)
                     .setImageAltText('User Profile Avatar'));
 
             // 1. Membership Status & details Section            
-            cardBuilder.addSection(Plugins.UserProfile.View._BuildMembershipSection(data));
+            cardBuilder.addSection(Addon.UserProfile.View._BuildMembershipSection(data));
 
             // 2. Feature Comparison Section (Professional Touch)
             const featureSection = CardService.newCardSection()
@@ -2451,7 +2451,7 @@ Plugins.UserProfile = {
                     .setText(f.name)
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('check_circle').setFill(false)))
-                    .setBottomLabel(data?.[Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM] ? 'Active' : 'Premium Only'));
+                    .setBottomLabel(data?.[Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM] ? 'Active' : 'Premium Only'));
             });
 
             cardBuilder.addSection(featureSection);
@@ -2459,7 +2459,7 @@ Plugins.UserProfile = {
             return cardBuilder.build();
         },
         _BuildMembershipSection: (data = {}, membershipData = {}) => {
-            const isPremium = data?.[Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM] || false;
+            const isPremium = data?.[Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM] || false;
 
             const newSection = CardService.newCardSection()
                 .setHeader('Membership & Billing');
@@ -2477,7 +2477,7 @@ Plugins.UserProfile = {
 
             if (isPremium) {
                 // Calculate days left until expiration
-                const expiresAt = membershipData?.[Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipData[Plugins.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
+                const expiresAt = membershipData?.[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipData[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
                 const daysLeft = expiresAt ? Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24)) : null;
 
                 // Display days left until expiration if available
@@ -2492,7 +2492,7 @@ Plugins.UserProfile = {
                 // Display balance if available
                 newSection.addWidget(CardService.newDecoratedText()
                     .setTopLabel('Balance')
-                    .setText(`${membershipData?.[Plugins.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0}`)
+                    .setText(`${membershipData?.[Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0}`)
                     .setStartIcon(CardService.newIconImage().setMaterialIcon(
                         CardService.newMaterialIcon().setName('account_balance_wallet').setFill(false)))
                     .setWrapText(true));
@@ -2502,15 +2502,15 @@ Plugins.UserProfile = {
                     .setText('Cancel Subscription')
                     .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.UserProfile.Controller.ConfirmRevokeLicense')));
+                        .setFunctionName('Addon.UserProfile.Controller.ConfirmRevokeLicense')));
             } else {
                 newSection.addWidget(CardService.newTextButton()
                     .setText('💎 Upgrade Now')
-                    .setBackgroundColor(Plugins.primaryColor())
+                    .setBackgroundColor(Addon.primaryColor())
                     .setTextButtonStyle(CardService.TextButtonStyle.TEXT)
                     .setMaterialIcon(CardService.newMaterialIcon().setName('bolt'))
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.UserProfile.Controller.ActivatePremium')));
+                        .setFunctionName('Addon.UserProfile.Controller.ActivatePremium')));
             }
 
             return newSection;
@@ -2518,25 +2518,25 @@ Plugins.UserProfile = {
     }
 };
 
-Plugins.TelegramBotConnection = {
+Addon.TelegramBotConnection = {
     id: 'ConnectionPlugin',
     name: 'Connection',
     short_description: 'Manage bot connection settings',
     description: 'The Connection plugin allows you to manage and configure the connection settings for your Telegram bot. You can set up your bot token, test the connection, and ensure that your bot is properly connected to the Telegram API.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.WELCOME_IMG_URL,
+    imageUrl: Addon.Media.WELCOME_IMG_URL,
     Controller: {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
                 // Log the event for debugging
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Load', 'INFO', 'Loading Connection plugin...');
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Load', 'INFO', 'Loading Connection plugin...');
                 const data = e?.commonEventObject?.parameters || {};
 
-                return Plugins.TelegramBotConnection.View.HomeCard(data);
+                return Addon.TelegramBotConnection.View.HomeCard(data);
             }
             catch (error) {
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Load', 'ERROR', error.toString(), error.stack);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Load', 'ERROR', error.toString(), error.stack);
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -2551,14 +2551,14 @@ Plugins.TelegramBotConnection = {
             try {
                 // extract parameters from event object if needed
 
-                const inputToken = e?.commonEventObject?.formInputs?.[Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]?.stringInputs?.value?.[0] || '';
+                const inputToken = e?.commonEventObject?.formInputs?.[Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]?.stringInputs?.value?.[0] || '';
 
                 if (!inputToken) {
                     throw new Error('Bot API Token cannot be empty.');
                 }
 
                 // getme to validate token
-                const client = new Plugins.Modules.TelegramBotClient(inputToken);
+                const client = new Addon.Modules.TelegramBotClient(inputToken);
                 const response = client.getMe();
                 // Check for errors in response
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -2568,13 +2568,13 @@ Plugins.TelegramBotConnection = {
                 const result = JSON.parse(response.getContentText()).result;
 
                 // Log the response to Terminal Output sheet
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Connect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Connect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
 
                 // execute chk_export_token_to_sheet if needed
                 const exportTokenToSheet = e?.commonEventObject?.formInputs?.chk_export_token_to_sheet?.stringInputs?.value?.[0] === 'export_token';
                 if (exportTokenToSheet) {
                     // Export the token to a designated sheet
-                    const sheet = Plugins.Modules.Sheet;
+                    const sheet = Addon.Modules.Sheet;
                     const sheetMeta = {
                         name: '🔐 Bot Tokens',
                         columns: ['Timestamp', 'Bot Token', 'Bot Username', 'getMe Response']
@@ -2584,22 +2584,22 @@ Plugins.TelegramBotConnection = {
                 }
 
                 // on success, store the token in user properties or user properties as needed
-                PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, inputToken);
-                PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME, result.first_name);
-                PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME, result.username);
+                PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, inputToken);
+                PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME, result.first_name);
+                PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME, result.username);
                 e.parameters = {
                     refresh: 'true'
                 };
                 // Build and return the Home Card
-                const appModelData = Plugins.Modules.App.getData();
+                const appModelData = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .popToRoot()
-                            .updateCard(Plugins.Home.View.HomeCard(appModelData))
+                            .updateCard(Addon.Home.View.HomeCard(appModelData))
                     ).build();
             } catch (error) {
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Connect', 'ERROR', error.toString(), error.stack);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Connect', 'ERROR', error.toString(), error.stack);
                 return this.handleError(error)
                     .build();
             }
@@ -2608,11 +2608,11 @@ Plugins.TelegramBotConnection = {
             // Show confirmation card before disconnecting
             const title = 'Disconnect Bot';
             const message = 'Are you sure you want to disconnect your bot? This will remove the stored bot token.';
-            const onClickFunctionName = 'Plugins.TelegramBotConnection.Controller.Disconnect';
+            const onClickFunctionName = 'Addon.TelegramBotConnection.Controller.Disconnect';
             const onClickParameters = e?.commonEventObject?.parameters || {};
 
             // Push Confirmation Card
-            return Plugins.ConfirmationCard.Controller.Load({
+            return Addon.ConfirmationCard.Controller.Load({
                 commonEventObject: {
                     parameters: { title, message, onClickFunctionName, onClickParameters }
                 }
@@ -2624,30 +2624,30 @@ Plugins.TelegramBotConnection = {
                 // Show confirmation card before disconnecting
                 const title = 'Disconnect Bot';
                 const message = 'Are you sure you want to disconnect your bot? This will remove the stored bot token.';
-                const onClickFunctionName = 'Plugins.TelegramBotConnection.Controller.Disconnect';
+                const onClickFunctionName = 'Addon.TelegramBotConnection.Controller.Disconnect';
                 const onClickParameters = e?.commonEventObject?.parameters || {};
 
                 // Push Confirmation Card
-                const confirmationCard = Plugins.ConfirmationCard.Controller.Load({
+                const confirmationCard = Addon.ConfirmationCard.Controller.Load({
                     commonEventObject: {
                         parameters: { title, message, onClickFunctionName, onClickParameters }
                     }
                 });
 
                 // Clear the stored token from document properties
-                PropertiesService.getDocumentProperties().deleteProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
-                PropertiesService.getDocumentProperties().deleteProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME);
-                PropertiesService.getDocumentProperties().deleteProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME);
+                PropertiesService.getDocumentProperties().deleteProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
+                PropertiesService.getDocumentProperties().deleteProperty(Addon.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME);
+                PropertiesService.getDocumentProperties().deleteProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME);
                 // Build and return the Home Card
-                const appModelData = Plugins.Modules.App.getData();
+                const appModelData = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .popToRoot()
-                            .updateCard(Plugins.Home.View.HomeCard({ ...appModelData }))
+                            .updateCard(Addon.Home.View.HomeCard({ ...appModelData }))
                     ).build();
             } catch (error) {
-                Plugins.Modules.TerminalOutput.write(
+                Addon.Modules.TerminalOutput.write(
                     this._activeSpreadsheet,
                     e,
                     'Connection.Disconnect',
@@ -2672,24 +2672,24 @@ Plugins.TelegramBotConnection = {
                 .setCollapsible(true)
                 .setNumUncollapsibleWidgets(1); // Keep the status visible when collapsed
 
-            const token = data?.[Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN];
+            const token = data?.[Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN];
             const isConnected = !!token;
 
-            const username = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot';
-            const friendlyName = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME) || 'Telegram Bot';
+            const username = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot';
+            const friendlyName = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME) || 'Telegram Bot';
 
             let executeAction;
             if (isConnected) {
                 // Disconnect action
                 executeAction = CardService.newAction()
-                    .setFunctionName('Plugins.TelegramBotConnection.Controller.ConfirmDisconnect');
+                    .setFunctionName('Addon.TelegramBotConnection.Controller.ConfirmDisconnect');
             } else {
                 // Connect action
                 executeAction = CardService.newAction()
                     .setParameters({
-                        path: 'Plugins.TelegramBotConnection.View.HomeCard'
+                        path: 'Addon.TelegramBotConnection.View.HomeCard'
                     })
-                    .setFunctionName('Plugins.TelegramBotConnection.Controller.Load');
+                    .setFunctionName('Addon.TelegramBotConnection.Controller.Load');
             }
 
             let xButton;
@@ -2706,7 +2706,7 @@ Plugins.TelegramBotConnection = {
             } else {
                 xButton = CardService.newTextButton()
                     .setText('Link Bot')
-                    .setBackgroundColor(Plugins.primaryColor())
+                    .setBackgroundColor(Addon.primaryColor())
                     .setOnClickAction(executeAction);
             }
 
@@ -2730,25 +2730,25 @@ Plugins.TelegramBotConnection = {
          */
         HomeCard: (data = {}) => {
             // Fetch Properties
-            const token = data?.[Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN];
+            const token = data?.[Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN];
             const isConnected = !!token;
             const username = 'Unknown';
 
             // 1. Card Header
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.TelegramBotConnection.id + '-Home')
+                .setName(Addon.TelegramBotConnection.id + '-Home')
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Bot Connection Management')
                     .setSubtitle(isConnected ? `Connected: @${username}` : 'Setup Required')
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.TelegramBotConnection.imageUrl));
+                    .setImageUrl(Addon.TelegramBotConnection.imageUrl));
 
             // 2. Welcome & Status Section
             const actionSection = CardService.newCardSection()
                 .setHeader(isConnected ? '⚙️ Actions' : '🔑 Authentication');
 
             // Connect Flow: Input + Button
-            actionSection.addWidget(Plugins.TelegramBotConnection.View.BuildTokenTextInputWidget(token, false));
+            actionSection.addWidget(Addon.TelegramBotConnection.View.BuildTokenTextInputWidget(token, false));
 
             // Help Hint
             actionSection.addWidget(CardService.newDecoratedText()
@@ -2773,7 +2773,7 @@ Plugins.TelegramBotConnection = {
                             CardService.newMaterialIcon().setName('save')))
                         .setSwitchControl(
                             CardService.newSwitch()
-                                .setFieldName(Plugins.PROPERTIES.chk_export_token_to_sheet)
+                                .setFieldName(Addon.PROPERTIES.chk_export_token_to_sheet)
                                 .setValue('export_token')
                                 .setSelected(false)
                                 .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -2785,10 +2785,10 @@ Plugins.TelegramBotConnection = {
                 .setPrimaryButton(CardService.newTextButton()
                     .setText('Connect')
                     //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setBackgroundColor(Plugins.primaryColor())
+                    .setBackgroundColor(Addon.primaryColor())
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.TelegramBotConnection.Controller.Connect')
-                        .addRequiredWidget([Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN])));
+                        .setFunctionName('Addon.TelegramBotConnection.Controller.Connect')
+                        .addRequiredWidget([Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN])));
 
             cardBuilder.setFixedFooter(footer);
 
@@ -2799,18 +2799,18 @@ Plugins.TelegramBotConnection = {
             return CardService.newTextInput()
                 .setVisibility(hidden ? CardService.Visibility.HIDDEN : CardService.Visibility.VISIBLE)
                 .setValue(token || '')
-                .setId(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN)
-                .setFieldName(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN)
+                .setId(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN)
+                .setFieldName(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN)
                 .setTitle('🤖 Your Bot Token')
                 .setHint('Enter your Bot Token, get it from @BotFather, for example: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ, keep it secret!');
         }
     }
 };
 
-Plugins.Webhook = {
+Addon.Webhook = {
     id: 'WebhookPlugin',
     name: 'Webhook Configurator',
-    imageUrl: Plugins.Media.DEFAULT_IMAGE_URL,
+    imageUrl: Addon.Media.DEFAULT_IMAGE_URL,
     description: 'Configure and manage your bot webhooks with advanced options.',
     short_description: 'Manage bot webhooks and settings',
     Controller: {
@@ -2823,9 +2823,9 @@ Plugins.Webhook = {
 
             try {
                 // Log start of execution
-                //Plugins.Modules.TerminalOutput.write(activeSpreadsheet,e, 'Webhook.Load', 'INFO', 'Loading Webhook Manager');
+                //Addon.Modules.TerminalOutput.write(activeSpreadsheet,e, 'Webhook.Load', 'INFO', 'Loading Webhook Manager');
 
-                const input_token = Plugins.Modules.TelegramBotSettings.getUserApiKey();
+                const input_token = Addon.Modules.TelegramBotSettings.getUserApiKey();
                 if (!input_token) {
                     throw new Error('Bot API Token is missing. Please connect your bot in the Connection tab first.');
                 }
@@ -2834,14 +2834,14 @@ Plugins.Webhook = {
                 const isPop = data.popCard === 'true';
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
+                data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Logic: Fetch Data if Token Exists
-                const telegramBotClient = new Plugins.Modules.TelegramBotClient(input_token);
+                const telegramBotClient = new Addon.Modules.TelegramBotClient(input_token);
                 // 1. API Call: getWebhookInfo
                 const response = telegramBotClient.getWebhookInfo();
                 // Log response for debugging
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.Load', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.Load', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
                 if (JSON.parse(response.getContentText()).ok !== true) {
                     throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
                 }
@@ -2857,12 +2857,12 @@ Plugins.Webhook = {
                 if (isUpdate) {
                     // Update the existing card in place
                     navigation.updateCard(
-                        Plugins.Webhook.View.HomeCard(data, result));
+                        Addon.Webhook.View.HomeCard(data, result));
                 }
                 else {
                     // Push a new card onto the stack
                     navigation.pushCard(
-                        Plugins.Webhook.View.HomeCard(data, result));
+                        Addon.Webhook.View.HomeCard(data, result));
                 }
 
                 // Return the navigation response
@@ -2870,7 +2870,7 @@ Plugins.Webhook = {
                     .setNavigation(navigation)
                     .build();
             } catch (error) {
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.Load', 'ERROR', error.toString());
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.Load', 'ERROR', error.toString());
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -2888,16 +2888,16 @@ Plugins.Webhook = {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
                 // Log start of execution
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'INFO', 'Setting Webhook...');
-                const token = Plugins.Modules.TelegramBotSettings.getUserApiKey();
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'INFO', 'Setting Webhook...');
+                const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
-                const urlInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]?.stringInputs?.value?.[0];
-                const ipInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS]?.stringInputs?.value?.[0];
-                const maxConnInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
-                const secretInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0];
-                const dropPending = inputs[Plugins.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
+                const urlInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]?.stringInputs?.value?.[0];
+                const ipInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS]?.stringInputs?.value?.[0];
+                const maxConnInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
+                const secretInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0];
+                const dropPending = inputs[Addon.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
 
                 // Validation
                 if (!urlInput || !urlInput.startsWith('https://')) {
@@ -2906,7 +2906,7 @@ Plugins.Webhook = {
                         .build();
                 }
 
-                const client = new Plugins.Modules.TelegramBotClient(token);
+                const client = new Addon.Modules.TelegramBotClient(token);
 
                 // Build Options Object
                 const options = {
@@ -2929,11 +2929,11 @@ Plugins.Webhook = {
                     throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
                 }
                 // Log response for debugging
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'DEBUG', `setWebhook Response: ${response.getContentText()}`);
-                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'DEBUG', `setWebhook Response: ${response.getContentText()}`);
+                return Addon.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
             } catch (error) {
                 // Log error for debugging
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'ERROR', error.toString(), error.stack);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'ERROR', error.toString(), error.stack);
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
@@ -2944,11 +2944,11 @@ Plugins.Webhook = {
             // Show confirmation card before disconnecting
             const title = 'Confirm Webhook Deletion';
             const message = 'Are you sure you want to delete the webhook? This will switch the bot to Long Polling mode.';
-            const onClickFunctionName = 'Plugins.Webhook.Controller.DeleteWebhook';
+            const onClickFunctionName = 'Addon.Webhook.Controller.DeleteWebhook';
             const onClickParameters = {};
 
             // Push Confirmation Card
-            return Plugins.ConfirmationCard.Controller.Load({
+            return Addon.ConfirmationCard.Controller.Load({
                 commonEventObject: {
                     parameters: { title, message, onClickFunctionName, onClickParameters }
                 }
@@ -2963,12 +2963,12 @@ Plugins.Webhook = {
             try {
                 const data = e?.commonEventObject?.parameters || {};
                 // Log start of execution
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'INFO', 'Deleting Webhook...');
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'INFO', 'Deleting Webhook...');
 
-                const token = Plugins.Modules.TelegramBotSettings.getUserApiKey();
-                const dropPending = e?.commonEventObject?.formInputs?.[Plugins.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
+                const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
+                const dropPending = e?.commonEventObject?.formInputs?.[Addon.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
 
-                const client = new Plugins.Modules.TelegramBotClient(token);
+                const client = new Addon.Modules.TelegramBotClient(token);
                 const response = client.deleteWebhook(dropPending);
 
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -2976,13 +2976,13 @@ Plugins.Webhook = {
                 }
 
                 // Log response for debugging
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'DEBUG', `deleteWebhook Response: ${response.getContentText()}`);
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'DEBUG', `deleteWebhook Response: ${response.getContentText()}`);
 
                 const result = JSON.parse(response.getContentText()).result;
-                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true', popCard: 'true' } } });
+                return Addon.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true', popCard: 'true' } } });
             } catch (error) {
                 // Log error for debugging
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'ERROR', error.toString(), error.stack);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'ERROR', error.toString(), error.stack);
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
@@ -2993,15 +2993,15 @@ Plugins.Webhook = {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
                 // Log start of execution
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DropPendingUpdates', 'INFO', 'DropPendingUpdates');
-                const token = Plugins.Modules.TelegramBotSettings.getUserApiKey();
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DropPendingUpdates', 'INFO', 'DropPendingUpdates');
+                const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
-                const urlInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]?.stringInputs?.value?.[0];
-                const ipInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS]?.stringInputs?.value?.[0];
-                const maxConnInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
-                const secretInput = inputs[Plugins.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0];
+                const urlInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]?.stringInputs?.value?.[0];
+                const ipInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS]?.stringInputs?.value?.[0];
+                const maxConnInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
+                const secretInput = inputs[Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0];
                 const dropPending = true;
 
                 // Validation
@@ -3011,7 +3011,7 @@ Plugins.Webhook = {
                         .build();
                 }
 
-                const client = new Plugins.Modules.TelegramBotClient(token);
+                const client = new Addon.Modules.TelegramBotClient(token);
 
                 // Build Options Object
                 const options = {
@@ -3032,11 +3032,11 @@ Plugins.Webhook = {
                 }
                 // Log response for debugging
 
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'DEBUG', `setWebhook Response: ${response.getContentText()}`);
-                return Plugins.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'DEBUG', `setWebhook Response: ${response.getContentText()}`);
+                return Addon.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
             } catch (error) {
                 // Log error for debugging
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'ERROR', error.toString(), error.stack);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'ERROR', error.toString(), error.stack);
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
@@ -3050,15 +3050,15 @@ Plugins.Webhook = {
          */
         HomeCard: (data = {}, result = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.Webhook.id + '-Home')
+                .setName(Addon.Webhook.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle(Plugins.Webhook.name)
-                    .setSubtitle(Plugins.Webhook.short_description)
+                    .setTitle(Addon.Webhook.name)
+                    .setSubtitle(Addon.Webhook.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.Webhook.imageUrl));
+                    .setImageUrl(Addon.Webhook.imageUrl));
 
             // --- 1. Connection Header ---
-            cardBuilder.addSection(Plugins.TelegramBotConnection.View.WelcomeSection(data));
+            cardBuilder.addSection(Addon.TelegramBotConnection.View.WelcomeSection(data));
 
             // Action Buttons
             const footer = CardService.newFixedFooter()
@@ -3068,12 +3068,12 @@ Plugins.Webhook = {
                         .setFill(false))
                     .setText(result.url ? 'Update' : 'Set Webhook')
                     //.setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-                    .setBackgroundColor(Plugins.primaryColor())
+                    .setBackgroundColor(Addon.primaryColor())
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.Controller.SetWebhook')
+                        .setFunctionName('Addon.Webhook.Controller.SetWebhook')
                         // Collect all inputs
-                        .addRequiredWidget([Plugins.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL])
-                        .addRequiredWidget([Plugins.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS])));
+                        .addRequiredWidget([Addon.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL])
+                        .addRequiredWidget([Addon.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS])));
 
             // --- 2. Live Status Logic ---
             if (result.url !== '') {
@@ -3084,11 +3084,11 @@ Plugins.Webhook = {
                         .setFill(false))
                     .setText('Delete')
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.Webhook.Controller.ConfirmDeleteWebhook')));
+                        .setFunctionName('Addon.Webhook.Controller.ConfirmDeleteWebhook')));
             }
 
             // --- Section A: Status Dashboard ---
-            const statusSection = Plugins.Webhook.View.WelcomeSection(data, result);
+            const statusSection = Addon.Webhook.View.WelcomeSection(data, result);
             cardBuilder.addSection(statusSection);
 
             // --- Section B: Input Parameters for setWebhook ---
@@ -3099,7 +3099,7 @@ Plugins.Webhook = {
 
             // Webhook URL (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Plugins.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL)
+                .setFieldName(Addon.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL)
                 .setTitle('Webhook URL (Required)')
                 .setHint('https://your-script-url/exec')
                 .setValue(String(result.url))); // Defaults to current live URL
@@ -3109,27 +3109,27 @@ Plugins.Webhook = {
                 .setText('Drop Pending Updates')
                 .setBottomLabel('Skip old messages in queue upon setting webhook.')
                 .setSwitchControl(CardService.newSwitch()
-                    .setFieldName(Plugins.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES)
+                    .setFieldName(Addon.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES)
                     .setValue('true')
                     .setControlType(CardService.SwitchControlType.CHECK_BOX)));
 
             // IP Address (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Plugins.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS)
+                .setFieldName(Addon.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS)
                 .setTitle('Custom IP Address (Optional)')
                 .setHint('Bypass DNS resolution with specific IP')
                 .setValue(''));
 
             // Max Connections (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Plugins.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS)
+                .setFieldName(Addon.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS)
                 .setTitle('Max Connections (1-100)')
                 .setHint('Default: 40')
                 .setValue(result.max_connections ? result.max_connections.toString() : '40'));
 
             // Secret Token (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Plugins.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN)
+                .setFieldName(Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN)
                 .setTitle('Secret Token (Optional)')
                 .setHint('X-Telegram-Bot-Api-Secret-Token header')
                 .setValue('')); // We don't get this back from API for security, so leave empty
@@ -3137,9 +3137,9 @@ Plugins.Webhook = {
             cardBuilder.addSection(configSection);
 
             // --- Section: Raw Data (Debug) ---
-            const botName = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot';
+            const botName = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot';
             cardBuilder.addSection(
-                Plugins.Helper.View
+                Addon.Helper.View
                     .BuildResultSection(botName, 'getWebhookInfo', result));
 
             // --- 3. Footer Refresh ---
@@ -3159,9 +3159,9 @@ Plugins.Webhook = {
                 .setMaterialIcon(CardService.newMaterialIcon()
                     .setName('open_in_new')
                     .setFill(false))
-                .setBackgroundColor(Plugins.primaryColor())
+                .setBackgroundColor(Addon.primaryColor())
                 .setOnClickAction(CardService.newAction()
-                    .setFunctionName('Plugins.Webhook.Controller.Load'));
+                    .setFunctionName('Addon.Webhook.Controller.Load'));
 
             // --- 2. Live Status Logic ---
             if (result.url !== '') {
@@ -3211,7 +3211,7 @@ Plugins.Webhook = {
                             .setDisabled(result.url === '')
                             .setOnClickAction(
                                 CardService.newAction()
-                                    .setFunctionName('Plugins.Webhook.Controller.DropPendingUpdates')
+                                    .setFunctionName('Addon.Webhook.Controller.DropPendingUpdates')
                             )
                     ));
             }
@@ -3238,36 +3238,36 @@ Plugins.Webhook = {
             // add divider
             statusSection.addWidget(CardService.newDivider());
 
-            const botName = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot';
+            const botName = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot';
 
             // Add dump to result to sheet widget
             statusSection.addWidget(
-                Plugins.ResultWidget.View.BuildExportWidget(botName, 'getWebhookInfo', result));
+                Addon.ResultWidget.View.BuildExportWidget(botName, 'getWebhookInfo', result));
 
             return statusSection;
         }
     }
 };
 
-Plugins.GeminiAgent = {
+Addon.GeminiAgent = {
     id: 'GeminiAgentPlugin',
     name: 'Gemini Agent',
     short_description: 'Set instructions for your Gemini AI agent',
     description: 'Get intelligent suggestions and improvements for your JSON data using Gemini AI. This plugin analyzes your JSON and provides recommendations for optimization, error correction, and best practices.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.BIG_TIME_IMG_URL,
+    imageUrl: Addon.Media.BIG_TIME_IMG_URL,
     Controller: {
         PushHomeCard(e) {
             try {
                 // Extract any necessary data from the event object if needed
                 // const formInputs = e?.commonEventObject?.formInputs || {};
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
 
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .pushCard(
-                                Plugins.GeminiAgent.View.SetupCard(data))
+                                Addon.GeminiAgent.View.SetupCard(data))
                     ).build();
             }
             catch (error) {
@@ -3279,13 +3279,13 @@ Plugins.GeminiAgent = {
         },
         PushSetupCard(e) {
             try {
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
 
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .pushCard(
-                                Plugins.GeminiAgent.View.SetupCard(data))
+                                Addon.GeminiAgent.View.SetupCard(data))
                     ).build();
             }
             catch (error) {
@@ -3309,7 +3309,7 @@ Plugins.GeminiAgent = {
                 const eventObject = JSON.parse(cellValue); // Parse the JSON value
                 // If parsing is successful, we can set this JSON as the input for the agent to test it.
                 // For testing purposes, we can directly call the DoPost function of the Webhook handler with this JSON as if it were an incoming message.
-                Plugins.Handlers.Webhook.DoPost(eventObject, activeSpreadsheet);
+                Addon.Handlers.Webhook.DoPost(eventObject, activeSpreadsheet);
 
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
@@ -3317,7 +3317,7 @@ Plugins.GeminiAgent = {
                     .build();
             }
             catch (error) {
-                Plugins.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
+                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while testing the agent ->' + error.toString()))
@@ -3329,26 +3329,26 @@ Plugins.GeminiAgent = {
             try {
                 const formInputs = e?.commonEventObject?.formInputs || {};
                 // Extract the Gemini API key from the form inputs
-                const apiKey = formInputs?.[Plugins.INPUT.GEMINI.GEMINI_API_KEY]?.stringInputs?.value[0];
+                const apiKey = formInputs?.[Addon.INPUT.GEMINI.GEMINI_API_KEY]?.stringInputs?.value[0];
                 // Extract the Gemini model from the form inputs
-                const model = formInputs?.[Plugins.INPUT.GEMINI.GEMINI_MODEL]?.stringInputs?.value[0];
+                const model = formInputs?.[Addon.INPUT.GEMINI.GEMINI_MODEL]?.stringInputs?.value[0];
 
                 // Save the Gemini API key
-                Plugins.Modules.GeminiAgent.saveApiKey(apiKey);
+                Addon.Modules.GeminiAgent.saveApiKey(apiKey);
                 // Save the Gemini model selection
-                Plugins.Modules.GeminiAgent.saveModel(model);
+                Addon.Modules.GeminiAgent.saveModel(model);
 
                 // Push Setup Card to show the connected status and allow the user to test the connection or set instructions.
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .popToRoot()
                             .updateCard(
-                                Plugins.Home.View.HomeCard(data))
+                                Addon.Home.View.HomeCard(data))
                     ).build();
             } catch (error) {
-                Plugins.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
+                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while connecting to Gemini API. ' + error.toString()))
@@ -3359,11 +3359,11 @@ Plugins.GeminiAgent = {
             // Show confirmation card before disconnecting
             const title = 'Disconnect Gemini API';
             const message = 'Are you sure you want to disconnect your Gemini API? This will remove the stored API key.';
-            const onClickFunctionName = 'Plugins.GeminiAgent.Controller.Disconnect';
+            const onClickFunctionName = 'Addon.GeminiAgent.Controller.Disconnect';
             const onClickParameters = e?.commonEventObject?.parameters || {};
 
             // Push Confirmation Card
-            return Plugins.ConfirmationCard.Controller.Load({
+            return Addon.ConfirmationCard.Controller.Load({
                 commonEventObject: {
                     parameters: { title, message, onClickFunctionName, onClickParameters }
                 }
@@ -3376,24 +3376,24 @@ Plugins.GeminiAgent = {
                 const onClickParameters = e?.commonEventObject?.parameters || {};
 
                 // Push Confirmation Card
-                const confirmationCard = Plugins.ConfirmationCard.Controller.Load(e);
+                const confirmationCard = Addon.ConfirmationCard.Controller.Load(e);
 
                 // Log the event for debugging
-                // Plugins.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Disconnect', 'INFO', 'Disconnecting bot');
+                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Disconnect', 'INFO', 'Disconnecting bot');
 
                 // Clear the stored token from user properties
-                Plugins.Modules.GeminiAgent.clearApiKey();
-                Plugins.Modules.GeminiAgent.clearModel();
+                Addon.Modules.GeminiAgent.clearApiKey();
+                Addon.Modules.GeminiAgent.clearModel();
                 // Build and return the Home Card
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .popToRoot()
-                            .updateCard(Plugins.Home.View.HomeCard(data))
+                            .updateCard(Addon.Home.View.HomeCard(data))
                     ).build();
             } catch (error) {
-                Plugins.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
+                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while disconnecting from Gemini API. ' + error.toString()))
@@ -3412,15 +3412,15 @@ Plugins.GeminiAgent = {
                 const cellReference = `${sheetName}!${a1Notation}`;
 
                 // Store the cell reference in script properties or user properties for later retrieval when generating suggestions. This allows the agent to access the content of this cell as part of its context when providing suggestions.
-                PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE, cellReference);
+                PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE, cellReference);
 
                 // Show a notification to the user confirming that the cell has been bound as an instruction.
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
-                        .setText(`Current cell ${cellReference} has been bound as instruction for the Gemini Agent. You must set this value manually at Document Properties -> ${Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} to make it work with webhooks. This is a limitation of the current implementation.`))
+                        .setText(`Current cell ${cellReference} has been bound as instruction for the Gemini Agent. You must set this value manually at Document Properties -> ${Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} to make it work with webhooks. This is a limitation of the current implementation.`))
                     .build();
             } catch (error) {
-                Plugins.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
+                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while binding the current cell as instruction. ' + error.toString()))
@@ -3431,7 +3431,7 @@ Plugins.GeminiAgent = {
 
     View: {
         WelcomeSection: (data = {}) => {
-            const geminiApiKey = data[Plugins.INPUT.GEMINI.GEMINI_API_KEY] || '';
+            const geminiApiKey = data[Addon.INPUT.GEMINI.GEMINI_API_KEY] || '';
             const maskedApiKey = geminiApiKey ? '****' + geminiApiKey.slice(-4) : 'No API Key';
             const isConnected = !!geminiApiKey;
 
@@ -3449,11 +3449,11 @@ Plugins.GeminiAgent = {
             if (isConnected) {
                 // Disconnect action
                 executeAction = CardService.newAction()
-                    .setFunctionName('Plugins.GeminiAgent.Controller.ConfirmDisconnect');
+                    .setFunctionName('Addon.GeminiAgent.Controller.ConfirmDisconnect');
             } else {
                 // Connect action
                 executeAction = CardService.newAction()
-                    .setFunctionName('Plugins.GeminiAgent.Controller.PushSetupCard');
+                    .setFunctionName('Addon.GeminiAgent.Controller.PushSetupCard');
             }
 
             let xButton;
@@ -3470,7 +3470,7 @@ Plugins.GeminiAgent = {
             } else {
                 xButton = CardService.newTextButton()
                     .setText('Link API Key')
-                    .setBackgroundColor(Plugins.primaryColor())
+                    .setBackgroundColor(Addon.primaryColor())
                     .setOnClickAction(executeAction);
             }
 
@@ -3491,16 +3491,16 @@ Plugins.GeminiAgent = {
         },
         SetupCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.GeminiAgent.id + '-Setup');
+                .setName(Addon.GeminiAgent.id + '-Setup');
 
             // Add a section for Gemini API key input
             cardBuilder.addSection(
-                Plugins.GeminiAgent.View
+                Addon.GeminiAgent.View
                     ._BuildGeminiApiKeyInputSection(data));
 
             // Add a section for selecting Gemini model
             cardBuilder.addSection(
-                Plugins.GeminiAgent.View
+                Addon.GeminiAgent.View
                     ._BuildModelSelectorSection(data));
 
             // Add a button to save Gemini API settings
@@ -3509,9 +3509,9 @@ Plugins.GeminiAgent = {
                     .addWidget(CardService.newTextButton()
                         .setText('Save Gemini API Settings')
                         .setOnClickAction(CardService.newAction()
-                            .setFunctionName('Plugins.GeminiAgent.Controller.Connect')
-                            .addRequiredWidget(Plugins.INPUT.GEMINI.GEMINI_API_KEY)
-                            .addRequiredWidget(Plugins.INPUT.GEMINI.GEMINI_MODEL))));
+                            .setFunctionName('Addon.GeminiAgent.Controller.Connect')
+                            .addRequiredWidget(Addon.INPUT.GEMINI.GEMINI_API_KEY)
+                            .addRequiredWidget(Addon.INPUT.GEMINI.GEMINI_MODEL))));
 
             // Add button to bind current cell as instruction for the agent (to provide context-aware suggestions based on the content of the current cell in the sheet)
             cardBuilder.addSection(
@@ -3520,7 +3520,7 @@ Plugins.GeminiAgent = {
                         CardService.newDecoratedText()
                             .setTopLabel('Bind Current Cell as Instruction')
                             .setWrapText(true)
-                            .setText(`${data[Plugins.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE] || 'No instruction cell bound.'}`)
+                            .setText(`${data[Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE] || 'No instruction cell bound.'}`)
                             .setBottomLabel('Use the content of the currently selected cell as the system instruction for the Gemini Agent.')
                             .setStartIcon(
                                 CardService.newIconImage()
@@ -3532,9 +3532,9 @@ Plugins.GeminiAgent = {
                                 CardService.newTextButton()
                                     .setAltText('Bind Current Cell')
                                     .setMaterialIcon(CardService.newMaterialIcon().setName('link').setFill(false))
-                                    .setBackgroundColor(Plugins.primaryColor())
+                                    .setBackgroundColor(Addon.primaryColor())
                                     .setOnClickAction(CardService.newAction()
-                                        .setFunctionName('Plugins.GeminiAgent.Controller.SetCurrentCellAsInstruction'))))
+                                        .setFunctionName('Addon.GeminiAgent.Controller.SetCurrentCellAsInstruction'))))
             );
 
 
@@ -3547,13 +3547,13 @@ Plugins.GeminiAgent = {
             const geminiModelSelector = CardService.newSelectionInput()
                 .setType(CardService.SelectionInputType.DROPDOWN)
                 .setTitle('Select Gemini Model')
-                .setFieldName(Plugins.INPUT.GEMINI.GEMINI_MODEL);
+                .setFieldName(Addon.INPUT.GEMINI.GEMINI_MODEL);
 
             // Loop through the available Gemini models and add them as options to the selector
-            const geminiModels = Plugins.Modules.GeminiAgent.MODELS;
+            const geminiModels = Addon.Modules.GeminiAgent.MODELS;
             for (const modelKey in geminiModels) {
                 const model = geminiModels[modelKey];
-                geminiModelSelector.addItem(model, modelKey, data[Plugins.INPUT.GEMINI.GEMINI_MODEL] === modelKey);
+                geminiModelSelector.addItem(model, modelKey, data[Addon.INPUT.GEMINI.GEMINI_MODEL] === modelKey);
             }
 
             section.addWidget(geminiModelSelector);
@@ -3567,11 +3567,11 @@ Plugins.GeminiAgent = {
             const moodSelector = CardService.newSelectionInput()
                 .setType(CardService.SelectionInputType.DROPDOWN)
                 .setTitle('Select Response Mood')
-                .setFieldName(Plugins.INPUT.GEMINI.GEMINI_MOOD);
+                .setFieldName(Addon.INPUT.GEMINI.GEMINI_MOOD);
             // Loop through the available mood options and add them as options to the selector
-            const moodOptions = Plugins.Modules.GeminiAgent.MOOD_OPTIONS;
+            const moodOptions = Addon.Modules.GeminiAgent.MOOD_OPTIONS;
             for (const mood of moodOptions) {
-                moodSelector.addItem(mood, mood, data[Plugins.INPUT.GEMINI.GEMINI_MOOD] === mood);
+                moodSelector.addItem(mood, mood, data[Addon.INPUT.GEMINI.GEMINI_MOOD] === mood);
             }
 
             section.addWidget(moodSelector);
@@ -3585,10 +3585,10 @@ Plugins.GeminiAgent = {
                 .addWidget(CardService.newDivider())
                 // Add text input for Gemini API key
                 .addWidget(CardService.newTextInput()
-                    .setFieldName(Plugins.INPUT.GEMINI.GEMINI_API_KEY)
+                    .setFieldName(Addon.INPUT.GEMINI.GEMINI_API_KEY)
                     .setTitle('Gemini API Key')
                     .setHint('Enter your Gemini API key')
-                    .setValue(data[Plugins.INPUT.GEMINI.GEMINI_API_KEY] || ''));
+                    .setValue(data[Addon.INPUT.GEMINI.GEMINI_API_KEY] || ''));
         },
         _BuildTemperatureInputSection(data = {}) {
             return CardService.newCardSection()
@@ -3597,10 +3597,10 @@ Plugins.GeminiAgent = {
                 .addWidget(CardService.newDivider())
                 // Add text input for temperature
                 .addWidget(CardService.newTextInput()
-                    .setFieldName(Plugins.INPUT.GEMINI.GEMINI_TEMPERATURE)
+                    .setFieldName(Addon.INPUT.GEMINI.GEMINI_TEMPERATURE)
                     .setTitle('Temperature (0.0 - 2.0)')
                     .setHint('Controls the randomness of the output. Default is 1.0')
-                    .setValue(data[Plugins.INPUT.GEMINI.GEMINI_TEMPERATURE] || '1.0'));
+                    .setValue(data[Addon.INPUT.GEMINI.GEMINI_TEMPERATURE] || '1.0'));
 
         },
         _BuildThinkingLevelSelectorSection(data = {}) {
@@ -3610,11 +3610,11 @@ Plugins.GeminiAgent = {
             const thinkingLevelSelector = CardService.newSelectionInput()
                 .setType(CardService.SelectionInputType.DROPDOWN)
                 .setTitle('Select Thinking Level')
-                .setFieldName(Plugins.INPUT.GEMINI.THINKING_LEVEL);
+                .setFieldName(Addon.INPUT.GEMINI.THINKING_LEVEL);
             // Loop through the available thinking level options and add them as options to the selector
-            const thinkingLevelOptions = Plugins.Modules.GeminiAgent.THINKING_LEVEL_OPTIONS;
+            const thinkingLevelOptions = Addon.Modules.GeminiAgent.THINKING_LEVEL_OPTIONS;
             for (const level of thinkingLevelOptions) {
-                thinkingLevelSelector.addItem(level, level, data[Plugins.INPUT.GEMINI.THINKING_LEVEL] === level);
+                thinkingLevelSelector.addItem(level, level, data[Addon.INPUT.GEMINI.THINKING_LEVEL] === level);
             }
             section.addWidget(thinkingLevelSelector);
             return section;
@@ -3626,10 +3626,10 @@ Plugins.GeminiAgent = {
                 .addWidget(CardService.newDivider())
                 // Add text input for thinking budget
                 .addWidget(CardService.newTextInput()
-                    .setFieldName(Plugins.INPUT.GEMINI.THINKING_BUDGET)
+                    .setFieldName(Addon.INPUT.GEMINI.THINKING_BUDGET)
                     .setTitle('Thinking Budget (in tokens)')
                     .setHint('Controls the amount of "thinking" the AI does before responding. Default is 100 tokens.')
-                    .setValue(data[Plugins.INPUT.GEMINI.THINKING_BUDGET] || '100'));
+                    .setValue(data[Addon.INPUT.GEMINI.THINKING_BUDGET] || '100'));
         },
         /**
          * Builds the "Advanced Actions" section of the Gemini Assistant Home Card, which includes buttons for creating and editing custom system instructions. This section allows users to customize how the Gemini Assistant analyzes sheet data and generates JSON content by providing their own instructions, enhancing the AI's performance and tailoring it to their specific use cases and preferences.
@@ -3645,13 +3645,13 @@ Plugins.GeminiAgent = {
                     .setText('New Instruction')
                     .setMaterialIcon(CardService.newMaterialIcon().setName('add'))
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.GeminiAgent.Controller.PushInstructionsCard')))
+                        .setFunctionName('Addon.GeminiAgent.Controller.PushInstructionsCard')))
                 // The "Edit Instruction" button allows users to edit their existing custom system instruction for the Gemini Assistant, providing an opportunity to refine and improve the AI's performance in analyzing sheet data and generating JSON content according to their evolving needs and preferences.
                 .addButton(CardService.newTextButton()
                     .setText('Edit Instruction')
                     .setMaterialIcon(CardService.newMaterialIcon().setName('edit'))
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.GeminiAgent.Controller.PushInstructionsCard')
+                        .setFunctionName('Addon.GeminiAgent.Controller.PushInstructionsCard')
                         .setParameters({
                             bindCell: 'true'
                         })
@@ -3665,10 +3665,10 @@ Plugins.GeminiAgent = {
     }
 };
 
-Plugins.GetMe = {
+Addon.GetMe = {
     id: 'GetMePlugin',
     name: 'Get Me',
-    imageUrl: Plugins.Media.DEFAULT_IMAGE_URL, // Falls back to default if specific icon isn't set
+    imageUrl: Addon.Media.DEFAULT_IMAGE_URL, // Falls back to default if specific icon isn't set
     description: 'Verify your bot connection and view identity details.',
     short_description: 'Bot identity & capabilities',
     Controller: {
@@ -3685,20 +3685,20 @@ Plugins.GetMe = {
                 // Optional: Check if we are forcing a refresh via parameters
                 const isUpdate = data.update === 'true';
 
-                const input_token = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
+                const input_token = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
+                data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Initialize Telegram Bot Client
-                const telegramBotClient = new Plugins.Modules.TelegramBotClient(input_token);
+                const telegramBotClient = new Addon.Modules.TelegramBotClient(input_token);
                 // 1. API Call: getMe
                 const response = telegramBotClient.getMe();
                 // Log the raw response for debugging
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
 
                 // Check for errors in response
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -3714,11 +3714,11 @@ Plugins.GetMe = {
                 if (isUpdate) {
                     // Update the existing card in place
                     navigation.updateCard(
-                        Plugins.GetMe.View.HomeCard(data, result));
+                        Addon.GetMe.View.HomeCard(data, result));
                 } else {
                     // Push a new card onto the stack
                     navigation.pushCard(
-                        Plugins.GetMe.View.HomeCard(data, result));
+                        Addon.GetMe.View.HomeCard(data, result));
                 }
 
                 return CardService.newActionResponseBuilder()
@@ -3726,7 +3726,7 @@ Plugins.GetMe = {
                     .build();
             }
             catch (error) {
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'ERROR', e, error.toString(), error.stack);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'ERROR', e, error.toString(), error.stack);
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -3744,12 +3744,12 @@ Plugins.GetMe = {
         HomeCard: (data = {}, result = {}) => {
             // 1. Data Initialization
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.GetMe.id + '-Home')
+                .setName(Addon.GetMe.id + '-Home')
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Bot Dashboard')
                     .setSubtitle('Identity & Feature Configuration')
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.GetMe.imageUrl));
+                    .setImageUrl(Addon.GetMe.imageUrl));
 
             // 1. Main Section: Bot Identity & Capabilities
             // --- Section A: Identity Profile ---
@@ -3780,7 +3780,7 @@ Plugins.GetMe = {
 
             // --- Section: Debug/Raw Data ---
             cardBuilder.addSection(
-                Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getMe', result));
+                Addon.Helper.View.BuildResultSection(data.currentBotName, 'getMe', result));
 
 
             // 2. Footer: Refresh Action
@@ -3791,7 +3791,7 @@ Plugins.GetMe = {
                         .setName('refresh')
                         .setFill(false)) // Constraint check: setFill(false)
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.GetMe.Controller.Load')
+                        .setFunctionName('Addon.GetMe.Controller.Load')
                         .setParameters({ update: 'true' })));
 
             cardBuilder.setFixedFooter(footer);
@@ -3801,10 +3801,10 @@ Plugins.GetMe = {
     }
 };
 
-Plugins.GetChat = {
+Addon.GetChat = {
     id: 'GetChatPlugin',
     name: 'Chat Inspector',
-    imageUrl: Plugins.Media.DEFAULT_IMAGE_URL,
+    imageUrl: Addon.Media.DEFAULT_IMAGE_URL,
     description: 'Retrieve detailed information about users, groups, or channels your bot interacts with.',
     short_description: 'User, Group & Channel details',
     Controller: {
@@ -3815,17 +3815,17 @@ Plugins.GetChat = {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
                 // Log start of execution
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'Start', e, 'Loading Chat Info');
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'Start', e, 'Loading Chat Info');
 
                 const data = e?.commonEventObject?.parameters || {};
                 const isUpdate = data.update === 'true';
-                const input_token = PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
+                const input_token = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 if (!input_token) {
                     throw new Error('Bot API Token is not set. Please connect your bot first.');
                 }
 
                 // Fetch bot current bot name for logging purposes
-                data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
+                data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Extract Chat ID from form inputs if available (user clicked Search)
                 // or fall back to parameters/properties
@@ -3850,12 +3850,12 @@ Plugins.GetChat = {
                     if (isUpdate) {
                         // Update the existing card in place
                         navigation.updateCard(
-                            Plugins.GetChat.View.HomeCard(data, result));
+                            Addon.GetChat.View.HomeCard(data, result));
                     }
                     else {
                         // Push a new card onto the stack
                         navigation.pushCard(
-                            Plugins.GetChat.View.HomeCard(data, result));
+                            Addon.GetChat.View.HomeCard(data, result));
                     }
 
                     return CardService.newActionResponseBuilder()
@@ -3867,10 +3867,10 @@ Plugins.GetChat = {
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation().pushCard(
-                            Plugins.GetChat.View.HomeCard(data, null)))
+                            Addon.GetChat.View.HomeCard(data, null)))
                     .build();
             } catch (error) {
-                Plugins.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'ERROR', e, error.toString(), error.stack);
+                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'ERROR', e, error.toString(), error.stack);
 
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
@@ -3892,19 +3892,19 @@ Plugins.GetChat = {
             const searchId = data.txt_search_chat_id || '';
 
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.GetChat.id + '-Home')
+                .setName(Addon.GetChat.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle(Plugins.GetChat.name)
-                    .setSubtitle(Plugins.GetChat.short_description)
+                    .setTitle(Addon.GetChat.name)
+                    .setSubtitle(Addon.GetChat.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.GetChat.imageUrl));
+                    .setImageUrl(Addon.GetChat.imageUrl));
 
             // --- Search Section ---
             const searchSection = CardService.newCardSection()
                 .setHeader('🔍 Target Selector');
 
             searchSection.addWidget(CardService.newTextInput()
-                .setFieldName(Plugins.PROPERTIES.txt_search_chat_id)
+                .setFieldName(Addon.PROPERTIES.txt_search_chat_id)
                 .setTitle('Chat ID or Username')
                 .setHint('Enter the Chat ID (e.g., -1001234567890) or Username (e.g., @channelusername)')
                 .setValue(data.txt_search_chat_id || ''));
@@ -3919,9 +3919,9 @@ Plugins.GetChat = {
                         .setName('search')
                         .setFill(false)) // Constraint: setFill(false)
                     .setOnClickAction(CardService.newAction()
-                        .setFunctionName('Plugins.GetChat.Controller.Load')
+                        .setFunctionName('Addon.GetChat.Controller.Load')
                         .setParameters({ update: 'true' })
-                        .addRequiredWidget([Plugins.PROPERTIES.txt_search_chat_id])));
+                        .addRequiredWidget([Addon.PROPERTIES.txt_search_chat_id])));
 
             cardBuilder.setFixedFooter(footer);
 
@@ -3974,37 +3974,37 @@ Plugins.GetChat = {
 
             // Add dump to result to sheet widget
             identitySection.addWidget(
-                Plugins.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getChat', result));
+                Addon.ExportApiResultWidget.View.BuildExportWidget(data.currentBotName, 'getChat', result));
 
             cardBuilder.addSection(identitySection);
 
             // --- Section B: Detailed Properties ---
             cardBuilder.addSection(
-                Plugins.Helper.View.BuildResultSection(data.currentBotName, 'getChat', result));
+                Addon.Helper.View.BuildResultSection(data.currentBotName, 'getChat', result));
 
             return cardBuilder.build();
         }
     }
 };
 
-Plugins.MCPCard = {
+Addon.MCPCard = {
     id: 'MCPCard',
     name: 'MCP Manager',
     short_description: 'Manage your MCP Host, Clients and Servers in one place',
     description: 'Manage your MCP Host, Clients and Servers in one place. Get real-time insights into server status, connected clients, and easily configure your MCP setup without leaving Google Sheets.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.BIG_TIME_IMG_URL,
+    imageUrl: Addon.Media.BIG_TIME_IMG_URL,
     Controller: {
         PushHomeCard(e) {
             try {
                 // Extract any necessary data from the event object if needed
                 // const formInputs = e?.commonEventObject?.formInputs || {};
-                let data = Plugins.Modules.App.getData();
+                let data = Addon.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
                             .pushCard(
-                                Plugins.MCPServerCard.View.HomeCard(data))
+                                Addon.MCPServerCard.View.HomeCard(data))
                     ).build();
             } catch (error) {
                 return CardService.newActionResponseBuilder()
@@ -4014,42 +4014,42 @@ Plugins.MCPCard = {
             }
         },
         PushClientManagementCard(e) {
-            let data = Plugins.Modules.App.getData();
+            let data = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.MCPServerCard.View.ClientManagementCard(data))
+                            Addon.MCPServerCard.View.ClientManagementCard(data))
                 ).build();
         },
         PushServerManagementCard(e) {
-            let data = Plugins.Modules.App.getData();
+            let data = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.MCPServerCard.View.ServerManagementCard(data))
+                            Addon.MCPServerCard.View.ServerManagementCard(data))
                 ).build();
         },
         PushMCPSettingsCard(e) {
-            let data = Plugins.Modules.App.getData();
+            let data = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
                         .pushCard(
-                            Plugins.MCPServerCard.View.MCPSettingsCard(data))
+                            Addon.MCPServerCard.View.MCPSettingsCard(data))
                 ).build();
         }
     },
     View: {
         HomeCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.MCPServerCard.id + '-Home')
+                .setName(Addon.MCPServerCard.id + '-Home')
                 .setHeader(CardService.newCardHeader()
-                    .setTitle(Plugins.MCPServerCard.name)
-                    .setSubtitle(Plugins.MCPServerCard.short_description)
+                    .setTitle(Addon.MCPServerCard.name)
+                    .setSubtitle(Addon.MCPServerCard.short_description)
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.MCPServerCard.imageUrl)
+                    .setImageUrl(Addon.MCPServerCard.imageUrl)
                     .setImageAltText('MCP Server Manager Logo'));
 
             // Add sections and widgets to display MCP Server status, connected clients, and management actions here.
@@ -4070,19 +4070,19 @@ Plugins.MCPCard = {
         },
         ClientManagementCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.MCPServerCard.id + '-ClientManagement');
+                .setName(Addon.MCPServerCard.id + '-ClientManagement');
             // Build the Client Management Card UI here, showing a list of connected clients and actions to manage them.
             return cardBuilder.build();
         },
         ServerManagementCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.MCPServerCard.id + '-ServerManagement');
+                .setName(Addon.MCPServerCard.id + '-ServerManagement');
             // Build the Server Management Card UI here, showing a list of servers and actions to manage them.
             return cardBuilder.build();
         },
         MCPSettingsCard: (data = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.MCPServerCard.id + '-Settings');
+                .setName(Addon.MCPServerCard.id + '-Settings');
             // Build the MCP Settings Card UI here, allowing users to configure their MCP setup.
             return cardBuilder.build();
         }
@@ -4090,13 +4090,13 @@ Plugins.MCPCard = {
 
 };
 
-Plugins.ResultWidget = {
+Addon.ResultWidget = {
     id: 'ResultWidget',
     name: 'Result Exporter',
     short_description: 'Export operation results to Google Sheets',
     description: 'A widget that allows users to export JSON operation results directly to a Google Sheets spreadsheet for further analysis and record-keeping.',
     version: '1.0.0',
-    imageUrl: Plugins.Media.YOU_GOT_IT_IMG_URL,
+    imageUrl: Addon.Media.YOU_GOT_IT_IMG_URL,
     Controller: {
         Load: (e) => {
             try {
@@ -4104,7 +4104,7 @@ Plugins.ResultWidget = {
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
-                            .pushCard(Plugins.ResultWidget.View.BuildResultCard(result))
+                            .pushCard(Addon.ResultWidget.View.BuildResultCard(result))
                     ).build();
             } catch (error) {
                 return CardService.newActionResponseBuilder()
@@ -4120,12 +4120,12 @@ Plugins.ResultWidget = {
             try {
                 // extract parameters
                 const a1n = e?.commonEventObject?.parameters?.a1n || 'A1';
-                const sheetName = e?.commonEventObject?.parameters?.sheetName || Plugins.Modules.Sheet.DUMP_SHEET_NAME;
+                const sheetName = e?.commonEventObject?.parameters?.sheetName || Addon.Modules.Sheet.DUMP_SHEET_NAME;
                 const botName = e?.commonEventObject?.parameters?.botName || '[Unknown Bot]';
                 const report = e?.commonEventObject?.parameters?.report || '{}';
 
                 // Dump data to sheet
-                Plugins.Modules.Sheet
+                Addon.Modules.Sheet
                     .dumpObjectToSheet(
                         activeSpreadsheet, { name: sheetName }, botName, a1n, JSON.parse(report), false);
 
@@ -4153,7 +4153,7 @@ Plugins.ResultWidget = {
                 const sheet = activeSpreadsheet.getSheetByName(sheetName);
                 const range = sheet.getRange(a1n);
                 // Highlight the range with a yellow background
-                const hightlightColor = PropertiesService.getDocumentProperties().getProperty(Plugins.PROPERTIES.highlight_color) || '#FFFF00';
+                const hightlightColor = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.highlight_color) || '#FFFF00';
                 range.setBackground(hightlightColor);
 
                 // Return action response with notification
@@ -4175,17 +4175,17 @@ Plugins.ResultWidget = {
     View: {
         HomeCard: (result = {}) => {
             const cardBuilder = CardService.newCardBuilder()
-                .setName(Plugins.ResultWidget.id + '-ResultCard')
+                .setName(Addon.ResultWidget.id + '-ResultCard')
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Operation Result')
                     .setSubtitle('View and export operation results')
                     .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Plugins.ResultWidget.imageUrl)
+                    .setImageUrl(Addon.ResultWidget.imageUrl)
                     .setImageAltText('Result Image'));
 
             // Add Result Summary Section
             cardBuilder.addSection(
-                Plugins.ResultWidget.View
+                Addon.ResultWidget.View
                     .BuildResultSummarySection(result.range, result.report)
             );
 
@@ -4198,7 +4198,7 @@ Plugins.ResultWidget = {
             // Iterate over each report item and add a widget
             result.report.forEach(reportItem => {
                 detailSection.addWidget(
-                    Plugins.ResultWidget.View
+                    Addon.ResultWidget.View
                         // Add a widget for each detailed result item
                         .BuildResultWidget(reportItem)
                 );
@@ -4210,14 +4210,14 @@ Plugins.ResultWidget = {
             cardBuilder.addSection(
                 CardService.newCardSection()
                     .addWidget(
-                        Plugins.ResultWidget.View
+                        Addon.ResultWidget.View
                             .BuildExportWidget(result.range.getSheet().getName(), result.range, result.report)
                     )
             );
             return cardBuilder.build();
         },
         BuildResultCard: (result = {}) => {
-            return Plugins.ResultWidget.View.HomeCard(result);
+            return Addon.ResultWidget.View.HomeCard(result);
         },
         BuildResultSummarySection: (range, report) => {
             return CardService.newCardSection()
@@ -4258,7 +4258,7 @@ Plugins.ResultWidget = {
                                 .setName('highlight'))
                         .setOnClickAction(
                             CardService.newAction()
-                                .setFunctionName('Plugins.ResultWidget.Controller.HighlightRange')
+                                .setFunctionName('Addon.ResultWidget.Controller.HighlightRange')
                                 .setParameters({
                                     a1n: reportItem.a1n,
                                     sheetName: reportItem.sheetName || ''
@@ -4282,7 +4282,7 @@ Plugins.ResultWidget = {
                         .setText('Export')
                         .setOnClickAction(
                             CardService.newAction()
-                                .setFunctionName('Plugins.ResultWidget.Controller.DumpResultToSheet')
+                                .setFunctionName('Addon.ResultWidget.Controller.DumpResultToSheet')
                                 .setParameters({
                                     a1n: a1n,
                                     botName: botName,
@@ -4296,6 +4296,6 @@ Plugins.ResultWidget = {
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        Plugins
+        Addon
     };
 };

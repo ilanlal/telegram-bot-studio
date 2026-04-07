@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.Home
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.Home
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Home Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.Home` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.Home` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.Home` object implements the entry-point dashboard for Telegram Bot Studio, a Google Workspace add-on. It provides a central hub for navigating to other plugins (e.g., GetMe, GetChat, Webhook), displaying bot connection status, and offering quick actions like settings and help. It integrates with the MVC pattern, using Controllers for logic, Views for CardService UI, and services for data persistence and logging.
+The `Addon.Home` object implements the entry-point dashboard for Telegram Bot Studio, a Google Workspace add-on. It provides a central hub for navigating to other plugins (e.g., GetMe, GetChat, Webhook), displaying bot connection status, and offering quick actions like settings and help. It integrates with the MVC pattern, using Controllers for logic, Views for CardService UI, and services for data persistence and logging.
 
 ---
 
@@ -49,10 +49,10 @@ The UI is built using Google Apps Script's CardService, rendering the sidebar da
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.Home.View.HomeCard`):**
+**Home Card (`Addon.Home.View.HomeCard`):**
 
 - **Header:** Title: "Telegram Bot Studio", Subtitle: Package short_description, Image: Logo.
-- **Section 1:** `WelcomeSection` (connection status via `Plugins.Connection.View.WelcomeSection`).
+- **Section 1:** `WelcomeSection` (connection status via `Addon.Connection.View.WelcomeSection`).
 - **Section 2:** Grid of plugin buttons (e.g., GetMe, GetChat, Webhook) as DecoratedText with Open buttons.
 - **Section 3:** Quick actions (Settings, Help, About) as ButtonSet.
 - **Section 4 (Conditional):** Premium CTA if not premium.
@@ -64,9 +64,9 @@ The UI is built using Google Apps Script's CardService, rendering the sidebar da
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.Home.Controller` with methods like `Load(e)` for rendering the HomeCard, `About()` and `Help()` for pushing related cards.
-- **View:** `Plugins.Home.View` with `HomeCard(data)`, `AboutCard(data)`, `HelpCard(data)` for building cards.
-- **Service/Model:** Integrates with `Plugins.Modules.App.getData()` for membership, `PropertiesService` for tokens, and `Plugins.Connection.View.WelcomeSection` for status.
+- **Controller:** `Addon.Home.Controller` with methods like `Load(e)` for rendering the HomeCard, `About()` and `Help()` for pushing related cards.
+- **View:** `Addon.Home.View` with `HomeCard(data)`, `AboutCard(data)`, `HelpCard(data)` for building cards.
+- **Service/Model:** Integrates with `Addon.Modules.App.getData()` for membership, `PropertiesService` for tokens, and `Addon.Connection.View.WelcomeSection` for status.
 
 ### 4.2 Data Interactions
 

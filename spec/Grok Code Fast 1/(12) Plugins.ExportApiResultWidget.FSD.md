@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.ExportApiResultWidget
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.ExportApiResultWidget
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Export API Result Widget Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.ExportApiResultWidget` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.ExportApiResultWidget` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.ExportApiResultWidget` object implements a reusable widget for exporting API result data to Google Sheets, enabling users to dump results for analysis and record-keeping. It integrates with PropertiesService for JSON formatting settings and uses CardService for UI.
+The `Addon.ExportApiResultWidget` object implements a reusable widget for exporting API result data to Google Sheets, enabling users to dump results for analysis and record-keeping. It integrates with PropertiesService for JSON formatting settings and uses CardService for UI.
 
 ---
 
@@ -60,9 +60,9 @@ The UI is built using Google Apps Script's CardService, rendering a decorated te
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.ExportApiResultWidget.Controller` with `DumpApiResultToSheet(e)` for export logic.
-- **View:** `Plugins.ExportApiResultWidget.View` with `BuildExportWidget(botName, apiAction, result)` for widget building.
-- **Service/Model:** Integrates with `Plugins.Modules.Sheet.dumpObjectToSheet`, `PropertiesService` for settings.
+- **Controller:** `Addon.ExportApiResultWidget.Controller` with `DumpApiResultToSheet(e)` for export logic.
+- **View:** `Addon.ExportApiResultWidget.View` with `BuildExportWidget(botName, apiAction, result)` for widget building.
+- **Service/Model:** Integrates with `Addon.Modules.Sheet.dumpObjectToSheet`, `PropertiesService` for settings.
 
 ### 4.2 Data Interactions
 

@@ -29,25 +29,25 @@
         "https://telegram.me/"
       ],
       "homepageTrigger": {
-        "runFunction": "Plugins.Home.Controller.PushHomeCard"
+        "runFunction": "Addon.Home.Controller.PushHomeCard"
       },
       "useLocaleFromApp": true,
       "universalActions": [
         {
           "label": "Profile",
-          "runFunction": "Plugins.UserProfile.Controller.PushHomeCard"
+          "runFunction": "Addon.UserProfile.Controller.PushHomeCard"
         },
         {
           "label": "Settings",
-          "runFunction": "Plugins.Settings.Controller.PushHomeCard"
+          "runFunction": "Addon.Settings.Controller.PushHomeCard"
         },
         {
           "label": "Help",
-          "runFunction": "Plugins.Home.Controller.PushHelpCard"
+          "runFunction": "Addon.Home.Controller.PushHelpCard"
         },
         {
           "label": "About",
-          "runFunction": "Plugins.Home.Controller.PushAboutCard"
+          "runFunction": "Addon.Home.Controller.PushAboutCard"
         },
         {
           "label": "Visit Website",

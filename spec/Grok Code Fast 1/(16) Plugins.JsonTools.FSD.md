@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.JsonTools
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.JsonTools
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio JSON Tools Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.JsonTools` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.JsonTools` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.JsonTools` object implements JSON utility functions for Telegram Bot Studio, a Google Workspace add-on. It provides tools to beautify, minify, and validate JSON data, enhancing user experience with API responses and data handling.
+The `Addon.JsonTools` object implements JSON utility functions for Telegram Bot Studio, a Google Workspace add-on. It provides tools to beautify, minify, and validate JSON data, enhancing user experience with API responses and data handling.
 
 ---
 
@@ -46,7 +46,7 @@ The UI is built using Google Apps Script's CardService, rendering a collapsible 
 
 ### 3.2 Widget Specifications
 
-**WelcomeSection (`Plugins.JsonTools.WelcomeSection`):**
+**WelcomeSection (`Addon.JsonTools.WelcomeSection`):**
 
 - **Header:** "🪚 Useful JSON Tools"
 - **Widgets:** DecoratedText with description, TextButtons for Beautify, Minify, Validate.
@@ -59,7 +59,7 @@ The UI is built using Google Apps Script's CardService, rendering a collapsible 
 ### 4.1 Architecture (MVC Pattern)
 
 - **Controller:** Relies on external `JsonHandler.View` for actions.
-- **View:** `Plugins.JsonTools.WelcomeSection` for building the section.
+- **View:** `Addon.JsonTools.WelcomeSection` for building the section.
 - **Service/Model:** Integrates with other plugins; no direct API calls.
 
 ### 4.2 Data Interactions

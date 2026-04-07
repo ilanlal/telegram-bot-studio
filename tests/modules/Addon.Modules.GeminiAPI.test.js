@@ -1,8 +1,8 @@
 require('..');
-const { Plugins } = require('../../src/Plugins');
-const GeminiAPI = Plugins.Modules.GeminiAPI;
+const { Addon } = require('../../src/Addon');
+const GeminiAPI = Addon.Modules.GeminiAPI;
 
-describe('Plugins.Modules.GeminiAPI', () => {
+describe('Addon.Modules.GeminiAPI', () => {
     const apiKey = 'test_api_key';
     beforeEach(() => {
         // Clear properties before each test
@@ -12,7 +12,7 @@ describe('Plugins.Modules.GeminiAPI', () => {
 
         // Set the API key in user properties for testing
         const userProperties = PropertiesService.getDocumentProperties();
-        userProperties.setProperty(Plugins.INPUT.GEMINI.GEMINI_API_KEY, apiKey);
+        userProperties.setProperty(Addon.INPUT.GEMINI.GEMINI_API_KEY, apiKey);
 
         // Reset the UrlFetchApp stub configuration before each test
         UrlFetchAppStubConfiguration.reset();
@@ -47,7 +47,7 @@ describe('Plugins.Modules.GeminiAPI', () => {
         };
 
         // Mock the UrlFetchApp response for the Gemini API generateContent call
-        const url = Plugins.Modules.GeminiApiClient.API_ENDPOINT_URL + Plugins.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
+        const url = Addon.Modules.GeminiApiClient.API_ENDPOINT_URL + Addon.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
 
         UrlFetchAppStubConfiguration.when(url)
             .return(new HttpResponse()
@@ -64,7 +64,7 @@ describe('Plugins.Modules.GeminiAPI', () => {
                 )
             );
 
-        const content = Plugins.Modules.GeminiApiClient.generateContent(apiKey, Plugins.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'], payload);
+        const content = Addon.Modules.GeminiApiClient.generateContent(apiKey, Addon.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'], payload);
         expect(content.data.candidates[0].content.parts[0].text).toBe(expectedResponse);
         //console.log('Generated content:', JSON.stringify(content, null, 2));
     });

@@ -1,16 +1,16 @@
 require('..');
-const { Plugins } = require('../../src/Plugins');
+const { Addon } = require('../../src/Addon');
 
-const view = Plugins.Settings.View;
+const view = Addon.Settings.View;
 
-describe('Plugins.Settings.View', () => {
+describe('Addon.Settings.View', () => {
     // Home card test
     it('should build Settings Card', () => {
-    const data = Plugins.Modules.App.getData();
+    const data = Addon.Modules.App.getData();
         const settingsCard = view.HomeCard(data);
         expect(settingsCard).toBeDefined();
         const cardData = settingsCard.getData();
         expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(Plugins.Settings.name + '-Home');
+        expect(cardData.name).toBe(Addon.Settings.name + '-Home');
     });
 });

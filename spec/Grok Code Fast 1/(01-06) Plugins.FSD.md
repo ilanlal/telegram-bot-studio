@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Telegram Bot Studio Plugins |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) |
+| **Feature Name** | Telegram Bot Studio Addon |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.js` file implements the core plugin architecture for Telegram Bot Studio, a Google Workspace add-on for managing Telegram bots. It provides a modular system of plugins (e.g., Connection, GetMe, GetChat, Webhook, JsonTools) that handle bot authentication, API interactions, UI rendering via CardService, and data persistence. The architecture supports MVC patterns, with Controllers for logic, Views for UI, and integrated services for Telegram API calls and sheet operations.
+The `Addon.js` file implements the core plugin architecture for Telegram Bot Studio, a Google Workspace add-on for managing Telegram bots. It provides a modular system of plugins (e.g., Connection, GetMe, GetChat, Webhook, JsonTools) that handle bot authentication, API interactions, UI rendering via CardService, and data persistence. The architecture supports MVC patterns, with Controllers for logic, Views for UI, and integrated services for Telegram API calls and sheet operations.
 
 ---
 
@@ -27,7 +27,7 @@ The `Plugins.js` file implements the core plugin architecture for Telegram Bot S
 
 ### 2.1 Acceptance Criteria
 
-- [x] Plugins are organized in a `Plugins` object with consistent structure (id, name, Controller, View).
+- [x] Addon are organized in a `Addon` object with consistent structure (id, name, Controller, View).
 - [x] Core modules (App, Sheet, TerminalOutput) handle data and logging.
 - [x] UI uses CardService for sidebar cards, with navigation and actions.
 - [x] API interactions via `TelegramBotClient` for methods like `getMe`, `getChat`, `setWebhook`.
@@ -50,7 +50,7 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.Home.View.HomeCard`):**
+**Home Card (`Addon.Home.View.HomeCard`):**
 
 - **Header:** Title: "Telegram Bot Studio", Subtitle: Package short_description, Image: Logo.
 - **Section 1:** `WelcomeSection` (connection status).
@@ -58,13 +58,13 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 - **Section 3:** Quick actions (Settings, Help, About).
 - **Section 4 (Conditional):** Premium CTA if not premium.
 
-**Connection Card (`Plugins.Connection.View.HomeCard`):**
+**Connection Card (`Addon.Connection.View.HomeCard`):**
 
 - **Header:** Title: "Connection", Image: Welcome.
 - **Section 1:** Token input (`TextInput`), Connect button.
 - **Footer:** Primary button for Connect.
 
-**Webhook Card (`Plugins.Webhook.View.HomeCard`):**
+**Webhook Card (`Addon.Webhook.View.HomeCard`):**
 
 - **Header:** Title: "Webhook Configurator".
 - **Section 1:** Status (URL, pending updates).
@@ -83,7 +83,7 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 - **Controller:** Each plugin has a `Controller` object with methods like `Load(e)` for rendering, handling form inputs, and API calls.
 - **View:** `View` objects build CardService cards, using helpers like `BuildResultSection`.
-- **Service/Model:** Integrated via `TelegramBotClient` for API, `Plugins.Modules` for sheets/logging, `PropertiesService` for storage.
+- **Service/Model:** Integrated via `TelegramBotClient` for API, `Addon.Modules` for sheets/logging, `PropertiesService` for storage.
 
 ### 4.2 Data Interactions
 
@@ -122,7 +122,7 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 ## 6. Edge Cases & Error Handling
 
-- **No Token:** Plugins check `txt_bot_api_token`; throw error if missing.
+- **No Token:** Addon check `txt_bot_api_token`; throw error if missing.
 - **API Errors:** Parse `ok: false`; show notification with message.
 - **Network Failures:** `UrlFetchApp` exceptions logged and notified.
 - **Invalid Inputs:** Form validation (e.g., URL must start with HTTPS).

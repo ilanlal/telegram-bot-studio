@@ -1,14 +1,14 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins.Settings', () => {
+describe('Addon.Settings', () => {
     describe('Settings Plugin', () => {
         it('should have required properties', () => {
-            expect(Plugins.Settings.id).toBeDefined();
-            expect(Plugins.Settings.name).toBeDefined();
-            expect(Plugins.Settings.short_description).toBeDefined();
-            expect(Plugins.Settings.description).toBeDefined();
-            expect(Plugins.Settings.version).toBeDefined();
+            expect(Addon.Settings.id).toBeDefined();
+            expect(Addon.Settings.name).toBeDefined();
+            expect(Addon.Settings.short_description).toBeDefined();
+            expect(Addon.Settings.description).toBeDefined();
+            expect(Addon.Settings.version).toBeDefined();
         });
 
 
@@ -16,7 +16,7 @@ describe('Plugins.Settings', () => {
         it('should handle Load', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.Settings.Controller.PushHomeCard(e);
+            const homeCard = Addon.Settings.Controller.PushHomeCard(e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
@@ -35,7 +35,7 @@ describe('Plugins.Settings', () => {
                 }
             };
 
-            const actionResponse = Plugins.Settings.Controller.SaveSettings(e);
+            const actionResponse = Addon.Settings.Controller.SaveSettings(e);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -57,7 +57,7 @@ describe('Plugins.Settings', () => {
                     }
                 }
             };
-            const actionResponse = Plugins.Settings.Controller.ToggleAction(e);
+            const actionResponse = Addon.Settings.Controller.ToggleAction(e);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();

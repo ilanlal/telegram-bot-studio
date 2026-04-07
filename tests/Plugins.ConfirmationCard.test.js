@@ -1,14 +1,14 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins.ConfirmationCard', () => {
+describe('Addon.ConfirmationCard', () => {
     beforeEach(() => {
     });
 
     describe('ConfirmationCard Plugin', () => {
         it('should have required properties', () => {
-            expect(Plugins.ConfirmationCard.id).toBeDefined();
-            expect(Plugins.ConfirmationCard.name).toBeDefined();
+            expect(Addon.ConfirmationCard.id).toBeDefined();
+            expect(Addon.ConfirmationCard.name).toBeDefined();
         });
 
         // Load test
@@ -18,7 +18,7 @@ describe('Plugins.ConfirmationCard', () => {
                     parameters: { title: 'Test Title', message: 'Test Message', onClickFunctionName: 'TestFunction', onClickParameters: JSON.stringify({ key: 'value' }) }
                 }
             };
-            const result = Plugins.ConfirmationCard.Controller['Load'](event);
+            const result = Addon.ConfirmationCard.Controller['Load'](event);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -26,7 +26,7 @@ describe('Plugins.ConfirmationCard', () => {
             expect(data.cardNavigations).toBeDefined();
             const cardData = data.cardNavigations[0].pushCard;
             expect(cardData).toBeDefined();
-            expect(cardData.name).toBe(Plugins.ConfirmationCard.id + '-Home');
+            expect(cardData.name).toBe(Addon.ConfirmationCard.id + '-Home');
 
         });
 
@@ -38,7 +38,7 @@ describe('Plugins.ConfirmationCard', () => {
                 }
             };
             expect(() => {
-                Plugins.ConfirmationCard.Controller['Load'](event);
+                Addon.ConfirmationCard.Controller['Load'](event);
             }).toThrowError('Missing required parameters: message, onClickFunctionName');
         });
 
@@ -47,7 +47,7 @@ describe('Plugins.ConfirmationCard', () => {
             const event = {
                 commonEventObject: {}
             };
-            const result = Plugins.ConfirmationCard.Controller['Cancel'](event);
+            const result = Addon.ConfirmationCard.Controller['Cancel'](event);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();

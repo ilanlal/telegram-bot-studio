@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.Connection
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.Connection
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Connection Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.Connection` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.Connection` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.Connection` object implements the authentication and connection management for Telegram Bot Studio, a Google Workspace add-on. It handles bot token input, validation via the `getMe` API, connection status display, and secure disconnection. It integrates with PropertiesService for token persistence and uses CardService for UI rendering.
+The `Addon.Connection` object implements the authentication and connection management for Telegram Bot Studio, a Google Workspace add-on. It handles bot token input, validation via the `getMe` API, connection status display, and secure disconnection. It integrates with PropertiesService for token persistence and uses CardService for UI rendering.
 
 ---
 
@@ -49,14 +49,14 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.Connection.View.HomeCard`):**
+**Home Card (`Addon.Connection.View.HomeCard`):**
 
 - **Header:** Title: "Bot Connection Management", Subtitle: Status-based, Image: Welcome.
 - **Section 1:** Token input (`TextInput`), Help link to BotFather.
 - **Section 2:** Token storage options (checkbox to export to sheet).
 - **Footer:** Primary button for "Connect".
 
-**WelcomeSection (`Plugins.Connection.View.WelcomeSection`):**
+**WelcomeSection (`Addon.Connection.View.WelcomeSection`):**
 
 - **Widget:** DecoratedText with status (LIVE/OFFLINE), bot name/ID, and action button (Link/Unlink).
 - **Conditional:** Token input hidden post-connection.
@@ -67,9 +67,9 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.Connection.Controller` with methods like `Load(e)` for rendering, `Connect(e)` for validation/API calls, `Disconnect(e)` for removal.
-- **View:** `Plugins.Connection.View` with `HomeCard(data)`, `WelcomeSection(data)`, `BuildTokenTextInputWidget(token, hidden)`.
-- **Service/Model:** Integrates with `TelegramBotClient` for `getMe`, `PropertiesService` for storage, `Plugins.Modules.TerminalOutput` for logging.
+- **Controller:** `Addon.Connection.Controller` with methods like `Load(e)` for rendering, `Connect(e)` for validation/API calls, `Disconnect(e)` for removal.
+- **View:** `Addon.Connection.View` with `HomeCard(data)`, `WelcomeSection(data)`, `BuildTokenTextInputWidget(token, hidden)`.
+- **Service/Model:** Integrates with `TelegramBotClient` for `getMe`, `PropertiesService` for storage, `Addon.Modules.TerminalOutput` for logging.
 
 ### 4.2 Data Interactions
 

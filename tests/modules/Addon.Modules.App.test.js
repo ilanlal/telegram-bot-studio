@@ -1,7 +1,7 @@
 require('..');
-const { Plugins } = require('../../src/Plugins');
+const { Addon } = require('../../src/Addon');
 
-describe('Plugins.Modules.App', () => {
+describe('Addon.Modules.App', () => {
     beforeEach(() => {
         PropertiesService.getScriptProperties().deleteAllProperties();
         PropertiesService.getUserProperties().deleteAllProperties();
@@ -25,8 +25,8 @@ describe('Plugins.Modules.App', () => {
 
     // getData test
     it('should retrieve correct data from App module', () => {
-        const data = Plugins.Modules.App.getData();
+        const data = Addon.Modules.App.getData();
         expect(data).toBeDefined();
-        expect(data[Plugins.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]).toBe(false);
+        expect(data[Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]).toBe(false);
     });
 });

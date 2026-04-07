@@ -1,16 +1,16 @@
 require('..');
 const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
-const { Plugins } = require('../../src/Plugins.js');
+const { Addon } = require('../../src/Addon.js');
 const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
 const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 
-describe('Plugins.Webhook', () => {
-    const Controller = Plugins.Webhook.Controller;
+describe('Addon.Webhook', () => {
+    const Controller = Addon.Webhook.Controller;
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
 
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
-        PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
+        PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     // Load test
@@ -19,7 +19,7 @@ describe('Plugins.Webhook', () => {
         const e = {
             commonEventObject: {
                 formInputs: {
-                    [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } }
+                    [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } }
                 }
             }
         };
@@ -50,9 +50,9 @@ describe('Plugins.Webhook', () => {
         const e = {
             commonEventObject: {
                 formInputs: {
-                    [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
-                    [Plugins.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]: { stringInputs: { value: [webhookUrl] } },
-                    [Plugins.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['false'] } }
+                    [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
+                    [Addon.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]: { stringInputs: { value: [webhookUrl] } },
+                    [Addon.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['false'] } }
                 }
             }
         };
@@ -90,8 +90,8 @@ describe('Plugins.Webhook', () => {
         const e = {
             commonEventObject: {
                 formInputs: {
-                    [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
-                    [Plugins.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['true'] } }
+                    [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
+                    [Addon.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['true'] } }
                 }
             }
         };

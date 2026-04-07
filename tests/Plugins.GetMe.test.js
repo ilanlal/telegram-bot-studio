@@ -1,24 +1,24 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins.GetMe', () => {
+describe('Addon.GetMe', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
         // Set the bot token in user properties
-        PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
+        PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     it('should have required properties', () => {
-        expect(Plugins.GetMe.id).toBeDefined();
-        expect(Plugins.GetMe.name).toBeDefined();
+        expect(Addon.GetMe.id).toBeDefined();
+        expect(Addon.GetMe.name).toBeDefined();
     });
 
     // HomeCard test
     it('should create HomeCard', () => {
         // mock event parameters
         const e = { parameters: {} };
-        const homeCard = Plugins.GetMe.View['HomeCard'](e);
+        const homeCard = Addon.GetMe.View['HomeCard'](e);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
@@ -46,7 +46,7 @@ describe('Plugins.GetMe', () => {
                         ok: true,
                         result: { id: 123456789, is_bot: true, first_name: "TestBot", username: "test_bot" }
                     })));
-        const result = Plugins.GetMe.Controller['Load'](event);
+        const result = Addon.GetMe.Controller['Load'](event);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();

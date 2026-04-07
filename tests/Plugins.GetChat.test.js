@@ -1,7 +1,7 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins.GetChat', () => {
+describe('Addon.GetChat', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
@@ -11,14 +11,14 @@ describe('Plugins.GetChat', () => {
         PropertiesService.getDocumentProperties().deleteAllProperties();
         
         // 
-        PropertiesService.getDocumentProperties().setProperty(Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
+        PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     // HomeCard test
     it('should create HomeCard', () => {
         // mock event parameters
         const data = {};
-        const homeCard = Plugins.GetChat.View['HomeCard'](data);
+        const homeCard = Addon.GetChat.View['HomeCard'](data);
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
@@ -54,7 +54,7 @@ describe('Plugins.GetChat', () => {
                             username: "testuser"
                         }
                     })));
-        const result = Plugins.GetChat.Controller['Load'](event);
+        const result = Addon.GetChat.Controller['Load'](event);
         expect(result).toBeDefined();
         const data = result.getData();
         expect(data).toBeDefined();

@@ -1,16 +1,16 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins Package', () => {
+describe('Addon Package', () => {
     it('should have required properties', () => {
-        expect(Plugins.Package.version).toBeDefined();
-        expect(Plugins.Package.name).toBeDefined();
-        expect(Plugins.Package.description).toBeDefined();
-        expect(Plugins.Package.short_description).toBeDefined();
-        expect(Plugins.Package.build).toBeDefined();
-        expect(Plugins.Package.gitRepository).toBeDefined();
-        expect(Plugins.Package.author).toBeDefined();
-        expect(Plugins.Package.license).toBeDefined();
-        expect(Plugins.Package.imageUrl).toBeDefined();
+        expect(Addon.Package.version).toBeDefined();
+        expect(Addon.Package.name).toBeDefined();
+        expect(Addon.Package.description).toBeDefined();
+        expect(Addon.Package.short_description).toBeDefined();
+        expect(Addon.Package.build).toBeDefined();
+        expect(Addon.Package.gitRepository).toBeDefined();
+        expect(Addon.Package.author).toBeDefined();
+        expect(Addon.Package.license).toBeDefined();
+        expect(Addon.Package.imageUrl).toBeDefined();
     });
 });

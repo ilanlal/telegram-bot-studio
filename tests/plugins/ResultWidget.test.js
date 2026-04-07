@@ -1,16 +1,16 @@
 require('..');
 const SpreadsheetStubConfiguration = require('@ilanlal/gasmocks/src/spreadsheetapp/classes/SpreadsheetStubConfiguration');
-const { Plugins } = require('../../src/Plugins.js');
+const { Addon } = require('../../src/Addon.js');
 
-describe('Plugins.ResultWidget', () => {
+describe('Addon.ResultWidget', () => {
     beforeEach(() => {
         SpreadsheetStubConfiguration.reset();
     });
 
     describe('ResultWidget Plugin', () => {
         it('should have required properties', () => {
-            expect(Plugins.ResultWidget.id).toBeDefined();
-            expect(Plugins.ResultWidget.name).toBeDefined();
+            expect(Addon.ResultWidget.id).toBeDefined();
+            expect(Addon.ResultWidget.name).toBeDefined();
         });
 
         // DumpResultToSheet test
@@ -31,7 +31,7 @@ describe('Plugins.ResultWidget', () => {
                     }
                 }
             };
-            const result = Plugins.ResultWidget.Controller['DumpResultToSheet'](e);
+            const result = Addon.ResultWidget.Controller['DumpResultToSheet'](e);
             expect(result).toBeDefined();
             const resultData = result.getData();
             expect(resultData).toBeDefined();

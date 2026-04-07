@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.GetChat
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.GetChat
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio GetChat Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.GetChat` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.GetChat` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.GetChat` object implements chat inspection for Telegram Bot Studio, a Google Workspace add-on. It fetches and displays details about users, groups, or channels using the `getChat` API, providing identity and properties in a user-friendly interface.
+The `Addon.GetChat` object implements chat inspection for Telegram Bot Studio, a Google Workspace add-on. It fetches and displays details about users, groups, or channels using the `getChat` API, providing identity and properties in a user-friendly interface.
 
 ---
 
@@ -48,7 +48,7 @@ The UI is built using Google Apps Script's CardService, rendering a search and r
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.GetChat.View.HomeCard`):**
+**Home Card (`Addon.GetChat.View.HomeCard`):**
 
 - **Header:** Title: "Chat Inspector", Subtitle: "User, Group & Channel details", Image: Logo.
 - **Section 1:** Search input for chat ID/username.
@@ -63,8 +63,8 @@ The UI is built using Google Apps Script's CardService, rendering a search and r
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.GetChat.Controller` with `Load(e)` for rendering and API calls.
-- **View:** `Plugins.GetChat.View` with `HomeCard(data, result)` for building the card.
+- **Controller:** `Addon.GetChat.Controller` with `Load(e)` for rendering and API calls.
+- **View:** `Addon.GetChat.View` with `HomeCard(data, result)` for building the card.
 - **Service/Model:** Integrates with `TelegramBotClient` for `getChat`, `PropertiesService` for tokens.
 
 ### 4.2 Data Interactions
@@ -76,7 +76,7 @@ The UI is built using Google Apps Script's CardService, rendering a search and r
 
 **Sheet Export:**
 
-- Via `Plugins.ExportApiResultWidget`.
+- Via `Addon.ExportApiResultWidget`.
 
 ---
 

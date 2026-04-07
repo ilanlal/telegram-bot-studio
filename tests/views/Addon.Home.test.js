@@ -1,7 +1,7 @@
 require('..');
-const { Plugins } = require('../../src/Plugins');
-const View = Plugins.Home.View;
-describe('Plugins.Home.View build', () => {
+const { Addon } = require('../../src/Addon');
+const View = Addon.Home.View;
+describe('Addon.Home.View build', () => {
     beforeEach(() => {
         // UrlFetchAppStubConfiguration.reset();
     });
@@ -12,7 +12,7 @@ describe('Plugins.Home.View build', () => {
         expect(homeCard).toBeDefined();
         const cardData = homeCard.getData();
         expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(Plugins.Home.id + '-Home');
+        expect(cardData.name).toBe(Addon.Home.id + '-Home');
         expect(cardData.sections).toBeDefined();
         expect(cardData.sections.length).toBeGreaterThan(0);
 
@@ -31,7 +31,7 @@ describe('Plugins.Home.View build', () => {
         expect(helpCard).toBeDefined();
         const cardData = helpCard.getData();
         expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(Plugins.Home.id + '-Help');
+        expect(cardData.name).toBe(Addon.Home.id + '-Help');
         expect(cardData.sections).toBeDefined();
         expect(cardData.sections.length).toBeGreaterThan(0);
     });
@@ -42,7 +42,7 @@ describe('Plugins.Home.View build', () => {
         expect(aboutCard).toBeDefined();
         const cardData = aboutCard.getData();
         expect(cardData).toBeDefined();
-        expect(cardData.name).toBe(Plugins.Home.id + '-About');
+        expect(cardData.name).toBe(Addon.Home.id + '-About');
         expect(cardData.sections).toBeDefined();
         expect(cardData.sections.length).toBeGreaterThan(0);
     });

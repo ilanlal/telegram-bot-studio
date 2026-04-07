@@ -1,13 +1,13 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins.Home tests', () => {
+describe('Addon.Home tests', () => {
     beforeEach(() => {
         // UrlFetchAppStubConfiguration.reset();
     });
 
     describe('Controller', () => {
-        const Controller = Plugins.Home.Controller;
+        const Controller = Addon.Home.Controller;
         beforeEach(() => {
             // UrlFetchAppStubConfiguration.reset();
         });
@@ -27,7 +27,7 @@ describe('Plugins.Home tests', () => {
             expect(cardData.notification).toBeUndefined();
             // pushCard data
             const pushCardData = cardData.cardNavigations[0].pushCard;
-            expect(pushCardData.name).toBe(Plugins.Home.id + '-Home');
+            expect(pushCardData.name).toBe(Addon.Home.id + '-Home');
         });
 
         // PushHelpCard test
@@ -57,7 +57,7 @@ describe('Plugins.Home tests', () => {
     });
 
     describe('View', () => {
-        const View = Plugins.Home.View;
+        const View = Addon.Home.View;
 
         beforeEach(() => {
             PropertiesService.getScriptProperties().deleteAllProperties();
@@ -68,13 +68,13 @@ describe('Plugins.Home tests', () => {
         describe('HomeCard', () => {
             // HomeCard test 1 - should build Home Card with Welcome to Gemini Assistant section if API key is not present
             it('should build Home Card with Welcome to Gemini Assistant section', () => {
-                const data = Plugins.Modules.App.getData();
+                const data = Addon.Modules.App.getData();
 
                 const homeCard = View.HomeCard(data);
                 expect(homeCard).toBeDefined();
                 const cardData = homeCard.getData();
                 expect(cardData).toBeDefined();
-                expect(cardData.name).toBe(Plugins.Home.id + '-Home');
+                expect(cardData.name).toBe(Addon.Home.id + '-Home');
             });
         });
 

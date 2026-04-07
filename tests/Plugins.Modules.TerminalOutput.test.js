@@ -1,7 +1,7 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins Modules TerminalOutput', () => {
+describe('Addon Modules TerminalOutput', () => {
     beforeEach(() => {
         SpreadsheetStubConfiguration.reset();
         PropertiesService.getDocumentProperties().setProperty('terminal_output_switch', 'ON');
@@ -16,7 +16,7 @@ describe('Plugins Modules TerminalOutput', () => {
         const moreInfo1 = 'Additional Info 1';
         const moreInfo2 = { info: 'Additional Info 2' };
         const moreInfo3 = ['Additional', 'Info', 3];
-        const sheet = Plugins.Modules.TerminalOutput.write(
+        const sheet = Addon.Modules.TerminalOutput.write(
             activeSpreadsheet,
             {
                 source,
@@ -29,7 +29,7 @@ describe('Plugins Modules TerminalOutput', () => {
         );
 
         expect(sheet).toBeDefined();
-        expect(sheet.getName()).toBe(Plugins.Modules.TerminalOutput.SHEET_META.name);
+        expect(sheet.getName()).toBe(Addon.Modules.TerminalOutput.SHEET_META.name);
 
         // Verify rang lenth
         const lastRow = sheet.getLastRow();

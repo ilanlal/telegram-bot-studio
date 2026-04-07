@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.Webhook
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.Webhook
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Webhook Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.Webhook` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.Webhook` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.Webhook` object implements webhook configuration and management for Telegram Bot Studio, a Google Workspace add-on. It allows users to set, update, and delete webhooks, view status, and handle pending updates via Telegram API calls.
+The `Addon.Webhook` object implements webhook configuration and management for Telegram Bot Studio, a Google Workspace add-on. It allows users to set, update, and delete webhooks, view status, and handle pending updates via Telegram API calls.
 
 ---
 
@@ -48,7 +48,7 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.Webhook.View.HomeCard`):**
+**Home Card (`Addon.Webhook.View.HomeCard`):**
 
 - **Header:** Title: "Webhook Configurator", Subtitle: "Manage bot webhooks and settings", Image: Logo.
 - **Section 1:** Status (active/inactive, URL, pending updates, errors).
@@ -62,8 +62,8 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.Webhook.Controller` with methods like `Load(e)` for rendering/API calls, `SetWebhook(e)` for setting, `DeleteWebhook(e)` for removal.
-- **View:** `Plugins.Webhook.View` with `HomeCard(data, result)` for building the card.
+- **Controller:** `Addon.Webhook.Controller` with methods like `Load(e)` for rendering/API calls, `SetWebhook(e)` for setting, `DeleteWebhook(e)` for removal.
+- **View:** `Addon.Webhook.View` with `HomeCard(data, result)` for building the card.
 - **Service/Model:** Integrates with `TelegramBotClient` for API, `PropertiesService` for tokens.
 
 ### 4.2 Data Interactions
@@ -75,7 +75,7 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 
 **Sheet Export:**
 
-- Via `Plugins.ExportApiResultWidget`.
+- Via `Addon.ExportApiResultWidget`.
 
 ---
 

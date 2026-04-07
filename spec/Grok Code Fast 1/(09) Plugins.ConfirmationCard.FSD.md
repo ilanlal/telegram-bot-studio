@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.ConfirmationCard
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.ConfirmationCard
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Confirmation Card Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.ConfirmationCard` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.ConfirmationCard` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.ConfirmationCard` object implements a reusable confirmation dialog for Telegram Bot Studio, a Google Workspace add-on. It standardizes user confirmations for destructive actions (e.g., disconnection, webhook deletion), using dynamic parameters for title, message, and action callbacks. It integrates with CardService for UI rendering and supports MVC patterns.
+The `Addon.ConfirmationCard` object implements a reusable confirmation dialog for Telegram Bot Studio, a Google Workspace add-on. It standardizes user confirmations for destructive actions (e.g., disconnection, webhook deletion), using dynamic parameters for title, message, and action callbacks. It integrates with CardService for UI rendering and supports MVC patterns.
 
 ---
 
@@ -48,7 +48,7 @@ The UI is built using Google Apps Script's CardService, rendering a modal-like c
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.ConfirmationCard.View.HomeCard`):**
+**Home Card (`Addon.ConfirmationCard.View.HomeCard`):**
 
 - **Header:** Title: Dynamic (e.g., "Confirm Action"), Image: PayAttention icon.
 - **Section 1:** TextParagraph with dynamic message.
@@ -60,8 +60,8 @@ The UI is built using Google Apps Script's CardService, rendering a modal-like c
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.ConfirmationCard.Controller` with methods like `Load(e)` for rendering with parameters, `Confirm(e)` for executing actions, `Cancel(e)` for dismissal.
-- **View:** `Plugins.ConfirmationCard.View` with `HomeCard(data)` for building the dialog.
+- **Controller:** `Addon.ConfirmationCard.Controller` with methods like `Load(e)` for rendering with parameters, `Confirm(e)` for executing actions, `Cancel(e)` for dismissal.
+- **View:** `Addon.ConfirmationCard.View` with `HomeCard(data)` for building the dialog.
 - **Service/Model:** Integrates with other plugins via dynamic function resolution and `PropertiesService` if needed.
 
 ### 4.2 Data Interactions

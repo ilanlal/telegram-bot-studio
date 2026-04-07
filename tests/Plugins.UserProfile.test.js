@@ -1,28 +1,28 @@
 require('.');
-const { Plugins } = require('../src/Plugins');
+const { Addon } = require('../src/Addon');
 
-describe('Plugins.UserProfile', () => {
+describe('Addon.UserProfile', () => {
     describe('UserProfile Plugin', () => {
         it('should have required properties', () => {
-            expect(Plugins.UserProfile.id).toBeDefined();
-            expect(Plugins.UserProfile.name).toBeDefined();
+            expect(Addon.UserProfile.id).toBeDefined();
+            expect(Addon.UserProfile.name).toBeDefined();
         });
 
         // HomeCard test
         it('should create HomeCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.UserProfile.View['HomeCard'](e);
+            const homeCard = Addon.UserProfile.View['HomeCard'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
-            expect(cardData.name).toBe(Plugins.UserProfile.id + '-Home');
+            expect(cardData.name).toBe(Addon.UserProfile.id + '-Home');
         });
 
         // OnActivatePremium test
         it('should handle OnActivatePremium', () => {
             const event = {}; // Mock event object
-            const actionResponse = Plugins.UserProfile.Controller['ActivatePremium'](event);
+            const actionResponse = Addon.UserProfile.Controller['ActivatePremium'](event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -33,7 +33,7 @@ describe('Plugins.UserProfile', () => {
         // OnRevokeLicense test
         it('should handle OnRevokeLicense', () => {
             const event = {}; // Mock event object
-            const actionResponse = Plugins.UserProfile.Controller['RevokeLicense'](event);
+            const actionResponse = Addon.UserProfile.Controller['RevokeLicense'](event);
             expect(actionResponse).toBeDefined();
             const data = actionResponse.getData();
             expect(data).toBeDefined();
@@ -45,7 +45,7 @@ describe('Plugins.UserProfile', () => {
         it('should handle Load', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.UserProfile.Controller['PushHomeCard'](e);
+            const homeCard = Addon.UserProfile.Controller['PushHomeCard'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();

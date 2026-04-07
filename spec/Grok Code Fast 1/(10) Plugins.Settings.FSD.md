@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.Settings
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.Settings
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Settings Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.Settings` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.Settings` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.Settings` object implements configuration management for Telegram Bot Studio, a Google Workspace add-on. It allows users to customize API endpoints, toggle developer tools like terminal output and JSON formatting, and save preferences securely. It integrates with PropertiesService for persistence and uses CardService for UI.
+The `Addon.Settings` object implements configuration management for Telegram Bot Studio, a Google Workspace add-on. It allows users to customize API endpoints, toggle developer tools like terminal output and JSON formatting, and save preferences securely. It integrates with PropertiesService for persistence and uses CardService for UI.
 
 ---
 
@@ -48,7 +48,7 @@ The UI is built using Google Apps Script's CardService, rendering a settings car
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.Settings.View.HomeCard`):**
+**Home Card (`Addon.Settings.View.HomeCard`):**
 
 - **Header:** Title: "Settings", Subtitle: Short description, Image: Logo.
 - **Section 1:** Network & Security (API endpoint input).
@@ -61,9 +61,9 @@ The UI is built using Google Apps Script's CardService, rendering a settings car
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.Settings.Controller` with methods like `Load(e)` for rendering, `SaveSettings(e)` for validation/storage, `ToggleAction(e)` for switches.
-- **View:** `Plugins.Settings.View` with `HomeCard(data)` for building the card.
-- **Service/Model:** Integrates with `PropertiesService` for user properties, `Plugins.Modules.App.getData()` for app info.
+- **Controller:** `Addon.Settings.Controller` with methods like `Load(e)` for rendering, `SaveSettings(e)` for validation/storage, `ToggleAction(e)` for switches.
+- **View:** `Addon.Settings.View` with `HomeCard(data)` for building the card.
+- **Service/Model:** Integrates with `PropertiesService` for user properties, `Addon.Modules.App.getData()` for app info.
 
 ### 4.2 Data Interactions
 

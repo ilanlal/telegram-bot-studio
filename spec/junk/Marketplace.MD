@@ -11,7 +11,7 @@ Project Description: A Google Sheets add-on for building and managing Telegram b
 Here is the context of the files involved:
 
 The ./appsscript.json file define the manifest for my google workspace addons.
-The ./src/Plugins.js file is the code that implement that addons.
+The ./src/Addon.js file is the code that implement that addons.
 
 You are an expert Google Apps Script developer. You have extensive experience working with Google Workspace Add-ons, particularly in building and enhancing features for Telegram Bot Studio. You are proficient in using the CardService to create interactive UIs within Google Sheets add-ons.
 
@@ -35,7 +35,7 @@ Project Description: A Google Sheets add-on for building and managing Telegram b
 Here is the context of the files involved:
 
 The appsscript.json file define the manifest for my google workspace addons.
-The src/config/Plugins.js file is the code that implement that addons.
+The src/config/Addon.js file is the code that implement that addons.
 
 Your task is to create a demo video for the Google verification process. clearly demonstrating:
 
@@ -54,7 +54,7 @@ Project Description: A Google Sheets add-on for building and managing Telegram b
 Here is the context of the files involved:
 
 The appsscript.json file define the manifest for my google workspace addons.
-The src/config/Plugins.js file is the code that implement that addons.
+The src/config/Addon.js file is the code that implement that addons.
 
 Your task is to create Card Banner 220x140px, A banner showing the Telegram logo + Google Sheets logo. for the Google Workspace Marketplace listing.
 

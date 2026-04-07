@@ -1,10 +1,10 @@
 require('..');
 const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
-const { Plugins } = require('../../src/Plugins.js');
+const { Addon } = require('../../src/Addon.js');
 const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 const CardService = require('@ilanlal/gasmocks/src/card/CardService');
 
-describe('Plugins.TelegramBotConnection', () => {
+describe('Addon.TelegramBotConnection', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
@@ -12,19 +12,19 @@ describe('Plugins.TelegramBotConnection', () => {
 
     describe('Connection Plugin', () => {
         it('should have required properties', () => {
-            expect(Plugins.TelegramBotConnection.id).toBeDefined();
-            expect(Plugins.TelegramBotConnection.name).toBeDefined();
+            expect(Addon.TelegramBotConnection.id).toBeDefined();
+            expect(Addon.TelegramBotConnection.name).toBeDefined();
         });
 
         // HomeCard test
         it('should create HomeCard', () => {
             // mock event parameters
             const e = { parameters: {} };
-            const homeCard = Plugins.TelegramBotConnection.View['HomeCard'](e);
+            const homeCard = Addon.TelegramBotConnection.View['HomeCard'](e);
             expect(homeCard).toBeDefined();
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
-            expect(cardData.name).toBe(Plugins.TelegramBotConnection.id + '-Home');
+            expect(cardData.name).toBe(Addon.TelegramBotConnection.id + '-Home');
 
             // No notification
             expect(cardData.notification).toBeUndefined();
@@ -35,7 +35,7 @@ describe('Plugins.TelegramBotConnection', () => {
             const event = {
                 commonEventObject: {
                     formInputs: {
-                        [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
+                        [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
                         'chk_export_token_to_sheet': { stringInputs: { value: ['export_token'] } }
                     }
                 }
@@ -66,7 +66,7 @@ describe('Plugins.TelegramBotConnection', () => {
                             allowed_updates: []
                         }
                     })));
-            const result = Plugins.TelegramBotConnection.Controller['Connect'](event);
+            const result = Addon.TelegramBotConnection.Controller['Connect'](event);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -81,11 +81,11 @@ describe('Plugins.TelegramBotConnection', () => {
             const e = {
                 commonEventObject: {
                     formInputs: {
-                        [Plugins.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [invalidToken] } }
+                        [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [invalidToken] } }
                     }
                 }
             };
-            const result = Plugins.TelegramBotConnection.Controller['Connect'](e);
+            const result = Addon.TelegramBotConnection.Controller['Connect'](e);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -102,7 +102,7 @@ describe('Plugins.TelegramBotConnection', () => {
             };
 
 
-            const result = Plugins.TelegramBotConnection.Controller['Disconnect'](e);
+            const result = Addon.TelegramBotConnection.Controller['Disconnect'](e);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -110,14 +110,14 @@ describe('Plugins.TelegramBotConnection', () => {
 
         // BuildTokenTextInputWidget test
         it('should build Token Text Input Widget', () => {
-            let tokenWidget = Plugins.TelegramBotConnection.View.BuildTokenTextInputWidget(sampleToken, false);
+            let tokenWidget = Addon.TelegramBotConnection.View.BuildTokenTextInputWidget(sampleToken, false);
             expect(tokenWidget).toBeDefined();
             let widgetData = tokenWidget.getData();
             expect(widgetData).toBeDefined();
             expect(widgetData.value).toBe(sampleToken);
             expect(widgetData.visibility).toBe(CardService.Visibility.VISIBLE);
 
-            tokenWidget = Plugins.TelegramBotConnection.View.BuildTokenTextInputWidget(sampleToken, true);;
+            tokenWidget = Addon.TelegramBotConnection.View.BuildTokenTextInputWidget(sampleToken, true);;
             expect(tokenWidget).toBeDefined();
             widgetData = tokenWidget.getData();
             expect(widgetData).toBeDefined();

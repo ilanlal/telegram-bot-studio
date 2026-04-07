@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.UserProfile
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.UserProfile
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio User Profile Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.UserProfile` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.UserProfile` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.UserProfile` object implements account and membership management for Telegram Bot Studio, a Google Workspace add-on. It displays user details, handles premium upgrades, and manages subscription revocation. It integrates with PropertiesService for membership data and uses CardService for UI.
+The `Addon.UserProfile` object implements account and membership management for Telegram Bot Studio, a Google Workspace add-on. It displays user details, handles premium upgrades, and manages subscription revocation. It integrates with PropertiesService for membership data and uses CardService for UI.
 
 ---
 
@@ -48,14 +48,14 @@ The UI is built using Google Apps Script's CardService, rendering a profile card
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.UserProfile.View.HomeCard`):**
+**Home Card (`Addon.UserProfile.View.HomeCard`):**
 
 - **Header:** Title: "Account Overview", Subtitle: User email, Image: Avatar.
 - **Section 1:** Membership status (premium/free) with upgrade/cancel buttons.
 - **Section 2:** Feature comparison (premium features list).
 - **Footer:** None (actions in sections).
 
-**buildMembershipSection (`Plugins.UserProfile.View.buildMembershipSection`):**
+**buildMembershipSection (`Addon.UserProfile.View.buildMembershipSection`):**
 
 - **Widget:** DecoratedText for status, TextButton for actions.
 
@@ -65,8 +65,8 @@ The UI is built using Google Apps Script's CardService, rendering a profile card
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.UserProfile.Controller` with methods like `Load(e)` for rendering, `ActivatePremium(e)` for upgrades, `RevokeLicense(e)` for cancellations.
-- **View:** `Plugins.UserProfile.View` with `HomeCard(data)`, `buildMembershipSection(data)`.
+- **Controller:** `Addon.UserProfile.Controller` with methods like `Load(e)` for rendering, `ActivatePremium(e)` for upgrades, `RevokeLicense(e)` for cancellations.
+- **View:** `Addon.UserProfile.View` with `HomeCard(data)`, `buildMembershipSection(data)`.
 - **Service/Model:** Integrates with `PropertiesService` for membership, `Session.getActiveUser()` for email.
 
 ### 4.2 Data Interactions

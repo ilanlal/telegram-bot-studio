@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Plugins.GetMe
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.GetMe
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio GetMe Plugin |
-| **Module** | [`src/Plugins.js`](../../src/Plugins.js) - `Plugins.GetMe` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.GetMe` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Plugins.GetMe` object implements bot identity verification and capability display for Telegram Bot Studio, a Google Workspace add-on. It fetches bot details via the `getMe` API and presents them in a user-friendly card interface.
+The `Addon.GetMe` object implements bot identity verification and capability display for Telegram Bot Studio, a Google Workspace add-on. It fetches bot details via the `getMe` API and presents them in a user-friendly card interface.
 
 ---
 
@@ -48,7 +48,7 @@ The UI is built using Google Apps Script's CardService, rendering a dashboard ca
 
 ### 3.2 Widget Specifications
 
-**Home Card (`Plugins.GetMe.View.HomeCard`):**
+**Home Card (`Addon.GetMe.View.HomeCard`):**
 
 - **Header:** Title: "Bot Dashboard", Subtitle: "Identity & Feature Configuration", Image: Logo.
 - **Section 1:** Identity Profile (name, ID, username).
@@ -62,8 +62,8 @@ The UI is built using Google Apps Script's CardService, rendering a dashboard ca
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Plugins.GetMe.Controller` with `Load(e)` for rendering and API calls.
-- **View:** `Plugins.GetMe.View` with `HomeCard(data, result)` for building the card.
+- **Controller:** `Addon.GetMe.Controller` with `Load(e)` for rendering and API calls.
+- **View:** `Addon.GetMe.View` with `HomeCard(data, result)` for building the card.
 - **Service/Model:** Integrates with `TelegramBotClient` for `getMe`, `PropertiesService` for tokens.
 
 ### 4.2 Data Interactions
@@ -75,7 +75,7 @@ The UI is built using Google Apps Script's CardService, rendering a dashboard ca
 
 **Sheet Export:**
 
-- Via `Plugins.ExportApiResultWidget`.
+- Via `Addon.ExportApiResultWidget`.
 
 ---
 

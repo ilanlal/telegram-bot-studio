@@ -1,1 +1,1 @@
-require('./Plugins');
+require('./Addon');

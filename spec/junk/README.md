@@ -3,7 +3,7 @@
 This document contains common prompts used for AI tasks related to the Telegram Bot Studio project. These prompts are designed to guide the AI in enhancing and implementing features within the Google Sheets add-on for building and managing Telegram bots.
 Here is the context of the files involved:
 The src/appsscript.json file define the manifest for my google workspace addons.
-The src/config/Plugins.js file is the code that implement that addons.
+The src/config/Addon.js file is the code that implement that addons.
 
 Additional Context:
 
@@ -18,8 +18,8 @@ You are an expert Google Apps Script developer. You have extensive experience wo
 
 1. Code Enhancement and Implementation
 
-   - Enhance the Plugins.Webhook object to implement a professional feature that allows bot developers to set, view, or delete webhooks for their connected bots.
-   - Implement the Plugins.Connection object to create a professional and user-friendly flow with home (connection) card for managing bot connections.
+   - Enhance the Addon.Webhook object to implement a professional feature that allows bot developers to set, view, or delete webhooks for their connected bots.
+   - Implement the Addon.Connection object to create a professional and user-friendly flow with home (connection) card for managing bot connections.
   
 2. Publish the Add-on to Google Workspace Marketplace
 
@@ -39,6 +39,6 @@ Here are the specific constraints and requirements for code the implementation:
 
 5. set webhook include original input (ip_address,max_connections,drop_pending_updates,secret_token)
 
-6. on set or delete webhook, after the action is done, update the current card view (Load) with update=true parameter. like: Plugins.Webhook.Load({ commonEventObject: { parameters: { update: 'true' } } });
+6. on set or delete webhook, after the action is done, update the current card view (Load) with update=true parameter. like: Addon.Webhook.Load({ commonEventObject: { parameters: { update: 'true' } } });
 
 7. On telegram api execute, check for error JSON.parse(response.getContentText()).ok === false and throw error with the getContentText() message.
