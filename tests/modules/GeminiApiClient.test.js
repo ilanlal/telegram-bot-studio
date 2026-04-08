@@ -1,6 +1,10 @@
 require('..');
-const { Addon, Common } = require('../../src/Addon');
-const GeminiAPI = Common.Modules.GeminiAPI;
+const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
+const { Common } = require('../../src/Addon');
+const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
+const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
+const GeminiApiClient = Common.Modules.GeminiApiClient;
+const GeminiAgent = Common.Modules.GeminiAgent;
 
 describe('Common.Modules.GeminiAPI', () => {
     const apiKey = 'test_api_key';
@@ -11,7 +15,7 @@ describe('Common.Modules.GeminiAPI', () => {
         PropertiesService.getDocumentProperties().deleteAllProperties();
 
         // Set the API key in user properties for testing
-        const userProperties = PropertiesService.getDocumentProperties();
+        const userProperties = PropertiesService.getUserProperties();
         userProperties.setProperty(Common.INPUT.GEMINI.GEMINI_API_KEY, apiKey);
 
         // Reset the UrlFetchApp stub configuration before each test
@@ -47,7 +51,7 @@ describe('Common.Modules.GeminiAPI', () => {
         };
 
         // Mock the UrlFetchApp response for the Gemini API generateContent call
-        const url = Common.Modules.GeminiApiClient.API_ENDPOINT_URL + Common.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
+        const url = GeminiApiClient.API_ENDPOINT_URL + GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
 
         UrlFetchAppStubConfiguration.when(url)
             .return(new HttpResponse()
@@ -64,7 +68,7 @@ describe('Common.Modules.GeminiAPI', () => {
                 )
             );
 
-        const content = Common.Modules.GeminiApiClient.generateContent(apiKey, Common.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'], payload);
+        const content = GeminiApiClient.generateContent(apiKey, GeminiAgent.MODELS['gemini-3-flash-preview'], payload);
         expect(content.data.candidates[0].content.parts[0].text).toBe(expectedResponse);
         //console.log('Generated content:', JSON.stringify(content, null, 2));
     });
