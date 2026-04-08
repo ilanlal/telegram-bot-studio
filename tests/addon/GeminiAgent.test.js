@@ -11,7 +11,7 @@ describe('Addon.GeminiAgent', () => {
     const dummyToken = 'DUMMY_BOT_TOKEN';
     beforeEach(() => {
         // Set up any necessary mocks or spies
-        Addon.Modules.GeminiAgent.saveApiKey(geminiApiKey);
+        Common.Modules.GeminiAgent.saveApiKey(geminiApiKey);
         PropertiesService.getScriptProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, dummyToken);
         PropertiesService.getScriptProperties().setProperty(Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE, 'Sheet1!A3');
         UrlFetchAppStubConfiguration.reset();
@@ -76,7 +76,7 @@ describe('Addon.GeminiAgent', () => {
 
     const mockGeminiApiResponse = () => {
         // Mock the Gemini API generateContent call
-        const url = Addon.Modules.GeminiApiClient.API_ENDPOINT_URL + Addon.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
+        const url = Common.Modules.GeminiApiClient.API_ENDPOINT_URL + Common.Modules.GeminiAgent.MODELS['gemini-3-flash-preview'] + ':generateContent';
 
         UrlFetchAppStubConfiguration.when(url)
             .return(new HttpResponse()
@@ -170,7 +170,7 @@ describe('Addon.GeminiAgent', () => {
 
             appendInstructionData(activeSpreadsheet);
             // Set the current cell to contain the eventObject JSON for the controller to read
-            const sheet1 = Addon.Modules.Sheet.getSheet(activeSpreadsheet, { name: 'Active Sheet' });
+            const sheet1 = Common.Modules.Sheet.getSheet(activeSpreadsheet, { name: 'Active Sheet' });
             sheet1.appendRow([JSON.stringify(eventObject)]); // Add an empty row to ensure there's a cell to set the value
             sheet1.setCurrentCell(
                 sheet1.getRange('A3') // Set the current cell to the first cell (A1) where we will put the eventObject JSON

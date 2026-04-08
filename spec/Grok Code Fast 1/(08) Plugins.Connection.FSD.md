@@ -69,7 +69,7 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 - **Controller:** `Addon.Connection.Controller` with methods like `Load(e)` for rendering, `Connect(e)` for validation/API calls, `Disconnect(e)` for removal.
 - **View:** `Addon.Connection.View` with `HomeCard(data)`, `WelcomeSection(data)`, `BuildTokenTextInputWidget(token, hidden)`.
-- **Service/Model:** Integrates with `TelegramBotClient` for `getMe`, `PropertiesService` for storage, `Addon.Modules.TerminalOutput` for logging.
+- **Service/Model:** Integrates with `TelegramBotClient` for `getMe`, `PropertiesService` for storage, `Common.Modules.TerminalOutput` for logging.
 
 ### 4.2 Data Interactions
 

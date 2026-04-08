@@ -66,7 +66,7 @@ The UI is built using Google Apps Script's CardService, rendering the sidebar da
 
 - **Controller:** `Addon.Home.Controller` with methods like `Load(e)` for rendering the HomeCard, `About()` and `Help()` for pushing related cards.
 - **View:** `Addon.Home.View` with `HomeCard(data)`, `AboutCard(data)`, `HelpCard(data)` for building cards.
-- **Service/Model:** Integrates with `Addon.Modules.App.getData()` for membership, `PropertiesService` for tokens, and `Addon.Connection.View.WelcomeSection` for status.
+- **Service/Model:** Integrates with `Common.Modules.App.getData()` for membership, `PropertiesService` for tokens, and `Addon.Connection.View.WelcomeSection` for status.
 
 ### 4.2 Data Interactions
 

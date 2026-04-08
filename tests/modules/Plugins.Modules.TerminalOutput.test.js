@@ -19,11 +19,11 @@ describe('Host.Modules.TerminalOutput', () => {
             }
         };
 
-        const sheet = Addon.Modules.TerminalOutput.writeGeminiResponse(
+        const sheet = Common.Modules.TerminalOutput.writeGeminiResponse(
             activeSpreadsheet, eventObject, 'gemini-3-flash-preview', { sample: 'payload' }, { sample: 'response' });
 
         expect(sheet).toBeDefined();
-        expect(sheet.getName()).toBe(Addon.Modules.TerminalOutput.SHEET_META.name);
+        expect(sheet.getName()).toBe(Common.Modules.TerminalOutput.SHEET_META.name);
 
         // Verify range length
         const lastRow = sheet.getLastRow();

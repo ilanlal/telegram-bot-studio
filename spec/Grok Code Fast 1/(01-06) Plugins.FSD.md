@@ -83,7 +83,7 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 - **Controller:** Each plugin has a `Controller` object with methods like `Load(e)` for rendering, handling form inputs, and API calls.
 - **View:** `View` objects build CardService cards, using helpers like `BuildResultSection`.
-- **Service/Model:** Integrated via `TelegramBotClient` for API, `Addon.Modules` for sheets/logging, `PropertiesService` for storage.
+- **Service/Model:** Integrated via `TelegramBotClient` for API, `Common.Modules` for sheets/logging, `PropertiesService` for storage.
 
 ### 4.2 Data Interactions
 

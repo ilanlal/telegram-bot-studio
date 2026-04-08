@@ -1,5 +1,5 @@
 require('..');
-const { Addon } = require('../../src/Addon');
+const { Addon, Common } = require('../../src/Addon');
 
 describe('Addon Modules Sheet', () => {
     beforeEach(() => {
@@ -8,8 +8,8 @@ describe('Addon Modules Sheet', () => {
 
     it('should throw error when initializing Sheet module without name', () => {
         expect(() => {
-            const sheetModule = Addon.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), {}); // No name provided
-        }).toThrow(Addon.Modules.Sheet.INVALID_MODEL_ERROR);
+            const sheetModule = Common.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), {}); // No name provided
+        }).toThrow(Common.Modules.Sheet.INVALID_MODEL_ERROR);
     });
 
     it('should create and initialize Sheet module correctly', () => {
@@ -20,7 +20,7 @@ describe('Addon Modules Sheet', () => {
                 [1, 'Test', 'testuser']
             ]
         };
-        const sheet = Addon.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), sheetMeta);
+        const sheet = Common.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), sheetMeta);
         expect(sheet).toBeDefined();
         expect(sheet.getName()).toBe('TestSheet');
     });
@@ -31,7 +31,7 @@ describe('Addon Modules Sheet', () => {
             columns: ['id', 'first_name', 'username'],
         };
 
-        const activeSheet = Addon.Modules.Sheet.getSheet(SpreadsheetApp.getActiveSpreadsheet(), sheetMeta);
+        const activeSheet = Common.Modules.Sheet.getSheet(SpreadsheetApp.getActiveSpreadsheet(), sheetMeta);
         expect(activeSheet).toBeDefined();
         expect(activeSheet.getName()).toBe('ActiveSheet');
     });
@@ -45,7 +45,7 @@ describe('Addon Modules Sheet', () => {
             { a1n: 'B2', error: 'Name too short' }
         ];
 
-        const sheet = Addon.Modules.Sheet.dumpObjectToSheet(activeSpreadsheet,{"name":"dumpSheet"}, range, report);
+        const sheet = Common.Modules.Sheet.dumpObjectToSheet(activeSpreadsheet,{"name":"dumpSheet"}, range, report);
 
         expect(sheet).toBeDefined();
         expect(sheet.getName()).toBe("dumpSheet");

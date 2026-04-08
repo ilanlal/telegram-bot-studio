@@ -1,7 +1,7 @@
 require('..');
 const { Addon, Common } = require('../../src/Addon');
 
-describe('Addon.Modules.App', () => {
+describe('Common.Modules.App', () => {
     beforeEach(() => {
         PropertiesService.getScriptProperties().deleteAllProperties();
         PropertiesService.getUserProperties().deleteAllProperties();
@@ -10,7 +10,7 @@ describe('Addon.Modules.App', () => {
 
     // getData test
     it('should retrieve correct data from App module', () => {
-        const data = Addon.Modules.App.getData();
+        const data = Common.Modules.App.getData();
         expect(data).toBeDefined();
         expect(data[Common.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]).toBe(false);
     });

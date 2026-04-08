@@ -62,7 +62,7 @@ The UI is built using Google Apps Script's CardService, rendering a decorated te
 
 - **Controller:** `Addon.ExportApiResultWidget.Controller` with `DumpApiResultToSheet(e)` for export logic.
 - **View:** `Addon.ExportApiResultWidget.View` with `BuildExportWidget(botName, apiAction, result)` for widget building.
-- **Service/Model:** Integrates with `Addon.Modules.Sheet.dumpObjectToSheet`, `PropertiesService` for settings.
+- **Service/Model:** Integrates with `Common.Modules.Sheet.dumpObjectToSheet`, `PropertiesService` for settings.
 
 ### 4.2 Data Interactions
 

@@ -13,7 +13,7 @@ class Addon {
     }
 };
 
-class Common {};
+class Common { };
 
 Common.INPUT = {
     get SYSTEM() {
@@ -155,13 +155,13 @@ Addon.Package = {
     gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
 };
 
-Addon.Modules = {
+Common.Modules = {
     version: '1.0.0',
     App: {
         getData() {
-            const MDL = Addon.Modules;
+            const MDL = Common.Modules;
             const userProperties = PropertiesService.getDocumentProperties();
-            const membershipInfo = Addon.Modules.CRM.Membership.getMembershipInfo() || {};
+            const membershipInfo = Common.Modules.CRM.Membership.getMembershipInfo() || {};
 
             const expiresAt = membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
             const balance = membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0;
@@ -175,11 +175,11 @@ Addon.Modules = {
             const geminiApiKey = MDL.GeminiAgent.getApiKey();
             const apiResponseModel = MDL.GeminiAgent.getModel();
             const instructionCellReference = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE) || '';
-            const botApiToken = Addon.Modules.TelegramBotSettings.getUserApiKey();
+            const botApiToken = Common.Modules.TelegramBotSettings.getUserApiKey();
 
             let result = { ok: false, description: 'Not connected. Please enter your bot token to fetch webhook info.' };
             if (botApiToken) {
-                const telegramBotClient = new Addon.Modules.TelegramBotClient(botApiToken);
+                const telegramBotClient = new Common.Modules.TelegramBotClient(botApiToken);
                 const response = telegramBotClient.getWebhookInfo();
 
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -190,7 +190,7 @@ Addon.Modules = {
                 }
             }
 
-            const leds = Addon.Modules.App.getLeds({
+            const leds = Common.Modules.App.getLeds({
                 telegramApiKeySet: !!botApiToken,
                 geminiApiKeySet: !!geminiApiKey,
                 llmModelSet: !!apiResponseModel,
@@ -252,7 +252,7 @@ Addon.Modules = {
 
         initializeSheet(activeSpreadsheet, sheetMeta = {}) {
             if (!sheetMeta.name) {
-                throw new Error(Addon.Modules.Sheet.INVALID_MODEL_ERROR);
+                throw new Error(Common.Modules.Sheet.INVALID_MODEL_ERROR);
             }
 
             let sheet = activeSpreadsheet.getSheetByName(sheetMeta.name);
@@ -531,7 +531,7 @@ Addon.Modules = {
                 return;
             }
 
-            const sheet = Addon.Modules.Sheet
+            const sheet = Common.Modules.Sheet
                 .getSheet(activeSpreadsheet, this.SHEET_META);
             const genratedText = response?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
             sheet.appendRow([
@@ -586,8 +586,8 @@ Addon.Modules = {
                 return;
             }
 
-            const sheet = Addon.Modules.Sheet
-                .getSheet(activeSpreadsheet, Addon.Modules.LoggerModel.SHEET_META);
+            const sheet = Common.Modules.Sheet
+                .getSheet(activeSpreadsheet, Common.Modules.LoggerModel.SHEET_META);
 
             sheet.appendRow([
                 // Created On as iso string
@@ -640,7 +640,7 @@ Addon.Modules = {
 
                 if (response && response.getResponseCode() === 200) {
                     const responseData = JSON.parse(response.getContentText());
-                    Addon.Modules.TerminalOutput.writeGeminiResponse(SpreadsheetApp.getActiveSpreadsheet(), options, model, payload, responseData);
+                    Common.Modules.TerminalOutput.writeGeminiResponse(SpreadsheetApp.getActiveSpreadsheet(), options, model, payload, responseData);
                     return responseData;
                 } else if (response) {
                     throw new Error(`GeminiApiClient request failed with status ${response.getResponseCode()}: ${response.getContentText()}`);
@@ -649,7 +649,7 @@ Addon.Modules = {
                 }
             } catch (error) {
                 // Log the error for debugging purposes
-                Addon.Modules.TerminalOutput.writeGeminiResponse(
+                Common.Modules.TerminalOutput.writeGeminiResponse(
                     SpreadsheetApp.getActiveSpreadsheet(),
                     { url, options },
                     model,
@@ -770,7 +770,7 @@ Addon.Modules = {
             },
 
             getCustomerByChatId(activeSpreadsheet, chat_id) {
-                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
+                const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
                 const range = sheet.getRange('B:B');
                 const textFinder = range.createTextFinder(chat_id);
                 const firstOccurrence = textFinder.findNext();
@@ -782,7 +782,7 @@ Addon.Modules = {
             },
 
             addNewCustomer(activeSpreadsheet, customer = {}) {
-                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
+                const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
 
                 // add createdOn in the first column as ISO string
                 const newRow = this._toRow(customer);
@@ -827,7 +827,7 @@ Addon.Modules = {
             },
 
             addProduct(activeSpreadsheet, product = {}) {
-                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
 
                 // add product as a new row
                 const newRow = this._toRow(product);
@@ -836,7 +836,7 @@ Addon.Modules = {
             },
 
             getProductBySN(activeSpreadsheet, sn) {
-                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
 
                 // Search for the product by SN in the first column
                 const range = sheet.getRange('A:A');
@@ -850,7 +850,7 @@ Addon.Modules = {
             },
 
             listProducts(activeSpreadsheet, category = '', subcategory = '', limit = 100, offset = 0) {
-                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
                 const range = sheet.getDataRange();
                 const values = range.getValues() || [];
                 const products = [];
@@ -870,7 +870,7 @@ Addon.Modules = {
             },
 
             listCategories(activeSpreadsheet) {
-                const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
+                const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
                 const range = sheet.getDataRange();
                 const values = range.getValues() || [];
                 const categories = new Set();
@@ -1160,19 +1160,19 @@ Addon.MCP = {
             // Retrieve the Gemini API key from script properties. 
             // If the API key is not set, throw an error to inform the user to set it up before using the Gemini integration. 
             // This ensures that we have the necessary credentials to authenticate with the Gemini API and generate content based on the provided prompt.
-            const geminiApiKey = Addon.Modules.GeminiAgent.getScriptApiKey();
+            const geminiApiKey = Common.Modules.GeminiAgent.getScriptApiKey();
             if (!geminiApiKey) {
                 throw new Error(`Gemini API key is not set. Please set ${Common.INPUT.GEMINI.GEMINI_API_KEY} property.`);
             }
 
             // Determine which Gemini model to use based on user selection in the sheet or default to the predefined model. 
             // This allows for flexibility in choosing different models for different types of prompts or experiments.
-            const model = Addon.Modules.GeminiAgent.getScriptModel() || Addon.Modules.GeminiAgent.DEFAULT_MODEL;
+            const model = Common.Modules.GeminiAgent.getScriptModel() || Common.Modules.GeminiAgent.DEFAULT_MODEL;
 
             // Call the Gemini API client to generate content based on the provided prompt and selected model. 
             // The response is expected to contain the generated content in a specific format, which we will parse and return as a JSON object. 
             // We also log the prompt, model, and response for debugging purposes.
-            const response = Addon.Modules.GeminiApiClient.generateContent(geminiApiKey, model, payload);
+            const response = Common.Modules.GeminiApiClient.generateContent(geminiApiKey, model, payload);
 
             // Parse the Gemini response to extract the generated content. 
             const generatedContent = response?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -1188,7 +1188,7 @@ Addon.MCP = {
             }
 
             // Retrieve the Telegram API key from script properties. If the API key is not set, throw an error to inform the user to set it up before using the Telegram API integration. This ensures that we have the necessary credentials to authenticate with the Telegram API and execute the desired actions based on the Gemini response.
-            const telegramApiKey = Addon.Modules.TelegramBotSettings.getScriptApiKey();
+            const telegramApiKey = Common.Modules.TelegramBotSettings.getScriptApiKey();
             if (!telegramApiKey) {
                 throw new Error(`Telegram API key is not set. Please set ${Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
             }
@@ -1199,7 +1199,7 @@ Addon.MCP = {
             }
 
             // Initialize the Telegram client with the retrieved API key. This client will be used to make API calls to Telegram based on the generated JSON from Gemini.
-            const telegramClient = new Addon.Modules.TelegramBotClient(telegramApiKey);
+            const telegramClient = new Common.Modules.TelegramBotClient(telegramApiKey);
 
             // Execute the Telegram API call using the generated JSON from Gemini. The "uri" field specifies which Telegram API endpoint to call (e.g., /sendMessage), and the "options" field contains the necessary parameters for the API call, including the payload with details like chat_id, text, etc. We also log the generated JSON and the response from Telegram for debugging purposes.
             const telegramResponse = telegramClient.executeApiRequest(generatedJson.uri, generatedJson.options);
@@ -1219,7 +1219,7 @@ Addon.MCP = {
                 return;
             }
 
-            const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, Addon.Modules.TerminalOutput.SHEET_META);
+            const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, Common.Modules.TerminalOutput.SHEET_META);
             const generatedText = response?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
             sheet.appendRow([
                 // Created On as iso string
@@ -1255,11 +1255,11 @@ Addon.MCP = {
             return sheet;
         },
         callTelegramApi(generatedJson = { action: 'sendMessage', chat_id: '', text: '' }) {
-            const telegramApiKey = Addon.Modules.TelegramBotSettings.getScriptApiKey();
+            const telegramApiKey = Common.Modules.TelegramBotSettings.getScriptApiKey();
             if (!telegramApiKey) {
                 throw new Error(`Telegram API key is not set. Please set ${Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
             }
-            const telegramClient = new Addon.Modules.TelegramBotClient(telegramApiKey);
+            const telegramClient = new Common.Modules.TelegramBotClient(telegramApiKey);
 
             // Execute Tool/Action via Telegram API
 
@@ -1469,7 +1469,7 @@ Addon.Home = {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             // Build and return the Home Card
-            const appModelData = Addon.Modules.App.getData();
+            const appModelData = Common.Modules.App.getData();
 
             // Build and return the Home Card
             const homeCard = Addon.Home.View.HomeCard(appModelData);
@@ -1490,7 +1490,7 @@ Addon.Home = {
         },
         PushHomeCard: (e) => {
             // Build and return the Home Card
-            const data = Addon.Modules.App.getData();
+            const data = Common.Modules.App.getData();
 
             // Return action response to update card
             return CardService.newActionResponseBuilder()
@@ -1502,7 +1502,7 @@ Addon.Home = {
         },
         UpdateHomeCard: (e) => {
             // Build and return the Home Card
-            const data = Addon.Modules.App.getData();
+            const data = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(CardService.newNavigation()
                     .updateCard(Addon.Home.View.HomeCard(data)))
@@ -1510,7 +1510,7 @@ Addon.Home = {
         },
         PushAboutCard: (e) => {
             // Build and return the About Card
-            const data = Addon.Modules.App.getData();
+            const data = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(CardService.newNavigation()
                     .pushCard(Addon.Home.View.AboutCard(data)))
@@ -1518,7 +1518,7 @@ Addon.Home = {
         },
         PushHelpCard: (e) => {
             // Build and return the Help Card
-            const data = Addon.Modules.App.getData();
+            const data = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(CardService.newNavigation()
                     .pushCard(Addon.Home.View.HelpCard(data))).
@@ -1814,7 +1814,7 @@ Addon.Settings = {
     Controller: {
         PushHomeCard: (e) => {
             // Build and return the Settings Home Card
-            const appModelData = Addon.Modules.App.getData();
+            const appModelData = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1855,7 +1855,7 @@ Addon.Settings = {
             PropertiesService.getDocumentProperties().setProperty(Common.INPUT.GEMINI.GEMINI_MODEL, geminiModel);
 
             // Build and return the Home Card
-            const appModelData = Addon.Modules.App.getData();
+            const appModelData = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1951,7 +1951,7 @@ Addon.Settings = {
                     .setTitle('🤖 Gemini Model')
                     .setFieldName(Common.INPUT.GEMINI.GEMINI_MODEL);
             // Add available Gemini models as options
-            const geminiModels = Addon.Modules.GeminiApiClient.MODELS;
+            const geminiModels = Common.Modules.GeminiApiClient.MODELS;
             // Loop through the models and add them as options to the selector
             for (const modelKey in geminiModels) {
                 if (Object.prototype.hasOwnProperty.call(geminiModels, modelKey)) {
@@ -2030,7 +2030,7 @@ Addon.UserProfile = {
     Controller: {
         PushHomeCard(e) {
             try {
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2043,13 +2043,13 @@ Addon.UserProfile = {
         ActivatePremium(e) {
             try {
                 // Simulate activation logic
-                Addon.Modules.CRM.Membership.activate(
-                    Addon.Modules.CRM.Membership.DEFAULT_TRIAL_DAYS,
-                    Addon.Modules.CRM.Membership.DEFAULT_TRIAL_BALANCE,
+                Common.Modules.CRM.Membership.activate(
+                    Common.Modules.CRM.Membership.DEFAULT_TRIAL_DAYS,
+                    Common.Modules.CRM.Membership.DEFAULT_TRIAL_BALANCE,
                     'trial');
 
                 // Build and return the Home Card
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2078,10 +2078,10 @@ Addon.UserProfile = {
         RevokeLicense(e) {
             try {
                 // Simulate license revocation logic
-                Addon.Modules.CRM.Membership.revoke();
+                Common.Modules.CRM.Membership.revoke();
 
                 // Build and return the Home Card
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2241,7 +2241,7 @@ Addon.TelegramBotConnection = {
                 }
 
                 // getme to validate token
-                const client = new Addon.Modules.TelegramBotClient(inputToken);
+                const client = new Common.Modules.TelegramBotClient(inputToken);
                 const response = client.getMe();
                 // Check for errors in response
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -2256,7 +2256,7 @@ Addon.TelegramBotConnection = {
                 const exportTokenToSheet = e?.commonEventObject?.formInputs?.chk_export_token_to_sheet?.stringInputs?.value?.[0] === 'export_token';
                 if (exportTokenToSheet) {
                     // Export the token to a designated sheet
-                    const sheet = Addon.Modules.Sheet;
+                    const sheet = Common.Modules.Sheet;
                     const sheetMeta = {
                         name: '🔐 Bot Tokens',
                         columns: ['Timestamp', 'Bot Token', 'Bot Username', 'getMe Response']
@@ -2273,7 +2273,7 @@ Addon.TelegramBotConnection = {
                     refresh: 'true'
                 };
                 // Build and return the Home Card
-                const appModelData = Addon.Modules.App.getData();
+                const appModelData = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2320,7 +2320,7 @@ Addon.TelegramBotConnection = {
                 PropertiesService.getDocumentProperties().deleteProperty(Common.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME);
                 PropertiesService.getDocumentProperties().deleteProperty(Common.INPUT.TELEGRAM_BOT.BOT_USERNAME);
                 // Build and return the Home Card
-                const appModelData = Addon.Modules.App.getData();
+                const appModelData = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2498,7 +2498,7 @@ Addon.Webhook = {
             const data = e?.commonEventObject?.parameters || {};
 
             try {
-                const input_token = Addon.Modules.TelegramBotSettings.getUserApiKey();
+                const input_token = Common.Modules.TelegramBotSettings.getUserApiKey();
                 if (!input_token) {
                     throw new Error('Bot API Token is missing. Please connect your bot in the Connection tab first.');
                 }
@@ -2510,7 +2510,7 @@ Addon.Webhook = {
                 data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Logic: Fetch Data if Token Exists
-                const telegramBotClient = new Addon.Modules.TelegramBotClient(input_token);
+                const telegramBotClient = new Common.Modules.TelegramBotClient(input_token);
                 // 1. API Call: getWebhookInfo
                 const response = telegramBotClient.getWebhookInfo();
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -2557,7 +2557,7 @@ Addon.Webhook = {
         SetWebhook: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
-                const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
+                const token = Common.Modules.TelegramBotSettings.getUserApiKey();
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
@@ -2574,7 +2574,7 @@ Addon.Webhook = {
                         .build();
                 }
 
-                const client = new Addon.Modules.TelegramBotClient(token);
+                const client = new Common.Modules.TelegramBotClient(token);
 
                 // Build Options Object
                 const options = {
@@ -2628,10 +2628,10 @@ Addon.Webhook = {
             try {
                 const data = e?.commonEventObject?.parameters || {};
 
-                const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
+                const token = Common.Modules.TelegramBotSettings.getUserApiKey();
                 const dropPending = e?.commonEventObject?.formInputs?.[Common.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
 
-                const client = new Addon.Modules.TelegramBotClient(token);
+                const client = new Common.Modules.TelegramBotClient(token);
                 const response = client.deleteWebhook(dropPending);
 
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -2650,7 +2650,7 @@ Addon.Webhook = {
         DropPendingUpdates: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
-                const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
+                const token = Common.Modules.TelegramBotSettings.getUserApiKey();
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
@@ -2667,7 +2667,7 @@ Addon.Webhook = {
                         .build();
                 }
 
-                const client = new Addon.Modules.TelegramBotClient(token);
+                const client = new Common.Modules.TelegramBotClient(token);
 
                 // Build Options Object
                 const options = {
@@ -2913,7 +2913,7 @@ Addon.GeminiAgent = {
             try {
                 // Extract any necessary data from the event object if needed
                 // const formInputs = e?.commonEventObject?.formInputs || {};
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
 
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
@@ -2931,7 +2931,7 @@ Addon.GeminiAgent = {
         },
         PushSetupCard(e) {
             try {
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
 
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
@@ -2985,12 +2985,12 @@ Addon.GeminiAgent = {
                 const model = formInputs?.[Common.INPUT.GEMINI.GEMINI_MODEL]?.stringInputs?.value[0];
 
                 // Save the Gemini API key
-                Addon.Modules.GeminiAgent.saveApiKey(apiKey);
+                Common.Modules.GeminiAgent.saveApiKey(apiKey);
                 // Save the Gemini model selection
-                Addon.Modules.GeminiAgent.saveModel(model);
+                Common.Modules.GeminiAgent.saveModel(model);
 
                 // Push Setup Card to show the connected status and allow the user to test the connection or set instructions.
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -3029,10 +3029,10 @@ Addon.GeminiAgent = {
                 const confirmationCard = Addon.ConfirmationCard.Controller.Load(e);
 
                 // Clear the stored token from user properties
-                Addon.Modules.GeminiAgent.clearApiKey();
-                Addon.Modules.GeminiAgent.clearModel();
+                Common.Modules.GeminiAgent.clearApiKey();
+                Common.Modules.GeminiAgent.clearModel();
                 // Build and return the Home Card
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -3195,7 +3195,7 @@ Addon.GeminiAgent = {
                 .setFieldName(Common.INPUT.GEMINI.GEMINI_MODEL);
 
             // Loop through the available Gemini models and add them as options to the selector
-            const geminiModels = Addon.Modules.GeminiAgent.MODELS;
+            const geminiModels = Common.Modules.GeminiAgent.MODELS;
             for (const modelKey in geminiModels) {
                 const model = geminiModels[modelKey];
                 geminiModelSelector.addItem(model, modelKey, data[Common.INPUT.GEMINI.GEMINI_MODEL] === modelKey);
@@ -3214,7 +3214,7 @@ Addon.GeminiAgent = {
                 .setTitle('Select Response Mood')
                 .setFieldName(Common.INPUT.GEMINI.GEMINI_MOOD);
             // Loop through the available mood options and add them as options to the selector
-            const moodOptions = Addon.Modules.GeminiAgent.MOOD_OPTIONS;
+            const moodOptions = Common.Modules.GeminiAgent.MOOD_OPTIONS;
             for (const mood of moodOptions) {
                 moodSelector.addItem(mood, mood, data[Common.INPUT.GEMINI.GEMINI_MOOD] === mood);
             }
@@ -3257,7 +3257,7 @@ Addon.GeminiAgent = {
                 .setTitle('Select Thinking Level')
                 .setFieldName(Common.INPUT.GEMINI.THINKING_LEVEL);
             // Loop through the available thinking level options and add them as options to the selector
-            const thinkingLevelOptions = Addon.Modules.GeminiAgent.THINKING_LEVEL_OPTIONS;
+            const thinkingLevelOptions = Common.Modules.GeminiAgent.THINKING_LEVEL_OPTIONS;
             for (const level of thinkingLevelOptions) {
                 thinkingLevelSelector.addItem(level, level, data[Common.INPUT.GEMINI.THINKING_LEVEL] === level);
             }
@@ -3339,7 +3339,7 @@ Addon.GetMe = {
                 data.currentBotName = (PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_USERNAME) || 'unknown_bot') + '_***' + input_token.slice(-6);
 
                 // Initialize Telegram Bot Client
-                const telegramBotClient = new Addon.Modules.TelegramBotClient(input_token);
+                const telegramBotClient = new Common.Modules.TelegramBotClient(input_token);
                 // 1. API Call: getMe
                 const response = telegramBotClient.getMe();
 
@@ -3637,7 +3637,7 @@ Addon.MCPCard = {
             try {
                 // Extract any necessary data from the event object if needed
                 // const formInputs = e?.commonEventObject?.formInputs || {};
-                let data = Addon.Modules.App.getData();
+                let data = Common.Modules.App.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -3652,7 +3652,7 @@ Addon.MCPCard = {
             }
         },
         PushClientManagementCard(e) {
-            let data = Addon.Modules.App.getData();
+            let data = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -3661,7 +3661,7 @@ Addon.MCPCard = {
                 ).build();
         },
         PushServerManagementCard(e) {
-            let data = Addon.Modules.App.getData();
+            let data = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -3670,7 +3670,7 @@ Addon.MCPCard = {
                 ).build();
         },
         PushMCPSettingsCard(e) {
-            let data = Addon.Modules.App.getData();
+            let data = Common.Modules.App.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -3862,12 +3862,12 @@ Addon.ResultWidget = {
             try {
                 // extract parameters
                 const a1n = e?.commonEventObject?.parameters?.a1n || 'A1';
-                const sheetName = e?.commonEventObject?.parameters?.sheetName || Addon.Modules.Sheet.DUMP_SHEET_NAME;
+                const sheetName = e?.commonEventObject?.parameters?.sheetName || Common.Modules.Sheet.DUMP_SHEET_NAME;
                 const botName = e?.commonEventObject?.parameters?.botName || '[Unknown Bot]';
                 const report = e?.commonEventObject?.parameters?.report || '{}';
 
                 // Dump data to sheet
-                Addon.Modules.Sheet
+                Common.Modules.Sheet
                     .dumpObjectToSheet(
                         activeSpreadsheet, { name: sheetName }, botName, a1n, JSON.parse(report), false);
 

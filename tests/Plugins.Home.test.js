@@ -1,5 +1,5 @@
 require('.');
-const { Addon } = require('../src/Addon');
+const { Addon,Common } = require('../src/Addon');
 
 describe('Addon.Home tests', () => {
     beforeEach(() => {
@@ -68,7 +68,7 @@ describe('Addon.Home tests', () => {
         describe('HomeCard', () => {
             // HomeCard test 1 - should build Home Card with Welcome to Gemini Assistant section if API key is not present
             it('should build Home Card with Welcome to Gemini Assistant section', () => {
-                const data = Addon.Modules.App.getData();
+                const data = Common.Modules.App.getData();
 
                 const homeCard = View.HomeCard(data);
                 expect(homeCard).toBeDefined();
