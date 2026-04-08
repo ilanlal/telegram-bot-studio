@@ -1,6 +1,6 @@
 require('..');
 const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
-const { Addon } = require('../../src/Addon.js');
+const { Addon } = require('../../src/Addon');
 const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
 const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 

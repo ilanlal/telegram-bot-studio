@@ -47,6 +47,23 @@ Addon.Package = {
 Addon.INPUT = {
     get SYSTEM() {
         return {
+            get IGNORE_WHITE_SPACE() {
+            },
+            get EXPORT_TOKEN() {
+                return 'EXPORT_TOKEN'
+            },
+            get PRAITY_JSON() {
+                return 'PRAITY_JSON'
+            },
+            get DISPLAY_ERROR_CARD() {
+                return 'DISPLAY_ERROR_CARD';
+            },
+            get ENABLE_EVENT_LOGGING() {
+                return 'enable_event_logging';
+            },
+            get ENABLE_TERMINAL_OUTPUT() {
+                return 'enable_terminal_output';
+            },
             get LANGUAGE_CODE() {
                 return 'language_code';
             },
@@ -136,50 +153,10 @@ Addon.INPUT = {
     }
 };
 
-Addon.PROPERTIES = {
-    get enable_event_logging() {
-        return 'enable_event_logging';
-    },
-
-    get indentation_spaces() {
-        return 'indentation_spaces';
-    },
-    get show_errors_switch() {
-        return 'show_errors_switch';
-    },
-    get highlight_color() {
-        return 'highlight_color';
-    },
-    get terminal_output_switch() {
-        return 'terminal_output_switch';
-    },
-    get focus_terminal_output() {
-        return 'focus_terminal_output';
-    },
-    get ignore_whitespace_switch() {
-        return 'ignore_whitespace_switch';
-    },
-    get chk_export_token_to_sheet() {
-        return 'chk_export_token_to_sheet';
-    },
-    get txt_secret_private_key() {
-        return 'txt_secret_private_key';
-    },
-    get praittfy_json() {
-        return 'praittfy_json';
-    },
-    get txt_search_chat_id() {
-        return 'txt_search_chat_id';
-    },
-    get drop_pending_updates() {
-        return 'drop_pending_updates';
-    }
-};
-
 Addon.Modules = {
+    version: '1.0.0',
     App: {
         getData() {
-            const INP = Addon.PROPERTIES;
             const MDL = Addon.Modules;
             const userProperties = PropertiesService.getDocumentProperties();
             const membershipInfo = Addon.Modules.CRM.Membership.getMembershipInfo() || {};
@@ -187,12 +164,12 @@ Addon.Modules = {
             const expiresAt = membershipInfo[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipInfo[Addon.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
             const balance = membershipInfo[Addon.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0;
             const isPremium = (expiresAt && expiresAt > new Date()) || balance > 0;
-            const indentationSpaces = userProperties.getProperty(INP.indentation_spaces) || '4';
-            const showErrorsSwitch = userProperties.getProperty(INP.show_errors_switch) || 'OFF';
-            const highlightColor = userProperties.getProperty(INP.highlight_color) || '#FFFF00';
-            const terminalOutputSwitch = userProperties.getProperty(INP.terminal_output_switch) || 'ON';
+            const indentationSpaces = '4';
+            const showErrorsSwitch = userProperties.getProperty(Addon.INPUT.SYSTEM.DISPLAY_ERROR_CARD) || 'OFF';
+            const highlightColor = '#FFFF00';
+            const terminalOutputSwitch = userProperties.getProperty(Addon.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
             const focusTerminalOutput = 'OFF';
-            const ignoreWhitespaceSwitch = userProperties.getProperty(INP.ignore_whitespace_switch) || 'ON';
+            const ignoreWhitespaceSwitch = userProperties.getProperty(Addon.INPUT.SYSTEM.IGNORE_WHITE_SPACE) || 'ON';
             const geminiApiKey = MDL.GeminiAgent.getApiKey();
             const apiResponseModel = MDL.GeminiAgent.getModel();
             const instructionCellReference = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE) || '';
@@ -226,7 +203,7 @@ Addon.Modules = {
                 highlight_color: highlightColor,
                 terminal_output_switch: terminalOutputSwitch,
                 focus_terminal_output: focusTerminalOutput,
-                ignore_whitespace_switch: ignoreWhitespaceSwitch,
+                [Addon.INPUT.SYSTEM.IGNORE_WHITE_SPACE]: ignoreWhitespaceSwitch,
                 // Telegram Bot Info
                 [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: botApiToken,
                 // Gemini API Info
@@ -267,10 +244,11 @@ Addon.Modules = {
         }
     },
     Sheet: {
+        version: '1.0.0',
         INVALID_MODEL_ERROR: 'Sheet model must have a valid name property',
-        DUMP_SHEET_NAME: '📥 Data',
+        DUMP_SHEET_NAME: '📥 Data Results',
 
-        initializeSheet(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), sheetMeta = {}) {
+        initializeSheet(activeSpreadsheet, sheetMeta = {}) {
             if (!sheetMeta.name) {
                 throw new Error(Addon.Modules.Sheet.INVALID_MODEL_ERROR);
             }
@@ -286,16 +264,13 @@ Addon.Modules = {
 
             return sheet;
         },
-
         setActiveSheet(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), sheetMeta = {}) {
             return activeSpreadsheet
                 .setActiveSheet(this.getSheet(activeSpreadsheet, sheetMeta));
         },
-
-        getSheet(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), sheetMeta = {}) {
+        getSheet(activeSpreadsheet, sheetMeta = {}) {
             return this._sheet = this.initializeSheet(activeSpreadsheet, sheetMeta);
         },
-
         bindSheetSampleData(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), sheetMeta = {}) {
             const sampleData = sheetMeta.sample_data || [];
             if (sampleData.length === 0) {
@@ -322,7 +297,6 @@ Addon.Modules = {
 
             return sheet;
         },
-
         dumpObjectToSheet(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), sheetMeta = {}, bot = '', action = '.', obj = {}, praittfyJson = false) {
             const sheet = this.getSheet(activeSpreadsheet, sheetMeta);
             const values = Object.values(obj);
@@ -403,7 +377,7 @@ Addon.Modules = {
         * @returns {HTTPResponse} The response from the API.
         *
         */
-        setMyCommands({ commands = [], language_code, scope }) {
+        setMyCommands({ commands = [], language_code }) {
             if (commands.length === 0) {
                 throw new Error("commands is required!");
             }
@@ -502,7 +476,7 @@ Addon.Modules = {
 
             // If no payload, do a simple GET request
             if (!payload) {
-                return Addon.Modules.TelegramBotClient.fetchApi(url);
+                return this.fetchApi(url);
             }
 
             // Otherwise, do a POST request with JSON payload
@@ -512,10 +486,10 @@ Addon.Modules = {
                 'payload': JSON.stringify(payload)
             };
 
-            return Addon.Modules.TelegramBotClient.fetchApi(url, options);
+            return this.fetchApi(url, options);
         }
 
-        static fetchApi(url, options) {
+        fetchApi(url, options) {
             if (!options) {
                 return UrlFetchApp.fetch(url);
             }
@@ -536,56 +510,19 @@ Addon.Modules = {
             PropertiesService.getDocumentProperties().deleteProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
         }
     },
-    TerminalOutput: class {
-        static get SHEET_META() {
+    TerminalOutput: {
+        version: '1.0.0',
+        get SHEET_META() {
             return {
                 name: '💻 Terminal Output',
-                columns: ['Timestamp', 'Event', 'Model', 'Payload', 'Response', 'Prompt', 'Model Version', 'Generated Text', 'Total Tokens', 'Prompt Tokens', 'Thoughts Tokens', 'Cached Content Tokens', 'Candidates Tokens', 'Tool Use Prompt Tokens']
+                columns: ['Timestamp', 'Event', 'Model', 'Payload', 'Prompt', 'Response', 'Generated Text', 'Usage', 'Total Tokens', 'Prompt Tokens', 'Thoughts Tokens', 'Cached Content Tokens', 'Candidates Tokens', 'Tool Use Prompt Tokens']
             };
-        }
+        },
 
-        static write(
-            activeSpreadsheet, e, source, message, param1, param2, param3) {
-
+        writeGeminiResponse(activeSpreadsheet, eventObject, model, payload, response) {
             // Check if terminal output is enabled
-            const terminalOutputEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Addon.PROPERTIES.terminal_output_switch) || 'OFF';
-
-            // Check if terminal output is enabled
-            const focusTerminalOutput = PropertiesService.getDocumentProperties()
-                .getProperty(Addon.PROPERTIES.focus_terminal_output) || 'OFF';
-
-            if (terminalOutputEnabled !== 'ON') {
-                return;
-            }
-
-            const sheet = Addon.Modules.Sheet
-                .getSheet(activeSpreadsheet, Addon.Modules.TerminalOutput.SHEET_META);
-
-            sheet.appendRow([
-                // Created On as iso string
-                new Date().toISOString(),
-                // source
-                source, // chat side
-                // Message
-                (typeof message === 'object' || Array.isArray(message)) ? JSON.stringify(message) : String(message || ''),
-                // Event Object
-                (typeof e === 'object' || Array.isArray(e)) ? JSON.stringify(e) : String(e || ''),
-                // Details 
-                (typeof param1 === 'object' || Array.isArray(param1)) ? JSON.stringify(param1) : String(param1 || ''),
-                (typeof param2 === 'object' || Array.isArray(param2)) ? JSON.stringify(param2) : String(param2 || ''),
-                (typeof param3 === 'object' || Array.isArray(param3)) ? JSON.stringify(param3) : String(param3 || '')
-            ]);
-
-            return sheet;
-        }
-
-        static writeGeminiResponse(
-            activeSpreadsheet, eventObject, model, payload, response) {
-
-            // Check if terminal output is enabled
-            const terminalOutputEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Addon.PROPERTIES.terminal_output_switch) || 'ON';
+            const terminalOutputEnabled = PropertiesService.getScriptProperties()
+                .getProperty(Addon.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
 
             // Check if terminal output is enabled
             if (terminalOutputEnabled !== 'ON') {
@@ -599,19 +536,19 @@ Addon.Modules = {
                 // Created On as iso string
                 new Date().toISOString(),
                 // Event Object
-                (typeof eventObject === 'object' || Array.isArray(eventObject)) ? JSON.stringify(eventObject) : String(eventObject || ''),
+                (typeof eventObject === 'object' || Array.isArray(eventObject) || String(eventObject).startsWith('{')) ? JSON.stringify(eventObject) : eventObject,
                 // Mode (e.g., "gemini-3-flash-preview")
                 model,
                 // Payload
-                (typeof payload === 'object' || Array.isArray(payload)) ? JSON.stringify(payload) : String(payload || ''),
-                // Response
-                (typeof response === 'object' || Array.isArray(response)) ? JSON.stringify(response) : String(response || ''),
+                (typeof payload === 'object' || Array.isArray(payload) || String(payload).startsWith('{')) ? JSON.stringify(payload) : payload,
                 // Prompt (if available in payload)
                 payload?.contents?.[0]?.parts?.[0]?.text || '',
-                // Model Version (if available in response, otherwise use input model or default to 'unknown')
-                response?.modelVersion || 'unknown',
+                // Response
+                (typeof response === 'object' || Array.isArray(response) || String(response).startsWith('{')) ? JSON.stringify(response) : response,
                 // Generated Text (if available in response) ({"candidates":[{"content":{"parts":[{"text": "generated text here"}]}}]})
-                JSON.stringify(genratedText),
+                genratedText,
+                // Usage Metadata (stringified if available in response.usageMetadata)
+                response?.usageMetadata ? JSON.stringify(response.usageMetadata) : '{}',
                 // Total Token Count (if available in response.usageMetadata)
                 response?.usageMetadata?.totalTokenCount || 0,
                 // Prompt Token Count (if available in response.usageMetadata)
@@ -629,20 +566,19 @@ Addon.Modules = {
             return sheet;
         }
     },
-    LoggerModel: class {
-        static get SHEET_META() {
+    LoggerModel: {
+        version: '1.0.0',
+        get SHEET_META() {
             return {
                 name: '📑 Event Log',
                 columns: ['Timestamp', 'Source', 'Message', 'Event Object', 'More Info']
             };
-        }
+        },
 
-        static write(
-            activeSpreadsheet, source, message, chatId, e, param1, param2, param3) {
-
+        write(activeSpreadsheet, source, message, chatId, e, param1, param2, param3) {
             // Check if webhook event logging is enabled
-            const webhookEventLoggingEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Addon.PROPERTIES.enable_event_logging) || 'OFF';
+            const webhookEventLoggingEnabled = PropertiesService.getScriptProperties()
+                .getProperty(Addon.INPUT.SYSTEM.ENABLE_EVENT_LOGGING) || 'ON';
 
             if (webhookEventLoggingEnabled !== 'ON') {
                 return;
@@ -657,134 +593,22 @@ Addon.Modules = {
                 // source
                 source,
                 // Message
-                (typeof message === 'object' || Array.isArray(message)) ? JSON.stringify(message) : String(message || ''),
+                (typeof message === 'object' || Array.isArray(message) || String(message).startsWith('{')) ? JSON.stringify(message) : message,
                 // Event Object
-                (typeof e === 'object' || Array.isArray(e)) ? JSON.stringify(e) : String(e || ''),
+                (typeof e === 'object' || Array.isArray(e) || String(e).startsWith('{')) ? JSON.stringify(e) : e,
                 // Chat ID
                 chatId,
                 // Details 
-                (typeof param1 === 'object' || Array.isArray(param1)) ? JSON.stringify(param1) : String(param1 || ''),
-                (typeof param2 === 'object' || Array.isArray(param2)) ? JSON.stringify(param2) : String(param2 || ''),
-                (typeof param3 === 'object' || Array.isArray(param3)) ? JSON.stringify(param3) : String(param3 || '')
+                (typeof param1 === 'object' || Array.isArray(param1) || String(param1).startsWith('{')) ? JSON.stringify(param1) : param1,
+                (typeof param2 === 'object' || Array.isArray(param2) || String(param2).startsWith('{')) ? JSON.stringify(param2) : param2,
+                (typeof param3 === 'object' || Array.isArray(param3) || String(param3).startsWith('{')) ? JSON.stringify(param3) : param3
             ]);
 
             return sheet;
         }
     },
-    JsonStudio: class {
-        static get MAX_PROCESS_CELLS() {
-            return 100;
-        }
-
-        static beautifyActiveRange(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), indentationSpaces = 2, ignoreWhitespace = true) {
-            const activeRange = activeSpreadsheet.getActiveSheet().getActiveRange();
-            const report = [];
-
-            // Ensure we do not exceed max process cells
-            if (activeRange.getNumRows() * activeRange.getNumColumns() > this.MAX_PROCESS_CELLS) {
-                throw new Error(`Selected range exceeds the maximum allowed cells (${this.MAX_PROCESS_CELLS}). Please select a smaller range.`);
-            }
-
-            // for each cell in range, beautify JSON
-            activeRange.getValues().forEach((row, i) => {
-                row.forEach((cell, j) => {
-                    try {
-                        // if cell is empty after cleaning, skip
-                        if (ignoreWhitespace && this.trimValue(cell) === '') {
-                            return; // Skip empty cells
-                        }
-                        const beautifiedJson = JSON.stringify(
-                            JSON.parse(cell),
-                            null,
-                            indentationSpaces
-                        );
-                        activeRange.getCell(i + 1, j + 1).setValue(beautifiedJson);
-                    } catch (error) {
-                        // Handle JSON parsing error if needed
-                        report.push({
-                            a1n: activeRange.getCell(i + 1, j + 1).getA1Notation(),
-                            sheetName: activeSpreadsheet.getActiveSheet().getName(),
-                            error: error.message
-                        });
-                    }
-                });
-            });
-
-            return { range: activeRange, report };
-        }
-
-        static minifyActiveRange(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), ignoreWhitespace = true) {
-            const activeRange = activeSpreadsheet.getActiveSheet().getActiveRange();
-            const report = [];
-            // Ensure we do not exceed max process cells
-            if (activeRange.getNumRows() * activeRange.getNumColumns() > this.MAX_PROCESS_CELLS) {
-                throw new Error(`Selected range exceeds the maximum allowed cells (${this.MAX_PROCESS_CELLS}). Please select a smaller range.`);
-            }
-            // for each cell in range, minify JSON
-            activeRange.getValues().forEach((row, i) => {
-                row.forEach((cell, j) => {
-                    try {
-                        // if cell is empty after cleaning, skip
-                        if (ignoreWhitespace && this.trimValue(cell) === '') {
-                            return; // Skip empty cells
-                        }
-                        const minifiedJson = JSON.stringify(JSON.parse(cell));
-                        activeRange.getCell(i + 1, j + 1).setValue(minifiedJson);
-                    } catch (error) {
-                        // Handle JSON parsing error if needed
-                        report.push({
-                            a1n: activeRange.getCell(i + 1, j + 1).getA1Notation(),
-                            sheetName: activeSpreadsheet.getActiveSheet().getName(),
-                            error: error.message
-                        });
-                    }
-                });
-            });
-
-            return { range: activeRange, report };
-        }
-
-        static validateActiveRange(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), ignoreWhitespace = true) {
-            const activeRange = activeSpreadsheet.getActiveSheet().getActiveRange();
-            const report = [];
-            // Ensure we do not exceed max process cells
-            if (activeRange.getNumRows() * activeRange.getNumColumns() > this.MAX_PROCESS_CELLS) {
-                throw new Error(`Selected range exceeds the maximum allowed cells (${this.MAX_PROCESS_CELLS}). Please select a smaller range.`);
-            }
-            // for each cell in range, validate JSON
-            activeRange.getValues().forEach((row, i) => {
-                row.forEach((cell, j) => {
-                    try {
-                        // if cell is empty after cleaning, skip
-                        if (ignoreWhitespace && this.trimValue(cell) === '') {
-                            return; // Skip empty cells
-                        }
-                        JSON.parse(cell);
-                    } catch (error) {
-                        report.push({
-                            a1n: activeRange.getCell(i + 1, j + 1).getA1Notation(),
-                            sheetName: activeSpreadsheet.getActiveSheet().getName(),
-                            error: error.message
-                        });
-                    }
-                });
-            });
-
-            return { range: activeRange, report };
-        }
-
-        static trimValue(value) {
-            if (typeof value === 'string') {
-                return value.trim()
-                    .replace(/^\uFEFF/, '') // Remove BOM if present
-                    .replace(/\n/g, '') // Remove newlines
-                    .replace(/\s+/g, ''); // Remove all whitespace
-            }
-            return value;
-        }
-    },
     GeminiApiClient: {
-
+        version: '1.0.0',
         get API_ENDPOINT_URL() {
             return 'https://generativelanguage.googleapis.com/v1beta/models/';
         },
@@ -837,6 +661,7 @@ Addon.Modules = {
         }
     },
     GeminiAgent: {
+        version: '1.0.0',
         get MODELS() {
             return {
                 'gemini-3-flash-preview': 'gemini-3-flash-preview',
@@ -899,6 +724,7 @@ Addon.Modules = {
         },
     },
     CRM: {
+        version: '1.0.0',
         // Inner Customer class
         Customer: {
             get COLUMNS() {
@@ -955,8 +781,6 @@ Addon.Modules = {
 
             addNewCustomer(activeSpreadsheet, customer = {}) {
                 const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
-                const range = sheet.getDataRange();
-                const values = range.getValues() || [];
 
                 // add createdOn in the first column as ISO string
                 const newRow = this._toRow(customer);
@@ -1002,7 +826,6 @@ Addon.Modules = {
 
             addProduct(activeSpreadsheet, product = {}) {
                 const sheet = Addon.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
-                const range = sheet.getDataRange();
 
                 // add product as a new row
                 const newRow = this._toRow(product);
@@ -1257,16 +1080,16 @@ Addon.MCP = {
                 }]
             });
             // Generate prompt for Gemini based on the incoming Telegram update and available data sources defined in MCP Client Roots
-            const prompt = Addon.MCP.Host.assembleInstructionPrompt(activeSpreadsheet, contents);
+            const prompt = Addon.MCP.Addon.assembleInstructionPrompt(activeSpreadsheet, contents);
             // Call the Gemini API to generate content based on the prompt and retrieve the generated response, which should include the necessary information to call the Telegram Bot API (e.g., action, chat_id, text, etc.).
-            const generatedContentJson = Addon.MCP.Host.generateContent(activeSpreadsheet, prompt);
+            const generatedContentJson = Addon.MCP.Addon.generateContent(activeSpreadsheet, prompt);
 
             // Execute the generated response action using the Telegram Bot API tools defined in MCP Server and return the result
             let telegramApiResponse;
             if (generatedContentJson.action && generatedContentJson.chat_id) {
-                telegramApiResponse = Addon.MCP.Host.callTelegramApi(generatedContentJson);
+                telegramApiResponse = Addon.MCP.Addon.callTelegramApi(generatedContentJson);
             } else if (generatedContentJson.uri) {
-                telegramApiResponse = Addon.MCP.Host.executeTelegramApi(generatedContentJson);
+                telegramApiResponse = Addon.MCP.Addon.executeTelegramApi(generatedContentJson);
             } else {
                 throw new Error('Generated content is missing required fields for Telegram API call. Expected at least "action" and "chat_id", or a "uri" for direct API call.');
             }
@@ -1353,7 +1176,7 @@ Addon.MCP = {
             const generatedContent = response?.candidates?.[0]?.content?.parts?.[0]?.text;
             const generatedContentJson = generatedContent ? JSON.parse(generatedContent) : {};
             // Log the prompt and model being sent to Gemini API for debugging purposes
-            Addon.MCP.Host.writeGeminiResponse(activeSpreadsheet, generatedContentJson, model, payload, response);
+            Addon.MCP.Addon.writeGeminiResponse(activeSpreadsheet, generatedContentJson, model, payload, response);
             return generatedContentJson;
         },
         executeTelegramApi(generatedJson = {}) {
@@ -1379,8 +1202,6 @@ Addon.MCP = {
             // Execute the Telegram API call using the generated JSON from Gemini. The "uri" field specifies which Telegram API endpoint to call (e.g., /sendMessage), and the "options" field contains the necessary parameters for the API call, including the payload with details like chat_id, text, etc. We also log the generated JSON and the response from Telegram for debugging purposes.
             const telegramResponse = telegramClient.executeApiRequest(generatedJson.uri, generatedJson.options);
 
-
-            // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, responseJson, responseText, 'Executing Telegram API request based on Gemini response');
             if (JSON.parse(responseText).ok !== true) {
                 throw new Error(`Telegram API request failed: ${responseText}`);
             }
@@ -1389,7 +1210,7 @@ Addon.MCP = {
         writeGeminiResponse(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), eventObject, model, payload, response) {
             // Check if terminal output is enabled
             const terminalOutputEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Addon.PROPERTIES.terminal_output_switch) || 'ON';
+                .getProperty(Addon.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
 
             // Check if terminal output is enabled
             if (terminalOutputEnabled !== 'ON') {
@@ -1462,7 +1283,6 @@ Addon.MCP = {
 
             const telegramResponse = telegramClient.executeApiRequest(action, generatedJson);
             const responseText = telegramResponse.getContentText();
-            // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, responseJson, responseText, 'Executing Telegram API request based on Gemini response');
 
             if (JSON.parse(responseText).ok !== true) {
                 throw new Error(`Telegram API request failed: ${responseText}`);
@@ -1633,24 +1453,19 @@ Addon.Home = {
     short_description: 'A suite of tools for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '1.0.0',
-    listOfTools: [
-        {   // Gemini Assistant Tool
-            name: 'Gemini Assistant',
-            emoji: '💫',
-            description: 'Create new content using AI.',
-            icon: 'auto_awesome',
-            action: 'Addon.GeminiAgent.Controller.PushHomeCard',
-            requires: [
-                Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN
-            ]
-        }
-    ],
+    listOfTools: [{   // Gemini Assistant Tool
+        name: 'Gemini Assistant',
+        emoji: '💫',
+        description: 'Create new content using AI.',
+        icon: 'auto_awesome',
+        action: 'Addon.GeminiAgent.Controller.PushHomeCard',
+        requires: [
+            Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN
+        ]
+    }],
     Controller: {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-            // Log the event for debugging
-            //Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Controller.Home', 'Load', 'Loading Home Card with AppModel data.');
-
             // Build and return the Home Card
             const appModelData = Addon.Modules.App.getData();
 
@@ -1686,36 +1501,30 @@ Addon.Home = {
         UpdateHomeCard: (e) => {
             // Build and return the Home Card
             const data = Addon.Modules.App.getData();
-
-            // Return action response to update card
             return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .updateCard(
-                            Addon.Home.View.HomeCard(data)))
+                .setNavigation(CardService.newNavigation()
+                    .updateCard(Addon.Home.View.HomeCard(data)))
                 .build();
         },
         PushAboutCard: (e) => {
             // Build and return the About Card
             const data = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .pushCard(Addon.Home.View.AboutCard(data))
-                ).build();
+                .setNavigation(CardService.newNavigation()
+                    .pushCard(Addon.Home.View.AboutCard(data)))
+                .build();
         },
         PushHelpCard: (e) => {
             // Build and return the Help Card
             const data = Addon.Modules.App.getData();
             return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .pushCard(Addon.Home.View.HelpCard(data))
-                ).build();
+                .setNavigation(CardService.newNavigation()
+                    .pushCard(Addon.Home.View.HelpCard(data))).
+                build();
         },
         _HandleResultNavigation: (e, result) => {
             const formInputs = e?.commonEventObject?.formInputs || {};
-            const showErrorsState = formInputs?.[Addon.PROPERTIES.show_errors_switch]?.stringInputs?.value[0] || "OFF";
+            const showErrorsState = formInputs?.[Addon.INPUT.SYSTEM.DISPLAY_ERROR_CARD]?.stringInputs?.value[0] || "OFF";
             if (result.report.length > 0) {
                 if (showErrorsState === 'ON') {
                     // Build and return the result card
@@ -1762,8 +1571,7 @@ Addon.Home = {
 
             // Add sections for each available tool
             Addon.Home.listOfTools.forEach(tool => {
-                cardBuilder.addSection(
-                    Addon.Home.View._BuildToolSection(data, tool));
+                cardBuilder.addSection(Addon.Home.View._BuildToolSection(data, tool));
             });
 
             // Quick Access Section
@@ -1994,110 +1802,6 @@ Addon.Home = {
     }
 };
 
-Addon.ConfirmationCard = {
-    id: 'ConfirmationCardPlugin',
-    name: 'Confirmation Card',
-    short_description: 'Standardized confirmation dialog',
-    description: 'A reusable confirmation dialog plugin to standardize user confirmations across various actions within the Telegram Bot Studio environment.',
-    version: '1.0.0',
-    imageUrl: Addon.Media.PAY_ATTENTION_IMG_URL,
-    Controller: {
-        Load: (e = {}) => {
-            const title = e?.commonEventObject?.parameters?.title || 'Confirm Action';
-            const message = e?.commonEventObject?.parameters?.message || 'Are you sure you want to proceed?';
-            const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
-            const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
-
-            if (!onClickFunctionName) {
-                throw new Error('Missing required parameters: message, onClickFunctionName');
-            }
-
-            // Push the confirmation card
-            return CardService.newActionResponseBuilder()
-                .setNavigation(
-                    CardService.newNavigation()
-                        .pushCard(
-                            Addon.ConfirmationCard.View.HomeCard({
-                                title: title,
-                                message: message,
-                                onClickFunctionName: onClickFunctionName,
-                                onClickParameters: onClickParameters
-                            })
-                        )
-                )
-                .build();
-        },
-        Confirm: (e) => {
-            // extract parameters from event object onClickFunctionName = 'Addon['Name'].Controller['Function']', onClickParameters={}
-            const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
-            const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
-
-            if (!onClickFunctionName) {
-                throw new Error('Missing required parameters: message, onClickFunctionName');
-            }
-
-            // Resolve the function from the string name 
-            // onClickFunctionName = 'Addon.Name.Controller.Function'
-            const functionPathParts = onClickFunctionName.split('.');
-            let actionResult = null;
-            try {
-                let func = Addon;
-                for (let i = 1; i < functionPathParts.length; i++) {
-                    func = func[functionPathParts[i]];
-                }
-                actionResult = func(e);
-            } catch (error) {
-                // Todp: 
-            }
-
-            return actionResult;
-        },
-        Cancel: (e) => {
-            // Simply pop the card on cancel
-            return CardService.newActionResponseBuilder()
-                .setNavigation(CardService.newNavigation().popCard())
-                .build();
-        },
-    },
-    View: {
-        HomeCard: (data = {}) => {
-            // Build the Confirmation Card.
-            const cardBuilder = CardService.newCardBuilder()
-                .setName(Addon.ConfirmationCard.id + '-Home')
-                .setHeader(CardService.newCardHeader()
-                    .setTitle(data.title || 'Confirm Action')
-                    .setImageStyle(CardService.ImageStyle.SQUARE)
-                    .setImageUrl(Addon.ConfirmationCard.imageUrl)
-                    .setImageAltText('Confirmation Image'));
-
-            // Build the main section
-            const mainSection = CardService.newCardSection()
-                .addWidget(
-                    CardService.newTextParagraph()
-                        .setText(data.message || 'Are you sure you want to proceed?'));
-
-            cardBuilder.addSection(mainSection);
-
-            // Add Confirm and Cancel buttons to the footer
-            cardBuilder.setFixedFooter(
-                CardService.newFixedFooter()
-                    .setPrimaryButton(
-                        CardService.newTextButton()
-                            .setText('Confirm')
-                            .setOnClickAction(CardService.newAction()
-                                .setFunctionName('Addon.ConfirmationCard.Controller.Confirm')
-                                .setParameters({ onClickFunctionName: data.onClickFunctionName, onClickParameters: JSON.stringify(data.onClickParameters || {}) })))
-                    .setSecondaryButton(
-                        CardService.newTextButton()
-                            .setText('Cancel')
-                            .setOnClickAction(CardService.newAction()
-                                .setFunctionName('Addon.ConfirmationCard.Controller.Cancel'))));
-
-            return cardBuilder.build();
-        }
-    }
-};
-
 Addon.Settings = {
     id: 'SettingsPlugin',
     name: 'Settings',
@@ -2127,29 +1831,18 @@ Addon.Settings = {
                 PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN, secretPrivateKey);
             }
 
-            // focus_terminal_output
-            const focusTerminalOutput = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.focus_terminal_output]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.focus_terminal_output, focusTerminalOutput === 'ON' ? 'ON' : 'OFF');
-
             // terminal_output_switch
-            const terminalOutputSwitch = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.terminal_output_switch]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.terminal_output_switch, terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
-
-            // praittfy_json
-            const praittfyJson = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.praittfy_json]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.praittfy_json, praittfyJson === 'ON' ? 'ON' : 'OFF');
+            const terminalOutputSwitch = e?.commonEventObject?.formInputs?.[Addon.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT, terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
 
             // enable_event_logging
-            const enableEventLogging = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.enable_event_logging]?.stringInputs?.value?.[0] || 'OFF';
-            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.enable_event_logging, enableEventLogging === 'ON' ? 'ON' : 'OFF');
+            const enableEventLogging = e?.commonEventObject?.formInputs?.[Addon.INPUT.SYSTEM.ENABLE_EVENT_LOGGING]?.stringInputs?.value?.[0] || 'OFF';
+            PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.SYSTEM.ENABLE_EVENT_LOGGING, enableEventLogging === 'ON' ? 'ON' : 'OFF');
 
-            // indentation_spaces
-            const indentationSpaces = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.indentation_spaces]?.stringInputs?.value?.[0] || '2';
-            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.indentation_spaces, ['1', '2', '4', '6', '8'].includes(indentationSpaces) ? indentationSpaces : '2');
 
             // show_errors_switch
-            const showErrorsSwitch = e?.commonEventObject?.formInputs?.[Addon.PROPERTIES.show_errors_switch]?.stringInputs?.value?.[0] || 'ON';
-            PropertiesService.getDocumentProperties().setProperty(Addon.PROPERTIES.show_errors_switch, showErrorsSwitch === 'ON' ? 'ON' : 'OFF');
+            const showErrorsSwitch = e?.commonEventObject?.formInputs?.[Addon.INPUT.SYSTEM.DISPLAY_ERROR_CARD]?.stringInputs?.value?.[0] || 'ON';
+            PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.SYSTEM.DISPLAY_ERROR_CARD, showErrorsSwitch === 'ON' ? 'ON' : 'OFF');
 
             // gemini_api_key
             const geminiApiKey = e?.commonEventObject?.formInputs?.[Addon.INPUT.GEMINI.GEMINI_API_KEY]?.stringInputs?.value?.[0] || '[YOUR GEMINI API KEY]';
@@ -2182,13 +1875,6 @@ Addon.Settings = {
                             .setText(`${actionName} set to ${preState}`))
                     .build();
             } catch (error) {
-                // log error to terminal output
-                Addon.Modules.TerminalOutput.write(SpreadsheetApp.getActiveSpreadsheet(),
-                    e,
-                    'Settings.ToggleAction',
-                    'ERROR',
-                    error.toString(),
-                    error.stack);
 
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -2207,13 +1893,10 @@ Addon.Settings = {
 
             // Fetch properties with robust fallbacks
             data[Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL] = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL) || 'https://api.telegram.org/';
-            data.terminal_output_switch = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.terminal_output_switch) || 'OFF';
-            data.focus_terminal_output = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.focus_terminal_output) || 'OFF';
-            data.praittfy_json = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.praittfy_json) || 'OFF';
+            data.terminal_output_switch = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
             data.txt_secret_private_key = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN) || privateKeyDemo;
-            data.enable_event_logging = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.enable_event_logging) || 'OFF';
-            data.indentation_spaces = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.indentation_spaces) || '2';
-            data.show_errors_switch = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.show_errors_switch) || 'OFF';
+            data.enable_event_logging = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.SYSTEM.ENABLE_EVENT_LOGGING) || 'ON';
+            data.show_errors_switch = PropertiesService.getDocumentProperties().getProperty(Addon.INPUT.SYSTEM.DISPLAY_ERROR_CARD) || 'OFF';
 
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Addon.Settings.name + '-Home')
@@ -2287,7 +1970,7 @@ Addon.Settings = {
                         CardService.newMaterialIcon().setName('event_note').setFill(false)))
                     .setSwitchControl(
                         CardService.newSwitch()
-                            .setFieldName(Addon.PROPERTIES.enable_event_logging)
+                            .setFieldName(Addon.INPUT.SYSTEM.ENABLE_EVENT_LOGGING)
                             .setValue('ON')
                             .setSelected(data.enable_event_logging === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -2304,7 +1987,7 @@ Addon.Settings = {
                         CardService.newMaterialIcon().setName('format_align_left').setFill(false)))
                     .setSwitchControl(
                         CardService.newSwitch()
-                            .setFieldName(Addon.PROPERTIES.praittfy_json)
+                            .setFieldName(Addon.INPUT.SYSTEM.praittfy_json)
                             .setValue('ON')
                             .setSelected(data.praittfy_json === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -2530,13 +2213,11 @@ Addon.TelegramBotConnection = {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
                 // Log the event for debugging
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Load', 'INFO', 'Loading Connection plugin...');
                 const data = e?.commonEventObject?.parameters || {};
 
                 return Addon.TelegramBotConnection.View.HomeCard(data);
             }
             catch (error) {
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Load', 'ERROR', error.toString(), error.stack);
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -2568,7 +2249,6 @@ Addon.TelegramBotConnection = {
                 const result = JSON.parse(response.getContentText()).result;
 
                 // Log the response to Terminal Output sheet
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Connect', 'Success', result, `Retrieved bot info for token: ${inputToken}`);
 
                 // execute chk_export_token_to_sheet if needed
                 const exportTokenToSheet = e?.commonEventObject?.formInputs?.chk_export_token_to_sheet?.stringInputs?.value?.[0] === 'export_token';
@@ -2599,7 +2279,6 @@ Addon.TelegramBotConnection = {
                             .updateCard(Addon.Home.View.HomeCard(appModelData))
                     ).build();
             } catch (error) {
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Connect', 'ERROR', error.toString(), error.stack);
                 return this.handleError(error)
                     .build();
             }
@@ -2647,11 +2326,6 @@ Addon.TelegramBotConnection = {
                             .updateCard(Addon.Home.View.HomeCard({ ...appModelData }))
                     ).build();
             } catch (error) {
-                Addon.Modules.TerminalOutput.write(
-                    this._activeSpreadsheet,
-                    e,
-                    'Connection.Disconnect',
-                    'ERROR', error.toString(), error.stack);
                 return this.handleError(error)
                     .build();
             }
@@ -2773,7 +2447,7 @@ Addon.TelegramBotConnection = {
                             CardService.newMaterialIcon().setName('save')))
                         .setSwitchControl(
                             CardService.newSwitch()
-                                .setFieldName(Addon.PROPERTIES.chk_export_token_to_sheet)
+                                .setFieldName(Addon.INPUT.SYSTEM.EXPORT_TOKEN)
                                 .setValue('export_token')
                                 .setSelected(false)
                                 .setControlType(CardService.SwitchControlType.CHECK_BOX)
@@ -2822,9 +2496,6 @@ Addon.Webhook = {
             const data = e?.commonEventObject?.parameters || {};
 
             try {
-                // Log start of execution
-                //Addon.Modules.TerminalOutput.write(activeSpreadsheet,e, 'Webhook.Load', 'INFO', 'Loading Webhook Manager');
-
                 const input_token = Addon.Modules.TelegramBotSettings.getUserApiKey();
                 if (!input_token) {
                     throw new Error('Bot API Token is missing. Please connect your bot in the Connection tab first.');
@@ -2840,8 +2511,6 @@ Addon.Webhook = {
                 const telegramBotClient = new Addon.Modules.TelegramBotClient(input_token);
                 // 1. API Call: getWebhookInfo
                 const response = telegramBotClient.getWebhookInfo();
-                // Log response for debugging
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.Load', 'DEBUG', data, `getWebhookInfo Response: ${response.getContentText()}`);
                 if (JSON.parse(response.getContentText()).ok !== true) {
                     throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
                 }
@@ -2870,7 +2539,6 @@ Addon.Webhook = {
                     .setNavigation(navigation)
                     .build();
             } catch (error) {
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.Load', 'ERROR', error.toString());
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -2887,8 +2555,6 @@ Addon.Webhook = {
         SetWebhook: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
-                // Log start of execution
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'INFO', 'Setting Webhook...');
                 const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
                 const inputs = e?.commonEventObject?.formInputs || {};
 
@@ -2928,12 +2594,9 @@ Addon.Webhook = {
                 if (JSON.parse(response.getContentText()).ok !== true) {
                     throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
                 }
-                // Log response for debugging
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'DEBUG', `setWebhook Response: ${response.getContentText()}`);
                 return Addon.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
             } catch (error) {
                 // Log error for debugging
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'ERROR', error.toString(), error.stack);
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
@@ -2962,8 +2625,6 @@ Addon.Webhook = {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
                 const data = e?.commonEventObject?.parameters || {};
-                // Log start of execution
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'INFO', 'Deleting Webhook...');
 
                 const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
                 const dropPending = e?.commonEventObject?.formInputs?.[Addon.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
@@ -2975,14 +2636,9 @@ Addon.Webhook = {
                     throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
                 }
 
-                // Log response for debugging
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'DEBUG', `deleteWebhook Response: ${response.getContentText()}`);
-
                 const result = JSON.parse(response.getContentText()).result;
                 return Addon.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true', popCard: 'true' } } });
             } catch (error) {
-                // Log error for debugging
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DeleteWebhook', 'ERROR', error.toString(), error.stack);
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
@@ -2992,8 +2648,6 @@ Addon.Webhook = {
         DropPendingUpdates: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
-                // Log start of execution
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.DropPendingUpdates', 'INFO', 'DropPendingUpdates');
                 const token = Addon.Modules.TelegramBotSettings.getUserApiKey();
                 const inputs = e?.commonEventObject?.formInputs || {};
 
@@ -3030,13 +2684,9 @@ Addon.Webhook = {
                 if (JSON.parse(response.getContentText()).ok !== true) {
                     throw new Error(`API Error ${response.getResponseCode()}: ${response.getContentText()}`);
                 }
-                // Log response for debugging
 
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'DEBUG', `setWebhook Response: ${response.getContentText()}`);
                 return Addon.Webhook.Controller.Load({ commonEventObject: { parameters: { update: 'true' } } });
             } catch (error) {
-                // Log error for debugging
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Webhook.SetWebhook', 'ERROR', error.toString(), error.stack);
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText(`❌ Error: ${error.message}`))
                     .build();
@@ -3317,7 +2967,6 @@ Addon.GeminiAgent = {
                     .build();
             }
             catch (error) {
-                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while testing the agent ->' + error.toString()))
@@ -3348,7 +2997,6 @@ Addon.GeminiAgent = {
                                 Addon.Home.View.HomeCard(data))
                     ).build();
             } catch (error) {
-                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while connecting to Gemini API. ' + error.toString()))
@@ -3378,9 +3026,6 @@ Addon.GeminiAgent = {
                 // Push Confirmation Card
                 const confirmationCard = Addon.ConfirmationCard.Controller.Load(e);
 
-                // Log the event for debugging
-                // Addon.Modules.TerminalOutput.write(activeSpreadsheet, e, 'Connection.Disconnect', 'INFO', 'Disconnecting bot');
-
                 // Clear the stored token from user properties
                 Addon.Modules.GeminiAgent.clearApiKey();
                 Addon.Modules.GeminiAgent.clearModel();
@@ -3393,7 +3038,6 @@ Addon.GeminiAgent = {
                             .updateCard(Addon.Home.View.HomeCard(data))
                     ).build();
             } catch (error) {
-                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while disconnecting from Gemini API. ' + error.toString()))
@@ -3420,7 +3064,6 @@ Addon.GeminiAgent = {
                         .setText(`Current cell ${cellReference} has been bound as instruction for the Gemini Agent. You must set this value manually at Document Properties -> ${Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} to make it work with webhooks. This is a limitation of the current implementation.`))
                     .build();
             } catch (error) {
-                Addon.Modules.TerminalOutput.write(this._activeSpreadsheet, e, error, 'ERROR', error.toString(), error.toString());
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification()
                         .setText('An error occurred while binding the current cell as instruction. ' + error.toString()))
@@ -3697,8 +3340,6 @@ Addon.GetMe = {
                 const telegramBotClient = new Addon.Modules.TelegramBotClient(input_token);
                 // 1. API Call: getMe
                 const response = telegramBotClient.getMe();
-                // Log the raw response for debugging
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'DEBUG', data, `getMe Response: ${response.getContentText()}`);
 
                 // Check for errors in response
                 if (JSON.parse(response.getContentText()).ok !== true) {
@@ -3726,7 +3367,6 @@ Addon.GetMe = {
                     .build();
             }
             catch (error) {
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetMe.Load', 'ERROR', e, error.toString(), error.stack);
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -3814,8 +3454,6 @@ Addon.GetChat = {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
-                // Log start of execution
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'Start', e, 'Loading Chat Info');
 
                 const data = e?.commonEventObject?.parameters || {};
                 const isUpdate = data.update === 'true';
@@ -3870,8 +3508,6 @@ Addon.GetChat = {
                             Addon.GetChat.View.HomeCard(data, null)))
                     .build();
             } catch (error) {
-                Addon.Modules.TerminalOutput.write(activeSpreadsheet, 'GetChat.Load', 'ERROR', e, error.toString(), error.stack);
-
                 // Return notification of error
                 return CardService.newActionResponseBuilder()
                     .setNotification(
@@ -3904,7 +3540,7 @@ Addon.GetChat = {
                 .setHeader('🔍 Target Selector');
 
             searchSection.addWidget(CardService.newTextInput()
-                .setFieldName(Addon.PROPERTIES.txt_search_chat_id)
+                .setFieldName(Addon.INPUT.TELEGRAM_BOT.CHAT_ID)
                 .setTitle('Chat ID or Username')
                 .setHint('Enter the Chat ID (e.g., -1001234567890) or Username (e.g., @channelusername)')
                 .setValue(data.txt_search_chat_id || ''));
@@ -3921,7 +3557,7 @@ Addon.GetChat = {
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Addon.GetChat.Controller.Load')
                         .setParameters({ update: 'true' })
-                        .addRequiredWidget([Addon.PROPERTIES.txt_search_chat_id])));
+                        .addRequiredWidget([Addon.INPUT.TELEGRAM_BOT.CHAT_ID])));
 
             cardBuilder.setFixedFooter(footer);
 
@@ -4090,12 +3726,116 @@ Addon.MCPCard = {
 
 };
 
+Addon.ConfirmationCard = {
+    id: 'ConfirmationCardPlugin',
+    name: 'Confirmation Card',
+    short_description: 'Standardized confirmation dialog',
+    description: 'A reusable confirmation dialog plugin to standardize user confirmations across various actions within the Telegram Bot Studio environment.',
+    version: '1.0.0',
+    imageUrl: Addon.Media.PAY_ATTENTION_IMG_URL,
+    Controller: {
+        Load: (e = {}) => {
+            const title = e?.commonEventObject?.parameters?.title || 'Confirm Action';
+            const message = e?.commonEventObject?.parameters?.message || 'Are you sure you want to proceed?';
+            const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
+            const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
+
+            if (!onClickFunctionName) {
+                throw new Error('Missing required parameters: message, onClickFunctionName');
+            }
+
+            // Push the confirmation card
+            return CardService.newActionResponseBuilder()
+                .setNavigation(
+                    CardService.newNavigation()
+                        .pushCard(
+                            Addon.ConfirmationCard.View.HomeCard({
+                                title: title,
+                                message: message,
+                                onClickFunctionName: onClickFunctionName,
+                                onClickParameters: onClickParameters
+                            })
+                        )
+                )
+                .build();
+        },
+        Confirm: (e) => {
+            // extract parameters from event object onClickFunctionName = 'Addon['Name'].Controller['Function']', onClickParameters={}
+            const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
+            const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
+
+            if (!onClickFunctionName) {
+                throw new Error('Missing required parameters: message, onClickFunctionName');
+            }
+
+            // Resolve the function from the string name 
+            // onClickFunctionName = 'Addon.Name.Controller.Function'
+            const functionPathParts = onClickFunctionName.split('.');
+            let actionResult = null;
+            try {
+                let func = Addon;
+                for (let i = 1; i < functionPathParts.length; i++) {
+                    func = func[functionPathParts[i]];
+                }
+                actionResult = func(e);
+            } catch (error) {
+                // Todp: 
+            }
+
+            return actionResult;
+        },
+        Cancel: (e) => {
+            // Simply pop the card on cancel
+            return CardService.newActionResponseBuilder()
+                .setNavigation(CardService.newNavigation().popCard())
+                .build();
+        },
+    },
+    View: {
+        HomeCard: (data = {}) => {
+            // Build the Confirmation Card.
+            const cardBuilder = CardService.newCardBuilder()
+                .setName(Addon.ConfirmationCard.id + '-Home')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle(data.title || 'Confirm Action')
+                    .setImageStyle(CardService.ImageStyle.SQUARE)
+                    .setImageUrl(Addon.ConfirmationCard.imageUrl)
+                    .setImageAltText('Confirmation Image'));
+
+            // Build the main section
+            const mainSection = CardService.newCardSection()
+                .addWidget(
+                    CardService.newTextParagraph()
+                        .setText(data.message || 'Are you sure you want to proceed?'));
+
+            cardBuilder.addSection(mainSection);
+
+            // Add Confirm and Cancel buttons to the footer
+            cardBuilder.setFixedFooter(
+                CardService.newFixedFooter()
+                    .setPrimaryButton(
+                        CardService.newTextButton()
+                            .setText('Confirm')
+                            .setOnClickAction(CardService.newAction()
+                                .setFunctionName('Addon.ConfirmationCard.Controller.Confirm')
+                                .setParameters({ onClickFunctionName: data.onClickFunctionName, onClickParameters: JSON.stringify(data.onClickParameters || {}) })))
+                    .setSecondaryButton(
+                        CardService.newTextButton()
+                            .setText('Cancel')
+                            .setOnClickAction(CardService.newAction()
+                                .setFunctionName('Addon.ConfirmationCard.Controller.Cancel'))));
+
+            return cardBuilder.build();
+        }
+    }
+};
+
 Addon.ResultWidget = {
     id: 'ResultWidget',
     name: 'Result Exporter',
     short_description: 'Export operation results to Google Sheets',
     description: 'A widget that allows users to export JSON operation results directly to a Google Sheets spreadsheet for further analysis and record-keeping.',
-    version: '1.0.0',
+    version: '1.1.0',
     imageUrl: Addon.Media.YOU_GOT_IT_IMG_URL,
     Controller: {
         Load: (e) => {
@@ -4153,7 +3893,7 @@ Addon.ResultWidget = {
                 const sheet = activeSpreadsheet.getSheetByName(sheetName);
                 const range = sheet.getRange(a1n);
                 // Highlight the range with a yellow background
-                const hightlightColor = PropertiesService.getDocumentProperties().getProperty(Addon.PROPERTIES.highlight_color) || '#FFFF00';
+                const hightlightColor = '#FFFF00';
                 range.setBackground(hightlightColor);
 
                 // Return action response with notification
