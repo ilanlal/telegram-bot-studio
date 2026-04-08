@@ -1,5 +1,5 @@
 require('..');
-const { Addon } = require('../../src/Addon');
+const { Addon, Common } = require('../../src/Addon');
 const GeminiAPI = Addon.Modules.GeminiAPI;
 
 describe('Addon.Modules.GeminiAPI', () => {
@@ -12,7 +12,7 @@ describe('Addon.Modules.GeminiAPI', () => {
 
         // Set the API key in user properties for testing
         const userProperties = PropertiesService.getDocumentProperties();
-        userProperties.setProperty(Addon.INPUT.GEMINI.GEMINI_API_KEY, apiKey);
+        userProperties.setProperty(Common.INPUT.GEMINI.GEMINI_API_KEY, apiKey);
 
         // Reset the UrlFetchApp stub configuration before each test
         UrlFetchAppStubConfiguration.reset();

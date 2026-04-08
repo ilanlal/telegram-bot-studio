@@ -1,5 +1,5 @@
 require('.');
-const { Addon } = require('../src/Addon');
+const { Addon, Common } = require('../src/Addon');
 
 describe('Addon.GetChat', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
@@ -11,7 +11,7 @@ describe('Addon.GetChat', () => {
         PropertiesService.getDocumentProperties().deleteAllProperties();
         
         // 
-        PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
+        PropertiesService.getDocumentProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     // HomeCard test

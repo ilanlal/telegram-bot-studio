@@ -1,13 +1,13 @@
 require('..');
 const SpreadsheetStubConfiguration = require('@ilanlal/gasmocks/src/spreadsheetapp/classes/SpreadsheetStubConfiguration');
-const { Addon } = require('../../src/Addon');
+const { Addon, Common } = require('../../src/Addon');
 const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
 
 describe('Host.Modules.TerminalOutput', () => {
     beforeEach(() => {
         SpreadsheetStubConfiguration.reset();
-        PropertiesService.getScriptProperties().setProperty(Addon.INPUT.SYSTEM.ENABLE_EVENT_LOGGING, 'ON');
-        PropertiesService.getScriptProperties().setProperty(Addon.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT, 'ON');
+        PropertiesService.getScriptProperties().setProperty(Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING, 'ON');
+        PropertiesService.getScriptProperties().setProperty(Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT, 'ON');
     });
 
     it('should write terminal output to the specified sheet', () => {

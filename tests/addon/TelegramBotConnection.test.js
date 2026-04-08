@@ -1,6 +1,6 @@
 require('..');
 const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
-const { Addon } = require('../../src/Addon.js');
+const { Addon, Common } = require('../../src/Addon.js');
 const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 const CardService = require('@ilanlal/gasmocks/src/card/CardService');
 
@@ -35,7 +35,7 @@ describe('Addon.TelegramBotConnection', () => {
             const event = {
                 commonEventObject: {
                     formInputs: {
-                        [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
+                        [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
                         'chk_export_token_to_sheet': { stringInputs: { value: ['export_token'] } }
                     }
                 }
@@ -81,7 +81,7 @@ describe('Addon.TelegramBotConnection', () => {
             const e = {
                 commonEventObject: {
                     formInputs: {
-                        [Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [invalidToken] } }
+                        [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [invalidToken] } }
                     }
                 }
             };

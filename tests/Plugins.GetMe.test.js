@@ -1,12 +1,12 @@
 require('.');
-const { Addon } = require('../src/Addon');
+const { Addon, Common } = require('../src/Addon');
 
 describe('Addon.GetMe', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
         UrlFetchAppStubConfiguration.reset();
         // Set the bot token in user properties
-        PropertiesService.getDocumentProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
+        PropertiesService.getDocumentProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
     it('should have required properties', () => {

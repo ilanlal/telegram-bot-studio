@@ -1,6 +1,6 @@
 require('..');
 const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
-const { Addon } = require('../../src/Addon.js');
+const { Addon, Common } = require('../../src/Addon.js');
 const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
 const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 const SpreadsheetStubConfiguration = require('@ilanlal/gasmocks/src/spreadsheetapp/classes/SpreadsheetStubConfiguration');
@@ -12,8 +12,8 @@ describe('Addon.GeminiAgent', () => {
     beforeEach(() => {
         // Set up any necessary mocks or spies
         Addon.Modules.GeminiAgent.saveApiKey(geminiApiKey);
-        PropertiesService.getScriptProperties().setProperty(Addon.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, dummyToken);
-        PropertiesService.getScriptProperties().setProperty(Addon.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE, 'Sheet1!A3');
+        PropertiesService.getScriptProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, dummyToken);
+        PropertiesService.getScriptProperties().setProperty(Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE, 'Sheet1!A3');
         UrlFetchAppStubConfiguration.reset();
         SpreadsheetStubConfiguration.reset();
     });

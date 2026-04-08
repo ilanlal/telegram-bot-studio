@@ -1,5 +1,5 @@
 require('..');
-const { Addon } = require('../../src/Addon');
+const { Addon, Common } = require('../../src/Addon');
 
 describe('Addon.Modules.App', () => {
     beforeEach(() => {
@@ -12,6 +12,6 @@ describe('Addon.Modules.App', () => {
     it('should retrieve correct data from App module', () => {
         const data = Addon.Modules.App.getData();
         expect(data).toBeDefined();
-        expect(data[Addon.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]).toBe(false);
+        expect(data[Common.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]).toBe(false);
     });
 });
