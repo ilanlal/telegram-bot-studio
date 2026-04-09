@@ -18,26 +18,22 @@ function onOpen(e) {
  * @see https://developers.google.com/apps-script/guides/web
  */
 function doGet(e) {
-    if (typeof HtmlService !== 'undefined') {
-        // Handle GET request parameters
-        const params = e.parameter;
+    // Handle GET request parameters
+    const params = e.parameter;
 
-        let htmlContent = '<h1>Telegram Bot Studio (TBS)</h1>';
-        htmlContent += '<p>Welcome to Telegram Bot Studio for Google Sheets!</p>';
-        htmlContent += '<p>Use the sidebar to access various plugins and features to enhance your Telegram bot development experience.</p>';
+    let htmlContent = '<h1>Telegram Bot Studio (TBS)</h1>';
+    htmlContent += '<p>Welcome to Telegram Bot Studio for Google Sheets!</p>';
+    htmlContent += '<p>Use the sidebar to access various plugins and features to enhance your Telegram bot development experience.</p>';
 
-        // Return HTML output
-        return HtmlService
-            .createHtmlOutput(htmlContent)
-            .setTitle('TBS - Telegram Bot Studio');
+    // Return HTML output
+    return HtmlService
+        .createHtmlOutput(htmlContent)
+        .setTitle('TBS - Telegram Bot Studio');
 
-        // Or return JSON
-        // return ContentService
-        //   .createTextOutput(JSON.stringify({ status: 'success' }))
-        //   .setMimeType(ContentService.MimeType.JSON);
-    } else {
-        return {"status": "success", "message": "This endpoint is designed to be accessed via HTTP GET requests and returns HTML content."};
-    }
+    // Or return JSON
+    // return ContentService
+    //   .createTextOutput(JSON.stringify({ status: 'success' }))
+    //   .setMimeType(ContentService.MimeType.JSON);
 }
 
 // Export the functions for testing
