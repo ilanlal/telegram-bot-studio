@@ -1,16 +1,12 @@
 require('.');
+const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
 const { Addon, Common } = require('../src/Addon');
+const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
+const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
 
 describe('Addon.GetChat', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';
     beforeEach(() => {
-        UrlFetchAppStubConfiguration.reset();
-        // Clear properties before each test
-        PropertiesService.getScriptProperties().deleteAllProperties();
-        PropertiesService.getUserProperties().deleteAllProperties();
-        PropertiesService.getDocumentProperties().deleteAllProperties();
-        
-        // 
         PropertiesService.getDocumentProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, sampleToken);
     });
 
@@ -61,5 +57,9 @@ describe('Addon.GetChat', () => {
 
         // No notification
         expect(data.notification).toBeUndefined();
+    });
+
+    afterEach(() => {
+        PropertiesService.getDocumentProperties().deleteProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
     });
 });

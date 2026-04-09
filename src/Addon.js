@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 // src/config/Addon.js
 class Addon {
     static primaryColor() {
@@ -106,6 +108,7 @@ Common.INPUT = {
     get SYSTEM() {
         return {
             get IGNORE_WHITE_SPACE() {
+                return 'ignore_white_space';
             },
             get EXPORT_TOKEN() {
                 return 'EXPORT_TOKEN'
@@ -1051,8 +1054,8 @@ Addon.Package = {
     name: 'Telegram Bot Studio (TBS)',
     short_description: 'A suite of tools for building Telegram Bots on Google Workspace.',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.1.0',
-    build: '20260404.232000',
+    version: '1.2.0',
+    build: '20260409.090000',
     author: 'Ilan Laloum',
     license: 'MIT',
     imageUrl: Addon.Media.LOGO_PNG_URL,
@@ -1145,39 +1148,12 @@ Addon.Home = {
     short_description: 'A suite of tools for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
     version: '2.0.0',
-    listOfTools: [{   // Gemini Assistant Tool
-        name: 'Gemini Assistant',
-        emoji: '💫',
-        description: 'Create new content using AI.',
-        icon: 'auto_awesome',
-        action: 'Addon.GeminiAgent.Controller.PushHomeCard',
-        requires: [
-            Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN
-        ]
-    }],
+    listOfTools: [
+        { name: 'Gemini Assistant', emoji: '💫', description: 'Create new content using AI.', icon: 'auto_awesome', action: 'Addon.GeminiAgent.Controller.PushHomeCard', requires: [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN] },
+        { name: 'Get Chat', emoji: '💬', description: 'Fetch details about a Telegram chat using its ID.', icon: 'chat', action: 'Addon.GetChat.Controller.Load', requires: [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN] },
+        { name: 'Get Me', emoji: '🤖', description: 'Fetch details about your Telegram Bot.', icon: 'account_circle', action: 'Addon.GetMe.Controller.Load', requires: [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN] }
+    ],
     Controller: {
-        Load: (e) => {
-            const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-            // Build and return the Home Card
-            const appModelData = Addon.getData();
-
-            // Build and return the Home Card
-            const homeCard = Addon.Home.View.HomeCard(appModelData);
-
-            let cardNavigation;
-            if (e.parameters && e.parameters.refresh === 'true') {
-                cardNavigation = CardService.newNavigation()
-                    .updateCard(homeCard);
-            } else {
-                cardNavigation = CardService.newNavigation()
-                    .pushCard(homeCard);
-            }
-
-            // Return action response to update card
-            return CardService.newActionResponseBuilder()
-                .setNavigation(cardNavigation)
-                .build();
-        },
         PushHomeCard: (e) => {
             // Build and return the Home Card
             const data = Addon.getData();
@@ -3003,7 +2979,7 @@ Addon.GetMe = {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
-                // Log the event for debugging
+                // Log the event for debugging                
                 const data = e?.commonEventObject?.parameters || {};
 
                 // Optional: Check if we are forcing a refresh via parameters
@@ -3097,6 +3073,10 @@ Addon.GetMe = {
                     .setOpenLink(CardService.newOpenLink()
                         .setUrl(`https://t.me/${result.username}`))));
 
+            // Add dump to result to sheet widget
+            profileSection.addWidget(
+                Addon.ResultWidget.View.BuildExportWidget(data.currentBotName, 'getMe', result));
+
             cardBuilder.addSection(profileSection);
 
             // --- Section: Debug/Raw Data ---
@@ -3135,7 +3115,6 @@ Addon.GetChat = {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             try {
-
                 const data = e?.commonEventObject?.parameters || {};
                 const isUpdate = data.update === 'true';
                 const input_token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
@@ -3148,9 +3127,9 @@ Addon.GetChat = {
 
                 // Extract Chat ID from form inputs if available (user clicked Search)
                 // or fall back to parameters/properties
-                const searchChatId = e?.commonEventObject?.formInputs?.txt_search_chat_id?.stringInputs?.value?.[0] || '';
+                const searchChatId = e?.commonEventObject?.formInputs?.[Common.INPUT.TELEGRAM_BOT.CHAT_ID]?.stringInputs?.value?.[0] || '';
                 if (searchChatId) {
-                    data.txt_search_chat_id = searchChatId;
+                    data[Common.INPUT.TELEGRAM_BOT.CHAT_ID] = searchChatId;
 
                     // 1. API Call: getChat
                     const client = new TelegramBotClient(input_token);
@@ -3206,7 +3185,7 @@ Addon.GetChat = {
          */
         HomeCard: (data = {}, result = null) => {
             // 1. Data Initialization
-            const searchId = data.txt_search_chat_id || '';
+            const searchId = data[Common.INPUT.TELEGRAM_BOT.CHAT_ID] || '';
 
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Addon.GetChat.id + '-Home')
@@ -3224,7 +3203,7 @@ Addon.GetChat = {
                 .setFieldName(Common.INPUT.TELEGRAM_BOT.CHAT_ID)
                 .setTitle('Chat ID or Username')
                 .setHint('Enter the Chat ID (e.g., -1001234567890) or Username (e.g., @channelusername)')
-                .setValue(data.txt_search_chat_id || ''));
+                .setValue(data[Common.INPUT.TELEGRAM_BOT.CHAT_ID] || ''));
 
             cardBuilder.addSection(searchSection);
 
@@ -3309,14 +3288,15 @@ Addon.ConfirmationCard = {
     name: 'Confirmation Card',
     short_description: 'Standardized confirmation dialog',
     description: 'A reusable confirmation dialog plugin to standardize user confirmations across various actions within the Telegram Bot Studio environment.',
-    version: '2.0.0',
+    version: '2.0.1',
     imageUrl: Addon.Media.PAY_ATTENTION_IMG_URL,
     Controller: {
         Load: (e = {}) => {
-            const title = e?.commonEventObject?.parameters?.title || 'Confirm Action';
-            const message = e?.commonEventObject?.parameters?.message || 'Are you sure you want to proceed?';
-            const onClickFunctionName = e?.commonEventObject?.parameters?.onClickFunctionName || null;
-            const onClickParameters = e?.commonEventObject?.parameters?.onClickParameters || {};
+            const p = e?.commonEventObject?.parameters || {};
+            const title = p.title || 'Confirm Action';
+            const message = p.message || 'Are you sure you want to proceed?';
+            const onClickFunctionName = p.onClickFunctionName || null;
+            const onClickParameters = p.onClickParameters || {};
 
             if (!onClickFunctionName) {
                 throw new Error('Missing required parameters: message, onClickFunctionName');

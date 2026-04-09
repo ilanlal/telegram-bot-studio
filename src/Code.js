@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /** 
  * @see https://developers.google.com/apps-script/guides/triggers
  */

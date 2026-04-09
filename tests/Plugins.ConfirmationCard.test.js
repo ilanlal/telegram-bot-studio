@@ -13,12 +13,12 @@ describe('Addon.ConfirmationCard', () => {
 
         // Load test
         it('should handle Load', () => {
-            const event = {
+            const e = {
                 commonEventObject: {
                     parameters: { title: 'Test Title', message: 'Test Message', onClickFunctionName: 'TestFunction', onClickParameters: JSON.stringify({ key: 'value' }) }
                 }
             };
-            const result = Addon.ConfirmationCard.Controller['Load'](event);
+            const result = Addon.ConfirmationCard.Controller['Load'](e);
             expect(result).toBeDefined();
             const data = result.getData();
             expect(data).toBeDefined();
@@ -32,14 +32,12 @@ describe('Addon.ConfirmationCard', () => {
 
         // should throw error for missing parameters
         it('should handle Load with missing parameters', () => {
-            const event = {
+            const e = {
                 commonEventObject: {
                     parameters: { title: 'Test Title' } // Missing message and onClickFunctionName
                 }
             };
-            expect(() => {
-                Addon.ConfirmationCard.Controller['Load'](event);
-            }).toThrowError('Missing required parameters: message, onClickFunctionName');
+            expect(() => Addon.ConfirmationCard.Controller['Load'](e)).toThrow('Missing required parameters: message, onClickFunctionName');
         });
 
         // Cancel test

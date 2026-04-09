@@ -1,5 +1,8 @@
 require('.');
+const UrlFetchAppStubConfiguration = require('@ilanlal/gasmocks/src/url-fetch/classes/UrlFetchAppStubConfiguration');
 const { Addon, Common } = require('../src/Addon');
+const HttpResponse = require('@ilanlal/gasmocks/src/url-fetch/classes/HttpResponse');
+const PropertiesService = require('@ilanlal/gasmocks/src/properties/PropertiesService');
 
 describe('Addon.GetMe', () => {
     const sampleToken = '[FAKE_DUMMY_BOT_TOKEN]';

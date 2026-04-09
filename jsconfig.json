@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "ES6",
+    "target": "es2021",
     "checkJs": false,
     "allowJs": true,
+    "types": [
+      "google-apps-script",
+      "jest"
+    ]
   }
 }
