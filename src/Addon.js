@@ -102,6 +102,7 @@ class Addon {
 class Common { };
 
 Common.INPUT = {
+    version: '1.0.0',
     get SYSTEM() {
         return {
             get IGNORE_WHITE_SPACE() {
@@ -137,7 +138,7 @@ Common.INPUT = {
                     },
                     get EXPIRES_AT() {
                         return 'EXPIRES_AT';
-                    },
+                    }
                 }
             }
         }
@@ -198,7 +199,7 @@ Common.INPUT = {
             },
             get DROP_PENDING_UPDATES() {
                 return 'DROP_PENDING_UPDATES';
-            },
+            }
         };
     },
     get MCP() {
@@ -690,10 +691,10 @@ Common.Modules = {
                 agent_meta.model || this.DEFAULT_MODEL,
                 agent_meta.prompt || ''
             ];
-        },
+        }
     },
     CRM: {
-        version: '1.0.0',
+        version: '1.0.1',
         // Inner Customer class
         Customer: {
             get COLUMNS() {
@@ -714,7 +715,6 @@ Common.Modules = {
                     columns: Object.values(this.COLUMNS)
                 };
             },
-
             verifyTelegramUser(activeSpreadsheet, message) {
                 const chatId = message.from.id;
                 const existingCustomer = this.getCustomerByChatId(activeSpreadsheet, chatId);
@@ -735,7 +735,6 @@ Common.Modules = {
 
                 return this.addNewCustomer(activeSpreadsheet, customer);
             },
-
             getCustomerByChatId(activeSpreadsheet, chat_id) {
                 const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
                 const range = sheet.getRange('B:B');
@@ -747,7 +746,6 @@ Common.Modules = {
                 }
                 return null;
             },
-
             addNewCustomer(activeSpreadsheet, customer = {}) {
                 const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.CUSTOMERS_SHEET_META);
 
@@ -756,7 +754,6 @@ Common.Modules = {
                 sheet.appendRow(newRow);
                 return newRow;
             },
-
             _fromRow(row = []) {
                 return {
                     created_on: row?.[0] || '',
@@ -769,7 +766,6 @@ Common.Modules = {
                     data: row?.[7] || ''
                 };
             },
-
             _toRow(customer = {}) {
                 return [
                     new Date().toISOString(),
@@ -781,9 +777,8 @@ Common.Modules = {
                     customer.is_bot || false,
                     JSON.stringify(customer)
                 ];
-            },
+            }
         },
-
         // Product class.
         Product: {
             get PRODUCTS_SHEET_META() {
@@ -792,7 +787,6 @@ Common.Modules = {
                     columns: ['sn', 'category', 'subcategory', 'name', 'description', 'tags', 'price', 'unit', 'image', 'rating', 'Data']
                 };
             },
-
             addProduct(activeSpreadsheet, product = {}) {
                 const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
 
@@ -801,7 +795,6 @@ Common.Modules = {
                 sheet.appendRow(this._toRow(product));
                 return newRow;
             },
-
             getProductBySN(activeSpreadsheet, sn) {
                 const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
 
@@ -815,7 +808,6 @@ Common.Modules = {
                 }
                 return null;
             },
-
             listProducts(activeSpreadsheet, category = '', subcategory = '', limit = 100, offset = 0) {
                 const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
                 const range = sheet.getDataRange();
@@ -835,7 +827,6 @@ Common.Modules = {
 
                 return products;
             },
-
             listCategories(activeSpreadsheet) {
                 const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, this.PRODUCTS_SHEET_META);
                 const range = sheet.getDataRange();
@@ -851,7 +842,6 @@ Common.Modules = {
                 }
                 return Array.from(categories);
             },
-
             _fromRow(row = []) {
                 if (!row || row.length < 4) {
                     return null;
@@ -870,7 +860,6 @@ Common.Modules = {
                     data: row?.[10] ? JSON.parse(row[10]) : {}
                 };
             },
-
             _toRow(product = {}) {
                 return [
                     product.sn || '',
@@ -885,14 +874,12 @@ Common.Modules = {
                     product.rating || 0.0,
                     JSON.stringify(product)
                 ];
-            },
+            }
         },
-
         Membership: {
             get DEFAULT_LICENSE_KEY() {
                 return "TRIAL";
             },
-
             get DEFAULT_TRIAL_DAYS() {
                 return 90;
             },
@@ -906,13 +893,11 @@ Common.Modules = {
                 this.setMembershipInfo(membershipInfo);
                 return membershipInfo;
             },
-
             revoke() {
                 // Simulate revocation logic
                 PropertiesService.getUserProperties().deleteProperty(Common.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY);
                 return true;
             },
-
             createMembershipInfo(days = this.DEFAULT_TRIAL_DAYS, balance = this.DEFAULT_TRIAL_BALANCE, licenseKey = this.DEFAULT_LICENSE_KEY) {
                 const membership = {
                     [Common.INPUT.SYSTEM.MEMBERSHIP.CREATED_ON]: new Date().toISOString(),
@@ -924,7 +909,6 @@ Common.Modules = {
                 }
                 return membership;
             },
-
             getMembershipInfo() {
                 const membershipData = PropertiesService.getUserProperties().getProperty(Common.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY);
                 if (!membershipData) {
@@ -951,12 +935,11 @@ Common.Modules = {
                     return null;
                 }
             },
-
             setMembershipInfo(membershipInfo = {}) {
                 PropertiesService.getUserProperties().setProperty(Common.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY, JSON.stringify(membershipInfo));
                 return membershipInfo;
             }
-        },
+        }
     }
 };
 
@@ -989,382 +972,6 @@ Addon.Package = {
     license: 'MIT',
     imageUrl: Addon.Media.LOGO_PNG_URL,
     gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
-};
-
-Addon.MCP = {
-    Host: {
-        handleWebhookEvent(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), e = {}) {
-            if (!e.postData || !e.postData.contents) {
-                throw new Error('Invalid webhook event: missing postData or contents');
-            }
-
-            const contents = JSON.parse(e.postData.contents);
-
-
-            const mcpServer = new Addon.MCP.Server({
-                "name": 'Telegram Bot Server',
-                "description": 'Handles incoming Telegram updates, processes them using the Gemini API, and responds appropriately using the Telegram Bot API.',
-                "version": '1.0.0',
-                "resources": [],
-                "prompt": {
-                    "name": "telegram_bot_assistant_prompt",
-                    "title": "Telegram Bot Assistant",
-                    "description": "You are a helpful assistant for responding to Telegram messages using the Telegram Bot API. You receive incoming Telegram update events, and your task is to generate appropriate responses based on the event data and the conversation context. You can use the callTelegramApi tool to send messages back to users via the Telegram Bot API. Always ensure that your responses adhere to the Telegram Bot API requirements and that you provide clear and concise messages to users.",
-                    "arguments": [
-                        { "name": "event", "type": "string", "required": true, "description": "The incoming Telegram update event data as a JSON string." }
-                    ]
-                },
-                "tools": [{
-                    "name": "callTelegramApi",
-                    "description": "Call the Telegram Bot API to send a message or perform an action in response to an incoming Telegram update. The input should be a JSON object containing the 'action' field specifying the Telegram API method to call (e.g., sendMessage, editMessageText, sendPhoto, editMessageMedia, answerCallbackQuery), the 'chat_id' field specifying the chat ID to send the message to, and other necessary fields based on the action (e.g., 'text' for sendMessage). Ensure that the generated JSON adheres to the Telegram Bot API requirements for the specified action.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "uri": {
-                                "type": "string",
-                                "description": "The URI of the Telegram Bot API endpoint to call (e.g., /sendMessage). This will be appended to the base URL (https://api.telegram.org/bot<token>/) to construct the full API endpoint URL. If 'uri' is provided, it will be used for the API call instead of constructing the URL based on the 'action' field."
-                            },
-                            "options": {
-                                "type": "object",
-                                "properties": {
-                                    "method": {
-                                        "type": "string",
-                                        "description": "The HTTP method to use for the API call (e.g., GET, POST). Default is POST.",
-                                        "enum": ["GET", "POST"]
-                                    },
-                                    "contentType": {
-                                        "type": "string",
-                                        "description": "The content type of the request payload (e.g., application/json). Default is application/json.",
-                                        "enum": ["application/json", "application/x-www-form-urlencoded"]
-                                    },
-                                    "payload": {
-                                        "type": "object",
-
-                                        "properties": {
-                                            "chat_id": {
-                                                "type": "string",
-                                                "description": "The chat ID to send the message back to."
-                                            },
-                                            "caption": {
-                                                "type": "string",
-                                                "description": "Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing"
-                                            },
-                                            "text": {
-                                                "type": "string",
-                                                "description": "Text of the message to be sent, 1-4096 characters after entities parsing"
-                                            },
-                                            "photo": {
-                                                "type": "string",
-                                                "description": "Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20"
-                                            },
-                                            "inline_keyboard": {
-                                                "type": "array",
-                                                "description": "Array of button rows, each represented by an Array of InlineKeyboardButton objects. ",
-                                                "items": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "description": "This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button."
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "required": ["chat_id", "text"]
-                                    }
-                                },
-                                "required": ["method", "contentType", "payload"]
-                            },
-                            "required": ["uri", "options"]
-                        }
-                    }
-                }]
-            });
-            // Generate prompt for Gemini based on the incoming Telegram update and available data sources defined in MCP Client Roots
-            const prompt = Addon.MCP.Addon.assembleInstructionPrompt(activeSpreadsheet, contents);
-            // Call the Gemini API to generate content based on the prompt and retrieve the generated response, which should include the necessary information to call the Telegram Bot API (e.g., action, chat_id, text, etc.).
-            const generatedContentJson = Addon.MCP.Addon.generateContent(activeSpreadsheet, prompt);
-
-            // Execute the generated response action using the Telegram Bot API tools defined in MCP Server and return the result
-            let telegramApiResponse;
-            if (generatedContentJson.action && generatedContentJson.chat_id) {
-                telegramApiResponse = Addon.MCP.Addon.callTelegramApi(generatedContentJson);
-            } else if (generatedContentJson.uri) {
-                telegramApiResponse = Addon.MCP.Addon.executeTelegramApi(generatedContentJson);
-            } else {
-                throw new Error('Generated content is missing required fields for Telegram API call. Expected at least "action" and "chat_id", or a "uri" for direct API call.');
-            }
-
-            // TODO: For better security and performance, instead of transmitting the entire event data through MCP Server, 
-            // we can generate a unique identifier for the event, store the event data in a temporary storage (like CacheService or PropertiesService), 
-            // and then pass only the identifier to the MCP Server. 
-            // The MCP Server can then retrieve the event data using the identifier when needed. 
-            // This way, we avoid transmitting large event data through MCP and also add a layer of security by not exposing sensitive event data directly in the prompt.
-            // -------------------------------- //
-
-            //const serverTransport = new Addon.MCP.StdioServerTransport();
-            //mcpServer.connect(serverTransport);
-            //return serverTransport.transmit(e);
-
-            // Return the final response as a JSON string containing the status, action taken, and the response from the Telegram API
-            const finalResponse = JSON.stringify({
-                'status': 'success',
-                'event': contents,
-                'generatedContent': generatedContentJson,
-                'response': telegramApiResponse
-            });
-            return finalResponse;
-        },
-        assembleInstructionPrompt(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), contents = {}) {
-            const cellReference = PropertiesService.getScriptProperties().getProperty(Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE);
-            if (!cellReference) {
-                throw new Error(`Instruction cell reference is not set. Please set ${Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} property to the cell containing the instruction prompt template.`);
-            }
-
-            const sheetName = cellReference.split('!')[0];
-            const cellA1Notation = cellReference.split('!')[1];
-            const sheet = activeSpreadsheet.getSheetByName(sheetName);
-            if (!sheet) {
-                throw new Error(`Sheet "${sheetName}" not found in the active spreadsheet. Please check the ${Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE} property.`);
-            }
-            const cell = sheet.getRange(cellA1Notation);
-            const value = cell.getValue();
-            if (!value) {
-                throw new Error(`No instruction prompt found in cell ${cellReference}. Please ensure the cell contains a valid JSON string for the prompt template.`);
-            }
-            const _prompt = JSON.parse(value); // Assuming the prompt is in the specified cell as a JSON string. The prompt should have a structure that includes a "contents" field which is an array of message objects.
-
-            // For simplicity, we are replacing the contents with the incoming event data. In a more complex implementation, you might want to merge this with existing prompt contents or structure it differently.
-            if (_prompt?.contents || !Array.isArray(_prompt.contents)) {
-                _prompt.contents = [];
-            }
-
-            const content =
-            {
-                "role": "user",
-                "parts": [
-                    {
-                        text: "Here is the incoming event data: " + JSON.stringify({ event: contents }) + ". Please generate an appropriate response action based on this event data and the instruction provided in the sheet. Remember to follow the Telegram Bot API requirements when generating your response."
-                    }
-                ]
-            };
-
-
-            _prompt.contents = [content];
-
-
-            return _prompt;
-        },
-        generateContent: (activeSpreadsheet, payload) => {
-            // Retrieve the Gemini API key from script properties. 
-            // If the API key is not set, throw an error to inform the user to set it up before using the Gemini integration. 
-            // This ensures that we have the necessary credentials to authenticate with the Gemini API and generate content based on the provided prompt.
-            const geminiApiKey = Common.Modules.GeminiAgent.getScriptApiKey();
-            if (!geminiApiKey) {
-                throw new Error(`Gemini API key is not set. Please set ${Common.INPUT.GEMINI.GEMINI_API_KEY} property.`);
-            }
-
-            // Determine which Gemini model to use based on user selection in the sheet or default to the predefined model. 
-            // This allows for flexibility in choosing different models for different types of prompts or experiments.
-            const model = Common.Modules.GeminiAgent.getScriptModel() || Common.Modules.GeminiAgent.DEFAULT_MODEL;
-
-            // Call the Gemini API client to generate content based on the provided prompt and selected model. 
-            // The response is expected to contain the generated content in a specific format, which we will parse and return as a JSON object. 
-            // We also log the prompt, model, and response for debugging purposes.
-            const response = Common.Modules.GeminiApiClient.generateContent(geminiApiKey, model, payload);
-
-            // Parse the Gemini response to extract the generated content. 
-            const generatedContent = response?.candidates?.[0]?.content?.parts?.[0]?.text;
-            const generatedContentJson = generatedContent ? JSON.parse(generatedContent) : {};
-            // Log the prompt and model being sent to Gemini API for debugging purposes
-            Addon.MCP.Addon.writeGeminiResponse(activeSpreadsheet, generatedContentJson, model, payload, response);
-            return generatedContentJson;
-        },
-        executeTelegramApi(generatedJson = {}) {
-            // Validate that the generated JSON contains the necessary fields to make a Telegram API call.
-            if (!generatedJson.uri || !generatedJson.options || !generatedJson.options.payload) {
-                throw new Error('Generated JSON is missing required fields for Telegram API call. Expected "uri" and "options.payload".');
-            }
-
-            // Retrieve the Telegram API key from script properties. If the API key is not set, throw an error to inform the user to set it up before using the Telegram API integration. This ensures that we have the necessary credentials to authenticate with the Telegram API and execute the desired actions based on the Gemini response.
-            const telegramApiKey = Common.Modules.TelegramBotSettings.getScriptApiKey();
-            if (!telegramApiKey) {
-                throw new Error(`Telegram API key is not set. Please set ${Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
-            }
-
-            // Validate that the generated JSON contains the necessary fields to make a Telegram API call. We need at least the "uri" to know which Telegram API endpoint to call, and "options.payload" to have the necessary data for the API request. If these fields are missing, we throw an error to indicate that the Gemini response is not in the expected format for making a Telegram API call.
-            if (!generatedJson.uri || !generatedJson.options || !generatedJson.options.payload) {
-                throw new Error('Generated JSON is missing required fields for Telegram API call. Expected "uri" and "options.payload".');
-            }
-
-            // Initialize the Telegram client with the retrieved API key. This client will be used to make API calls to Telegram based on the generated JSON from Gemini.
-            const telegramClient = new Common.Modules.TelegramBotClient(telegramApiKey);
-
-            // Execute the Telegram API call using the generated JSON from Gemini. The "uri" field specifies which Telegram API endpoint to call (e.g., /sendMessage), and the "options" field contains the necessary parameters for the API call, including the payload with details like chat_id, text, etc. We also log the generated JSON and the response from Telegram for debugging purposes.
-            const telegramResponse = telegramClient.executeApiRequest(generatedJson.uri, generatedJson.options);
-
-            if (JSON.parse(responseText).ok !== true) {
-                throw new Error(`Telegram API request failed: ${responseText}`);
-            }
-            return responseText;
-        },
-        writeGeminiResponse(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), eventObject, model, payload, response) {
-            // Check if terminal output is enabled
-            const terminalOutputEnabled = PropertiesService.getDocumentProperties()
-                .getProperty(Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
-
-            // Check if terminal output is enabled
-            if (terminalOutputEnabled !== 'ON') {
-                return;
-            }
-
-            const sheet = Common.Modules.Sheet.getSheet(activeSpreadsheet, Common.Modules.TerminalOutput.SHEET_META);
-            const generatedText = response?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-            sheet.appendRow([
-                // Created On as iso string
-                new Date().toISOString(),
-                // Event Object
-                (typeof eventObject === 'object' || Array.isArray(eventObject)) ? JSON.stringify(eventObject) : String(eventObject || ''),
-                // Mode (e.g., "gemini-3-flash-preview")
-                model,
-                // Payload
-                (typeof payload === 'object' || Array.isArray(payload)) ? JSON.stringify(payload) : String(payload || ''),
-                // Response
-                (typeof response === 'object' || Array.isArray(response)) ? JSON.stringify(response) : String(response || ''),
-                // Prompt (if available in payload)
-                payload?.contents?.[0]?.parts?.[0]?.text || '',
-                // Model Version (if available in response, otherwise use input model or default to 'unknown')
-                response?.modelVersion || 'unknown',
-                // Generated Text (if available in response) ({"candidates":[{"content":{"parts":[{"text": "generated text here"}]}}]})
-                JSON.stringify(generatedText),
-                // Total Token Count (if available in response.usageMetadata)
-                response?.usageMetadata?.totalTokenCount || 0,
-                // Prompt Token Count (if available in response.usageMetadata)
-                response?.usageMetadata?.promptTokenCount || 0,
-                // Thoughts Token Count (if available in response.usageMetadata)
-                response?.usageMetadata?.thoughtsTokenCount || 0,
-                // cachedContentTokenCount (if available in response.usageMetadata)
-                response?.usageMetadata?.cachedContentTokenCount || 0,
-                // candidatesTokenCount (if available in response.usageMetadata)
-                response?.usageMetadata?.candidatesTokenCount || 0,
-                // toolUsePromptTokenCount (if available in response.usageMetadata)
-                response?.usageMetadata?.toolUsePromptTokenCount || 0
-            ]);
-
-            return sheet;
-        },
-        callTelegramApi(generatedJson = { action: 'sendMessage', chat_id: '', text: '' }) {
-            const telegramApiKey = Common.Modules.TelegramBotSettings.getScriptApiKey();
-            if (!telegramApiKey) {
-                throw new Error(`Telegram API key is not set. Please set ${Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN} property.`);
-            }
-            const telegramClient = new Common.Modules.TelegramBotClient(telegramApiKey);
-
-            // Execute Tool/Action via Telegram API
-
-            // Map Gemini generated JSON to Telegram API call
-            const action = generatedJson.action || 'sendMessage';
-            generatedJson.parse_mode = 'HTML'; // Ensure Telegram parses the message as HTML for formatting
-
-            // If the response includes an inline keyboard definition, we need to move it into the reply_markup field as per Telegram API requirements
-            if (generatedJson.inline_keyboard) {
-                generatedJson.reply_markup = {
-                    inline_keyboard: generatedJson.inline_keyboard
-                };
-
-                delete generatedJson['inline_keyboard']; // Remove inline_keyboard from the root level if it exists
-            }
-
-            // Handle special cases for sendPhoto and editMessageMedia where the text should be sent as caption and photo URL/file_id should be specified
-            if (action === 'sendPhoto' || action === 'editMessageMedia') {
-                // For sendPhoto and editMessageMedia, the 'text' field should be sent as 'caption' and we need to specify the photo URL or file_id in the 'photo' field
-                generatedJson.caption = generatedJson.caption || generatedJson.text || '';
-                delete generatedJson['text']; // Remove text field for sendPhoto and editMessageMedia actions
-            }
-
-            const telegramResponse = telegramClient.executeApiRequest(action, generatedJson);
-            const responseText = telegramResponse.getContentText();
-
-            if (JSON.parse(responseText).ok !== true) {
-                throw new Error(`Telegram API request failed: ${responseText}`);
-            }
-            return responseText;
-        }
-    },
-    Server: class {
-        constructor({ name = '', version = '1.0.0', description = '', prompt = {}, resources = [] } = {}) {
-            this.name = name;
-            this.version = version;
-            this.description = description;
-            this.resources = resources;
-            this.prompt = prompt;
-            this.tools = [];
-        }
-
-        connect(serverTransport = new Addon.MCP.StdioServerTransport()) {
-            serverTransport.Server = this; // Pass reference of MCP Server to the transport layer
-        }
-
-        // This handler will be called by the transport layer when a request is received. The request will contain information about which tool to call and the input parameters for that tool. The handler will then execute the appropriate logic based on the tool being called and return the result back through the transport layer.                
-        callToolsHandler(request) {
-            if (!request || !request.tool || !request.tool.name) {
-                throw new Error('Invalid request');
-            }
-            const toolName = request.tool.name;
-            if (toolName === 'callTelegramApi') {
-                const payload = request.tool.input || {};
-            }
-        }
-
-        listToolsHandler() {
-            // Return the list of tools available on the server for the client to use. This can be used by the client to understand what actions it can request the server to perform.
-            return this.tools;
-        }
-    },
-    Client: class {
-        /**
-         * Roots allow clients to specify which directories servers should focus on, communicating intended scope through a coordination mechanism.
-         */
-        get Roots() {
-            return [
-                {
-                    "uri": "file:///Users/agent/travel-planning",
-                    "name": "Travel Planning Workspace"
-                }
-            ]
-        }
-        /**
-         * Sampling allows servers to request LLM completions through the client, enabling an agentic workflow. This approach puts the client in complete control of user permissions and security measures.
-         */
-        get Sampling() {
-            return [];
-        }
-        /**
-         * Elicitation enables servers to request specific information from users during interactions, creating more dynamic and responsive workflows.
-         */
-        get Elicitation() {
-            return [];
-        }
-    },
-    StdioServerTransport: class {
-        set Server(server) {
-            this._server = server;
-        }
-
-        constructor() {
-            this._server = null;
-        }
-
-        transmit(e = {}) {
-            if (!this._server) {
-                throw new Error('Server not set');
-            }
-            const requestData = JSON.parse(e.postData.contents || '{}');
-            if (requestData.tool) {
-                return this._server.callToolsHandler(requestData);
-            }
-            return JSON.stringify({ status: 'no_tool_called', requestData });
-        }
-    }
 };
 
 Addon.Helper = {
