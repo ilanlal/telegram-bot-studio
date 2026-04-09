@@ -36,7 +36,7 @@ function doGet(e) {
         //   .createTextOutput(JSON.stringify({ status: 'success' }))
         //   .setMimeType(ContentService.MimeType.JSON);
     } else {
-        return null;
+        return {"status": "success", "message": "This endpoint is designed to be accessed via HTTP GET requests and returns HTML content."};
     }
 }
 
