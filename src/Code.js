@@ -19,12 +19,23 @@ function onOpen(e) {
  */
 function doGet(e) {
     // return html content
-    let htmlContent = '<h1>Telegram Bot Studio</h1>';
+    let htmlContent = '<h1>Telegram Bot Studio (TBS)</h1>';
     htmlContent += '<p>Welcome to Telegram Bot Studio for Google Sheets!</p>';
     htmlContent += '<p>Use the sidebar to access various plugins and features to enhance your Telegram bot development experience.</p>';
-    
+
     if (typeof HtmlService !== 'undefined') {
-        return HtmlService.createHtmlOutput(htmlContent);
+        // Handle GET request parameters
+        const params = e.parameter;
+
+        // Return HTML output
+        return HtmlService.createHtmlOutput(
+            htmlContent
+        ).setTitle('TBS - Telegram Bot Studio');
+
+        // Or return JSON
+        // return ContentService
+        //   .createTextOutput(JSON.stringify({ status: 'success' }))
+        //   .setMimeType(ContentService.MimeType.JSON);
     } else {
         return null;
     }
