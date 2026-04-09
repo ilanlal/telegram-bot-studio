@@ -1,10 +1,10 @@
 require('../tests');
-const { doGet, onOpen, onInstall } = require('./Code');
+const { doGet } = require('./Code');
 
 describe('doGet', () => {
     it('should run doGet message handler', () => {
-        const event = {}; // Mock event object
-        const response = doGet(event);
+        const e = {}; // Mock event object
+        const response = doGet(e);
         expect(response).toBeDefined();
     });
 });
