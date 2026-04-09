@@ -68,7 +68,7 @@ describe('Addon.Home tests', () => {
         describe('HomeCard', () => {
             // HomeCard test 1 - should build Home Card with Welcome to Gemini Assistant section if API key is not present
             it('should build Home Card with Welcome to Gemini Assistant section', () => {
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
 
                 const homeCard = View.HomeCard(data);
                 expect(homeCard).toBeDefined();

@@ -63,7 +63,7 @@ The UI is built using Google Apps Script's CardService, rendering a settings car
 
 - **Controller:** `Addon.Settings.Controller` with methods like `Load(e)` for rendering, `SaveSettings(e)` for validation/storage, `ToggleAction(e)` for switches.
 - **View:** `Addon.Settings.View` with `HomeCard(data)` for building the card.
-- **Service/Model:** Integrates with `PropertiesService` for user properties, `Common.Modules.App.getData()` for app info.
+- **Service/Model:** Integrates with `PropertiesService` for user properties, `Addon.getData()` for app info.
 
 ### 4.2 Data Interactions
 

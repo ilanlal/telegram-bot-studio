@@ -25,7 +25,7 @@ describe('Common.Modules.App', () => {
 
     // getData test
     it('should retrieve correct data from App module', () => {
-        const data = Common.Modules.App.getData();
+        const data = Addon.getData();
         expect(data).toBeDefined();
         expect(data[Common.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]).toBe(false);
     });

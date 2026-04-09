@@ -11,6 +11,92 @@ class Addon {
     static accentColor() {
         return '#f4b400';
     }
+
+    static getData() {
+        const documentProperties = PropertiesService.getDocumentProperties();
+        const membershipInfo = Common.Modules.CRM.Membership.getMembershipInfo() || {};
+
+        const expiresAt = membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
+        const balance = membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0;
+        const isPremium = (expiresAt && expiresAt > new Date()) || balance > 0;
+        const indentationSpaces = '4';
+        const showErrorsSwitch = documentProperties.getProperty(Common.INPUT.SYSTEM.DISPLAY_ERROR_CARD) || 'OFF';
+        const highlightColor = '#FFFF00';
+        const terminalOutputSwitch = documentProperties.getProperty(Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
+        const ignoreWhitespaceSwitch = documentProperties.getProperty(Common.INPUT.SYSTEM.IGNORE_WHITE_SPACE) || 'ON';
+        const geminiApiKey = Common.Modules.GeminiAgent.getApiKey();
+        const apiResponseModel = Common.Modules.GeminiAgent.getModel();
+        const instructionCellReference = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE) || '';
+        const botApiToken = Common.Modules.TelegramBotSettings.getUserApiKey();
+        const botApiEndpoint = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL)
+
+        let result = { ok: false, description: 'Not connected. Please enter your bot token to fetch webhook info.' };
+        if (botApiToken) {
+            const telegramBotClient = new Common.Modules.TelegramBotClient(botApiToken);
+            const response = telegramBotClient.getWebhookInfo();
+
+            if (JSON.parse(response.getContentText()).ok !== true) {
+                result = { error: 'Unable to fetch webhook info. Please check your bot token and connection.' };
+            } else {
+                // Parse the result
+                result = JSON.parse(response.getContentText()).result;
+            }
+        }
+
+        const leds = Addon.getLeds({
+            telegramApiKeySet: !!botApiToken,
+            geminiApiKeySet: !!geminiApiKey,
+            llmModelSet: !!apiResponseModel,
+            webhookSet: !!result.url,
+            instructionCellSet: !!instructionCellReference,
+            isPremium: isPremium,
+        });
+
+        return {
+            indentation_spaces: parseInt(indentationSpaces, 10),
+            [Common.INPUT.SYSTEM.DISPLAY_ERROR_CARD]: showErrorsSwitch,
+            highlight_color: highlightColor,
+            [Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT]: terminalOutputSwitch,
+            [Common.INPUT.SYSTEM.IGNORE_WHITE_SPACE]: ignoreWhitespaceSwitch,
+            // Telegram Bot Info
+            [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: botApiToken,
+            // Gemini API Info
+            [Common.INPUT.GEMINI.GEMINI_API_KEY]: geminiApiKey,
+            [Common.INPUT.GEMINI.GEMINI_MODEL]: apiResponseModel,
+            // Membership Info
+            [Common.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY]: membershipInfo,
+            [Common.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]: isPremium,
+            [Common.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance,
+            [Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
+            // Gemini Instruction Cell Reference
+            [Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE]: instructionCellReference,
+            // Package Info
+            package: Addon.Package,
+            leds: leds,
+            webhookInfo: result
+        };
+    }
+
+    static getLeds(params = {
+        telegramApiKeySet: false,
+        geminiApiKeySet: false,
+        llmModelSet: false,
+        webhookSet: false,
+        instructionCellSet: false,
+        isPremium: false,
+    }) {
+        const ledsMap = [
+            params.telegramApiKeySet ? '🟢' : '🔴',
+            params.geminiApiKeySet ? '🟢' : '🔴',
+            params.llmModelSet ? '🟢' : '🔴',
+            params.webhookSet ? '🟢' : '🔴',
+            params.instructionCellSet ? '🟢' : '🔴',
+            params.isPremium ? '🟢' : '🔴',
+        ];
+
+        // Return string of leds.
+        return ledsMap.join(' ');
+    }
 };
 
 class Common { };
@@ -124,127 +210,8 @@ Common.INPUT = {
     }
 };
 
-Addon.Media = {
-    DEFAULT_IMAGE_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/220x220.png',
-    WELCOME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/480x480_welcome.png',
-    MATH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-math.webp',
-    THANK_YOU_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-thank-you.webp',
-    YOU_GOT_IT_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-you-got-it.webp',
-    BIG_TIME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-big-time.webp',
-    PEACH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-peach.webp',
-    HAVE_A_NICE_DAY_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-have-a-nice-day.webp',
-    I_AM_THINKING_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-i-am-thinking.webp',
-    WAIT_FOR_IT_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-wait-for-it.webp',
-    YES_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-yes.webp',
-    PAY_ATTENTION_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-pay-attention.webp',
-    KISS_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-kiss.webp',
-    CHEERS_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-cheers.webp',
-    BLINK_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-blink.webp',
-    LOGO_PNG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/128x128.png'
-};
-
-Addon.Package = {
-    name: 'Telegram Bot Studio (TBS)',
-    short_description: 'A suite of tools for building Telegram Bots on Google Workspace.',
-    description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.1.0',
-    build: '20260404.232000',
-    author: 'Ilan Laloum',
-    license: 'MIT',
-    imageUrl: Addon.Media.LOGO_PNG_URL,
-    gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
-};
-
 Common.Modules = {
     version: '1.0.0',
-    App: {
-        getData() {
-            const MDL = Common.Modules;
-            const userProperties = PropertiesService.getDocumentProperties();
-            const membershipInfo = Common.Modules.CRM.Membership.getMembershipInfo() || {};
-
-            const expiresAt = membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT] ? new Date(membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]) : null;
-            const balance = membershipInfo[Common.INPUT.SYSTEM.MEMBERSHIP.BALANCE] || 0;
-            const isPremium = (expiresAt && expiresAt > new Date()) || balance > 0;
-            const indentationSpaces = '4';
-            const showErrorsSwitch = userProperties.getProperty(Common.INPUT.SYSTEM.DISPLAY_ERROR_CARD) || 'OFF';
-            const highlightColor = '#FFFF00';
-            const terminalOutputSwitch = userProperties.getProperty(Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
-            const focusTerminalOutput = 'OFF';
-            const ignoreWhitespaceSwitch = userProperties.getProperty(Common.INPUT.SYSTEM.IGNORE_WHITE_SPACE) || 'ON';
-            const geminiApiKey = MDL.GeminiAgent.getApiKey();
-            const apiResponseModel = MDL.GeminiAgent.getModel();
-            const instructionCellReference = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE) || '';
-            const botApiToken = Common.Modules.TelegramBotSettings.getUserApiKey();
-
-            let result = { ok: false, description: 'Not connected. Please enter your bot token to fetch webhook info.' };
-            if (botApiToken) {
-                const telegramBotClient = new Common.Modules.TelegramBotClient(botApiToken);
-                const response = telegramBotClient.getWebhookInfo();
-
-                if (JSON.parse(response.getContentText()).ok !== true) {
-                    result = { error: 'Unable to fetch webhook info. Please check your bot token and connection.' };
-                } else {
-                    // Parse the result
-                    result = JSON.parse(response.getContentText()).result;
-                }
-            }
-
-            const leds = Common.Modules.App.getLeds({
-                telegramApiKeySet: !!botApiToken,
-                geminiApiKeySet: !!geminiApiKey,
-                llmModelSet: !!apiResponseModel,
-                webhookSet: !!result.url,
-                instructionCellSet: !!instructionCellReference,
-                isPremium: isPremium,
-            });
-
-            return {
-                indentation_spaces: parseInt(indentationSpaces, 10),
-                show_errors_switch: showErrorsSwitch,
-                highlight_color: highlightColor,
-                terminal_output_switch: terminalOutputSwitch,
-                focus_terminal_output: focusTerminalOutput,
-                [Common.INPUT.SYSTEM.IGNORE_WHITE_SPACE]: ignoreWhitespaceSwitch,
-                // Telegram Bot Info
-                [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: botApiToken,
-                // Gemini API Info
-                [Common.INPUT.GEMINI.GEMINI_API_KEY]: geminiApiKey,
-                [Common.INPUT.GEMINI.GEMINI_MODEL]: apiResponseModel,
-                // Membership Info
-                [Common.INPUT.SYSTEM.MEMBERSHIP.MEMBERSHIP_KEY]: membershipInfo,
-                [Common.INPUT.SYSTEM.MEMBERSHIP.IS_PREMIUM]: isPremium,
-                [Common.INPUT.SYSTEM.MEMBERSHIP.BALANCE]: balance,
-                [Common.INPUT.SYSTEM.MEMBERSHIP.EXPIRES_AT]: expiresAt,
-                // Gemini Instruction Cell Reference
-                [Common.INPUT.GEMINI.INSTRUCTION_CELL_REFERENCE]: instructionCellReference,
-                // Package Info
-                package: Addon.Package,
-                leds: leds,
-                webhookInfo: result
-            };
-        },
-        getLeds(params = {
-            telegramApiKeySet: false,
-            geminiApiKeySet: false,
-            llmModelSet: false,
-            webhookSet: false,
-            instructionCellSet: false,
-            isPremium: false,
-        }) {
-            const ledsMap = [
-                params.telegramApiKeySet ? '🟢' : '🔴',
-                params.geminiApiKeySet ? '🟢' : '🔴',
-                params.llmModelSet ? '🟢' : '🔴',
-                params.webhookSet ? '🟢' : '🔴',
-                params.instructionCellSet ? '🟢' : '🔴',
-                params.isPremium ? '🟢' : '🔴',
-            ];
-
-            // Return string of leds.
-            return ledsMap.join(' ');
-        }
-    },
     Sheet: {
         version: '1.0.0',
         INVALID_MODEL_ERROR: 'Sheet model must have a valid name property',
@@ -993,6 +960,37 @@ Common.Modules = {
     }
 };
 
+Addon.Media = {
+    DEFAULT_IMAGE_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/220x220.png',
+    WELCOME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/480x480_welcome.png',
+    MATH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-math.webp',
+    THANK_YOU_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-thank-you.webp',
+    YOU_GOT_IT_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-you-got-it.webp',
+    BIG_TIME_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-big-time.webp',
+    PEACH_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-peach.webp',
+    HAVE_A_NICE_DAY_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-have-a-nice-day.webp',
+    I_AM_THINKING_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-i-am-thinking.webp',
+    WAIT_FOR_IT_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-wait-for-it.webp',
+    YES_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-yes.webp',
+    PAY_ATTENTION_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-pay-attention.webp',
+    KISS_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-kiss.webp',
+    CHEERS_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-cheers.webp',
+    BLINK_IMG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/bitmoji-blink.webp',
+    LOGO_PNG_URL: 'https://raw.githubusercontent.com/ilanlal/telegram-bot-studio/main/assets/google-workspace-marketplace/128x128.png'
+};
+
+Addon.Package = {
+    name: 'Telegram Bot Studio (TBS)',
+    short_description: 'A suite of tools for building Telegram Bots on Google Workspace.',
+    description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
+    version: '1.1.0',
+    build: '20260404.232000',
+    author: 'Ilan Laloum',
+    license: 'MIT',
+    imageUrl: Addon.Media.LOGO_PNG_URL,
+    gitRepository: 'https://github.com/ilanlal/telegram-bot-studio'
+};
+
 Addon.MCP = {
     Host: {
         handleWebhookEvent(activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet(), e = {}) {
@@ -1469,7 +1467,7 @@ Addon.Home = {
         Load: (e) => {
             const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
             // Build and return the Home Card
-            const appModelData = Common.Modules.App.getData();
+            const appModelData = Addon.getData();
 
             // Build and return the Home Card
             const homeCard = Addon.Home.View.HomeCard(appModelData);
@@ -1490,7 +1488,7 @@ Addon.Home = {
         },
         PushHomeCard: (e) => {
             // Build and return the Home Card
-            const data = Common.Modules.App.getData();
+            const data = Addon.getData();
 
             // Return action response to update card
             return CardService.newActionResponseBuilder()
@@ -1502,7 +1500,7 @@ Addon.Home = {
         },
         UpdateHomeCard: (e) => {
             // Build and return the Home Card
-            const data = Common.Modules.App.getData();
+            const data = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(CardService.newNavigation()
                     .updateCard(Addon.Home.View.HomeCard(data)))
@@ -1510,7 +1508,7 @@ Addon.Home = {
         },
         PushAboutCard: (e) => {
             // Build and return the About Card
-            const data = Common.Modules.App.getData();
+            const data = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(CardService.newNavigation()
                     .pushCard(Addon.Home.View.AboutCard(data)))
@@ -1518,7 +1516,7 @@ Addon.Home = {
         },
         PushHelpCard: (e) => {
             // Build and return the Help Card
-            const data = Common.Modules.App.getData();
+            const data = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(CardService.newNavigation()
                     .pushCard(Addon.Home.View.HelpCard(data))).
@@ -1814,7 +1812,7 @@ Addon.Settings = {
     Controller: {
         PushHomeCard: (e) => {
             // Build and return the Settings Home Card
-            const appModelData = Common.Modules.App.getData();
+            const appModelData = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1833,16 +1831,16 @@ Addon.Settings = {
                 PropertiesService.getDocumentProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN, secretPrivateKey);
             }
 
-            // terminal_output_switch
+            // Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT
             const terminalOutputSwitch = e?.commonEventObject?.formInputs?.[Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT]?.stringInputs?.value?.[0] || 'ON';
             PropertiesService.getDocumentProperties().setProperty(Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT, terminalOutputSwitch === 'ON' ? 'ON' : 'OFF');
 
-            // enable_event_logging
+            // Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING
             const enableEventLogging = e?.commonEventObject?.formInputs?.[Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING]?.stringInputs?.value?.[0] || 'OFF';
             PropertiesService.getDocumentProperties().setProperty(Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING, enableEventLogging === 'ON' ? 'ON' : 'OFF');
 
 
-            // show_errors_switch
+            // Display error card after json error
             const showErrorsSwitch = e?.commonEventObject?.formInputs?.[Common.INPUT.SYSTEM.DISPLAY_ERROR_CARD]?.stringInputs?.value?.[0] || 'ON';
             PropertiesService.getDocumentProperties().setProperty(Common.INPUT.SYSTEM.DISPLAY_ERROR_CARD, showErrorsSwitch === 'ON' ? 'ON' : 'OFF');
 
@@ -1855,7 +1853,7 @@ Addon.Settings = {
             PropertiesService.getDocumentProperties().setProperty(Common.INPUT.GEMINI.GEMINI_MODEL, geminiModel);
 
             // Build and return the Home Card
-            const appModelData = Common.Modules.App.getData();
+            const appModelData = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -1889,17 +1887,6 @@ Addon.Settings = {
     },
     View: {
         HomeCard: (data = {}) => {
-            // Data Initialization
-            // Create a random demo key if none exists (for display purposes)
-            const privateKeyDemo = Array(65).fill(0).map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
-
-            // Fetch properties with robust fallbacks
-            data[Common.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL] = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_ENDPOINT_URL) || 'https://api.telegram.org/';
-            data.terminal_output_switch = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
-            data.txt_secret_private_key = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN) || privateKeyDemo;
-            data.enable_event_logging = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING) || 'ON';
-            data.show_errors_switch = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.SYSTEM.DISPLAY_ERROR_CARD) || 'OFF';
-
             const cardBuilder = CardService.newCardBuilder()
                 .setName(Addon.Settings.name + '-Home')
                 .setHeader(CardService.newCardHeader()
@@ -1974,7 +1961,7 @@ Addon.Settings = {
                         CardService.newSwitch()
                             .setFieldName(Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING)
                             .setValue('ON')
-                            .setSelected(data.enable_event_logging === 'ON')
+                            .setSelected(data[Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING] === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
                     )
             );
@@ -2030,7 +2017,7 @@ Addon.UserProfile = {
     Controller: {
         PushHomeCard(e) {
             try {
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2049,7 +2036,7 @@ Addon.UserProfile = {
                     'trial');
 
                 // Build and return the Home Card
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2081,7 +2068,7 @@ Addon.UserProfile = {
                 Common.Modules.CRM.Membership.revoke();
 
                 // Build and return the Home Card
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2273,7 +2260,7 @@ Addon.TelegramBotConnection = {
                     refresh: 'true'
                 };
                 // Build and return the Home Card
-                const appModelData = Common.Modules.App.getData();
+                const appModelData = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2320,7 +2307,7 @@ Addon.TelegramBotConnection = {
                 PropertiesService.getDocumentProperties().deleteProperty(Common.INPUT.TELEGRAM_BOT.BOT_FRIENDLY_NAME);
                 PropertiesService.getDocumentProperties().deleteProperty(Common.INPUT.TELEGRAM_BOT.BOT_USERNAME);
                 // Build and return the Home Card
-                const appModelData = Common.Modules.App.getData();
+                const appModelData = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -2913,7 +2900,7 @@ Addon.GeminiAgent = {
             try {
                 // Extract any necessary data from the event object if needed
                 // const formInputs = e?.commonEventObject?.formInputs || {};
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
 
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
@@ -2931,7 +2918,7 @@ Addon.GeminiAgent = {
         },
         PushSetupCard(e) {
             try {
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
 
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
@@ -2990,7 +2977,7 @@ Addon.GeminiAgent = {
                 Common.Modules.GeminiAgent.saveModel(model);
 
                 // Push Setup Card to show the connected status and allow the user to test the connection or set instructions.
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -3032,7 +3019,7 @@ Addon.GeminiAgent = {
                 Common.Modules.GeminiAgent.clearApiKey();
                 Common.Modules.GeminiAgent.clearModel();
                 // Build and return the Home Card
-                const data = Common.Modules.App.getData();
+                const data = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -3637,7 +3624,7 @@ Addon.MCPCard = {
             try {
                 // Extract any necessary data from the event object if needed
                 // const formInputs = e?.commonEventObject?.formInputs || {};
-                let data = Common.Modules.App.getData();
+                let data = Addon.getData();
                 return CardService.newActionResponseBuilder()
                     .setNavigation(
                         CardService.newNavigation()
@@ -3652,7 +3639,7 @@ Addon.MCPCard = {
             }
         },
         PushClientManagementCard(e) {
-            let data = Common.Modules.App.getData();
+            let data = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -3661,7 +3648,7 @@ Addon.MCPCard = {
                 ).build();
         },
         PushServerManagementCard(e) {
-            let data = Common.Modules.App.getData();
+            let data = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
@@ -3670,7 +3657,7 @@ Addon.MCPCard = {
                 ).build();
         },
         PushMCPSettingsCard(e) {
-            let data = Common.Modules.App.getData();
+            let data = Addon.getData();
             return CardService.newActionResponseBuilder()
                 .setNavigation(
                     CardService.newNavigation()
