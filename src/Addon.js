@@ -1452,7 +1452,7 @@ Addon.Home = {
     name: 'Telegram Bot Studio',
     short_description: 'A suite of tools for Telegram Bots',
     description: 'A collection of plugins for building Telegram Bots using Telegram Bot Studio on Google Workspace.',
-    version: '1.0.0',
+    version: '2.0.0',
     listOfTools: [{   // Gemini Assistant Tool
         name: 'Gemini Assistant',
         emoji: '💫',
@@ -1807,7 +1807,7 @@ Addon.Settings = {
     name: 'Settings',
     short_description: 'Manage bot settings and preferences',
     description: 'The Settings card allows you to manage and configure settings for your Telegram bot add-on. You can adjust preferences, set up integrations, and customize the behavior of your bot to suit your needs.',
-    version: '1.0.0',
+    version: '2.0.0',
     imageUrl: Addon.Media.WELCOME_IMG_URL,
     Controller: {
         PushHomeCard: (e) => {
@@ -2012,7 +2012,7 @@ Addon.UserProfile = {
     name: 'User Profile',
     short_description: 'Manage your account and membership',
     description: 'The User Profile plugin allows you to manage your account information, view your membership status, and upgrade to premium features. You can easily access your profile details and make changes to your subscription directly from this card.',
-    version: '1.0.0',
+    version: '2.0.0',
     imageUrl: Addon.Media.YOU_GOT_IT_IMG_URL,
     Controller: {
         PushHomeCard(e) {
@@ -3720,7 +3720,7 @@ Addon.ConfirmationCard = {
     name: 'Confirmation Card',
     short_description: 'Standardized confirmation dialog',
     description: 'A reusable confirmation dialog plugin to standardize user confirmations across various actions within the Telegram Bot Studio environment.',
-    version: '1.0.0',
+    version: '2.0.0',
     imageUrl: Addon.Media.PAY_ATTENTION_IMG_URL,
     Controller: {
         Load: (e = {}) => {
