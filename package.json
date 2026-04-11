@@ -1,5 +1,5 @@
 {
-  "name": "@ilanlal/template-bot-studio",
+  "name": "@ilanlal/telegram-bot-studio",
   "version": "1.2.0",
   "description": "A template for building Telegram Bot Studio add-ons using Google Apps Script.",
   "keywords": [
@@ -11,14 +11,18 @@
   "license": "MIT License",
   "author": "Ilan Laloum <ilanlal@gmail.com> (https://github.com/ilanlal)",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "./src/index.js",
   "bugs": {
-    "url": "https://github.com/ilanlal/template-bot-studio/issues"
+    "url": "https://github.com/ilanlal/telegram-bot-studio/issues"
   },
-  "homepage": "https://github.com/ilanlal/template-bot-studio#readme",
+  "homepage": "https://github.com/ilanlal/telegram-bot-studio#readme",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilanlal/telegram-bot-studio.git"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

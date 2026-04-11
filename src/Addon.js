@@ -101,7 +101,32 @@ class Addon {
     }
 };
 
-class Common { };
+class Common {
+    static get LANGUAGE_CODES() {
+        return {
+            en: { name: 'English', nativeName: 'English' },
+            es: { name: 'Spanish', nativeName: 'Español' },
+            fr: { name: 'French', nativeName: 'Français' },
+            ar: { name: 'Arabic', nativeName: 'العربية' },
+            de: { name: 'German', nativeName: 'Deutsch' },
+            it: { name: 'Italian', nativeName: 'Italiano' },
+            pt: { name: 'Portuguese', nativeName: 'Português' },
+            ru: { name: 'Russian', nativeName: 'Русский' },
+            zh: { name: 'Chinese', nativeName: '中文' },
+            ja: { name: 'Japanese', nativeName: '日本語' },
+            ko: { name: 'Korean', nativeName: '한국어' },
+            he: { name: 'Hebrew', nativeName: 'עברית' },
+            fa: { name: 'Persian', nativeName: 'فارسی' },
+            hi: { name: 'Hindi', nativeName: 'हिन्दी' },
+            bn: { name: 'Bengali', nativeName: 'বাংলা' },
+            tr: { name: 'Turkish', nativeName: 'Türkçe' },
+            vi: { name: 'Vietnamese', nativeName: 'Tiếng Việt' },
+            th: { name: 'Thai', nativeName: 'ไทย' },
+            ms: { name: 'Malay', nativeName: 'Bahasa Melayu' },
+            id: { name: 'Indonesian', nativeName: 'Bahasa Indonesia' }
+        };
+    }
+};
 
 Common.INPUT = {
     version: '1.0.0',
