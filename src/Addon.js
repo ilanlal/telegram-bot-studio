@@ -241,22 +241,38 @@ Common.INPUT = {
 
 Common.Modules = {
     Sheet: {
-        version: '1.1.0',
+        version: "2.0.0",
         get WEBHOOK_EVENT_SHEET_META() {
             return {
-                name: '📑 Event Log',
-                columns: ['Timestamp', 'Source', 'Message', 'Event Object', 'More Info']
+                name: "📑 Event Log",
+                columns: [
+                    "Timestamp",
+                    "Source",
+                    "Message",
+                    "Event Object",
+                    "More Info"
+                ]
             };
         },
+        /// End of Webhook Event Sheet Metadata
         get TERMINAL_OUTPUT_SHEET_META() {
             return {
-                name: '💻 Terminal Output',
-                columns: ['Timestamp', 'Event', 'Model', 'Payload', 'Prompt', 'Response', 'Generated Text', 'Usage', 'Total Tokens', 'Prompt Tokens', 'Thoughts Tokens', 'Cached Content Tokens', 'Candidates Tokens', 'Tool Use Prompt Tokens']
+                name: "💻 Terminal Output",
+                columns: [
+                    "Timestamp", "Event",
+                    "Model", "Payload", "Prompt",
+                    "Response", "Generated Text", "Usage",
+                    "Total Tokens", "Prompt Tokens",
+                    "Thoughts Tokens",
+                    "Cached Content Tokens",
+                    "Candidates Tokens",
+                    "Tool Use Prompt Tokens"
+                ]
             };
         },
         initializeSheet(activeSpreadsheet, sheetMeta = {}) {
             if (!sheetMeta.name) {
-                throw new Error('Sheet model must have a valid name property');
+                throw new Error("Sheet model must have a valid name property");
             }
 
             let sheet = activeSpreadsheet.getSheetByName(sheetMeta.name);
