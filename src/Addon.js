@@ -467,14 +467,7 @@ Common.Modules = {
 
         /**
         * Set the list of the bot's commands. See https://core.telegram.org/bots/api#botcommand for details on the command structure.
-        * @param {Object} params - The parameters for setting the bot's commands.
-        * @param {Array} params.commands - The list of commands to set.
-        * @param {string} [params.language_code] - The language code for the commands.
-        * @param {Object} [params.scope] - The scope of the commands.
         * @see https://core.telegram.org/bots/api#setmycommands
-        * @throws {Error} If the commands parameter is empty.
-        * @returns {HTTPResponse} The response from the API.
-        *
         */
         setMyCommands({ commands = [], language_code }) {
             if (commands.length === 0) {
