@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Addon.ExportApiResultWidget
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.ResultWidget
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Export API Result Widget Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.ExportApiResultWidget` |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.ResultWidget` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Addon.ExportApiResultWidget` object implements a reusable widget for exporting API result data to Google Sheets, enabling users to dump results for analysis and record-keeping. It integrates with PropertiesService for JSON formatting settings and uses CardService for UI.
+The `Addon.ResultWidget` object implements a reusable widget for exporting API result data to Google Sheets, enabling users to dump results for analysis and record-keeping. It integrates with PropertiesService for JSON formatting settings and uses CardService for UI. The widget is embedded in other plugins' result sections.
 
 ---
 
@@ -29,7 +29,7 @@ The `Addon.ExportApiResultWidget` object implements a reusable widget for export
 
 - [x] Exports API results to specified sheet.
 - [x] Supports pretty-printed JSON based on settings.
-- [x] Integrates with other plugins via BuildExportWidget.
+- [x] Integrates with other plugins via `BuildExportWidget`.
 - [x] Handles errors with notifications and logging.
 
 ---
@@ -52,7 +52,7 @@ The UI is built using Google Apps Script's CardService, rendering a decorated te
 - **Text:** "Export to Sheet"
 - **Bottom Label:** Action description.
 - **Start Icon:** Save icon.
-- **Button:** "Export" with onClickAction to DumpApiResultToSheet.
+- **Button:** "Export" with onClickAction to `DumpApiResultToSheet`.
 
 ---
 
@@ -60,20 +60,20 @@ The UI is built using Google Apps Script's CardService, rendering a decorated te
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Addon.ExportApiResultWidget.Controller` with `DumpApiResultToSheet(e)` for export logic.
-- **View:** `Addon.ExportApiResultWidget.View` with `BuildExportWidget(botName, apiAction, result)` for widget building.
-- **Service/Model:** Integrates with `Common.Modules.Sheet.dumpObjectToSheet`, `PropertiesService` for settings.
+- **Controller:** `Addon.ResultWidget.Controller` with `DumpApiResultToSheet(e)` for export logic, including sheet creation, data formatting, and logging.
+- **View:** `Addon.ResultWidget.View` with `BuildExportWidget(botName, action, result)` for widget building, using CardService components.
+- **Service/Model:** Integrates with `Common.Modules.Sheet.dumpObjectToSheet`, `PropertiesService` for settings, `TerminalOutput` for logging.
 
 ### 4.2 Data Interactions
 
 **Sheet Export:**
 
 - Dumps to specified sheet (e.g., "📦 API Dumps").
-- Includes timestamp, bot, action, raw data, and fields.
+- Includes timestamp, bot name, action, raw data, and parsed fields.
 
 **Properties Service:**
 
-- Retrieves `praittfy_json` for formatting.
+- Retrieves `prettify_json` for formatting.
 
 ---
 
@@ -87,6 +87,7 @@ The UI is built using Google Apps Script's CardService, rendering a decorated te
 
 - Data exported to user sheets; no external sharing.
 - JSON formatting optional; raw data logged securely.
+- No sensitive data exposure in exports.
 
 ---
 
@@ -95,4 +96,4 @@ The UI is built using Google Apps Script's CardService, rendering a decorated te
 - **Invalid Data:** Throws error; shows notification.
 - **Sheet Access:** Errors logged to TerminalOutput.
 - **Formatting Issues:** Falls back to raw JSON.
-- **Large Data:** Handled by Sheet API limits.
+- **Large Data:** Handled by Sheet API limits; truncates if necessary.

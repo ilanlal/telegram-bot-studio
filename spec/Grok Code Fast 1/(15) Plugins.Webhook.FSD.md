@@ -11,7 +11,7 @@
 
 ### 1.1 Summary
 
-The `Addon.Webhook` object implements webhook configuration and management for Telegram Bot Studio, a Google Workspace add-on. It allows users to set, update, and delete webhooks, view status, and handle pending updates via Telegram API calls.
+The `Addon.Webhook` object implements webhook configuration and management for Telegram Bot Studio, a Google Workspace add-on. It allows users to set, update, and delete webhooks, view status, and handle pending updates via Telegram API calls. The plugin enables real-time updates and message handling for bots.
 
 ---
 
@@ -75,7 +75,7 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 
 **Sheet Export:**
 
-- Via `Addon.ExportApiResultWidget`.
+- Via `Addon.ResultWidget`.
 
 ---
 

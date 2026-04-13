@@ -1,17 +1,17 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Addon
+# Functional Specification Document (FSD) - Telegram Bot Studio Plugins
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Telegram Bot Studio Addon |
+| **Feature Name** | Telegram Bot Studio Plugins |
 | **Module** | [`src/Addon.js`](../../src/Addon.js) |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Addon.js` file implements the core plugin architecture for Telegram Bot Studio, a Google Workspace add-on for managing Telegram bots. It provides a modular system of plugins (e.g., Connection, GetMe, GetChat, Webhook, JsonTools) that handle bot authentication, API interactions, UI rendering via CardService, and data persistence. The architecture supports MVC patterns, with Controllers for logic, Views for UI, and integrated services for Telegram API calls and sheet operations.
+`Addon.js` implements a modular plugin system for Telegram Bot Studio, a Google Workspace add-on for managing Telegram bots. It provides plugins for bot connection, webhook management, API interactions (GetMe, GetChat), Gemini AI integration, settings, user profiles, and utility tools like JSON result export. The architecture uses MVC patterns with Controllers for logic, Views for CardService UI, and integrated services for Telegram API calls, sheet operations, and property storage. Plugins are organized under the `Addon` object, supporting extensibility and consistent structure.
 
 ---
 
@@ -19,61 +19,83 @@ The `Addon.js` file implements the core plugin architecture for Telegram Bot Stu
 
 **As a** Bot Developer  
 **I want to** use a modular plugin system in Google Sheets  
-**So that** I can easily connect, configure, and manage my Telegram bots through a visual interface.
+**So that** I can easily connect, configure, manage bots, and perform API operations through a visual interface.
 
 **As a** Google Workspace User  
-**I want to** access bot management features like webhook setup, chat inspection, and JSON tools  
+**I want to** access plugins for bot setup, webhook config, chat inspection, AI assistance, and settings  
 **So that** I can build and monitor bots without deep coding knowledge.
 
 ### 2.1 Acceptance Criteria
 
-- [x] Addon are organized in a `Addon` object with consistent structure (id, name, Controller, View).
-- [x] Core modules (App, Sheet, TerminalOutput) handle data and logging.
-- [x] UI uses CardService for sidebar cards, with navigation and actions.
-- [x] API interactions via `TelegramBotClient` for methods like `getMe`, `getChat`, `setWebhook`.
-- [x] Properties stored in `PropertiesService` for persistence.
-- [x] Error handling with notifications and logging to sheets.
+- [x] Plugins are organized in the `Addon` object with consistent structure (id, name, Controller, View).
+- [x] Core plugins: Home, Settings, UserProfile, TelegramBotConnection, Webhook, GeminiAgent, GetMe, GetChat, ConfirmationCard, ResultWidget.
+- [x] UI uses CardService for sidebar cards, with navigation via pushCard, updateCard, popCard.
+- [x] API interactions via `TelegramBotClient` and `GeminiApiClient` for bot and AI operations.
+- [x] Data persistence in `PropertiesService` (document/user/script properties).
+- [x] Error handling with notifications, logging to sheets, and confirmation dialogs.
+- [x] Premium features gated by membership status.
 
 ---
 
 ## 3. UI/UX Design (CardService)
 
-The UI is built using Google Apps Script's CardService, rendering in the sidebar. Each plugin has a HomeCard for primary interaction, with sections for input, status, and actions. Navigation uses pushCard, updateCard, and popToRoot. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
+The UI is built using Google Apps Script's CardService, rendering in the sidebar. Each plugin has a HomeCard for primary interaction, with sections for input, status, and actions. Navigation uses pushCard, updateCard, popCard. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
 
 ### 3.1 Card Flow
 
 1. **Entry Point:** Home plugin loads the main dashboard, showing plugin list and connection status.
-2. **Plugin Access:** User selects a plugin (e.g., GetMe, GetChat, Webhook, JsonTools) from the grid.
+2. **Plugin Access:** User selects a plugin from the grid or sections.
 3. **Interaction Cards:** Each plugin has a HomeCard for input/results, with footers for actions.
-4. **Confirmation:** Destructive actions (e.g., disconnect, delete webhook) use `ConfirmationCard`.
+4. **Confirmation:** Destructive actions use `ConfirmationCard`.
 5. **Results:** API responses displayed in `BuildResultSection` with grids and raw JSON.
 
 ### 3.2 Widget Specifications
 
 **Home Card (`Addon.Home.View.HomeCard`):**
 
-- **Header:** Title: "Telegram Bot Studio", Subtitle: Package short_description, Image: Logo.
-- **Section 1:** `WelcomeSection` (connection status).
-- **Section 2:** Grid of plugin buttons (e.g., GetMe, GetChat, Webhook, JsonTools).
-- **Section 3:** Quick actions (Settings, Help, About).
-- **Section 4 (Conditional):** Premium CTA if not premium.
+- **Header:** Title: "Telegram Bot Studio", Subtitle: LEDs status, Image: Logo.
+- **Sections:** WelcomeSection (connection status), tool grid, quick access, premium CTA.
+- **Footer:** None or premium upgrade.
 
-**Connection Card (`Addon.Connection.View.HomeCard`):**
+**Connection Card (`Addon.TelegramBotConnection.View.HomeCard`):**
 
-- **Header:** Title: "Connection", Image: Welcome.
-- **Section 1:** Token input (`TextInput`), Connect button.
-- **Footer:** Primary button for Connect.
+- **Header:** Title: "Bot Connection Management".
+- **Sections:** Token input, storage options.
+- **Footer:** Connect button.
 
 **Webhook Card (`Addon.Webhook.View.HomeCard`):**
 
 - **Header:** Title: "Webhook Configurator".
-- **Section 1:** Status (URL, pending updates).
-- **Section 2:** Form inputs (URL, max connections, etc.).
+- **Sections:** Status, configuration inputs, raw data.
 - **Footer:** Set/Update or Delete button.
 
-**GetMe/GetChat Cards:** Similar, with result sections showing API data in grids.
+**Gemini Agent Card (`Addon.GeminiAgent.View.SetupCard`):**
 
-**JsonTools Card:** Provides JSON utilities (beautify, minify, validate) via buttons in a collapsible section.
+- **Header:** Title: "Gemini Agent Setup".
+- **Sections:** API key input, model selector, instruction binding.
+- **Footer:** Save button.
+
+**GetMe/GetChat Cards:** Similar, with result sections.
+
+**Settings Card (`Addon.Settings.View.HomeCard`):**
+
+- **Header:** Title: "Settings".
+- **Sections:** Network & security, developer tools.
+- **Footer:** Save button.
+
+**UserProfile Card (`Addon.UserProfile.View.HomeCard`):**
+
+- **Header:** Title: "Account Overview".
+- **Sections:** Membership, features.
+- **Footer:** None.
+
+**Confirmation Card (`Addon.ConfirmationCard.View.HomeCard`):**
+
+- **Header:** Title: Custom, Image: Attention.
+- **Sections:** Message.
+- **Footer:** Confirm/Cancel buttons.
+
+**Result Widget:** Embedded in other cards for export actions.
 
 ---
 
@@ -81,26 +103,32 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** Each plugin has a `Controller` object with methods like `Load(e)` for rendering, handling form inputs, and API calls.
-- **View:** `View` objects build CardService cards, using helpers like `BuildResultSection`.
-- **Service/Model:** Integrated via `TelegramBotClient` for API, `Common.Modules` for sheets/logging, `PropertiesService` for storage.
+- **Controller:** Each plugin has a `Controller` object with methods like `Load(e)`, `Connect(e)`, handling form inputs, API calls, and navigation.
+- **View:** `View` objects build CardService cards, using helpers like `BuildResultSection`, `BuildExportWidget`.
+- **Service/Model:** Integrated via `TelegramBotClient`, `GeminiApiClient`, `Common.Modules` for sheets/logging, `PropertiesService` for storage.
 
 ### 4.2 Data Interactions
 
 **Google Sheets (`SpreadsheetApp`):**
 
-- **Read:** User properties for settings (e.g., `txt_bot_api_token`).
-- **Write:** Logs to "Terminal Output" sheet via `TerminalOutput.write`, dumps API results to sheets via `Sheet.dumpObjectToSheet`.
+- **Read:** Properties for settings (e.g., tokens, keys).
+- **Write:** Logs to "Terminal Output" or "Event Log" sheets via `TerminalOutput.write`, dumps via `Sheet.dumpObjectToSheet`.
 
 **Telegram API (`UrlFetchApp`):**
 
-- **Endpoints:** `https://api.telegram.org/bot<token>/getMe`, `/getChat`, `/getWebhookInfo`, `/setWebhook`, `/deleteWebhook`.
-- **Payload:** JSON for POST requests (e.g., setWebhook with URL, options).
+- **Endpoints:** `getMe`, `getChat`, `getWebhookInfo`, `setWebhook`, `deleteWebhook`.
+- **Payload:** JSON for POST requests.
+
+**Gemini API (`UrlFetchApp`):**
+
+- **Endpoint:** `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`.
+- **Payload:** JSON with contents.
 
 **Properties Service:**
 
-- **UserProperties:** Stores tokens, settings (e.g., `txt_bot_api_token`, `terminal_output_switch`).
-- **ScriptProperties:** For global config (e.g., logging flags).
+- **DocumentProperties:** Bot tokens, API keys, settings.
+- **UserProperties:** Membership info.
+- **ScriptProperties:** Global flags.
 
 ---
 
@@ -108,23 +136,25 @@ The UI is built using Google Apps Script's CardService, rendering in the sidebar
 
 ### 5.1 AppScript Manifest (`appsscript.json`)
 
-- **Scopes:** `https://www.googleapis.com/auth/script.external_request` for API calls, `https://www.googleapis.com/auth/spreadsheets.currentonly` for sheet access.
-- **UrlFetchWhitelist:** `https://api.telegram.org/`.
+- **Scopes:** `https://www.googleapis.com/auth/script.external_request`, `https://www.googleapis.com/auth/spreadsheets.currentonly`.
+- **UrlFetchWhitelist:** `https://api.telegram.org/`, `https://generativelanguage.googleapis.com/`.
 - **Universal Actions:** Home plugin as entry point.
 
 ### 5.2 Security Considerations
 
-- Tokens stored in UserProperties (user-specific, not shared).
-- Input validation for URLs (HTTPS required).
+- Tokens and keys stored in PropertiesService (user-specific).
+- Input validation for URLs (HTTPS required), chat IDs.
 - No sensitive data in logs; tokens masked in display.
+- Confirmation dialogs for destructive actions.
 
 ---
 
 ## 6. Edge Cases & Error Handling
 
-- **No Token:** Addon check `txt_bot_api_token`; throw error if missing.
-- **API Errors:** Parse `ok: false`; show notification with message.
+- **No Token/Key:** Plugins check properties; throw errors if missing.
+- **API Errors:** Parse `ok: false`; show notifications with messages.
 - **Network Failures:** `UrlFetchApp` exceptions logged and notified.
-- **Invalid Inputs:** Form validation (e.g., URL must start with HTTPS).
-- **Sheet Access:** Errors if sheet not found; logged to Terminal Output.
-- **Premium Checks:** Features gated by `isPremium` from App.getData().
+- **Invalid Inputs:** Form validation (e.g., URL format, numeric fields).
+- **Sheet Access:** Errors logged; fallbacks to defaults.
+- **Premium Checks:** Features gated by `isPremium` from membership.
+- **Confirmation Required:** For disconnect, delete, revoke actions.
