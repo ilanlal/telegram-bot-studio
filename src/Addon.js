@@ -1588,7 +1588,7 @@ Addon.Settings = {
     name: 'Settings',
     short_description: 'Manage bot settings and preferences',
     description: 'The Settings card allows you to manage and configure settings for your Telegram bot add-on. You can adjust preferences, set up integrations, and customize the behavior of your bot to suit your needs.',
-    version: '2.0.0',
+    version: '2.0.1',
     imageUrl: Addon.Media.WELCOME_IMG_URL,
     Controller: {
         PushHomeCard: (e) => {
@@ -2674,7 +2674,7 @@ Addon.GeminiAgent = {
     name: 'Gemini Agent',
     short_description: 'Set instructions for your Gemini AI agent',
     description: 'Get intelligent suggestions and improvements for your JSON data using Gemini AI. This plugin analyzes your JSON and provides recommendations for optimization, error correction, and best practices.',
-    version: '1.0.0',
+    version: '1.1.0',
     imageUrl: Addon.Media.BIG_TIME_IMG_URL,
     Controller: {
         PushHomeCard(e) {
@@ -3971,7 +3971,7 @@ Addon.BotSetup = {
 
             for (const code in Common.LANGUAGE_CODES) {
                 const lang = Common.LANGUAGE_CODES[code];
-                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, data.selectedLanguage === code);
+                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, data.targetLanguage === code);
             }
 
             card.addSection(CardService.newCardSection()
