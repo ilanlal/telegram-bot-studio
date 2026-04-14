@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Connection Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.Connection` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.Connection` |
 | **Priority** | High |
 | **Status** | Completed |
 

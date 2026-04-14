@@ -4,33 +4,33 @@
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Telegram Bot Studio Setup Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.BotSetup` |
+| **Feature Name** | Telegram Bot Studio Webhook Plugin |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.Webhook` |
 | **Priority** | High |
 | **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Addon.BotSetup` object implements setup and configuration management for Telegram Bot Studio, a Google Workspace add-on. It allows users to configure bot information such as name, description, short description, and profile picture.
+The `Addon.Webhook` object implements webhook configuration and management for Telegram Bot Studio, a Google Workspace add-on. It allows users to set, update, and delete webhooks, view status, and handle pending updates via Telegram API calls. The plugin enables real-time updates and message handling for bots.
 
 ---
 
 ## 2. User Stories & Rationale
 
 **As a** Bot Developer  
-**I want to** configure multiple language bot information like name, description, short description, profile picture and commands
-**So that** I can provide a better user experience.
+**I want to** configure webhooks for real-time updates  
+**So that** I can receive messages instantly without polling.
 
 **As a** Google Workspace User  
-**I want to** manage bot name, description, short description, profile picture and commands for different languages
-**So that** I can customize the bot's appearance and information for users.
+**I want to** manage webhook settings and status  
+**So that** I can troubleshoot and optimize bot performance.
 
 ### 2.1 Acceptance Criteria
 
-- [x] Support multiple languages for bot information.
-- [x] Set/update bot information with options (name, description, short description, profile picture) for each language.
-- [x] Delete bot information with confirmation.
-- [x] Display current bot information for each language.
+- [x] Fetch webhook info via `getWebhookInfo`.
+- [x] Set/update webhooks with options (URL, IP, max connections, secret token).
+- [x] Delete webhooks with confirmation.
+- [x] Display status, pending updates, and errors.
 - [x] Handle API errors and validations.
 
 ---
@@ -41,7 +41,7 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 
 ### 3.1 Card Flow
 
-1. **Entry Point:** User selects language from a list of supported languages.
+1. **Entry Point:** User selects Webhook; pushes card with status.
 2. **Configuration:** User inputs settings and sets/updates webhook.
 3. **Status Updates:** Refresh shows current webhook info.
 4. **Deletion:** Confirm and delete webhook.
@@ -75,7 +75,7 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 
 **Sheet Export:**
 
-- Via `Addon.ExportApiResultWidget`.
+- Via `Addon.ResultWidget`.
 
 ---
 
