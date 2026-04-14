@@ -3773,8 +3773,9 @@ Addon.BotSetup = {
         },
         SuggestTranslation: function (e) {
             try {
-                // const sourceLanguage = e.formInput.sourceLanguage;
-                const targetLanguage = e.formInput.targetLanguage;
+                const formInput = e.commonEventObject?.formInput || {};
+                const sourceLanguage = formInput.sourceLanguage || '';
+                const targetLanguage = formInput.targetLanguage || '';
                 // Placeholder for translation logic; integrate with Gemini API for suggestions
                 const suggestions = {}; // Implement translation using Gemini
                 const data = { suggestions, selectedLanguage: targetLanguage };
@@ -3794,12 +3795,13 @@ Addon.BotSetup = {
         },
         ExceptTranslation: function (e) {
             try {
-                const language = e.formInput.language;
-                const name = e.formInput.name;
-                const description = e.formInput.description;
-                const shortDescription = e.formInput.shortDescription;
-                const profilePicture = e.formInput.profilePicture;
-                const commands = e.formInput.commands;
+                const formInput = e.commonEventObject?.formInput || {};
+                const language = formInput.language || '';
+                const name = formInput.name || '';
+                const description = formInput.description || '';
+                const shortDescription = formInput.shortDescription || '';
+                const profilePicture = formInput.profilePicture || '';
+                const commands = formInput.commands || '';
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 const botClient = new Common.Modules.TelegramBotClient(token);
                 // Call appropriate API methods
@@ -3820,7 +3822,8 @@ Addon.BotSetup = {
         },
         DeleteBotInfo: function (e) {
             // Use confirmation card for deletion
-            const language = e.formInput.language;
+            const formInput = e.commonEventObject?.formInput || {};
+            const language = formInput.language || '';
             const title = 'Delete Bot Info';
             const message = `Are you sure you want to delete bot information for language: ${language}?`;
             const onClickFunctionName = 'Addon.BotSetup.Controller.ConfirmDeleteBotInfo';
@@ -3833,7 +3836,8 @@ Addon.BotSetup = {
         },
         ConfirmDeleteBotInfo: function (e) {
             try {
-                const language = e.commonEventObject.parameters.language;
+                const formInput = e.commonEventObject?.formInput || {};
+                const language = formInput.language || '';
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 const botClient = new Common.Modules.TelegramBotClient(token);
                 // Implement deletion logic; Telegram API may not support direct deletion, so reset to defaults
