@@ -129,7 +129,7 @@ class Common {
 };
 
 Common.INPUT = {
-    version: '1.0.0',
+    version: '1.0.1',
     get SYSTEM() {
         return {
             get IGNORE_WHITE_SPACE() {
@@ -227,6 +227,21 @@ Common.INPUT = {
             },
             get DROP_PENDING_UPDATES() {
                 return 'DROP_PENDING_UPDATES';
+            },
+            get BOT_COMMANDS() {
+                return 'BOT_COMMANDS';
+            },
+            get BOT_NAME() {
+                return 'BOT_NAME';
+            },
+            get BOT_SHORT_DESCRIPTION() {
+                return 'BOT_SHORT_DESCRIPTION';
+            },
+            get BOT_DESCRIPTION() {
+                return 'BOT_DESCRIPTION';
+            },
+            get BOT_PROFILE_IMAGE() {
+                return 'BOT_PROFILE_IMAGE';
             }
         };
     },

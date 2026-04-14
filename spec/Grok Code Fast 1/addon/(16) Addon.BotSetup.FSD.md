@@ -1,61 +1,67 @@
-# Functional Specification Document (FSD) - Telegram Bot Studio Addon.Webhook
+# Functional Specification Document (FSD) - Telegram Bot Studio Addon.BotSetup
 
 ## 1. Feature Overview
 
 | Metadata | Details |
 | :--- | :--- |
-| **Feature Name** | Telegram Bot Studio Setup Plugin |
-| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.BotSetup` |
+| **Feature Name** | Telegram Bot Studio Bot Setup Plugin |
+| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.BotSetup` |
 | **Priority** | High |
-| **Status** | Draft |
+| **Status** | Completed |
 
 ### 1.1 Summary
 
-The `Addon.BotSetup` object implements setup and configuration management for Telegram Bot Studio, a Google Workspace add-on. It allows users to configure bot information such as name, description, short description, commands, and profile picture.
+The `Addon.BotSetup` object implements a plugin for managing Telegram bot information, including name, description, profile picture, commands, and translations for different languages. It allows users to fetch current bot info, suggest translations using AI, and update or delete bot settings via Telegram API calls. The plugin integrates with Gemini for translation suggestions and uses CardService for UI.
 
 ---
 
 ## 2. User Stories & Rationale
 
 **As a** Bot Developer  
-**I want to** configure multiple language bot information like name, description, short description, profile picture and commands
-**So that** I can provide a better user experience.
+**I want to** manage bot information and translations  
+**So that** I can customize my bot for different languages and update its profile.
 
 **As a** Google Workspace User  
-**I want to** manage bot name, description, short description, profile picture and commands for different languages
-**So that** I can customize the bot's appearance and information for users.
+**I want to** fetch current bot info and get AI-suggested translations  
+**So that** I can easily localize my bot without manual effort.
 
 ### 2.1 Acceptance Criteria
 
-- [x] Support multiple languages for bot information.
-- [x] Set/update bot information with options (name, description, short description, profile picture, commands) for each language.
-- [x] Delete bot information with confirmation.
-- [x] Display current bot information for each language.
-- [x] Handle API errors and validations.
+- [x] Fetch bot info (name, description, short description, commands) for selected language.
+- [x] Suggest translations using Gemini API for target languages.
+- [x] Update bot info via Telegram API (setMyName, setMyDescription, etc.).
+- [x] Delete bot info with confirmation.
+- [x] UI with language dropdowns, input fields, and action buttons.
+- [x] Error handling and notifications.
 
 ---
 
 ## 3. UI/UX Design (CardService)
 
-The UI is built using Google Apps Script's CardService, rendering a configuration card. The plugin uses a single HomeCard with sections for status, config, and actions. Navigation pushes the card and updates on actions. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
+The UI is built using Google Apps Script's CardService, rendering cards for bot setup and suggested translations. The HomeCard includes language selection, input fields, and buttons. SuggestedTranslationCard shows AI-generated translations. Navigation pushes cards and updates on actions. Icons use Material Icons with `setFill(false)`. Colors are defined via `primaryColor()`, `secondaryColor()`, `accentColor()`.
 
 ### 3.1 Card Flow
 
-1. **Entry Point:** User selects language from a dropdown list of supported languages.
-2. **Fetch Current Info:** User fetch the current bot information for the selected language, then update card input fields (name, description, short description, profile picture, commands).
-3. **Suggest Translation:** User select target language from the dropdown and click "Suggest Translation" to fetch suggested translations for the bot information.
-4. **Except Translation:** User clicks "Except Translation" to send the new bot information for the selected language via API, or "Delete" to remove it with confirmation.
+1. **Home Card:** User selects language, fetches info, inputs data, suggests translations.
+2. **Suggested Translation Card:** Review and accept AI suggestions.
+3. **Actions:** Update or delete with confirmations.
 
 ### 3.2 Widget Specifications
 
 **Home Card (`Addon.BotSetup.View.HomeCard`):**
 
-- **Header:** Title: "Bot Setup", Subtitle: "Manage bot information and settings", Image: Logo.
-- **Section 1:** Language selection dropdown and "Fetch Current Info" button.
-- **Section 2:** Input fields for bot name, description, short description, profile picture URL.
-- **Section 3:** "Suggest Translation" button to fetch suggested translations for the bot information based on the selected language.
-- **Section 4:** Input fields populated accordingly to the suggested translations.
-- **Fixed Footer:** "Except Translation" button or "Delete" button with confirmation dialog.
+- **Header:** Title: "Bot Setup", Subtitle: "Manage bot information and settings", Image: HAVE_A_NICE_DAY_IMG_URL.
+- **Section 1:** Language dropdown, Fetch button.
+- **Section 2:** Input fields (name, description, short description, profile picture, commands).
+- **Section 3:** Target language dropdown, Suggest button.
+- **Footer:** Accept Translation, Delete buttons.
+
+**Suggested Translation Card (`Addon.BotSetup.View.SuggestedTranslationCard`):**
+
+- **Header:** Title: "Suggested Translation", Subtitle: "Review and accept suggested translations", Image: HAVE_A_NICE_DAY_IMG_URL.
+- **Section 1:** Target language dropdown.
+- **Section 2:** Suggested input fields (if available).
+- **Footer:** Accept Translation, Delete Translation buttons.
 
 ---
 
@@ -63,18 +69,24 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Addon.BotSetup.Controller` with methods like `PushHomeCard(e)` for rendering/API calls, `FetchCurrentInfo(e)` for fetching current bot information, `SuggestTranslation(e)` for fetching suggested translations, `ExceptTranslation(e)` for sending new bot information, and `DeleteBotInfo(e)` for deleting bot information.
-- **View:** `Addon.BotSetup.View` with `HomeCard(data)` for building the home card.
-- **Service/Model:** Integrates with `Common.Modules.TelegramBotClient` for Telegram bot API calls and `PropertiesService` for token management.
+- **Controller:** `Addon.BotSetup.Controller` with methods like `PushHomeCard(e)`, `FetchCurrentInfo(e)`, `SuggestTranslation(e)`, `ExceptTranslation(e)`, `DeleteBotInfo(e)`, `ConfirmDeleteBotInfo(e)` for handling actions, API calls, and navigation.
+- **View:** `Addon.BotSetup.View` with `HomeCard(data)` and `SuggestedTranslationCard(data)` for building cards.
+- **Service/Model:** Integrates with `Common.Modules.TelegramBotClient` for API, `Common.Modules.GeminiApiClient` for translations, `PropertiesService` for tokens.
 
 ### 4.2 Data Interactions
 
-- **API Calls:** Uses `TelegramBotClient` to interact with Telegram Bot API for fetching and updating bot information.
-- **PropertiesService:** Retrieves bot tokens securely for API authentication.
+**Telegram API (`UrlFetchApp`):**
 
-**Sheet Export:**
+- Methods: `getMyName`, `setMyName`, `getMyDescription`, `setMyDescription`, `getMyShortDescription`, `setMyShortDescription`, `getMyCommands`, `setMyCommands`, `setMyProfilePhoto`.
+- Payload: JSON for POST requests.
 
-- Via `Addon.ResultWidget`.
+**Gemini API (`UrlFetchApp`):**
+
+- For translation suggestions.
+
+**Properties Service:**
+
+- DocumentProperties: Bot token.
 
 ---
 
@@ -87,13 +99,16 @@ The UI is built using Google Apps Script's CardService, rendering a configuratio
 ### 5.2 Security Considerations
 
 - Tokens retrieved securely from PropertiesService.
+- HTTPS for profile picture URLs.
+- Confirmation for destructive actions (delete).
 
 ---
 
 ## 6. Edge Cases & Error Handling
 
-- **No Token:** Throws error; prompts connection.
-- **Invalid URL:** Shows notification; requires HTTPS.
-- **API Errors:** Logs to TerminalOutput; shows notification.
-- **Empty Fields:** Validates input; shows notification if required fields are empty.
-- **Delete Confirmation:** Prompts user to confirm deletion of bot information.
+- **No Token:** Throw error; prompt connection.
+- **API Errors:** Parse responses; show notifications.
+- **Invalid Language:** Use default or validate.
+- **Translation Failures:** Fallback to manual input.
+- **Network Errors:** Log and notify.
+- **Confirmation Required:** For delete actions.
