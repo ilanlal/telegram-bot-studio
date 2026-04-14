@@ -1719,7 +1719,7 @@ Addon.Settings = {
                     .setTitle('🤖 Gemini Model')
                     .setFieldName(Common.INPUT.GEMINI.GEMINI_MODEL);
             // Add available Gemini models as options
-            const geminiModels = Common.Modules.GeminiApiClient.MODELS;
+            const geminiModels = Common.Modules.GeminiAgent.MODELS;
             // Loop through the models and add them as options to the selector
             for (const modelKey in geminiModels) {
                 if (Object.prototype.hasOwnProperty.call(geminiModels, modelKey)) {
@@ -1757,9 +1757,9 @@ Addon.Settings = {
                         CardService.newMaterialIcon().setName('format_align_left').setFill(false)))
                     .setSwitchControl(
                         CardService.newSwitch()
-                            .setFieldName(Common.INPUT.SYSTEM.praittfy_json)
+                            .setFieldName(Common.INPUT.SYSTEM.PRAITY_JSON)
                             .setValue('ON')
-                            .setSelected(data.praittfy_json === 'ON')
+                            .setSelected(data[Common.INPUT.SYSTEM.PRAITY_JSON] === 'ON')
                             .setControlType(CardService.SwitchControlType.CHECK_BOX)
                     )
             );
