@@ -3776,6 +3776,18 @@ Addon.BotSetup = {
                 const formInput = e.commonEventObject?.formInput || {};
                 const sourceLanguage = formInput.sourceLanguage || '';
                 const targetLanguage = formInput.targetLanguage || '';
+                const name = formInput.name || '';
+                const description = formInput.description || '';
+                const shortDescription = formInput.shortDescription || '';
+                const commands = formInput.commands || '';
+                const geminiApiKey = Common.Modules.GeminiAgent.getApiKey();
+
+                const genrated = Common.Modules.GeminiApiClient.generateContent(
+                    geminiApiKey,
+                    Common.Modules.GeminiAgent.MODELS["gemini-3-flash-preview"],
+                    {
+                        systemI
+                    });
                 // Placeholder for translation logic; integrate with Gemini API for suggestions
                 const suggestions = {}; // Implement translation using Gemini
                 const data = { suggestions, selectedLanguage: targetLanguage };
@@ -3796,7 +3808,7 @@ Addon.BotSetup = {
         ExceptTranslation: function (e) {
             try {
                 const formInput = e.commonEventObject?.formInput || {};
-                const language = formInput.targetLanguage  || '';
+                const language = formInput.targetLanguage || '';
                 const name = formInput.name || '';
                 const description = formInput.description || '';
                 const shortDescription = formInput.shortDescription || '';
