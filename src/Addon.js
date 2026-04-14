@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-// src/config/Addon.js
+// src/Addon.js
 class Addon {
     static primaryColor() {
         return '#1976d2';
