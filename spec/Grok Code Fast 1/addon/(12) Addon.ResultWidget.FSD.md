@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Export API Result Widget Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.ResultWidget` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.ResultWidget` |
 | **Priority** | High |
 | **Status** | Completed |
 

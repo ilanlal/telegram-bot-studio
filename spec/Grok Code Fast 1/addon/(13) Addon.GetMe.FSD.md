@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio GetMe Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.GetMe` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.GetMe` |
 | **Priority** | High |
 | **Status** | Completed |
 

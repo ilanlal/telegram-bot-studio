@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Webhook Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.Webhook` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.Webhook` |
 | **Priority** | High |
 | **Status** | Completed |
 

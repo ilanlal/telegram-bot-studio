@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio GetChat Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.GetChat` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.GetChat` |
 | **Priority** | High |
 | **Status** | Completed |
 

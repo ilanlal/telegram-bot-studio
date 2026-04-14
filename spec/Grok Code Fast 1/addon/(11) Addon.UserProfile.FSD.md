@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio User Profile Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.UserProfile` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.UserProfile` |
 | **Priority** | High |
 | **Status** | Completed |
 

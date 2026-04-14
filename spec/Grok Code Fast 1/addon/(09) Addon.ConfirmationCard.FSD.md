@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Confirmation Card Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.ConfirmationCard` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.ConfirmationCard` |
 | **Priority** | High |
 | **Status** | Completed |
 

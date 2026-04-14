@@ -5,7 +5,7 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Feature Name** | Telegram Bot Studio Settings Plugin |
-| **Module** | [`src/Addon.js`](../../src/Addon.js) - `Addon.Settings` |
+| **Module** | [`src/Addon.js`](../../../src/Addon.js) - `Addon.Settings` |
 | **Priority** | High |
 | **Status** | Completed |
 
