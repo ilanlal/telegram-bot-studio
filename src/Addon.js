@@ -428,6 +428,11 @@ Common.Modules = {
             this.telegramEnpBaseUrl = "https://api.telegram.org/bot" + botToken;
         }
 
+        getMyName({ language_code }) {
+            const url = this.getApiBaseUrl() + "/getMyName?language_code=" + language_code;
+            return UrlFetchApp.fetch(url);
+        }
+
         setMyName({ name, language_code }) {
             const data = {
                 'method': "post",
@@ -439,6 +444,11 @@ Common.Modules = {
             const url = this.getApiBaseUrl() + "/setMyName";
             return UrlFetchApp.fetch(url, data);
 
+        }
+
+        getMyDescription({ language_code }) {
+            const url = this.getApiBaseUrl() + "/getMyDescription?language_code=" + language_code;
+            return UrlFetchApp.fetch(url);
         }
 
         setMyDescription({ description, language_code }) {
@@ -453,6 +463,11 @@ Common.Modules = {
             return UrlFetchApp.fetch(url, data);
         }
 
+        getMyShortDescription({ language_code }) {
+            const url = this.getApiBaseUrl() + "/getMyShortDescription?language_code=" + language_code;
+            return UrlFetchApp.fetch(url);
+        }
+
         setMyShortDescription({ short_description, language_code }) {
             const data = {
                 'method': "post",
@@ -463,6 +478,11 @@ Common.Modules = {
             };
             const url = this.getApiBaseUrl() + "/setMyShortDescription";
             return UrlFetchApp.fetch(url, data);
+        }
+
+        getMyCommands({ language_code }) {
+            const url = this.getApiBaseUrl() + "/getMyCommands?language_code=" + language_code;
+            return UrlFetchApp.fetch(url);
         }
 
         /**
@@ -482,6 +502,25 @@ Common.Modules = {
                 }
             };
             const url = this.getApiBaseUrl() + "/setMyCommands";
+            return UrlFetchApp.fetch(url, data);
+        }
+
+        getMyProfilePhoto() {
+            const url = this.getApiBaseUrl() + "/getMyProfilePhoto";
+            return UrlFetchApp.fetch(url);
+        }
+
+        setMyProfilePhoto({ photo }) {
+            if (!photo) {
+                throw new Error("photo is required!");
+            }
+            const data = {
+                'method': "post",
+                'payload': {
+                    'photo': photo
+                }
+            };
+            const url = this.getApiBaseUrl() + "/setMyProfilePhoto";
             return UrlFetchApp.fetch(url, data);
         }
 
@@ -3627,6 +3666,11 @@ Addon.ResultWidget = {
 };
 
 Addon.BotSetup = {
+    id: 'BotSetupPlugin',
+    name: 'Bot Setup',
+    short_description: 'Configure bot information and translations',
+    description: 'A plugin to manage your Telegram bot information, including name, description, profile picture, commands, and translations for different languages.',
+    version: '1.0.0',
     Controller: {
         PushHomeCard: function (e) {
             // Render the home card for bot setup
@@ -3643,14 +3687,42 @@ Addon.BotSetup = {
                 if (!token) throw new Error('Bot token not found');
                 const botClient = new Common.Modules.TelegramBotClient(token);
                 // Note: Telegram API does not have a single getBotInfo; fetching individual fields if available
-                // For now, assume we fetch from stored properties or API if possible
-                const info = {}; // Placeholder; implement fetching logic as needed
+                const nameResponse = botClient.getMyName({ language_code: language });
+                if (JSON.parse(nameResponse.getContentText()).ok !== true) {
+                    throw new Error('Failed to fetch bot name');
+                }
+
+                const descriptionResponse = botClient.getMyDescription({ language_code: language });
+                if (JSON.parse(descriptionResponse.getContentText()).ok !== true) {
+                    throw new Error('Failed to fetch bot description');
+                }
+
+                const shortDescriptionResponse = botClient.getMyShortDescription({ language_code: language });
+                if (JSON.parse(shortDescriptionResponse.getContentText()).ok !== true) {
+                    throw new Error('Failed to fetch bot short description');
+                }
+
+                const commandsResponse = botClient.getMyCommands({ language_code: language });
+                if (JSON.parse(commandsResponse.getContentText()).ok !== true) {
+                    throw new Error('Failed to fetch bot commands');
+                }
+
+                const info = {
+                    name: JSON.parse(nameResponse.getContentText()).result,
+                    description: JSON.parse(descriptionResponse.getContentText()).result,
+                    shortDescription: JSON.parse(shortDescriptionResponse.getContentText()).result,
+                    commands: JSON.parse(commandsResponse.getContentText()).result
+                };
+
                 // Update card with fetched data
                 const card = Addon.BotSetup.View.HomeCard({ ...info, selectedLanguage: language });
                 return CardService.newActionResponseBuilder()
                     .setNavigation(CardService.newNavigation().updateCard(card))
                     .build();
             } catch (error) {
+                if(typeof console !== 'undefined') {
+                    console.error('Error in FetchCurrentInfo:', error);
+                }
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText('Error fetching info: ' + error.message))
                     .build();
@@ -3735,10 +3807,11 @@ Addon.BotSetup = {
     View: {
         HomeCard: function (data) {
             const card = CardService.newCardBuilder()
+                .setName(Addon.BotSetup.id + '-Home')
                 .setHeader(CardService.newCardHeader()
                     .setTitle('Bot Setup')
                     .setSubtitle('Manage bot information and settings')
-                    .setImageUrl(Addon.Media.LOGO_PNG_URL));
+                    .setImageUrl(Addon.Media.HAVE_A_NICE_DAY_IMG_URL));
 
             // Section 1: Language selection
             const languageDropdown = CardService.newSelectionInput()
