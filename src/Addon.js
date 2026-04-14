@@ -3796,7 +3796,7 @@ Addon.BotSetup = {
         ExceptTranslation: function (e) {
             try {
                 const formInput = e.commonEventObject?.formInput || {};
-                const language = formInput.targetLanguage || '';
+                const language = formInput.targetLanguage  || '';
                 const name = formInput.name || '';
                 const description = formInput.description || '';
                 const shortDescription = formInput.shortDescription || '';
