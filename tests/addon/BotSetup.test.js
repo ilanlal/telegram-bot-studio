@@ -22,7 +22,65 @@ describe('Addon.BotSetup', () => {
             expect(Addon.BotSetup.name).toBeDefined();
         });
 
-        // FetchCurrentInfo
+        // // FetchCurrentInfo with no language test
+        it('should fetch current bot info with no language', () => {
+            // Mock the getMe API response
+            // Mock getMyName API response
+            const getMyNameUrl = `https://api.telegram.org/bot${dummyToken}/getMyName`;
+            UrlFetchAppStubConfiguration.when(getMyNameUrl)
+                .return({
+                    getContentText: () => JSON.stringify({
+                        ok: true,
+                        result: { name: "TestBot" }
+                    })
+                });
+
+            // Mock getMyDescription API response
+            const getMyDescriptionUrl = `https://api.telegram.org/bot${dummyToken}/getMyDescription`;
+            UrlFetchAppStubConfiguration.when(getMyDescriptionUrl)
+                .return({
+                    getContentText: () => JSON.stringify({
+                        ok: true,
+                        result: { description: "Test description" }
+                    })
+                });
+
+            // Mock getMyShortDescription API response
+            const getMyShortDescriptionUrl = `https://api.telegram.org/bot${dummyToken}/getMyShortDescription`;
+            UrlFetchAppStubConfiguration.when(getMyShortDescriptionUrl)
+                .return({
+                    getContentText: () => JSON.stringify({
+                        ok: true,
+                        result: { short_description: "Test short description" }
+                    })
+                });
+
+            // Mock getMyProfilePhotos API response
+            const getMyProfilePhotosUrl = `https://api.telegram.org/bot${dummyToken}/getMyProfilePhotos`;
+            UrlFetchAppStubConfiguration.when(getMyProfilePhotosUrl)
+                .return({
+                    getContentText: () => JSON.stringify({
+                        ok: true,
+                        result: { photos: [] }
+                    })
+                });
+
+            // Mock getMyCommands API response
+            const getMyCommandsUrl = `https://api.telegram.org/bot${dummyToken}/getMyCommands`;
+            UrlFetchAppStubConfiguration.when(getMyCommandsUrl)
+                .return({
+                    getContentText: () => JSON.stringify({
+                        ok: true,
+                        result: { commands: [] }
+                    })
+                });
+
+            const e = { formInput: { language: '' } };
+            const card = Addon.BotSetup.Controller['FetchCurrentInfo'](e);
+            expect(card).toBeDefined();
+        });
+
+        // FetchCurrentInfo for en language test
         it('should fetch current bot info', () => {
             // Mock the getMe API response
             const getMeUrl = `https://api.telegram.org/bot${dummyToken}/getMe`;
@@ -105,6 +163,27 @@ describe('Addon.BotSetup', () => {
             const cardData = homeCard.getData();
             expect(cardData).toBeDefined();
             expect(cardData.name).toBe(Addon.BotSetup.id + '-Home');
+        });
+
+        // SuggestedTranslationCard test
+        it('should create SuggestedTranslationCard', () => {
+            const data = {
+                selectedLanguage: 'es',
+                suggestions: {
+                    name: 'Nombre sugerido',
+                    description: 'Descripción sugerida',
+                    shortDescription: 'Descripción corta sugerida',
+                    profilePicture: 'https://example.com/suggested-profile-picture.jpg',
+                    commands: []
+                }
+            };
+            const suggestedTranslationCard = Addon.BotSetup.View['SuggestedTranslationCard'](data);
+            expect(suggestedTranslationCard).toBeDefined();
+            const cardData = suggestedTranslationCard.getData();
+            expect(cardData).toBeDefined();
+            expect(cardData.name).toBe(Addon.BotSetup.id + '-SuggestedTranslation');
+            // No notification
+            expect(cardData.notification).toBeUndefined();
         });
     });
 });

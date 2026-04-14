@@ -429,7 +429,10 @@ Common.Modules = {
         }
 
         getMyName({ language_code }) {
-            const url = this.getApiBaseUrl() + "/getMyName?language_code=" + language_code;
+            let url = this.getApiBaseUrl() + "/getMyName";
+            if (language_code) {
+                url += "?language_code=" + language_code;
+            }
             return UrlFetchApp.fetch(url);
         }
 
@@ -447,7 +450,10 @@ Common.Modules = {
         }
 
         getMyDescription({ language_code }) {
-            const url = this.getApiBaseUrl() + "/getMyDescription?language_code=" + language_code;
+            let url = this.getApiBaseUrl() + "/getMyDescription";
+            if (language_code) {
+                url += "?language_code=" + language_code;
+            }
             return UrlFetchApp.fetch(url);
         }
 
@@ -456,7 +462,7 @@ Common.Modules = {
                 'method': "post",
                 'payload': {
                     'description': description,
-                    'language_code': language_code
+                    'language_code': language_code ?? ''
                 }
             };
             const url = this.getApiBaseUrl() + "/setMyDescription";
@@ -464,7 +470,11 @@ Common.Modules = {
         }
 
         getMyShortDescription({ language_code }) {
-            const url = this.getApiBaseUrl() + "/getMyShortDescription?language_code=" + language_code;
+            let url = this.getApiBaseUrl() + "/getMyShortDescription";
+            if (language_code) {
+                url += "?language_code=" + language_code;
+            }
+
             return UrlFetchApp.fetch(url);
         }
 
@@ -473,7 +483,7 @@ Common.Modules = {
                 'method': "post",
                 'payload': {
                     'short_description': short_description,
-                    'language_code': language_code
+                    'language_code': language_code ?? ''
                 }
             };
             const url = this.getApiBaseUrl() + "/setMyShortDescription";
@@ -481,7 +491,11 @@ Common.Modules = {
         }
 
         getMyCommands({ language_code }) {
-            const url = this.getApiBaseUrl() + "/getMyCommands?language_code=" + language_code;
+            let url = this.getApiBaseUrl() + "/getMyCommands";
+            if (language_code) {
+                url += "?language_code=" + language_code;
+            }
+
             return UrlFetchApp.fetch(url);
         }
 
@@ -498,7 +512,7 @@ Common.Modules = {
                 'payload': {
                     //'scope': scope,
                     'commands': JSON.stringify(commands),
-                    'language_code': language_code
+                    'language_code': language_code ?? ''
                 }
             };
             const url = this.getApiBaseUrl() + "/setMyCommands";
@@ -3682,45 +3696,47 @@ Addon.BotSetup = {
         },
         FetchCurrentInfo: function (e) {
             try {
-                const language = e.formInput.language;
+                const sourceLanguage = e.formInput.sourceLanguage;
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 if (!token) throw new Error('Bot token not found');
                 const botClient = new Common.Modules.TelegramBotClient(token);
                 // Note: Telegram API does not have a single getBotInfo; fetching individual fields if available
-                const nameResponse = botClient.getMyName({ language_code: language });
+                const nameResponse = botClient.getMyName({ language_code: sourceLanguage });
                 if (JSON.parse(nameResponse.getContentText()).ok !== true) {
                     throw new Error('Failed to fetch bot name');
                 }
 
-                const descriptionResponse = botClient.getMyDescription({ language_code: language });
+                const descriptionResponse = botClient.getMyDescription({ language_code: sourceLanguage });
                 if (JSON.parse(descriptionResponse.getContentText()).ok !== true) {
                     throw new Error('Failed to fetch bot description');
                 }
 
-                const shortDescriptionResponse = botClient.getMyShortDescription({ language_code: language });
+                const shortDescriptionResponse = botClient.getMyShortDescription({ language_code: sourceLanguage });
                 if (JSON.parse(shortDescriptionResponse.getContentText()).ok !== true) {
                     throw new Error('Failed to fetch bot short description');
                 }
 
-                const commandsResponse = botClient.getMyCommands({ language_code: language });
+                const commandsResponse = botClient.getMyCommands({ language_code: sourceLanguage });
                 if (JSON.parse(commandsResponse.getContentText()).ok !== true) {
                     throw new Error('Failed to fetch bot commands');
                 }
-
+                const parsedCommands = JSON.parse(commandsResponse.getContentText()).result.commands;
+                // Construct info object
                 const info = {
                     name: JSON.parse(nameResponse.getContentText()).result.name,
                     description: JSON.parse(descriptionResponse.getContentText()).result.description,
                     shortDescription: JSON.parse(shortDescriptionResponse.getContentText()).result.short_description,
-                    commands: JSON.parse(commandsResponse.getContentText()).result.commands
+                    commands: JSON.stringify(parsedCommands, null, 2) // Format commands for display
                 };
 
                 // Update card with fetched data
-                const card = Addon.BotSetup.View.HomeCard({ ...info, selectedLanguage: language });
+                const card = Addon.BotSetup.View.HomeCard({ ...info, selectedLanguage: sourceLanguage });
                 return CardService.newActionResponseBuilder()
                     .setNavigation(CardService.newNavigation().updateCard(card))
                     .build();
             } catch (error) {
-                if(typeof console !== 'undefined') {
+                // Log the error for debugging
+                if (typeof console !== 'undefined') {
                     console.error('Error in FetchCurrentInfo:', error);
                 }
                 return CardService.newActionResponseBuilder()
@@ -3730,15 +3746,20 @@ Addon.BotSetup = {
         },
         SuggestTranslation: function (e) {
             try {
-                const sourceLang = e.formInput.sourceLanguage;
-                const targetLang = e.formInput.targetLanguage;
+                // const sourceLanguage = e.formInput.sourceLanguage;
+                const targetLanguage = e.formInput.targetLanguage;
                 // Placeholder for translation logic; integrate with Gemini API for suggestions
                 const suggestions = {}; // Implement translation using Gemini
-                const card = Addon.BotSetup.View.HomeCard({ ...suggestions, selectedLanguage: targetLang });
+                const data = { suggestions, selectedLanguage: targetLanguage };
+                const card = Addon.BotSetup.View.SuggestedTranslationCard(data);
                 return CardService.newActionResponseBuilder()
                     .setNavigation(CardService.newNavigation().updateCard(card))
                     .build();
             } catch (error) {
+                // Log the error for debugging
+                if (typeof console !== 'undefined') {
+                    console.error('Error in SuggestTranslation:', error);
+                }
                 return CardService.newActionResponseBuilder()
                     .setNotification(CardService.newNotification().setText('Error suggesting translation: ' + error.message))
                     .build();
@@ -3805,7 +3826,7 @@ Addon.BotSetup = {
     },
 
     View: {
-        HomeCard: function (data) {
+        HomeCard: function (data = {}) {
             const card = CardService.newCardBuilder()
                 .setName(Addon.BotSetup.id + '-Home')
                 .setHeader(CardService.newCardHeader()
@@ -3819,6 +3840,8 @@ Addon.BotSetup = {
                 .setTitle('Select Language')
                 .setFieldName('language');
 
+            // Add default option for primary language (no code)
+            languageDropdown.addItem('*', '', data.selectedLanguage === '' || !data.selectedLanguage);
             // Populate dropdown with supported languages
             for (const code in Common.LANGUAGE_CODES) {
                 const lang = Common.LANGUAGE_CODES[code];
@@ -3867,24 +3890,15 @@ Addon.BotSetup = {
                 .addWidget(shortDescInput)
                 .addWidget(picInput)
                 .addWidget(commandsInput));
-
-            // Section 3: Suggest Translation
-            const sourceLangDropdown = CardService.newSelectionInput()
-                .setType(CardService.SelectionInputType.DROPDOWN)
-                .setTitle('Source Language')
-                .setFieldName('sourceLanguage');
-            for (const code in Common.LANGUAGE_CODES) {
-                const lang = Common.LANGUAGE_CODES[code];
-                sourceLangDropdown.addItem(lang.name, code, false);
-            }
-
+            // Section 3: Target Language Translation
             const targetLangDropdown = CardService.newSelectionInput()
                 .setType(CardService.SelectionInputType.DROPDOWN)
                 .setTitle('Target Language')
                 .setFieldName('targetLanguage');
+
             for (const code in Common.LANGUAGE_CODES) {
                 const lang = Common.LANGUAGE_CODES[code];
-                targetLangDropdown.addItem(lang.name, code, false);
+                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, data.selectedLanguage === code);
             }
 
             const suggestButton = CardService.newTextButton()
@@ -3892,22 +3906,8 @@ Addon.BotSetup = {
                 .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.SuggestTranslation'));
 
             card.addSection(CardService.newCardSection()
-                .addWidget(sourceLangDropdown)
                 .addWidget(targetLangDropdown)
                 .addWidget(suggestButton));
-
-            // Section 4: Suggested inputs (populated if suggestions available)
-            if (data.suggestions) {
-                // Similar to Section 2, but for suggestions
-                const suggestedNameInput = CardService.newTextInput()
-                    .setTitle('Suggested Bot Name')
-                    .setFieldName('suggestedName')
-                    .setValue(data.suggestions.name || '');
-                // Add other suggested fields similarly
-                card.addSection(CardService.newCardSection()
-                    .addWidget(suggestedNameInput));
-            }
-
             // Fixed Footer
             const acceptButton = CardService.newTextButton()
                 .setText('Accept Translation')
@@ -3916,6 +3916,76 @@ Addon.BotSetup = {
             const deleteButton = CardService.newTextButton()
                 .setText('Delete')
                 .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.DeleteBotInfo'));
+
+            card.setFixedFooter(CardService.newFixedFooter()
+                .setPrimaryButton(acceptButton)
+                .setSecondaryButton(deleteButton));
+
+            return card.build();
+        },
+        SuggestedTranslationCard: function (data = {}) {
+            const card = CardService.newCardBuilder()
+                .setName(Addon.BotSetup.id + '-SuggestedTranslation')
+                .setHeader(CardService.newCardHeader()
+                    .setTitle('Suggested Translation')
+                    .setSubtitle('Review and accept suggested translations')
+                    .setImageUrl(Addon.Media.HAVE_A_NICE_DAY_IMG_URL));
+
+            // Similar structure to HomeCard but focused on displaying suggestions and accepting them
+            // Section 1: Target Language Translation
+            const targetLangDropdown = CardService.newSelectionInput()
+                .setType(CardService.SelectionInputType.DROPDOWN)
+                .setTitle('Target Language')
+                .setFieldName('targetLanguage');
+
+            for (const code in Common.LANGUAGE_CODES) {
+                const lang = Common.LANGUAGE_CODES[code];
+                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, data.selectedLanguage === code);
+            }
+
+            card.addSection(CardService.newCardSection()
+                .addWidget(targetLangDropdown));
+
+            // Section 2: Suggested inputs (populated if suggestions available)
+            if (data.suggestions) {
+                // Similar to Section 2, but for suggestions
+                const suggestedNameInput = CardService.newTextInput()
+                    .setTitle('Suggested Bot Name')
+                    .setFieldName('suggestedName')
+                    .setValue(data.suggestions.name || '');
+                // Add other suggested fields similarly
+                const suggestedDescInput = CardService.newTextInput()
+                    .setTitle('Suggested Description')
+                    .setFieldName('suggestedDescription')
+                    .setValue(data.suggestions.description || '');
+                const suggestedShortDescInput = CardService.newTextInput()
+                    .setTitle('Suggested Short Description')
+                    .setFieldName('suggestedShortDescription')
+                    .setValue(data.suggestions.shortDescription || '');
+                const suggestedPicInput = CardService.newTextInput()
+                    .setTitle('Suggested Profile Picture URL')
+                    .setFieldName('suggestedProfilePicture')
+                    .setValue(data.suggestions.profilePicture || '');
+                const suggestedCommandsInput = CardService.newTextInput()
+                    .setTitle('Suggested Commands (JSON array)')
+                    .setFieldName('suggestedCommands')
+                    .setValue(data.suggestions.commands || '[]')
+                    .setMultiline(true);
+                card.addSection(CardService.newCardSection()
+                    .addWidget(suggestedNameInput)
+                    .addWidget(suggestedDescInput)
+                    .addWidget(suggestedShortDescInput)
+                    .addWidget(suggestedPicInput)
+                    .addWidget(suggestedCommandsInput));
+            }
+
+            // Fixed Footer
+            const acceptButton = CardService.newTextButton()
+                .setText('Accept Translation')
+                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.AcceptTranslation'));
+            const deleteButton = CardService.newTextButton()
+                .setText('Delete Translation')
+                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.DeleteTranslation'));
 
             card.setFixedFooter(CardService.newFixedFooter()
                 .setPrimaryButton(acceptButton)
