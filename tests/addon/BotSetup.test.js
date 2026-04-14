@@ -22,6 +22,23 @@ describe('Addon.BotSetup', () => {
             expect(Addon.BotSetup.name).toBeDefined();
         });
 
+
+        // PushHomeCard test
+        it('should PushHomeCard', () => {
+            // mock event parameters
+            const e = {
+                commonEventObject: {
+                    formInputs: {
+                    }
+                }
+            };
+            const res = Addon.BotSetup.Controller['PushHomeCard'](e);
+            expect(res).toBeDefined();
+            const cardData = res.getData();
+            // No notification
+            expect(cardData.notification).toBeUndefined();
+        });
+
         // // FetchCurrentInfo with no language test
         it('should fetch current bot info with no language', () => {
             // Mock the getMe API response
@@ -75,7 +92,7 @@ describe('Addon.BotSetup', () => {
                     })
                 });
 
-            const e = { formInput: { language: '' } };
+            const e = { commonEventObject: { formInput: { sourceLanguage: '' } } };
             const card = Addon.BotSetup.Controller['FetchCurrentInfo'](e);
             expect(card).toBeDefined();
         });
@@ -142,7 +159,7 @@ describe('Addon.BotSetup', () => {
                 });
 
 
-            const e = { formInput: { language: 'en' } };
+            const e = { commonEventObject: { formInput: { sourceLanguage: 'en' } } };
             const card = Addon.BotSetup.Controller['FetchCurrentInfo'](e);
             expect(card).toBeDefined();
             // Additional assertions can be added here to verify the card's content

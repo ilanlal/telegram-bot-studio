@@ -51,8 +51,8 @@ describe('Addon.Webhook', () => {
             commonEventObject: {
                 formInputs: {
                     [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
-                    [Common.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]: { stringInputs: { value: [webhookUrl] } },
-                    [Common.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['false'] } }
+                    [Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_URL]: { stringInputs: { value: [webhookUrl] } },
+                    [Common.INPUT.TELEGRAM_BOT.WEBHOOK.DROP_PENDING_UPDATES]: { stringInputs: { value: ['false'] } }
                 }
             }
         };
@@ -65,18 +65,19 @@ describe('Addon.Webhook', () => {
         const getWebhookInfoUrl = `https://api.telegram.org/bot${sampleToken}/getWebhookInfo`;
         UrlFetchAppStubConfiguration.when(getWebhookInfoUrl)
             .return(new HttpResponse()
-                .setContentText(JSON.stringify({
-                    ok: true,
-                    result: {
-                        url: webhookUrl,
-                        has_custom_certificate: false,
-                        pending_update_count: 0,
-                        last_error_date: 0,
-                        last_error_message: '',
-                        max_connections: 40,
-                        allowed_updates: []
-                    }
-                })));
+                .setContentText(
+                    JSON.stringify({
+                        ok: true,
+                        result: {
+                            url: webhookUrl,
+                            has_custom_certificate: false,
+                            pending_update_count: 0,
+                            last_error_date: 0,
+                            last_error_message: '',
+                            max_connections: 40,
+                            allowed_updates: []
+                        }
+                    })));
         const result = Controller['SetWebhook'](e);
         expect(result).toBeDefined();
         const data = result.getData();
@@ -91,7 +92,7 @@ describe('Addon.Webhook', () => {
             commonEventObject: {
                 formInputs: {
                     [Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN]: { stringInputs: { value: [sampleToken] } },
-                    [Common.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]: { stringInputs: { value: ['true'] } }
+                    [Common.INPUT.TELEGRAM_BOT.WEBHOOK.DROP_PENDING_UPDATES]: { stringInputs: { value: ['true'] } }
                 }
             }
         };

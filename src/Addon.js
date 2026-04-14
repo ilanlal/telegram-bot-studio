@@ -198,6 +198,47 @@ Common.INPUT = {
     },
     get TELEGRAM_BOT() {
         return {
+            get SETUP() {
+                return {
+                    get BOT_COMMANDS() {
+                        return 'BOT_COMMANDS';
+                    },
+                    get BOT_NAME() {
+                        return 'BOT_NAME';
+                    },
+                    get BOT_SHORT_DESCRIPTION() {
+                        return 'BOT_SHORT_DESCRIPTION';
+                    },
+                    get BOT_DESCRIPTION() {
+                        return 'BOT_DESCRIPTION';
+                    },
+                    get BOT_PROFILE_IMAGE() {
+                        return 'BOT_PROFILE_IMAGE';
+                    },
+                    get DEFAULT_BOT_LANGUAGE() {
+                        return 'DEFAULT_BOT_LANGUAGE';
+                    }
+                }
+            },
+            get WEBHOOK() {
+                return {
+                    get WEBHOOK_URL() {
+                        return 'WEBHOOK_URL';
+                    },
+                    get WEBHOOK_IP_ADDRESS() {
+                        return 'WEBHOOK_IP_ADDRESS';
+                    },
+                    get WEBHOOK_MAX_CONNECTIONS() {
+                        return 'WEBHOOK_MAX_CONNECTIONS';
+                    },
+                    get WEBHOOK_SECRET_TOKEN() {
+                        return 'WEBHOOK_SECRET_TOKEN';
+                    },
+                    get DROP_PENDING_UPDATES() {
+                        return 'DROP_PENDING_UPDATES';
+                    }
+                };
+            },
             get BOT_API_TOKEN() {
                 return 'BOT_API_TOKEN';
             },
@@ -212,36 +253,6 @@ Common.INPUT = {
             },
             get BOT_API_ENDPOINT_URL() {
                 return 'BOT_API_ENDPOINT_URL';
-            },
-            get BOT_WEBHOOK_URL() {
-                return 'BOT_WEBHOOK_URL';
-            },
-            get BOT_IP_ADDRESS() {
-                return 'BOT_IP_ADDRESS';
-            },
-            get BOT_MAX_CONNECTIONS() {
-                return 'BOT_MAX_CONNECTIONS';
-            },
-            get BOT_SECRET_TOKEN() {
-                return 'BOT_SECRET_TOKEN';
-            },
-            get DROP_PENDING_UPDATES() {
-                return 'DROP_PENDING_UPDATES';
-            },
-            get BOT_COMMANDS() {
-                return 'BOT_COMMANDS';
-            },
-            get BOT_NAME() {
-                return 'BOT_NAME';
-            },
-            get BOT_SHORT_DESCRIPTION() {
-                return 'BOT_SHORT_DESCRIPTION';
-            },
-            get BOT_DESCRIPTION() {
-                return 'BOT_DESCRIPTION';
-            },
-            get BOT_PROFILE_IMAGE() {
-                return 'BOT_PROFILE_IMAGE';
             }
         };
     },
@@ -443,7 +454,7 @@ Common.Modules = {
             this.telegramEnpBaseUrl = "https://api.telegram.org/bot" + botToken;
         }
 
-        getMyName({ language_code }) {
+        getMyName({ language_code = '' }) {
             let url = this.getApiBaseUrl() + "/getMyName";
             if (language_code) {
                 url += "?language_code=" + language_code;
@@ -2318,11 +2329,11 @@ Addon.Webhook = {
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
-                const urlInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]?.stringInputs?.value?.[0];
-                const ipInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS]?.stringInputs?.value?.[0];
-                const maxConnInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
-                const secretInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0];
-                const dropPending = inputs[Common.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
+                const urlInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_URL]?.stringInputs?.value?.[0];
+                const ipInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_IP_ADDRESS]?.stringInputs?.value?.[0];
+                const maxConnInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
+                const secretInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_SECRET_TOKEN]?.stringInputs?.value?.[0];
+                const dropPending = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
 
                 // Validation
                 if (!urlInput || !urlInput.startsWith('https://')) {
@@ -2386,7 +2397,7 @@ Addon.Webhook = {
                 const data = e?.commonEventObject?.parameters || {};
 
                 const token = Common.Modules.TelegramBotSettings.getUserApiKey();
-                const dropPending = e?.commonEventObject?.formInputs?.[Common.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
+                const dropPending = e?.commonEventObject?.formInputs?.[Common.INPUT.TELEGRAM_BOT.WEBHOOK.DROP_PENDING_UPDATES]?.stringInputs?.value?.[0] === 'true';
 
                 const client = new Common.Modules.TelegramBotClient(token);
                 const response = client.deleteWebhook(dropPending);
@@ -2411,10 +2422,10 @@ Addon.Webhook = {
                 const inputs = e?.commonEventObject?.formInputs || {};
 
                 // Extract Inputs
-                const urlInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL]?.stringInputs?.value?.[0];
-                const ipInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS]?.stringInputs?.value?.[0];
-                const maxConnInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
-                const secretInput = inputs[Common.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN]?.stringInputs?.value?.[0];
+                const urlInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_URL]?.stringInputs?.value?.[0];
+                const ipInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_IP_ADDRESS]?.stringInputs?.value?.[0];
+                const maxConnInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_MAX_CONNECTIONS]?.stringInputs?.value?.[0];
+                const secretInput = inputs[Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_SECRET_TOKEN]?.stringInputs?.value?.[0];
                 const dropPending = true;
 
                 // Validation
@@ -2481,8 +2492,8 @@ Addon.Webhook = {
                     .setOnClickAction(CardService.newAction()
                         .setFunctionName('Addon.Webhook.Controller.SetWebhook')
                         // Collect all inputs
-                        .addRequiredWidget([Common.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL])
-                        .addRequiredWidget([Common.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS])));
+                        .addRequiredWidget([Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_URL])
+                        .addRequiredWidget([Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_MAX_CONNECTIONS])));
 
             // --- 2. Live Status Logic ---
             if (result.url !== '') {
@@ -2508,7 +2519,7 @@ Addon.Webhook = {
 
             // Webhook URL (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Common.INPUT.TELEGRAM_BOT.BOT_WEBHOOK_URL)
+                .setFieldName(Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_URL)
                 .setTitle('Webhook URL (Required)')
                 .setHint('https://your-script-url/exec')
                 .setValue(String(result.url))); // Defaults to current live URL
@@ -2518,27 +2529,27 @@ Addon.Webhook = {
                 .setText('Drop Pending Updates')
                 .setBottomLabel('Skip old messages in queue upon setting webhook.')
                 .setSwitchControl(CardService.newSwitch()
-                    .setFieldName(Common.INPUT.TELEGRAM_BOT.DROP_PENDING_UPDATES)
+                    .setFieldName(Common.INPUT.TELEGRAM_BOT.WEBHOOK.DROP_PENDING_UPDATES)
                     .setValue('true')
                     .setControlType(CardService.SwitchControlType.CHECK_BOX)));
 
             // IP Address (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Common.INPUT.TELEGRAM_BOT.BOT_IP_ADDRESS)
+                .setFieldName(Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_IP_ADDRESS)
                 .setTitle('Custom IP Address (Optional)')
                 .setHint('Bypass DNS resolution with specific IP')
                 .setValue(''));
 
             // Max Connections (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Common.INPUT.TELEGRAM_BOT.BOT_MAX_CONNECTIONS)
+                .setFieldName(Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_MAX_CONNECTIONS)
                 .setTitle('Max Connections (1-100)')
                 .setHint('Default: 40')
                 .setValue(result.max_connections ? result.max_connections.toString() : '40'));
 
             // Secret Token (Constraint 5)
             configSection.addWidget(CardService.newTextInput()
-                .setFieldName(Common.INPUT.TELEGRAM_BOT.BOT_SECRET_TOKEN)
+                .setFieldName(Common.INPUT.TELEGRAM_BOT.WEBHOOK.WEBHOOK_SECRET_TOKEN)
                 .setTitle('Secret Token (Optional)')
                 .setHint('X-Telegram-Bot-Api-Secret-Token header')
                 .setValue('')); // We don't get this back from API for security, so leave empty
@@ -3711,7 +3722,8 @@ Addon.BotSetup = {
         },
         FetchCurrentInfo: function (e) {
             try {
-                const sourceLanguage = e.formInput.sourceLanguage;
+                const formInput = e.commonEventObject?.formInput || {};
+                const sourceLanguage = formInput.sourceLanguage || '';
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 if (!token) throw new Error('Bot token not found');
                 const botClient = new Common.Modules.TelegramBotClient(token);
