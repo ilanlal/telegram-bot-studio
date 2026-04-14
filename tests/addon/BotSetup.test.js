@@ -88,6 +88,10 @@ describe('Addon.BotSetup', () => {
             const card = Addon.BotSetup.Controller['FetchCurrentInfo'](e);
             expect(card).toBeDefined();
             // Additional assertions can be added here to verify the card's content
+            const cardData = card.getData();
+            expect(cardData).toBeDefined();
+            // No notification
+            expect(cardData.notification).toBeUndefined();
         });
     });
 

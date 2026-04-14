@@ -3708,10 +3708,10 @@ Addon.BotSetup = {
                 }
 
                 const info = {
-                    name: JSON.parse(nameResponse.getContentText()).result,
-                    description: JSON.parse(descriptionResponse.getContentText()).result,
-                    shortDescription: JSON.parse(shortDescriptionResponse.getContentText()).result,
-                    commands: JSON.parse(commandsResponse.getContentText()).result
+                    name: JSON.parse(nameResponse.getContentText()).result.name,
+                    description: JSON.parse(descriptionResponse.getContentText()).result.description,
+                    shortDescription: JSON.parse(shortDescriptionResponse.getContentText()).result.short_description,
+                    commands: JSON.parse(commandsResponse.getContentText()).result.commands
                 };
 
                 // Update card with fetched data
