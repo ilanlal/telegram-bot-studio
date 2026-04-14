@@ -129,7 +129,7 @@ class Common {
 };
 
 Common.INPUT = {
-    version: '1.0.1',
+    version: '1.1.0',
     get SYSTEM() {
         return {
             get IGNORE_WHITE_SPACE() {
