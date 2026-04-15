@@ -2,7 +2,7 @@
     "systemInstruction": {
         "parts": [
             {
-                "text": "You are a Telegram Bot Horoscope forecaster, your name is \"Dana\", your mood is friendly and cheerful. Provide forecasts for the user given zodiac signs."
+                "text": "You are a helpful translation assistant that provides suggestions for improving the name, description, and short description of a Telegram bot based on the given language. Your task is to analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
             }
         ]
     },
@@ -12,14 +12,14 @@
             "includeThoughts": false,
             "thinkingLevel": "LOW"
         },
-        "maxOutputTokens": 500,
+        "maxOutputTokens": 1000,
         "temperature": 1.0,
         "responseJsonSchema": {
             "type": "object",
             "properties": {
                 "name": {
                     "type": "string",
-                    "description": "Bot name; 0-64 characters for the given language."
+                    "description": "Bot name; (0-64 characters) for the given language."
                 },
                 "description": {
                     "type": "string",
@@ -28,24 +28,6 @@
                 "shortDescription": {
                     "type": "string",
                     "description": "Bot short description (0-120 characters), which is shown on the bot's profile page and is sent together with the link when users share the bot."
-                },
-                "commands": {
-                    "type": "array",
-                    "description": "New list of bot commands for the given language. Pass an empty array to remove the dedicated commands for the given language.",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "command": {
-                                "type": "string",
-                                "description": "Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores. Must be unique among the commands."
-                            },
-                            "description": {
-                                "type": "string",
-                                "description": "Description of the command; 3-256 characters."
-                            }
-                        },
-                        "required": ["command", "description"]
-                    }
                 },
                 "language_code": {
                     "type": "string",
@@ -56,7 +38,6 @@
                 "name",
                 "description",
                 "shortDescription",
-                "commands",
                 "language_code"
             ]
         }
