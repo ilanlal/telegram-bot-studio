@@ -3686,6 +3686,7 @@ Addon.BotSetup = {
                 const geminiApiKey = Common.Modules.GeminiAgent.getApiKey();
                 const aiModel = Common.Modules.GeminiAgent
                     .MODELS["gemini-3-flash-preview"];
+                const userPrompt = `Given the following information about a Telegram bot, provide suggestions for improving the name, description, and short description based on the specified language.\n\nBot Information:\n- Current Name: ${name}\n- Current Description: ${description}\n- Current Short Description: ${shortDescription}\n- Language: ${targetLanguage}\n\nPlease analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language.`;
                 const payload = {
                     "systemInstruction": {
                         "parts": [
@@ -3736,7 +3737,7 @@ Addon.BotSetup = {
                             "role": "user",
                             "parts": [
                                 {
-                                    "text": "Given the following information about a Telegram bot, provide suggestions for improving the name, description, and short description based on the specified language.\n\nBot Information:\n- Current Name: [Current Bot Name]\n- Current Description: [Current Bot Description]\n- Current Short Description: [Current Bot Short Description]\n- Language: [Language Code]\n\nPlease analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
+                                    "text": userPrompt
                                 }
                             ]
                         }
@@ -3745,6 +3746,7 @@ Addon.BotSetup = {
                 const generatedContent = Common.Modules.GeminiApiClient
                     .generateContent(geminiApiKey, aiModel, payload);
                 const translation = JSON.parse(generatedContent.candidates?.[0]?.content?.parts?.[0]?.text || '{}');
+                
                 const card = Addon.BotSetup.View
                     .SuggestedTranslationCard(translation);
                 return CardService.newActionResponseBuilder()

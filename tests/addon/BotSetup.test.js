@@ -8,9 +8,11 @@ const SpreadsheetStubConfiguration = require('@ilanlal/gasmocks/src/spreadsheeta
 describe('Addon.BotSetup', () => {
     // const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const dummyToken = 'DUMMY_BOT_TOKEN';
+    const dummyApiKey = 'DUMMY_GEMINI_API_KEY';
     beforeEach(() => {
         // Set up any necessary mocks or spies before each test
-        PropertiesService.getScriptProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, dummyToken);
+        PropertiesService.getDocumentProperties().setProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN, dummyToken);
+        PropertiesService.getDocumentProperties().setProperty(Common.INPUT.GEMINI.GEMINI_API_KEY, dummyApiKey);
         UrlFetchAppStubConfiguration.reset();
         SpreadsheetStubConfiguration.reset();
     });
@@ -174,7 +176,8 @@ describe('Addon.BotSetup', () => {
                 name: 'TestBot',
                 description: 'Test description',
                 shortDescription: 'Test short description',
-                sourceLanguage: 'es'
+                targetLanguage: 'es',
+                sourceLanguage: 'en'
             };
             const e = { commonEventObject: { formInput } };
             // Mock Gemini API response
@@ -183,20 +186,42 @@ describe('Addon.BotSetup', () => {
                 .return({
                     getResponseCode: () => 200,
                     getContentText: () => JSON.stringify({
-                        candidate: {
-                            content: JSON.stringify({
-                                name: 'Nombre sugerido',
-                                description: 'Descripción sugerida',
-                                shortDescription: 'Descripción corta sugerida'
-                            })
-                        }
+                        candidates: [
+                            {
+                                content: {
+                                    parts: [
+                                        {
+                                            text: JSON.stringify({
+                                                name: 'Nombre sugerido',
+                                                description: 'Descripción sugerida',
+                                                shortDescription: 'Descripción corta sugerida',
+                                                language_code: 'es'
+                                            })
+                                        }
+                                    ]
+                                }
+                            }
 
+                        ]
                     })
                 });
+
             const res = Addon.BotSetup.Controller['SuggestTranslation'](e);
             expect(res).toBeDefined();
             const cardData = res.getData();
             expect(cardData).toBeDefined();
+            // No notification
+            expect(cardData.notification).toBeUndefined();
+            // cardNavigations[0].pushCard.sections[0].widgets[0].items[1].selected should be true
+            expect(cardData.cardNavigations[0].pushCard.sections[0].widgets[0].items[1].selected).toBe(true);
+            
+            // section index is 1 because the first section is for language selection and the second section is for suggestions
+            // cardNavigations[0].pushCard.sections[0].widgets[1].value should be 'Nombre sugerido'
+            expect(cardData.cardNavigations[0].pushCard.sections[1].widgets[0].value).toBe('Nombre sugerido');
+            // cardNavigations[0].pushCard.sections[0].widgets[1].value should be 'Descripción sugerida'
+            expect(cardData.cardNavigations[0].pushCard.sections[1].widgets[1].value).toBe('Descripción sugerida');
+            // cardNavigations[0].pushCard.sections[0].widgets[2].value should be 'Descripción corta sugerida'
+            expect(cardData.cardNavigations[0].pushCard.sections[1].widgets[2].value).toBe('Descripción corta sugerida');
         });
     });
 
