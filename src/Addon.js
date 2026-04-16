@@ -3761,7 +3761,7 @@ Addon.BotSetup = {
                     .build();
             }
         },
-        ExceptTranslation: function (e) {
+        AcceptTranslation: function (e) {
             try {
                 const formInput = e.commonEventObject?.formInput || {};
                 const language = formInput.targetLanguage || '';
@@ -3922,7 +3922,7 @@ Addon.BotSetup = {
 
             return card.build();
         },
-        SuggestedTranslationCard: function (data = {}) {
+        SuggestedTranslationCard: function (data = {}, selectedLanguage = '') {
             const card = CardService.newCardBuilder()
                 .setName(Addon.BotSetup.id + '-SuggestedTranslation')
                 .setHeader(CardService.newCardHeader()
@@ -3939,7 +3939,7 @@ Addon.BotSetup = {
 
             for (const code in Common.LANGUAGE_CODES) {
                 const lang = Common.LANGUAGE_CODES[code];
-                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, data.targetLanguage === code);
+                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, selectedLanguage === code);
             }
 
             card.addSection(CardService.newCardSection()
