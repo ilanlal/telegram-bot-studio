@@ -3684,7 +3684,8 @@ Addon.BotSetup = {
                 const shortDescription = formInput.shortDescription || '';
                 const commands = formInput.commands || '';
                 const geminiApiKey = Common.Modules.GeminiAgent.getApiKey();
-                const aiModel = Common.Modules.GeminiAgent.MODELS["gemini-3-flash-preview"];
+                const aiModel = Common.Modules.GeminiAgent
+                    .MODELS["gemini-3-flash-preview"];
                 const payload = {
                     "systemInstruction": {
                         "parts": [
@@ -3744,9 +3745,9 @@ Addon.BotSetup = {
                 const generatedContent = Common.Modules.GeminiApiClient
                     .generateContent(geminiApiKey, aiModel, payload);
 
-                const suggestions = JSON.parse(generatedContent);
+                const translation = JSON.parse(generatedContent);
                 const card = Addon.BotSetup.View
-                    .SuggestedTranslationCard(suggestions);
+                    .SuggestedTranslationCard(translation);
                 return CardService.newActionResponseBuilder()
                     .setNavigation(CardService.newNavigation().pushCard(card))
                     .build();
