@@ -1,5 +1,6 @@
 require('..');
-const { Addon, Common } = require('../../src/Addon');
+const SpreadsheetStubConfiguration = require('@ilanlal/gasmocks/src/spreadsheetapp/classes/SpreadsheetStubConfiguration');
+const { Common } = require('../../src/Addon');
 
 describe('Addon Modules Sheet', () => {
     beforeEach(() => {
@@ -8,7 +9,7 @@ describe('Addon Modules Sheet', () => {
 
     it('should throw error when initializing Sheet module without name', () => {
         expect(() => {
-            const sheetModule = Common.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), {}); // No name provided
+            Common.Modules.Sheet.initializeSheet(SpreadsheetApp.getActiveSpreadsheet(), {}); // No name provided
         }).toThrow(Common.Modules.Sheet.INVALID_MODEL_ERROR);
     });
 
@@ -49,5 +50,44 @@ describe('Addon Modules Sheet', () => {
 
         expect(sheet).toBeDefined();
         expect(sheet.getName()).toBe("dumpSheet");
+    });
+
+    // writeGeminiResponse test
+    it('should write terminal output to the specified sheet', () => {
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        const eventObject = {
+            type: 'test_event',
+            data: {
+                key: 'value'
+            }
+        };
+
+        const sheet = Common.Modules.Sheet.writeGeminiResponse(
+            activeSpreadsheet, eventObject, 'gemini-3-flash-preview', { sample: 'payload' }, { sample: 'response' });
+
+        expect(sheet).toBeDefined();
+        expect(sheet.getName()).toBe(Common.Modules.Sheet.TERMINAL_OUTPUT_SHEET_META.name);
+
+        // Verify range length
+        const lastRow = sheet.getLastRow();
+        expect(lastRow).toBe(2); // Only 2 row should be added
+    });
+
+    // writeWebhookEvent test
+    it('should write webhook event to the specified sheet', () => {
+        const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        const eventObject = {
+            type: 'webhook_event',
+            data: {
+                key: 'value'
+            }
+        };
+        const sheet = Common.Modules.Sheet.writeWebhookEvent(activeSpreadsheet, eventObject);
+
+        expect(sheet).toBeDefined();
+        expect(sheet.getName()).toBe(Common.Modules.Sheet.WEBHOOK_EVENT_SHEET_META.name);
+        // Verify range length
+        const lastRow = sheet.getLastRow();
+        expect(lastRow).toBe(2); // Only 2 row should be added
     });
 });

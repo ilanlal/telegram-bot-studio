@@ -413,7 +413,7 @@ Common.Modules = {
             }
 
             const sheet = Common.Modules.Sheet
-                .getSheet(activeSpreadsheet, this.SHEET_META);
+                .getSheet(activeSpreadsheet, this.TERMINAL_OUTPUT_SHEET_META);
             const genratedText = response?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
             sheet.appendRow([
                 // Created On as iso string
@@ -681,103 +681,6 @@ Common.Modules = {
             PropertiesService.getDocumentProperties().deleteProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
         }
     },
-    TerminalOutput: {
-        version: '1.0.0',
-        get SHEET_META() {
-            return {
-                name: '💻 Terminal Output',
-                columns: ['Timestamp', 'Event', 'Model', 'Payload', 'Prompt', 'Response', 'Generated Text', 'Usage', 'Total Tokens', 'Prompt Tokens', 'Thoughts Tokens', 'Cached Content Tokens', 'Candidates Tokens', 'Tool Use Prompt Tokens']
-            };
-        },
-
-        writeGeminiResponse(activeSpreadsheet, eventObject, model, payload, response) {
-            // Check if terminal output is enabled
-            const terminalOutputEnabled = PropertiesService.getScriptProperties()
-                .getProperty(Common.INPUT.SYSTEM.ENABLE_TERMINAL_OUTPUT) || 'ON';
-
-            // Check if terminal output is enabled
-            if (terminalOutputEnabled !== 'ON') {
-                return;
-            }
-
-            const sheet = Common.Modules.Sheet
-                .getSheet(activeSpreadsheet, this.SHEET_META);
-            const genratedText = response?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-            sheet.appendRow([
-                // Created On as iso string
-                new Date().toISOString(),
-                // Event Object
-                (typeof eventObject === 'object' || Array.isArray(eventObject) || String(eventObject).startsWith('{')) ? JSON.stringify(eventObject) : eventObject,
-                // Mode (e.g., "gemini-3-flash-preview")
-                model,
-                // Payload
-                (typeof payload === 'object' || Array.isArray(payload) || String(payload).startsWith('{')) ? JSON.stringify(payload) : payload,
-                // Prompt (if available in payload)
-                payload?.contents?.[0]?.parts?.[0]?.text || '',
-                // Response
-                (typeof response === 'object' || Array.isArray(response) || String(response).startsWith('{')) ? JSON.stringify(response) : response,
-                // Generated Text (if available in response) ({"candidates":[{"content":{"parts":[{"text": "generated text here"}]}}]})
-                genratedText,
-                // Usage Metadata (stringified if available in response.usageMetadata)
-                response?.usageMetadata ? JSON.stringify(response.usageMetadata) : '{}',
-                // Total Token Count (if available in response.usageMetadata)
-                response?.usageMetadata?.totalTokenCount || 0,
-                // Prompt Token Count (if available in response.usageMetadata)
-                response?.usageMetadata?.promptTokenCount || 0,
-                // Thoughts Token Count (if available in response.usageMetadata)
-                response?.usageMetadata?.thoughtsTokenCount || 0,
-                // cachedContentTokenCount (if available in response.usageMetadata)
-                response?.usageMetadata?.cachedContentTokenCount || 0,
-                // candidatesTokenCount (if available in response.usageMetadata)
-                response?.usageMetadata?.candidatesTokenCount || 0,
-                // toolUsePromptTokenCount (if available in response.usageMetadata)
-                response?.usageMetadata?.toolUsePromptTokenCount || 0
-            ]);
-
-            return sheet;
-        }
-    },
-    LoggerModel: {
-        version: '1.0.0',
-        get SHEET_META() {
-            return {
-                name: '📑 Event Log',
-                columns: ['Timestamp', 'Source', 'Message', 'Event Object', 'More Info']
-            };
-        },
-
-        write(activeSpreadsheet, source, message, chatId, e, param1, param2, param3) {
-            // Check if webhook event logging is enabled
-            const webhookEventLoggingEnabled = PropertiesService.getScriptProperties()
-                .getProperty(Common.INPUT.SYSTEM.ENABLE_EVENT_LOGGING) || 'ON';
-
-            if (webhookEventLoggingEnabled !== 'ON') {
-                return;
-            }
-
-            const sheet = Common.Modules.Sheet
-                .getSheet(activeSpreadsheet, Common.Modules.LoggerModel.SHEET_META);
-
-            sheet.appendRow([
-                // Created On as iso string
-                new Date().toISOString(),
-                // source
-                source,
-                // Message
-                (typeof message === 'object' || Array.isArray(message) || String(message).startsWith('{')) ? JSON.stringify(message) : message,
-                // Event Object
-                (typeof e === 'object' || Array.isArray(e) || String(e).startsWith('{')) ? JSON.stringify(e) : e,
-                // Chat ID
-                chatId,
-                // Details 
-                (typeof param1 === 'object' || Array.isArray(param1) || String(param1).startsWith('{')) ? JSON.stringify(param1) : param1,
-                (typeof param2 === 'object' || Array.isArray(param2) || String(param2).startsWith('{')) ? JSON.stringify(param2) : param2,
-                (typeof param3 === 'object' || Array.isArray(param3) || String(param3).startsWith('{')) ? JSON.stringify(param3) : param3
-            ]);
-
-            return sheet;
-        }
-    },
     GeminiApiClient: {
         version: '1.0.0',
         get API_ENDPOINT_URL() {
@@ -809,7 +712,7 @@ Common.Modules = {
 
                 if (response && response.getResponseCode() === 200) {
                     const responseData = JSON.parse(response.getContentText());
-                    Common.Modules.TerminalOutput.writeGeminiResponse(SpreadsheetApp.getActiveSpreadsheet(), options, model, payload, responseData);
+                    Common.Modules.Sheet.writeGeminiResponse(SpreadsheetApp.getActiveSpreadsheet(), options, model, payload, responseData);
                     return responseData;
                 } else if (response) {
                     throw new Error(`GeminiApiClient request failed with status ${response.getResponseCode()}: ${response.getContentText()}`);
@@ -818,7 +721,7 @@ Common.Modules = {
                 }
             } catch (error) {
                 // Log the error for debugging purposes
-                Common.Modules.TerminalOutput.writeGeminiResponse(
+                Common.Modules.Sheet.writeGeminiResponse(
                     SpreadsheetApp.getActiveSpreadsheet(),
                     { url, options },
                     model,
@@ -3785,8 +3688,62 @@ Addon.BotSetup = {
                     geminiApiKey,
                     Common.Modules.GeminiAgent.MODELS["gemini-3-flash-preview"],
                     {
-                        systemI
-                    });
+                        "systemInstruction": {
+                            "parts": [
+                                {
+                                    "text": "You are a SEO expert and helpful translation assistant that provides suggestions for the name, description, and short description of a Telegram bot based on the given language. Your suggestions should aim to improve the bot's appeal and clarity for users in the specified language. Please ensure that your recommendations are concise, relevant, and tailored to the target audience. Consider cultural nuances and language-specific preferences when providing your suggestions."
+                                }
+                            ]
+                        },
+                        "generationConfig": {
+                            "responseMimeType": "application/json",
+                            "thinkingConfig": {
+                                "includeThoughts": false,
+                                "thinkingLevel": "LOW"
+                            },
+                            "maxOutputTokens": 1000,
+                            "temperature": 1.0,
+                            "responseJsonSchema": {
+                                "type": "object",
+                                "description": "Provides translations for the bot's name, description, and short description in the target language.",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Name (0-64 characters)."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Description (0-512 characters), which is shown in the chat with the bot if the chat is empty."
+                                    },
+                                    "shortDescription": {
+                                        "type": "string",
+                                        "description": "Short description (0-120 characters), which is shown on the bot's profile page and is sent together with the link when users share the bot."
+                                    },
+                                    "language_code": {
+                                        "type": "string",
+                                        "description": "Language code (ISO 639-1 two-letter code) for which the translations are provided."
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "description",
+                                    "shortDescription",
+                                    "language_code"
+                                ]
+                            }
+                        },
+                        "contents": [
+                            {
+                                "role": "user",
+                                "parts": [
+                                    {
+                                        "text": "Given the following information about a Telegram bot, provide suggestions for improving the name, description, and short description based on the specified language.\n\nBot Information:\n- Current Name: [Current Bot Name]\n- Current Description: [Current Bot Description]\n- Current Short Description: [Current Bot Short Description]\n- Language: [Language Code]\n\nPlease analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                );
                 // Placeholder for translation logic; integrate with Gemini API for suggestions
                 const suggestions = {}; // Implement translation using Gemini
                 const data = { suggestions, selectedLanguage: targetLanguage };
