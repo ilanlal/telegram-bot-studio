@@ -3691,11 +3691,11 @@ Addon.BotSetup = {
                     .MODELS["gemini-3-flash-preview"];
 
                 const userPrompt = `Please provide SEO-optimized translations for the following Telegram bot information from ${sourceLanguage} to ${targetLanguage}:\n\n` +
-                    `Name: ${name}\n` +
-                    `Description: ${description}\n` +
-                    `Short Description: ${shortDescription}\n` +
+                    `Name: "${name}"\n` +
+                    `Short Description: "${shortDescription}"\n` +
+                    `Description: "${description}"\n\n` +
                     // `Commands: ${commands}\n\n` +
-                    `Ensure that the translations are concise, relevant, and culturally appropriate for users in the target language.`;
+                    `\n------\nEnsure that the translations are concise, relevant, and culturally appropriate for users in the target language.`;
 
                 const payload = {
                     "systemInstruction": {
@@ -3708,14 +3708,13 @@ Addon.BotSetup = {
                     "generationConfig": {
                         "responseMimeType": "application/json",
                         "thinkingConfig": {
-                            "includeThoughts": false,
-                            "thinkingLevel": "LOW"
+                            "thinkingLevel": "low"
                         },
-                        "maxOutputTokens": 5000,
+                        "maxOutputTokens": 3000,
                         "temperature": 1.0,
                         "responseJsonSchema": {
                             "type": "object",
-                            "description": "Provides translations for the bot's name, description, and short description in the target language.",
+                            "description": "The suggested translations for the Telegram bot information.",
                             "properties": {
                                 "name": {
                                     "type": "string",
@@ -3776,19 +3775,19 @@ Addon.BotSetup = {
             try {
                 const formInput = e.commonEventObject?.formInputs || {};
                 const language = formInput.targetLanguage?.stringInputs?.value?.[0] || '';
-                const name = formInput.name?.stringInputs?.value?.[0] || '';
-                const description = formInput.description?.stringInputs?.value?.[0] || '';
-                const shortDescription = formInput.shortDescription?.stringInputs?.value?.[0] || '';
-                const profilePicture = formInput.profilePicture?.stringInputs?.value?.[0] || '';
-                const commands = formInput.commands?.stringInputs?.value?.[0] || '';
+                const name = formInput.suggestedName?.stringInputs?.value?.[0] || '';
+                const description = formInput.suggestedDescription?.stringInputs?.value?.[0] || '';
+                const shortDescription = formInput.suggestedShortDescription?.stringInputs?.value?.[0] || '';
+
+                //const commands = formInput.commands?.stringInputs?.value?.[0] || '';
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
+                if (!token) throw new Error('Bot token not found');
                 const botClient = new Common.Modules.TelegramBotClient(token);
                 // Call appropriate API methods
                 if (name) botClient.setMyName({ name: name, language_code: language });
                 if (description) botClient.setMyDescription({ description: description, language_code: language });
                 if (shortDescription) botClient.setMyShortDescription({ short_description: shortDescription, language_code: language });
-                if (commands) botClient.setMyCommands({ commands: JSON.parse(commands), language_code: language });
-                // Profile picture update if supported
+                // if (commands) botClient.setMyCommands({ commands: JSON.parse(commands), language_code: language });
                 // Show success notification
                 return CardService.newActionResponseBuilder()
                     .setNavigation(CardService.newNavigation().popCard())
@@ -3848,7 +3847,7 @@ Addon.BotSetup = {
             const languageDropdown = CardService.newSelectionInput()
                 .setType(CardService.SelectionInputType.DROPDOWN)
                 .setTitle('Select Language')
-                .setFieldName('language');
+                .setFieldName('sourceLanguage');
 
             // Add default option for primary language (no code)
             languageDropdown.addItem('*', '', data.selectedLanguage === '' || !data.selectedLanguage);
@@ -3958,10 +3957,12 @@ Addon.BotSetup = {
             const suggestedDescInput = CardService.newTextInput()
                 .setTitle('Suggested Description')
                 .setFieldName('suggestedDescription')
+                .setMultiline(true)
                 .setValue(translation.description || '');
             const suggestedShortDescInput = CardService.newTextInput()
                 .setTitle('Suggested Short Description')
                 .setFieldName('suggestedShortDescription')
+                .setMultiline(true)
                 .setValue(translation.shortDescription || '');
 
             card.addSection(CardService.newCardSection()
@@ -3973,13 +3974,9 @@ Addon.BotSetup = {
             const acceptButton = CardService.newTextButton()
                 .setText('Accept Translation')
                 .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.AcceptTranslation'));
-            const deleteButton = CardService.newTextButton()
-                .setText('Delete Translation')
-                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.DeleteTranslation'));
 
             card.setFixedFooter(CardService.newFixedFooter()
-                .setPrimaryButton(acceptButton)
-                .setSecondaryButton(deleteButton));
+                .setPrimaryButton(acceptButton));
 
             return card.build();
         }
