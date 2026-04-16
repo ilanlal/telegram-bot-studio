@@ -1,0 +1,56 @@
+{
+    "systemInstruction": {
+        "parts": [
+            {
+                "text": "You are a helpful translation assistant that provides suggestions for the name, description, and short description of a Telegram bot based on the given language. Your task is to analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
+            }
+        ]
+    },
+    "generationConfig": {
+        "responseMimeType": "application/json",
+        "thinkingConfig": {
+            "includeThoughts": false,
+            "thinkingLevel": "LOW"
+        },
+        "maxOutputTokens": 1000,
+        "temperature": 1.0,
+        "responseJsonSchema": {
+            "type": "object",
+            "description": "Translations for the bot's name, description, and short description in the target language.",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name (0-64 characters)."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description (0-512 characters), which is shown in the chat with the bot if the chat is empty."
+                },
+                "shortDescription": {
+                    "type": "string",
+                    "description": "Short description (0-120 characters), which is shown on the bot's profile page and is sent together with the link when users share the bot."
+                },
+                "language_code": {
+                    "type": "string",
+                    "description": "The given language. A two-letter ISO 639-1 language code. If empty, the fields apply to all languages."
+                }
+            },
+            "required": [
+                "name",
+                "description",
+                "shortDescription",
+                "language_code"
+            ]
+        }
+    },
+    "contents": [
+        {
+            "role": "user",
+            "parts": [
+                {
+                    "text": "Given the following information about a Telegram bot, provide suggestions for improving the name, description, and short description based on the specified language.\n\nBot Information:\n- Current Name: [Current Bot Name]\n- Current Description: [Current Bot Description]\n- Current Short Description: [Current Bot Short Description]\n- Language: [Language Code]\n\nPlease analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
+                }
+            ]
+        }
+    ]
+}
