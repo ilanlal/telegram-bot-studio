@@ -3781,7 +3781,6 @@ Addon.BotSetup = {
                 const shortDescription = formInput.shortDescription || '';
                 const commands = formInput.commands || '';
                 const geminiApiKey = Common.Modules.GeminiAgent.getApiKey();
-
                 const genrated = Common.Modules.GeminiApiClient.generateContent(
                     geminiApiKey,
                     Common.Modules.GeminiAgent.MODELS["gemini-3-flash-preview"],

@@ -2,7 +2,7 @@
     "systemInstruction": {
         "parts": [
             {
-                "text": "You are a helpful translation assistant that provides suggestions for the name, description, and short description of a Telegram bot based on the given language. Your task is to analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
+                "text": "You are a SEO expert and helpful translation assistant that provides suggestions for the name, description, and short description of a Telegram bot based on the given language. Your suggestions should aim to improve the bot's appeal and clarity for users in the specified language. Please ensure that your recommendations are concise, relevant, and tailored to the target audience. Consider cultural nuances and language-specific preferences when providing your suggestions."
             }
         ]
     },
@@ -16,7 +16,7 @@
         "temperature": 1.0,
         "responseJsonSchema": {
             "type": "object",
-            "description": "Translations for the bot's name, description, and short description in the target language.",
+            "description": "Provides translations for the bot's name, description, and short description in the target language.",
             "properties": {
                 "name": {
                     "type": "string",
@@ -32,7 +32,7 @@
                 },
                 "language_code": {
                     "type": "string",
-                    "description": "The given language. A two-letter ISO 639-1 language code. If empty, the fields apply to all languages."
+                    "description": "Language code (ISO 639-1 two-letter code) for which the translations are provided."
                 }
             },
             "required": [
