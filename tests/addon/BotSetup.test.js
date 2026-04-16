@@ -93,7 +93,7 @@ describe('Addon.BotSetup', () => {
                     })
                 });
 
-            const e = { commonEventObject: { formInput: { sourceLanguage: '' } } };
+            const e = { commonEventObject: { formInputs: { sourceLanguage: { stringInputs: { value: [''] } } } } };
             const card = Addon.BotSetup.Controller['FetchCurrentInfo'](e);
             expect(card).toBeDefined();
         });
@@ -160,7 +160,7 @@ describe('Addon.BotSetup', () => {
                 });
 
 
-            const e = { commonEventObject: { formInput: { sourceLanguage: 'en' } } };
+            const e = { commonEventObject: { formInputs: { sourceLanguage: { stringInputs: { value: ['en'] } } } } };
             const card = Addon.BotSetup.Controller['FetchCurrentInfo'](e);
             expect(card).toBeDefined();
             // Additional assertions can be added here to verify the card's content
@@ -173,13 +173,13 @@ describe('Addon.BotSetup', () => {
         // SuggestTranslation test
         it('should suggest translation', () => {
             const formInput = {
-                name: 'TestBot',
-                description: 'Test description',
-                shortDescription: 'Test short description',
-                targetLanguage: 'es',
-                sourceLanguage: 'en'
+                name: { stringInputs: { value: ['TestBot'] } },
+                description: { stringInputs: { value: ['Test description'] } },
+                shortDescription: { stringInputs: { value: ['Test short description'] } },
+                targetLanguage: { stringInputs: { value: ['es'] } },
+                sourceLanguage: { stringInputs: { value: ['en'] } }
             };
-            const e = { commonEventObject: { formInput } };
+            const e = { commonEventObject: { formInputs: formInput } };
             // Mock Gemini API response
             const geminiApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent';
             UrlFetchAppStubConfiguration.when(geminiApiUrl)

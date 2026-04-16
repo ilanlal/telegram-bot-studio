@@ -3625,8 +3625,8 @@ Addon.BotSetup = {
         },
         FetchCurrentInfo: function (e) {
             try {
-                const formInput = e.commonEventObject?.formInput || {};
-                const sourceLanguage = formInput.sourceLanguage || '';
+                const formInput = e.commonEventObject?.formInputs || {};
+                const sourceLanguage = formInput.sourceLanguage?.stringInputs?.value?.[0] || '';
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 if (!token) throw new Error('Bot token not found');
                 const botClient = new Common.Modules.TelegramBotClient(token);
@@ -3676,17 +3676,27 @@ Addon.BotSetup = {
         },
         SuggestTranslation: function (e) {
             try {
-                const formInput = e.commonEventObject?.formInput || {};
-                const sourceLanguage = formInput.sourceLanguage || '';
-                const targetLanguage = formInput.targetLanguage || '';
-                const name = formInput.name || '';
-                const description = formInput.description || '';
-                const shortDescription = formInput.shortDescription || '';
-                const commands = formInput.commands || '';
+                const formInput = e.commonEventObject?.formInputs || {};
+                const sourceLanguage = formInput.sourceLanguage?.stringInputs?.value?.[0] || '';
+                const targetLanguage = formInput.targetLanguage?.stringInputs?.value?.[0] || '';
+                const name = formInput.name?.stringInputs?.value?.[0] || '';
+                const description = formInput.description?.stringInputs?.value?.[0] || '';
+                const shortDescription = formInput.shortDescription?.stringInputs?.value?.[0] || '';
+                const commands = formInput.commands?.stringInputs?.value?.[0] || '';
                 const geminiApiKey = Common.Modules.GeminiAgent.getApiKey();
+                if (!geminiApiKey) {
+                    throw new Error('Gemini API key not found. Please set it up in the configuration.');
+                }
                 const aiModel = Common.Modules.GeminiAgent
                     .MODELS["gemini-3-flash-preview"];
-                const userPrompt = `Given the following information about a Telegram bot, provide suggestions for improving the name, description, and short description based on the specified language.\n\nBot Information:\n- Current Name: ${name}\n- Current Description: ${description}\n- Current Short Description: ${shortDescription}\n- Language: ${targetLanguage}\n\nPlease analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language.`;
+
+                const userPrompt = `Please provide SEO-optimized translations for the following Telegram bot information from ${sourceLanguage} to ${targetLanguage}:\n\n` +
+                    `Name: ${name}\n` +
+                    `Description: ${description}\n` +
+                    `Short Description: ${shortDescription}\n` +
+                    // `Commands: ${commands}\n\n` +
+                    `Ensure that the translations are concise, relevant, and culturally appropriate for users in the target language.`;
+
                 const payload = {
                     "systemInstruction": {
                         "parts": [
@@ -3701,7 +3711,7 @@ Addon.BotSetup = {
                             "includeThoughts": false,
                             "thinkingLevel": "LOW"
                         },
-                        "maxOutputTokens": 1000,
+                        "maxOutputTokens": 5000,
                         "temperature": 1.0,
                         "responseJsonSchema": {
                             "type": "object",
@@ -3746,7 +3756,7 @@ Addon.BotSetup = {
                 const generatedContent = Common.Modules.GeminiApiClient
                     .generateContent(geminiApiKey, aiModel, payload);
                 const translation = JSON.parse(generatedContent.candidates?.[0]?.content?.parts?.[0]?.text || '{}');
-                
+
                 const card = Addon.BotSetup.View
                     .SuggestedTranslationCard(translation);
                 return CardService.newActionResponseBuilder()
@@ -3764,13 +3774,13 @@ Addon.BotSetup = {
         },
         AcceptTranslation: function (e) {
             try {
-                const formInput = e.commonEventObject?.formInput || {};
-                const language = formInput.targetLanguage || '';
-                const name = formInput.name || '';
-                const description = formInput.description || '';
-                const shortDescription = formInput.shortDescription || '';
-                const profilePicture = formInput.profilePicture || '';
-                const commands = formInput.commands || '';
+                const formInput = e.commonEventObject?.formInputs || {};
+                const language = formInput.targetLanguage?.stringInputs?.value?.[0] || '';
+                const name = formInput.name?.stringInputs?.value?.[0] || '';
+                const description = formInput.description?.stringInputs?.value?.[0] || '';
+                const shortDescription = formInput.shortDescription?.stringInputs?.value?.[0] || '';
+                const profilePicture = formInput.profilePicture?.stringInputs?.value?.[0] || '';
+                const commands = formInput.commands?.stringInputs?.value?.[0] || '';
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 const botClient = new Common.Modules.TelegramBotClient(token);
                 // Call appropriate API methods
@@ -3791,8 +3801,8 @@ Addon.BotSetup = {
         },
         DeleteBotInfo: function (e) {
             // Use confirmation card for deletion
-            const formInput = e.commonEventObject?.formInput || {};
-            const language = formInput.language || '';
+            const formInput = e.commonEventObject?.formInputs || {};
+            const language = formInput.language?.stringInputs?.value?.[0] || '';
             const title = 'Delete Bot Info';
             const message = `Are you sure you want to delete bot information for language: ${language}?`;
             const onClickFunctionName = 'Addon.BotSetup.Controller.ConfirmDeleteBotInfo';
@@ -3805,8 +3815,8 @@ Addon.BotSetup = {
         },
         ConfirmDeleteBotInfo: function (e) {
             try {
-                const formInput = e.commonEventObject?.formInput || {};
-                const language = formInput.language || '';
+                const formInput = e.commonEventObject?.formInputs || {};
+                const language = formInput.language?.stringInputs?.value?.[0] || '';
                 const token = PropertiesService.getDocumentProperties().getProperty(Common.INPUT.TELEGRAM_BOT.BOT_API_TOKEN);
                 const botClient = new Common.Modules.TelegramBotClient(token);
                 // Implement deletion logic; Telegram API may not support direct deletion, so reset to defaults
