@@ -73,16 +73,6 @@ describe('Addon.BotSetup', () => {
                     })
                 });
 
-            // Mock getMyProfilePhotos API response
-            const getMyProfilePhotosUrl = `https://api.telegram.org/bot${dummyToken}/getMyProfilePhotos`;
-            UrlFetchAppStubConfiguration.when(getMyProfilePhotosUrl)
-                .return({
-                    getContentText: () => JSON.stringify({
-                        ok: true,
-                        result: { photos: [] }
-                    })
-                });
-
             // Mock getMyCommands API response
             const getMyCommandsUrl = `https://api.telegram.org/bot${dummyToken}/getMyCommands`;
             UrlFetchAppStubConfiguration.when(getMyCommandsUrl)
@@ -136,16 +126,6 @@ describe('Addon.BotSetup', () => {
                     getContentText: () => JSON.stringify({
                         ok: true,
                         result: { short_description: "Test short description" }
-                    })
-                });
-
-            // Mock getMyProfilePhotos API response
-            const getMyProfilePhotosUrl = `https://api.telegram.org/bot${dummyToken}/getMyProfilePhotos`;
-            UrlFetchAppStubConfiguration.when(getMyProfilePhotosUrl)
-                .return({
-                    getContentText: () => JSON.stringify({
-                        ok: true,
-                        result: { photos: [] }
                     })
                 });
 
@@ -214,7 +194,7 @@ describe('Addon.BotSetup', () => {
             expect(cardData.notification).toBeUndefined();
             // cardNavigations[0].pushCard.sections[0].widgets[0].items[1].selected should be true
             expect(cardData.cardNavigations[0].pushCard.sections[0].widgets[0].items[1].selected).toBe(true);
-            
+
             // section index is 1 because the first section is for language selection and the second section is for suggestions
             // cardNavigations[0].pushCard.sections[0].widgets[1].value should be 'Nombre sugerido'
             expect(cardData.cardNavigations[0].pushCard.sections[1].widgets[0].value).toBe('Nombre sugerido');
