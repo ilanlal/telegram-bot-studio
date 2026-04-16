@@ -3847,13 +3847,8 @@ Addon.BotSetup = {
                 languageDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, data.selectedLanguage === code);
             }
 
-            const fetchButton = CardService.newTextButton()
-                .setText('Fetch Current Info')
-                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.FetchCurrentInfo'));
-
             card.addSection(CardService.newCardSection()
-                .addWidget(languageDropdown)
-                .addWidget(fetchButton));
+                .addWidget(languageDropdown));
 
             // Section 2: Input fields
             const nameInput = CardService.newTextInput()
@@ -3899,7 +3894,9 @@ Addon.BotSetup = {
                 const lang = Common.LANGUAGE_CODES[code];
                 targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, data.selectedLanguage === code);
             }
-
+            const deleteButton = CardService.newTextButton()
+                .setText('Delete')
+                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.DeleteBotInfo'));
             const suggestButton = CardService.newTextButton()
                 .setText('Suggest Translation')
                 .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.SuggestTranslation'));
@@ -3907,17 +3904,13 @@ Addon.BotSetup = {
             card.addSection(CardService.newCardSection()
                 .addWidget(targetLangDropdown)
                 .addWidget(suggestButton));
-            // Fixed Footer
-            const acceptButton = CardService.newTextButton()
-                .setText('Accept Translation')
-                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.AcceptTranslation'));
 
-            const deleteButton = CardService.newTextButton()
-                .setText('Delete')
-                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.DeleteBotInfo'));
+            const fetchButton = CardService.newTextButton()
+                .setText('Fetch Current Info')
+                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.FetchCurrentInfo'));
 
             card.setFixedFooter(CardService.newFixedFooter()
-                .setPrimaryButton(acceptButton)
+                .setPrimaryButton(fetchButton)
                 .setSecondaryButton(deleteButton));
 
             return card.build();
