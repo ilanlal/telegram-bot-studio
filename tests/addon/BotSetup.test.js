@@ -22,7 +22,6 @@ describe('Addon.BotSetup', () => {
             expect(Addon.BotSetup.name).toBeDefined();
         });
 
-
         // PushHomeCard test
         it('should PushHomeCard', () => {
             // mock event parameters
@@ -167,6 +166,32 @@ describe('Addon.BotSetup', () => {
             expect(cardData).toBeDefined();
             // No notification
             expect(cardData.notification).toBeUndefined();
+        });
+
+        // SuggestTranslation test
+        it('should suggest translation', () => {
+            const formInput = {
+                name: 'TestBot',
+                description: 'Test description',
+                shortDescription: 'Test short description',
+                sourceLanguage: 'es'
+            };
+            const e = { commonEventObject: { formInput } };
+            // Mock Gemini API response
+            const geminiApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent';
+            UrlFetchAppStubConfiguration.when(geminiApiUrl)
+                .return({
+                    getResponseCode: () => 200,
+                    getContentText: () => JSON.stringify({
+                        name: 'Nombre sugerido',
+                        description: 'Descripción sugerida',
+                        shortDescription: 'Descripción corta sugerida'
+                    })
+                });
+            const res = Addon.BotSetup.Controller['SuggestTranslation'](e);
+            expect(res).toBeDefined();
+            const cardData = res.getData();
+            expect(cardData).toBeDefined();
         });
     });
 
