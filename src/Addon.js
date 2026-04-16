@@ -3744,8 +3744,7 @@ Addon.BotSetup = {
                 };
                 const generatedContent = Common.Modules.GeminiApiClient
                     .generateContent(geminiApiKey, aiModel, payload);
-
-                const translation = JSON.parse(generatedContent);
+                const translation = JSON.parse(generatedContent.candidates?.[0]?.content?.parts?.[0]?.text || '{}');
                 const card = Addon.BotSetup.View
                     .SuggestedTranslationCard(translation);
                 return CardService.newActionResponseBuilder()

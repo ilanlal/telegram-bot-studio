@@ -183,9 +183,14 @@ describe('Addon.BotSetup', () => {
                 .return({
                     getResponseCode: () => 200,
                     getContentText: () => JSON.stringify({
-                        name: 'Nombre sugerido',
-                        description: 'Descripción sugerida',
-                        shortDescription: 'Descripción corta sugerida'
+                        candidate: {
+                            content: JSON.stringify({
+                                name: 'Nombre sugerido',
+                                description: 'Descripción sugerida',
+                                shortDescription: 'Descripción corta sugerida'
+                            })
+                        }
+
                     })
                 });
             const res = Addon.BotSetup.Controller['SuggestTranslation'](e);
