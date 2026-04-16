@@ -3673,14 +3673,12 @@ Addon.BotSetup = {
                     'DebugData', 'getMyCommandsResponse', JSON.parse(commandsResponse.getContentText()), false
                 );
 
-                const parsedCommands = JSON.parse(commandsResponse.getContentText()).result.commands;
-
                 // Construct info object
                 const info = {
                     name: JSON.parse(nameResponse.getContentText()).result.name,
                     description: JSON.parse(descriptionResponse.getContentText()).result.description,
                     shortDescription: JSON.parse(shortDescriptionResponse.getContentText()).result.short_description,
-                    commands: JSON.stringify(parsedCommands, null, 2) // Format commands for display
+                    commands: JSON.parse(commandsResponse.getContentText()).result // result=[], Keep the full response for commands to access additional properties if needed
                 };
 
                 // Update card with fetched data
@@ -3867,44 +3865,6 @@ Addon.BotSetup = {
                     .setSubtitle('Manage bot information and settings')
                     .setImageUrl(Addon.Media.HAVE_A_NICE_DAY_IMG_URL));
 
-            // Section 1: Input fields
-            const nameInput = CardService.newTextInput()
-                .setTitle('Bot Name')
-                .setFieldName('name')
-                .setValue(data.name || '');
-
-            const descInput = CardService.newTextInput()
-                .setTitle('Description')
-                .setFieldName('description')
-                .setValue(data.description || '')
-                .setMultiline(true);
-
-            const shortDescInput = CardService.newTextInput()
-                .setTitle('Short Description')
-                .setFieldName('shortDescription')
-                .setMultiline(true)
-                .setValue(data.shortDescription || '');
-
-            const picInput = CardService.newTextInput()
-                .setTitle('Profile Picture URL')
-                .setFieldName('profilePicture')
-                .setValue(data.profilePicture || '');
-
-            const commandsInput = CardService.newTextInput()
-                .setTitle('Commands (JSON array)')
-                .setFieldName('commands')
-                .setValue(data.commands || '[]')
-                .setMultiline(true);
-
-            card.addSection(CardService.newCardSection()
-                .setCollapsible(true)
-                .setNumUncollapsibleWidgets(2)
-                .addWidget(nameInput)
-                .addWidget(shortDescInput)
-                .addWidget(descInput)
-                .addWidget(picInput)
-                .addWidget(commandsInput));
-
             // Section 2: Language selection
             const languageDropdown = CardService.newSelectionInput()
                 .setType(CardService.SelectionInputType.DROPDOWN)
@@ -3924,11 +3884,12 @@ Addon.BotSetup = {
                 .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.FetchCurrentInfo'));
 
             card.addSection(CardService.newCardSection()
-                .setCollapsible(true)
-                .setNumUncollapsibleWidgets(1)
-                .setHeader('Fetch Existing Information')
                 .addWidget(languageDropdown)
                 .addWidget(fetchButton));
+
+            // Section 2: Input fields
+            const inputSection = Addon.BotSetup.View._InputSection(data);
+            card.addSection(inputSection);
 
             // Section 3: Target Language Translation
             const targetLangDropdown = CardService.newSelectionInput()
@@ -3956,12 +3917,12 @@ Addon.BotSetup = {
                 .addWidget(targetLangDropdown)
                 .addWidget(suggestButton));
 
-            const dumpButton = CardService.newTextButton()
-                .setText('Fetch & Dump')
-                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.FetchAndDumpInfo'));
+            const setAsDefaultButton = CardService.newTextButton()
+                .setText('Set As Default')
+                .setOnClickAction(CardService.newAction().setFunctionName('Addon.BotSetup.Controller.AcceptTranslation'));
 
             card.setFixedFooter(CardService.newFixedFooter()
-                .setPrimaryButton(dumpButton)
+                .setPrimaryButton(setAsDefaultButton)
                 .setSecondaryButton(deleteButton));
 
             return card.build();
@@ -4020,6 +3981,44 @@ Addon.BotSetup = {
                 .setPrimaryButton(acceptButton));
 
             return card.build();
+        },
+        _InputSection(data) {
+            const nameInput = CardService.newTextInput()
+                .setTitle('Bot Name')
+                .setFieldName('name')
+                .setValue(data.name || '');
+
+            const descInput = CardService.newTextInput()
+                .setTitle('Description')
+                .setFieldName('description')
+                .setValue(data.description || '')
+                .setMultiline(true);
+
+            const shortDescInput = CardService.newTextInput()
+                .setTitle('Short Description')
+                .setFieldName('shortDescription')
+                .setMultiline(true)
+                .setValue(data.shortDescription || '');
+
+            const picInput = CardService.newTextInput()
+                .setTitle('Profile Picture URL')
+                .setFieldName('profilePicture')
+                .setValue(data.profilePicture || '');
+
+            const commandsInput = CardService.newTextInput()
+                .setTitle('Commands (JSON array)')
+                .setFieldName('commands')
+                .setValue(JSON.stringify(data.commands || []))
+                .setMultiline(true);
+
+            return CardService.newCardSection()
+                .setCollapsible(true)
+                .setNumUncollapsibleWidgets(3)
+                .addWidget(nameInput)
+                .addWidget(shortDescInput)
+                .addWidget(descInput)
+                .addWidget(picInput)
+                .addWidget(commandsInput);
         }
     }
 };
