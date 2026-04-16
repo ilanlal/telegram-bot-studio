@@ -3684,72 +3684,71 @@ Addon.BotSetup = {
                 const shortDescription = formInput.shortDescription || '';
                 const commands = formInput.commands || '';
                 const geminiApiKey = Common.Modules.GeminiAgent.getApiKey();
-                const genrated = Common.Modules.GeminiApiClient.generateContent(
-                    geminiApiKey,
-                    Common.Modules.GeminiAgent.MODELS["gemini-3-flash-preview"],
-                    {
-                        "systemInstruction": {
-                            "parts": [
-                                {
-                                    "text": "You are a SEO expert and helpful translation assistant that provides suggestions for the name, description, and short description of a Telegram bot based on the given language. Your suggestions should aim to improve the bot's appeal and clarity for users in the specified language. Please ensure that your recommendations are concise, relevant, and tailored to the target audience. Consider cultural nuances and language-specific preferences when providing your suggestions."
-                                }
-                            ]
-                        },
-                        "generationConfig": {
-                            "responseMimeType": "application/json",
-                            "thinkingConfig": {
-                                "includeThoughts": false,
-                                "thinkingLevel": "LOW"
-                            },
-                            "maxOutputTokens": 1000,
-                            "temperature": 1.0,
-                            "responseJsonSchema": {
-                                "type": "object",
-                                "description": "Provides translations for the bot's name, description, and short description in the target language.",
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "description": "Name (0-64 characters)."
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "description": "Description (0-512 characters), which is shown in the chat with the bot if the chat is empty."
-                                    },
-                                    "shortDescription": {
-                                        "type": "string",
-                                        "description": "Short description (0-120 characters), which is shown on the bot's profile page and is sent together with the link when users share the bot."
-                                    },
-                                    "language_code": {
-                                        "type": "string",
-                                        "description": "Language code (ISO 639-1 two-letter code) for which the translations are provided."
-                                    }
-                                },
-                                "required": [
-                                    "name",
-                                    "description",
-                                    "shortDescription",
-                                    "language_code"
-                                ]
-                            }
-                        },
-                        "contents": [
+                const aiModel = Common.Modules.GeminiAgent.MODELS["gemini-3-flash-preview"];
+                const payload = {
+                    "systemInstruction": {
+                        "parts": [
                             {
-                                "role": "user",
-                                "parts": [
-                                    {
-                                        "text": "Given the following information about a Telegram bot, provide suggestions for improving the name, description, and short description based on the specified language.\n\nBot Information:\n- Current Name: [Current Bot Name]\n- Current Description: [Current Bot Description]\n- Current Short Description: [Current Bot Short Description]\n- Language: [Language Code]\n\nPlease analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
-                                    }
-                                ]
+                                "text": "You are a SEO expert and helpful translation assistant that provides suggestions for the name, description, and short description of a Telegram bot based on the given language. Your suggestions should aim to improve the bot's appeal and clarity for users in the specified language. Please ensure that your recommendations are concise, relevant, and tailored to the target audience. Consider cultural nuances and language-specific preferences when providing your suggestions."
                             }
                         ]
-                    }
-                );
-                // Placeholder for translation logic; integrate with Gemini API for suggestions
-                const suggestions = {}; // Implement translation using Gemini
-                const data = { suggestions, selectedLanguage: targetLanguage };
-                const card = Addon.BotSetup.View.SuggestedTranslationCard(data);
+                    },
+                    "generationConfig": {
+                        "responseMimeType": "application/json",
+                        "thinkingConfig": {
+                            "includeThoughts": false,
+                            "thinkingLevel": "LOW"
+                        },
+                        "maxOutputTokens": 1000,
+                        "temperature": 1.0,
+                        "responseJsonSchema": {
+                            "type": "object",
+                            "description": "Provides translations for the bot's name, description, and short description in the target language.",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name (0-64 characters)."
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Description (0-512 characters), which is shown in the chat with the bot if the chat is empty."
+                                },
+                                "shortDescription": {
+                                    "type": "string",
+                                    "description": "Short description (0-120 characters), which is shown on the bot's profile page and is sent together with the link when users share the bot."
+                                },
+                                "language_code": {
+                                    "type": "string",
+                                    "description": "Language code (ISO 639-1 two-letter code) for which the translations are provided."
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "description",
+                                "shortDescription",
+                                "language_code"
+                            ]
+                        }
+                    },
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [
+                                {
+                                    "text": "Given the following information about a Telegram bot, provide suggestions for improving the name, description, and short description based on the specified language.\n\nBot Information:\n- Current Name: [Current Bot Name]\n- Current Description: [Current Bot Description]\n- Current Short Description: [Current Bot Short Description]\n- Language: [Language Code]\n\nPlease analyze the provided information and offer recommendations to enhance the bot's appeal and clarity for users in the specified language."
+                                }
+                            ]
+                        }
+                    ]
+                };
+                const generatedContent = Common.Modules.GeminiApiClient
+                    .generateContent(geminiApiKey, aiModel, payload);
+
+                const suggestions = JSON.parse(generatedContent);
+                const card = Addon.BotSetup.View
+                    .SuggestedTranslationCard(suggestions);
                 return CardService.newActionResponseBuilder()
-                    .setNavigation(CardService.newNavigation().updateCard(card))
+                    .setNavigation(CardService.newNavigation().pushCard(card))
                     .build();
             } catch (error) {
                 // Log the error for debugging
@@ -3780,7 +3779,7 @@ Addon.BotSetup = {
                 // Profile picture update if supported
                 // Show success notification
                 return CardService.newActionResponseBuilder()
-                    .setNotification(CardService.newNotification().setText('Bot info updated successfully'))
+                    .setNavigation(CardService.newNavigation().popCard())
                     .build();
             } catch (error) {
                 return CardService.newActionResponseBuilder()
@@ -3915,7 +3914,7 @@ Addon.BotSetup = {
 
             return card.build();
         },
-        SuggestedTranslationCard: function (data = {}, selectedLanguage = '') {
+        SuggestedTranslationCard: function (translation = {}) {
             const card = CardService.newCardBuilder()
                 .setName(Addon.BotSetup.id + '-SuggestedTranslation')
                 .setHeader(CardService.newCardHeader()
@@ -3932,44 +3931,31 @@ Addon.BotSetup = {
 
             for (const code in Common.LANGUAGE_CODES) {
                 const lang = Common.LANGUAGE_CODES[code];
-                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, selectedLanguage === code);
+                targetLangDropdown.addItem(lang.name + ' (' + lang.nativeName + ')', code, translation.language_code === code);
             }
 
             card.addSection(CardService.newCardSection()
                 .addWidget(targetLangDropdown));
 
             // Section 2: Suggested inputs (populated if suggestions available)
-            if (data.suggestions) {
-                // Similar to Section 2, but for suggestions
-                const suggestedNameInput = CardService.newTextInput()
-                    .setTitle('Suggested Bot Name')
-                    .setFieldName('suggestedName')
-                    .setValue(data.suggestions.name || '');
-                // Add other suggested fields similarly
-                const suggestedDescInput = CardService.newTextInput()
-                    .setTitle('Suggested Description')
-                    .setFieldName('suggestedDescription')
-                    .setValue(data.suggestions.description || '');
-                const suggestedShortDescInput = CardService.newTextInput()
-                    .setTitle('Suggested Short Description')
-                    .setFieldName('suggestedShortDescription')
-                    .setValue(data.suggestions.shortDescription || '');
-                const suggestedPicInput = CardService.newTextInput()
-                    .setTitle('Suggested Profile Picture URL')
-                    .setFieldName('suggestedProfilePicture')
-                    .setValue(data.suggestions.profilePicture || '');
-                const suggestedCommandsInput = CardService.newTextInput()
-                    .setTitle('Suggested Commands (JSON array)')
-                    .setFieldName('suggestedCommands')
-                    .setValue(data.suggestions.commands || '[]')
-                    .setMultiline(true);
-                card.addSection(CardService.newCardSection()
-                    .addWidget(suggestedNameInput)
-                    .addWidget(suggestedDescInput)
-                    .addWidget(suggestedShortDescInput)
-                    .addWidget(suggestedPicInput)
-                    .addWidget(suggestedCommandsInput));
-            }
+            const suggestedNameInput = CardService.newTextInput()
+                .setTitle('Suggested Bot Name')
+                .setFieldName('suggestedName')
+                .setValue(translation.name || '');
+            // Add other suggested fields similarly
+            const suggestedDescInput = CardService.newTextInput()
+                .setTitle('Suggested Description')
+                .setFieldName('suggestedDescription')
+                .setValue(translation.description || '');
+            const suggestedShortDescInput = CardService.newTextInput()
+                .setTitle('Suggested Short Description')
+                .setFieldName('suggestedShortDescription')
+                .setValue(translation.shortDescription || '');
+
+            card.addSection(CardService.newCardSection()
+                .addWidget(suggestedNameInput)
+                .addWidget(suggestedDescInput)
+                .addWidget(suggestedShortDescInput));
 
             // Fixed Footer
             const acceptButton = CardService.newTextButton()
