@@ -1,4 +1,8 @@
 # Ignore files for clasp
 
 **/*.test.js
+**/*.part.js
 **/index.js
+**/dist/**
+**/node_modules/**
+**/spec/**
