@@ -11,7 +11,7 @@
 
 ### 1.1 Summary
 
-The `Common` object provides shared constants, input definitions, and utility modules for Telegram Bot Studio. It includes language codes, input property mappings, and modules for sheet operations, Telegram API interactions, Gemini AI, logging, and CRM. These modules enable consistent data handling, API calls, and integrations across plugins.
+The `Common` object provides shared constants, input definitions, and utility modules for Telegram Bot Studio. It includes language codes, input property mappings, and modules for sheet operations, Telegram API interactions, Gemini AI, and CRM. These modules enable consistent data handling, API calls, and integrations across plugins.
 
 ---
 
@@ -28,7 +28,7 @@ The `Common` object provides shared constants, input definitions, and utility mo
 ### 2.1 Acceptance Criteria
 
 - [x] `Common` object with LANGUAGE_CODES, INPUT mappings, and Modules.
-- [x] Modules: Sheet, TelegramBotClient, TelegramBotSettings, TerminalOutput, LoggerModel, GeminiApiClient, GeminiAgent, CRM.
+- [x] Modules: Sheet, TelegramBotClient, TelegramBotSettings, GeminiApiClient, GeminiAgent, CRM.
 - [x] Consistent property storage via PropertiesService.
 - [x] Error handling and logging in modules.
 - [x] API clients for Telegram and Gemini.

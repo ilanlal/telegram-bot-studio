@@ -54,14 +54,14 @@ The UI is built using Google Apps Script's CardService, rendering cards for bot 
 - **Section 1:** Language dropdown, Fetch button.
 - **Section 2:** Input fields (name, description, short description, profile picture, commands).
 - **Section 3:** Target language dropdown, Suggest button.
-- **Footer:** Accept Translation, Delete buttons.
+- **Footer:** Delete Bot Info button.
 
 **Suggested Translation Card (`Addon.BotSetup.View.SuggestedTranslationCard`):**
 
 - **Header:** Title: "Suggested Translation", Subtitle: "Review and accept suggested translations", Image: HAVE_A_NICE_DAY_IMG_URL.
 - **Section 1:** Target language dropdown.
 - **Section 2:** Suggested input fields (if available).
-- **Footer:** Accept Translation, Delete Translation buttons.
+- **Footer:** Accept Translation button.
 
 ---
 
@@ -69,7 +69,7 @@ The UI is built using Google Apps Script's CardService, rendering cards for bot 
 
 ### 4.1 Architecture (MVC Pattern)
 
-- **Controller:** `Addon.BotSetup.Controller` with methods like `PushHomeCard(e)`, `FetchCurrentInfo(e)`, `SuggestTranslation(e)`, `ExceptTranslation(e)`, `DeleteBotInfo(e)`, `ConfirmDeleteBotInfo(e)` for handling actions, API calls, and navigation.
+- **Controller:** `Addon.BotSetup.Controller` with methods like `PushHomeCard(e)`, `FetchCurrentInfo(e)`, `SuggestTranslation(e)`, `AcceptTranslation(e)`, `DeleteBotInfo(e)`, `ConfirmDeleteBotInfo(e)` for handling actions, API calls, and navigation.
 - **View:** `Addon.BotSetup.View` with `HomeCard(data)` and `SuggestedTranslationCard(data)` for building cards.
 - **Service/Model:** Integrates with `Common.Modules.TelegramBotClient` for API, `Common.Modules.GeminiApiClient` for translations, `PropertiesService` for tokens.
 
